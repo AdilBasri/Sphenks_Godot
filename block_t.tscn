@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://30bh24oxy3ca"]
+
+[ext_resource type="PackedScene" uid="uid://cfk5b1431kbbh" path="res://block.tscn" id="1_2vjh6"]
+
+[node name="Block_T" type="Node3D"]
+
+[node name="Node3D" parent="." instance=ExtResource("1_2vjh6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 1)
+
+[node name="Node3D2" parent="." instance=ExtResource("1_2vjh6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9958478, 2.0042455, 0.9756757)
+
+[node name="Node3D3" parent="." instance=ExtResource("1_2vjh6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.99719095, 0.99714744, 0.9976685)
+
+[node name="Node3D4" parent="." instance=ExtResource("1_2vjh6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9799056, 2.0019479, 0.97712296)
+
+[node name="Node3D5" parent="." instance=ExtResource("1_2vjh6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.010673523, 2.0037854, 0.99337685)

@@ -1,0 +1,283 @@
+[gd_scene load_steps=17 format=3 uid="uid://3dl60tfqpdc6"]
+
+[ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
+[ext_resource type="PackedScene" uid="uid://j5i3lyq5d560" path="res://dusman_base.tscn" id="2_bpxfr"]
+[ext_resource type="PackedScene" uid="uid://d23veo8v7bk73" path="res://block_l.tscn" id="3_qtiyh"]
+[ext_resource type="Material" uid="uid://d4cdqnvoal" path="res://Duvar_Mat.tres" id="4_x35je"]
+[ext_resource type="Material" uid="uid://b1b7d80hlubge" path="res://Masa_Mat.tres" id="5_b7lqx"]
+[ext_resource type="Texture2D" uid="uid://cukbjag4wpenh" path="res://gövde.png" id="6_sbm3a"]
+[ext_resource type="Texture2D" uid="uid://dbm6fthxxbfsc" path="res://kafa.png" id="7_btjas"]
+[ext_resource type="Texture2D" uid="uid://cui8cflob3lv4" path="res://kuyruk.png" id="8_5n3a3"]
+[ext_resource type="Texture2D" uid="uid://2okcgtn46p8r" path="res://sağ ön bacak.png" id="9_mc62c"]
+[ext_resource type="Texture2D" uid="uid://br7bt3uxmx34p" path="res://sol ön bacak.png" id="10_kmqc3"]
+[ext_resource type="Texture2D" uid="uid://cl5rcxcxraoiq" path="res://sağ arka bacak.png" id="11_hwr7g"]
+[ext_resource type="Texture2D" uid="uid://b7bw2ttvd8eqh" path="res://sol arka bacak.png" id="12_fi7dh"]
+
+[sub_resource type="Environment" id="Environment_jcgda"]
+background_mode = 1
+ambient_light_color = Color(0.22365656, 0.00049281074, 0.5446112, 1)
+ambient_light_energy = 0.1
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.1
+volumetric_fog_albedo = Color(0.3528652, 0.35286516, 0, 1)
+
+[sub_resource type="Animation" id="Animation_tk2t2"]
+resource_name = "Idle"
+length = 2.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(1, 1, 1), Vector3(1.05, 1.05, 1.05), Vector3(1, 1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(1, 2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0.019198623, 0), Vector3(0, 0.017453292, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Kafa:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 1, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(1, 0.99999964, 1), Vector3(1, 0.99999964, 1), Vector3(1, 0.99999964, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Kafa:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 1, 2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector3(2.6552234, 1.9606471, 0.27568436), Vector3(2.4714382, 2.0755577, 0.27248192), Vector3(2.6552234, 1.9606471, 0.27568436)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Kafa:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 5.5879354e-09, 0), Vector3(0, 5.5879354e-09, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_d7fq4"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Kafa:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 0.99999964, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Kafa:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(2.4714382, 2.0755577, 0.27248192)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Kafa:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 5.5879354e-09, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_jf740"]
+_data = {
+&"Idle": SubResource("Animation_tk2t2"),
+&"RESET": SubResource("Animation_d7fq4")
+}
+
+[node name="Meshy_AI__0118084653_texture" instance=ExtResource("1_1eqvi")]
+
+[node name="Node3D" type="Node3D" parent="." index="1"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Node3D" index="0"]
+environment = SubResource("Environment_jcgda")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Node3D" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.346385, 4.2418365, -0.91127586)
+light_color = Color(1, 0.53333336, 0, 1)
+light_energy = 0.506
+light_indirect_energy = 0.0
+shadow_enabled = true
+omni_range = 9.112
+omni_attenuation = 1.619
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="Node3D" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1685488, 1.9810246, -0.9999405)
+light_color = Color(1, 0.53333336, 0, 1)
+light_energy = 0.506
+light_indirect_energy = 3.474
+shadow_enabled = true
+omni_range = 5.876
+omni_attenuation = 2.05
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="Node3D" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.8713276, 1.8050138, -2.1330202)
+light_color = Color(1, 0.53333336, 0, 1)
+light_energy = 0.506
+light_indirect_energy = 3.474
+shadow_enabled = true
+omni_range = 3.62
+omni_attenuation = 2.05
+
+[node name="OmniLight3D4" type="OmniLight3D" parent="Node3D" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05851376, -0.076954484, 2.4256475)
+light_color = Color(1, 0.53333336, 0, 1)
+light_energy = 0.176
+shadow_enabled = true
+omni_range = 3.62
+omni_attenuation = 2.05
+
+[node name="Camera3D" type="Camera3D" parent="Node3D" index="5"]
+transform = Transform3D(0.9893921, -0.003130647, 0.015186816, 0, 1.3093083, 0.269904, -0.036113225, -0.46522334, 2.2568054, 0.06307815, 1.2761863, 2.4823804)
+
+[node name="Dusman_Base" parent="Node3D" index="6" instance=ExtResource("2_bpxfr")]
+transform = Transform3D(0.12, 0, 0, 0, 0.12, 0, 0, 0, 0.12, -0.114132345, 0.06871408, -1.8007421)
+
+[node name="Govde" parent="Node3D/Dusman_Base" index="0"]
+modulate = Color(1, 1, 0.36078432, 1)
+alpha_cut = 2
+alpha_scissor_threshold = 1.0
+
+[node name="OmniLight3D5" type="OmniLight3D" parent="Node3D" index="7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.37191248, -1.9833457)
+light_color = Color(0.35047063, 0.24055037, 0.9999998, 1)
+omni_range = 1.75
+omni_attenuation = -1.849
+
+[node name="Block_L" parent="." index="2" instance=ExtResource("3_qtiyh")]
+transform = Transform3D(0.2, 0, 0, 0, 0.17966221, 0.057198994, 0, -0.048140332, 0.21346961, -0.74137366, 0.4313832, 1.3150665)
+masa_yuksekligi = 1.0
+
+[node name="MezarOdasi" type="CSGCombiner3D" parent="." index="3"]
+material_override = ExtResource("4_x35je")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="MezarOdasi" index="0"]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -0.48000813, -4.7683716e-07, -1.8614635)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="MezarOdasi" index="1"]
+transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, -0.15582418, 0.6819415, -1.359425)
+operation = 2
+
+[node name="Zemin" type="CSGBox3D" parent="MezarOdasi" index="2"]
+transform = Transform3D(20, 0, 0, 0, 0.5, 0, 0, 0, 20, 0, -0.85875946, 0)
+material_override = ExtResource("5_b7lqx")
+material_overlay = ExtResource("4_x35je")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="MezarOdasi" index="3"]
+transform = Transform3D(0.5, 0, 0, 0, 2, 0, 0, 0, 0.5, 0, -1.197927, 0)
+
+[node name="Kedi_Yuvasi" type="Node3D" parent="." index="4"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, -1.9071434, -0.22216916, 0.076025724)
+
+[node name="Kedi_Ana" type="Sprite3D" parent="Kedi_Yuvasi" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2905478, -0.008704543, -0.15974319)
+billboard = 2
+texture = ExtResource("6_sbm3a")
+
+[node name="Kafa" type="Sprite3D" parent="Kedi_Yuvasi/Kedi_Ana" index="0"]
+transform = Transform3D(1, 0, 5.5879354e-09, 0, 0.99999964, 0, -5.5879354e-09, 0, 1, 2.4714382, 2.0755577, 0.27248192)
+billboard = 2
+texture = ExtResource("7_btjas")
+
+[node name="Kuyruk" type="Sprite3D" parent="Kedi_Yuvasi/Kedi_Ana" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.410966, 2.1607373, 0)
+billboard = 2
+texture = ExtResource("8_5n3a3")
+
+[node name="Sağ_Ön_Bacak" type="Sprite3D" parent="Kedi_Yuvasi/Kedi_Ana" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2209759, -2.0684204, 0.70786095)
+billboard = 2
+texture = ExtResource("9_mc62c")
+
+[node name="Sol_Ön_Bacak" type="Sprite3D" parent="Kedi_Yuvasi/Kedi_Ana" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2100444, -2.2461438, 0)
+billboard = 2
+texture = ExtResource("10_kmqc3")
+
+[node name="Sağ_Arka_Bacak" type="Sprite3D" parent="Kedi_Yuvasi/Kedi_Ana" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1526184, -0.6406708, 1.1871147)
+billboard = 2
+texture = ExtResource("11_hwr7g")
+
+[node name="Sol_Arka_Bacak" type="Sprite3D" parent="Kedi_Yuvasi/Kedi_Ana" index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8576384, -1.9923983, 0)
+billboard = 2
+texture = ExtResource("12_fi7dh")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Kedi_Yuvasi/Kedi_Ana" index="6"]
+libraries = {
+&"": SubResource("AnimationLibrary_jf740")
+}
+autoplay = "Idle"
+
+[editable path="Node3D/Dusman_Base"]

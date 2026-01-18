@@ -1,0 +1,19 @@
+# .gitignore dosyası içeriği:
+
+# Godot 4+ specific ignores
+.godot/
+.tmp/
+
+# Imported assets (otomatik üretilen dosyalar)
+*.import
+
+# Export builds (oyunu .exe yapınca oluşan klasör)
+export/
+
+# Mono/C# (Eğer C# kullanırsan diye)
+.mono/
+.vscode/
+
+# Windows/Mac gereksiz dosyaları
+.DS_Store
+Thumbs.db
