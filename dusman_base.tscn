@@ -1,12 +1,16 @@
-[gd_scene load_steps=7 format=3 uid="uid://j5i3lyq5d560"]
+[gd_scene load_steps=8 format=3 uid="uid://j5i3lyq5d560"]
 
 [ext_resource type="Texture2D" uid="uid://voqebcvvs771" path="res://1.png" id="1_cyvw4"]
+[ext_resource type="Texture2D" uid="uid://dhayshxhd2aie" path="res://Kedi_Normal.png" id="2_rxl47"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cyvw4"]
 transparency = 1
 blend_mode = 1
 shading_mode = 0
 albedo_texture = ExtResource("1_cyvw4")
+
+[sub_resource type="Animation" id="Animation_ggd08"]
+resource_name = "Hit"
 
 [sub_resource type="Animation" id="Animation_cyvw4"]
 resource_name = "Idle"
@@ -24,6 +28,18 @@ tracks/0/keys = {
 "update": 0,
 "values": [Vector3(0, 0, 0), Vector3(0, 0.83237267, 0), Vector3(0, 0, 0)]
 }
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../../KediAna:texture")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("2_rxl47")]
+}
 
 [sub_resource type="Animation" id="Animation_rxl47"]
 length = 0.001
@@ -39,9 +55,18 @@ tracks/0/keys = {
 "update": 0,
 "values": [Vector3(0, 0, 0)]
 }
-
-[sub_resource type="Animation" id="Animation_ggd08"]
-resource_name = "Hit"
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../../KediAna:texture")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("2_rxl47")]
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ggd08"]
 _data = {
