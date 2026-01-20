@@ -1,25 +1,34 @@
-[gd_scene load_steps=17 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=24 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="PackedScene" uid="uid://d23veo8v7bk73" path="res://block_l.tscn" id="3_qtiyh"]
+[ext_resource type="Script" uid="uid://bnmxktemkijbe" path="res://BlokSurukle.gd" id="4_b7lqx"]
 [ext_resource type="Material" uid="uid://d4cdqnvoal" path="res://Duvar_Mat.tres" id="4_x35je"]
 [ext_resource type="Material" uid="uid://b1b7d80hlubge" path="res://Masa_Mat.tres" id="5_b7lqx"]
 [ext_resource type="Texture2D" uid="uid://dhayshxhd2aie" path="res://Kedi_Normal.png" id="6_1b6ct"]
 [ext_resource type="Script" uid="uid://cqqrxhofxtxw6" path="res://KediEtkilesim.gd" id="7_ouiq0"]
 [ext_resource type="Texture2D" uid="uid://ogelag1lnuju" path="res://Boss.png" id="8_gqcgv"]
-[ext_resource type="Texture2D" uid="uid://b2nhri0gq2vpk" path="res://KediTutulan.png" id="8_p4fw5"]
+[ext_resource type="Texture2D" uid="uid://bcddf7y4a2g2y" path="res://KediTutulan.png" id="8_p4fw5"]
 [ext_resource type="Script" uid="uid://b816o3munmjog" path="res://BossEfekt.gd" id="9_h2n1q"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Sphenks.gdshader" id="10_h2n1q"]
 [ext_resource type="Script" uid="uid://bmnvsawx0sym2" path="res://DiyalogYoneticisi.gd" id="11_1eqvi"]
 [ext_resource type="Shader" uid="uid://bdknl4my2yii6" path="res://Shader.gdshader" id="11_48she"]
+[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://PressStart2P-Regular.ttf" id="13_bpxfr"]
+[ext_resource type="Script" uid="uid://pybg1e340qyg" path="res://GridYoneticisi.gd" id="14_qtiyh"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_qtiyh"]
+points = PackedVector3Array(0.01, 0.01, 0.0016615901, 0.01, -0.01, 0.0016615901, 0.01, 0.01, -0.0016615901, -0.01, 0.01, 0.0016615901, 0.01, -0.01, -0.0016615901, -0.01, -0.01, 0.0016615901, -0.01, 0.01, -0.0016615901, -0.01, -0.01, -0.0016615901)
 
 [sub_resource type="Environment" id="Environment_jcgda"]
 background_mode = 1
+background_energy_multiplier = 0.0
 ambient_light_color = Color(0.22365656, 0.00049281074, 0.5446112, 1)
-ambient_light_energy = 0.1
+ambient_light_energy = 16.0
 volumetric_fog_enabled = true
 volumetric_fog_density = 0.1
 volumetric_fog_albedo = Color(0.3528652, 0.35286516, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b7lqx"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_p4fw5"]
 size = Vector3(4.3583374, 2.0308838, 1)
@@ -38,9 +47,23 @@ shader = ExtResource("11_48she")
 shader_parameter/renk = Color(0.1, 0, 0, 0.8)
 shader_parameter/hiz = 0.2
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x35je"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(1, 1, 0, 0.003921569)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_bpxfr"]
+material = SubResource("StandardMaterial3D_x35je")
+
 [node name="Meshy_AI__0118084653_texture" instance=ExtResource("1_1eqvi")]
 
-[node name="Node3D" type="Node3D" parent="." index="1"]
+[node name="Masa_Fizik" type="StaticBody3D" parent="." index="0"]
+transform = Transform3D(100, 0, 0, 0, -4.371139e-06, -100, 0, 100, -4.371139e-06, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Masa_Fizik" index="0"]
+shape = SubResource("ConvexPolygonShape3D_qtiyh")
+
+[node name="Node3D" type="Node3D" parent="." index="2"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Node3D" index="0"]
 environment = SubResource("Environment_jcgda")
@@ -82,6 +105,7 @@ omni_attenuation = 2.05
 
 [node name="Camera3D" type="Camera3D" parent="Node3D" index="5"]
 transform = Transform3D(0.9893921, -0.003130647, 0.015186816, 0, 1.3093083, 0.269904, -0.036113225, -0.46522334, 2.2568054, 0.06307815, 1.2761863, 2.4823804)
+current = true
 
 [node name="OmniLight3D5" type="OmniLight3D" parent="Node3D" index="6"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.37191248, -1.9833457)
@@ -89,11 +113,22 @@ light_color = Color(0.35047063, 0.24055037, 0.9999998, 1)
 omni_range = 1.75
 omni_attenuation = -1.849
 
-[node name="Block_L" parent="." index="2" instance=ExtResource("3_qtiyh")]
+[node name="Block_L" parent="." index="3" node_paths=PackedStringArray("grid") instance=ExtResource("3_qtiyh")]
 transform = Transform3D(0.2, 0, 0, 0, 0.17966221, 0.057198994, 0, -0.048140332, 0.21346961, -0.74137366, 0.4313832, 1.3150665)
-masa_yuksekligi = 1.0
+grid = NodePath("../GridYoneticisi")
+hayalet_mat = SubResource("StandardMaterial3D_b7lqx")
+footprint = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 1), Vector2i(0, 2), Vector2i(1, 0)])
+hover_y_offset = 0.5
+yerlesme_yuksekligi = 0.1
+yatma_acisi = Vector3(180, 0, 0)
 
-[node name="MezarOdasi" type="CSGCombiner3D" parent="." index="3"]
+[node name="Area3D" parent="Block_L" index="0"]
+collision_layer = 2
+
+[node name="Gorsel" parent="Block_L" index="1"]
+script = ExtResource("4_b7lqx")
+
+[node name="MezarOdasi" type="CSGCombiner3D" parent="." index="4"]
 material_override = ExtResource("4_x35je")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="MezarOdasi" index="0"]
@@ -111,13 +146,14 @@ material_overlay = ExtResource("4_x35je")
 [node name="CSGBox3D3" type="CSGBox3D" parent="MezarOdasi" index="3"]
 transform = Transform3D(0.5, 0, 0, 0, 2, 0, 0, 0, 0.5, 0, -1.197927, 0)
 
-[node name="Yeni_Kedi" type="Sprite3D" parent="." index="4"]
+[node name="Yeni_Kedi" type="Sprite3D" parent="." index="5" node_paths=PackedStringArray("diyalog_yoneticisi")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.4053817, -0.19308585, 0.0020349026)
 billboard = 2
 alpha_cut = 1
 texture_filter = 0
 texture = ExtResource("6_1b6ct")
 script = ExtResource("7_ouiq0")
+diyalog_yoneticisi = NodePath("../Boss/CanvasLayer/DiyalogKatmani")
 normal_hal = ExtResource("6_1b6ct")
 uzayan_hal = ExtResource("8_p4fw5")
 
@@ -127,7 +163,7 @@ uzayan_hal = ExtResource("8_p4fw5")
 transform = Transform3D(0.99999976, 0, 0, 0, 0.99999976, 0, 0, 0, 0.99999976, 0.033602238, -0.16142029, 0)
 shape = SubResource("BoxShape3D_p4fw5")
 
-[node name="Boss" type="Sprite3D" parent="." index="5"]
+[node name="Boss" type="Sprite3D" parent="." index="6"]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, -1.2060633)
 billboard = 2
 alpha_cut = 1
@@ -152,6 +188,7 @@ mouse_filter = 2
 
 [node name="DiyalogKatmani" type="CanvasLayer" parent="Boss/CanvasLayer" index="1"]
 script = ExtResource("11_1eqvi")
+ozel_font = ExtResource("13_bpxfr")
 
 [node name="Panel" type="Panel" parent="Boss/CanvasLayer/DiyalogKatmani" index="0"]
 material = SubResource("ShaderMaterial_1eqvi")
@@ -164,19 +201,24 @@ offset_top = -155.0
 offset_right = 102.0
 grow_horizontal = 0
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="KonusmaMetni" type="RichTextLabel" parent="Boss/CanvasLayer/DiyalogKatmani/Panel" index="0"]
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 600.0
+offset_bottom = 200.0
+mouse_filter = 2
+theme_override_colors/default_color = Color(1, 1, 1, 1)
+theme_override_fonts/normal_font = ExtResource("13_bpxfr")
 bbcode_enabled = true
+scroll_active = false
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Boss/CanvasLayer/DiyalogKatmani/Panel" index="1"]
 layout_mode = 0
-offset_left = 114.0
-offset_top = 327.0
-offset_right = 154.0
-offset_bottom = 367.0
+offset_left = 244.0
+offset_top = 478.0
+offset_right = 284.0
+offset_bottom = 518.0
 
 [node name="Button" type="Button" parent="Boss/CanvasLayer/DiyalogKatmani/Panel/VBoxContainer" index="0"]
 layout_mode = 2
@@ -184,4 +226,27 @@ layout_mode = 2
 [node name="Button2" type="Button" parent="Boss/CanvasLayer/DiyalogKatmani/Panel/VBoxContainer" index="1"]
 layout_mode = 2
 
+[node name="Label3D" type="Label3D" parent="." index="7"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2689905, 0.39843994, 0)
+billboard = 2
+modulate = Color(0.9424361, 0, 0.18018493, 1)
+text = "Beni Tut!"
+font_size = 52
+
+[node name="GridYoneticisi" type="Node3D" parent="." index="8" node_paths=PackedStringArray("masa_node")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.018025577, 0, -0.025204837)
+script = ExtResource("14_qtiyh")
+hucre_boyutu = 0.3
+masa_node = NodePath("../Masa_Fizik")
+
+[node name="Kursor" type="MeshInstance3D" parent="GridYoneticisi" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.007357359, 0, 0.037187576)
+mesh = SubResource("PlaneMesh_bpxfr")
+
 [connection signal="input_event" from="Yeni_Kedi/Area3D" to="Yeni_Kedi" method="_on_area_3d_input_event"]
+
+[editable path="Block_L"]
+[editable path="Block_L/Hayalet/Node3D"]
+[editable path="Block_L/Hayalet/Node3D2"]
+[editable path="Block_L/Hayalet/Node3D3"]
+[editable path="Block_L/Hayalet/Node3D4"]

@@ -15,6 +15,10 @@ run/main_scene="uid://3dl60tfqpdc6"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
+[dotnet]
+
+project/assembly_name="Sphenks"
+
 [input]
 
 ui_rotate={

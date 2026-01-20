@@ -1,25 +1,17 @@
 [gd_scene load_steps=5 format=3 uid="uid://d23veo8v7bk73"]
 
-[ext_resource type="Script" uid="uid://bljtj7l7fh514" path="res://BlokParcasi.gd" id="1_l4e7p"]
+[ext_resource type="Script" uid="uid://bnmxktemkijbe" path="res://BlokSurukle.gd" id="1_l4e7p"]
 [ext_resource type="PackedScene" uid="uid://cfk5b1431kbbh" path="res://block.tscn" id="1_qvrk0"]
 [ext_resource type="Material" uid="uid://d2gy67gtklkkk" path="res://Hayalet_Mat.tres" id="3_0rorx"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_0rorx"]
 size = Vector3(2.0688477, 2.8617554, 1)
 
-[node name="Block_L" type="Node3D"]
+[node name="Block_L" type="Node3D" node_paths=PackedStringArray("hayalet")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -0.706, 0.521, 1.524)
 script = ExtResource("1_l4e7p")
-masa_yuksekligi = 0.8
-zemin_yuksekligi = null
-suruklenme_hizi = null
-tilt_miktari = null
-grid_boyutu = 0.2
-golge_duzeltme_acisi = null
-grid_min_x = -1
-grid_max_x = 1
-grid_min_z = -1
-grid_max_z = 1
+hayalet = NodePath("Hayalet")
+footprint = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(0, 2)])
 
 [node name="Area3D" type="Area3D" parent="."]
 
@@ -30,39 +22,37 @@ shape = SubResource("BoxShape3D_0rorx")
 [node name="Gorsel" type="Node3D" parent="."]
 
 [node name="Node3D" parent="Gorsel" instance=ExtResource("1_qvrk0")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.023934126, 0, 0.08018613)
 
 [node name="Node3D2" parent="Gorsel" instance=ExtResource("1_qvrk0")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.022610962, 0.9965236, 0.067976385)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="Node3D3" parent="Gorsel" instance=ExtResource("1_qvrk0")]
-transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 1.0271878, 0.017005205, 0.11306524)
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 1, 0, 0)
 
 [node name="Node3D4" parent="Gorsel" instance=ExtResource("1_qvrk0")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.019450307, 2.0033598, 0.06451091)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 
 [node name="Hayalet" type="Node3D" parent="."]
 
 [node name="Node3D" parent="Hayalet" instance=ExtResource("1_qvrk0")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.023934126, 0, 0.08018613)
 
 [node name="MeshInstance3D" parent="Hayalet/Node3D/Run_Tasi" index="1"]
 surface_material_override/0 = ExtResource("3_0rorx")
 
 [node name="Node3D2" parent="Hayalet" instance=ExtResource("1_qvrk0")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.022610962, 0.9965236, 0.067976385)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 
 [node name="MeshInstance3D" parent="Hayalet/Node3D2/Run_Tasi" index="1"]
 surface_material_override/0 = ExtResource("3_0rorx")
 
 [node name="Node3D3" parent="Hayalet" instance=ExtResource("1_qvrk0")]
-transform = Transform3D(1, 0, 0, 0, 0.9999998, -2.9802322e-08, 0, 2.9802322e-08, 0.9999998, 1.0272441, 0.027239323, 0.12485552)
+transform = Transform3D(1, 0, 0, 0, 0.9999998, -2.9802322e-08, 0, 2.9802322e-08, 0.9999998, 1, 0, 0)
 
 [node name="MeshInstance3D" parent="Hayalet/Node3D3/Run_Tasi" index="1"]
 surface_material_override/0 = ExtResource("3_0rorx")
 
 [node name="Node3D4" parent="Hayalet" instance=ExtResource("1_qvrk0")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.019450307, 2.0033598, 0.06451091)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 
 [node name="MeshInstance3D" parent="Hayalet/Node3D4/Run_Tasi" index="1"]
 surface_material_override/0 = ExtResource("3_0rorx")
