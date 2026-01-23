@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=21 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="PackedScene" uid="uid://d23veo8v7bk73" path="res://block_l.tscn" id="3_qtiyh"]
@@ -8,7 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://dhayshxhd2aie" path="res://Kedi_Normal.png" id="6_1b6ct"]
 [ext_resource type="Script" uid="uid://cqqrxhofxtxw6" path="res://KediEtkilesim.gd" id="7_ouiq0"]
 [ext_resource type="Texture2D" uid="uid://ogelag1lnuju" path="res://Boss.png" id="8_gqcgv"]
-[ext_resource type="Texture2D" uid="uid://bcddf7y4a2g2y" path="res://KediTutulan.png" id="8_p4fw5"]
+[ext_resource type="Texture2D" uid="uid://b2nhri0gq2vpk" path="res://KediTutulan.png" id="8_p4fw5"]
 [ext_resource type="Script" uid="uid://b816o3munmjog" path="res://BossEfekt.gd" id="9_h2n1q"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Sphenks.gdshader" id="10_h2n1q"]
 [ext_resource type="Script" uid="uid://bmnvsawx0sym2" path="res://DiyalogYoneticisi.gd" id="11_1eqvi"]
@@ -28,8 +28,6 @@ volumetric_fog_enabled = true
 volumetric_fog_density = 0.1
 volumetric_fog_albedo = Color(0.3528652, 0.35286516, 0, 1)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b7lqx"]
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_p4fw5"]
 size = Vector3(4.3583374, 2.0308838, 1)
 
@@ -47,21 +45,19 @@ shader = ExtResource("11_48she")
 shader_parameter/renk = Color(0.1, 0, 0, 0.8)
 shader_parameter/hiz = 0.2
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x35je"]
-transparency = 1
-shading_mode = 0
-albedo_color = Color(1, 1, 0, 0.003921569)
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_bpxfr"]
-material = SubResource("StandardMaterial3D_x35je")
-
 [node name="Meshy_AI__0118084653_texture" instance=ExtResource("1_1eqvi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.031485796, 0, 0)
 
 [node name="Masa_Fizik" type="StaticBody3D" parent="." index="0"]
 transform = Transform3D(100, 0, 0, 0, -4.371139e-06, -100, 0, 100, -4.371139e-06, 0, 0, 0)
+visible = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Masa_Fizik" index="0"]
+visible = false
 shape = SubResource("ConvexPolygonShape3D_qtiyh")
+
+[node name="Mesh_0" parent="." index="1"]
+visible = false
 
 [node name="Node3D" type="Node3D" parent="." index="2"]
 
@@ -114,16 +110,18 @@ omni_range = 1.75
 omni_attenuation = -1.849
 
 [node name="Block_L" parent="." index="3" node_paths=PackedStringArray("grid") instance=ExtResource("3_qtiyh")]
-transform = Transform3D(0.2, 0, 0, 0, 0.17966221, 0.057198994, 0, -0.048140332, 0.21346961, -0.74137366, 0.4313832, 1.3150665)
+transform = Transform3D(0.24, 0, 0, 0, 0.23182221, 0.06211654, 0, -0.06211654, 0.23182221, -0.74137366, 0.4313832, 1.3150665)
 grid = NodePath("../GridYoneticisi")
-hayalet_mat = SubResource("StandardMaterial3D_b7lqx")
-footprint = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 1), Vector2i(0, 2), Vector2i(1, 0)])
-hover_y_offset = 0.5
-yerlesme_yuksekligi = 0.1
-yatma_acisi = Vector3(180, 0, 0)
+footprint = Array[Vector2i]([Vector2i(0, 0)])
+hover_y_offset = 0.08
+yerlesme_yuksekligi = 0.12
 
 [node name="Area3D" parent="Block_L" index="0"]
 collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape3D" parent="Block_L/Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, -1.1920932e-07, 0, 1.1920932e-07, 1, 0.46710467, 0.99362993, 0.4181919)
 
 [node name="Gorsel" parent="Block_L" index="1"]
 script = ExtResource("4_b7lqx")
@@ -233,15 +231,10 @@ modulate = Color(0.9424361, 0, 0.18018493, 1)
 text = "Beni Tut!"
 font_size = 52
 
-[node name="GridYoneticisi" type="Node3D" parent="." index="8" node_paths=PackedStringArray("masa_node")]
+[node name="GridYoneticisi" type="Node3D" parent="." index="8"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.018025577, 0, -0.025204837)
 script = ExtResource("14_qtiyh")
-hucre_boyutu = 0.3
-masa_node = NodePath("../Masa_Fizik")
-
-[node name="Kursor" type="MeshInstance3D" parent="GridYoneticisi" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.007357359, 0, 0.037187576)
-mesh = SubResource("PlaneMesh_bpxfr")
+hucre_boyutu = 0.253
 
 [connection signal="input_event" from="Yeni_Kedi/Area3D" to="Yeni_Kedi" method="_on_area_3d_input_event"]
 

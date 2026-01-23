@@ -10,13 +10,12 @@ class_name BlokSurukle
 # --- AYARLAR ---
 @export_group("Ayarlar")
 @export var footprint: Array[Vector2i] = [Vector2i(0,0)]
-@export var hover_y_offset: float = 1.0 # Elindeyken ne kadar yukarıda dursun?
+@export var hover_y_offset: float = 0.5 # Elindeyken yükseklik
 @export var kilitlenince_tuket: bool = true
 
 @export_group("Duruş ve Hizalama")
-# Blok masaya konduğunda yerden ne kadar yukarıda dursun?
-# Blok masanın içine giriyorsa bunu 0.5, 1.0 gibi artır.
-@export var yerlesme_yuksekligi: float = 0.5 
+# Blok küçüldüğü için bunu 0.0 yaptık!
+@export var yerlesme_yuksekligi: float = 0.0 
 
 # Blok masaya konduğunda nasıl yatsın?
 @export var yatma_acisi: Vector3 = Vector3(-90, 0, 0) 
@@ -37,7 +36,6 @@ func _ready() -> void:
 	orjinal_scale = scale
 	baslangic_global_pos = global_position
 	
-	# Oyun başlarkenki duruşu kaydet
 	dik_rotasyon = global_transform.basis.get_rotation_quaternion()
 	
 	if hayalet: hayalet.visible = false
@@ -66,9 +64,9 @@ func _yakala() -> void:
 	tutuluyor = true
 	son_hucre = null
 	
+	# Artık exclude_rids kullanmamıza gerek yok ama hata vermesin diye boş geçiyoruz
 	if grid:
 		grid.release_owner(self)
-		grid.set_exclude_rids(_alt_collision_rids())
 
 	if hayalet: hayalet.visible = true
 
@@ -79,21 +77,20 @@ func _yakala() -> void:
 	global_transform.basis = Basis(dik_rotasyon).scaled(orjinal_scale)
 	_gorsel_mouse_takip()
 
-# --- FARE TAKİBİ ---
+# --- FARE TAKİBİ (Matematiksel Düzlem) ---
 func _gorsel_mouse_takip() -> void:
 	var cam = get_viewport().get_camera_3d()
 	if not cam: return
 	
 	var fare_pos = get_viewport().get_mouse_position()
 	
-	# Masanın açısını boşver, her zaman YER ÇEKİMİNE ZIT (Vector3.UP) hareket et.
-	var hareket_normali = Vector3.UP
-	
+	# Masanın yüksekliğini baz al
 	var zemin_yuksekligi = 0.0
 	if grid:
 		zemin_yuksekligi = grid.global_position.y
 	
-	var hareket_duzlemi = Plane(hareket_normali, zemin_yuksekligi + hover_y_offset)
+	# Mouse takibi için hayali bir düzlem oluştur
+	var hareket_duzlemi = Plane(Vector3.UP, zemin_yuksekligi + hover_y_offset)
 	
 	var from = cam.project_ray_origin(fare_pos)
 	var dir = cam.project_ray_normal(fare_pos)
@@ -107,6 +104,9 @@ func _gorsel_mouse_takip() -> void:
 func _hayalet_guncelle() -> void:
 	if not grid or not hayalet: return
 
+	# Hayaletin boyutunu daima ana blokla eşitle
+	hayalet.scale = Vector3.ONE 
+
 	var vwp = grid.get_masa_world_noktasi()
 	if vwp == null:
 		hayalet.visible = false; son_hucre = null; return
@@ -115,20 +115,18 @@ func _hayalet_guncelle() -> void:
 	var world_p = vwp as Vector3
 	var vcell = grid.world_to_cell(world_p)
 	
-	# Hayaleti yatır
-	hayalet.global_rotation = grid.masa_node.global_rotation 
+	# DÜZELTME: static_body yerine direkt grid'in rotasyonunu al
+	hayalet.global_rotation = grid.global_rotation
+	
 	hayalet.rotate_object_local(Vector3.RIGHT, deg_to_rad(yatma_acisi.x))
 	hayalet.rotate_object_local(Vector3.UP, deg_to_rad(yatma_acisi.y))
 	hayalet.rotate_object_local(Vector3.FORWARD, deg_to_rad(yatma_acisi.z))
 	
-	# --- DÜZELTME: Kaldırma yönünü Vector3.UP (Dünya Yukarısı) yaptık ---
 	var kaldirma_vektoru = Vector3.UP * yerlesme_yuksekligi
 
 	if vcell == null:
 		son_hucre = null
 		_set_hayalet_color(false)
-		# Grid dışındayken mouse hizasında kalsın
-		# Burada da Vector3.UP kullanıyoruz ki havada dursun
 		hayalet.global_position = world_p + (Vector3.UP * 0.1)
 		return
 
@@ -150,7 +148,6 @@ func _set_hayalet_color(ok: bool) -> void:
 # --- BIRAKMA ---
 func _birak() -> void:
 	tutuluyor = false
-	if grid: grid.clear_exclude_rids()
 
 	var basarili = false
 	
@@ -162,16 +159,14 @@ func _birak() -> void:
 			reparent(grid, true)
 			scale = orjinal_scale
 			
-			# Yatış pozisyonu
-			global_rotation = grid.masa_node.global_rotation
+			# DÜZELTME: static_body yerine direkt grid rotasyonu
+			global_rotation = grid.global_rotation
+			
 			rotate_object_local(Vector3.RIGHT, deg_to_rad(yatma_acisi.x))
 			rotate_object_local(Vector3.UP, deg_to_rad(yatma_acisi.y))
 			rotate_object_local(Vector3.FORWARD, deg_to_rad(yatma_acisi.z))
 			
-			# Yerleşme
 			var center = grid.cell_center_world(cell)
-			
-			# --- DÜZELTME: Yerleştirirken de Vector3.UP kullanıyoruz ---
 			global_position = center + (Vector3.UP * yerlesme_yuksekligi)
 			
 			grid.occupy(cell, footprint, self)
@@ -190,9 +185,3 @@ func _eve_don() -> void:
 	
 	global_position = baslangic_global_pos
 	global_transform.basis = Basis(dik_rotasyon).scaled(orjinal_scale)
-
-func _alt_collision_rids() -> Array[RID]:
-	var rids: Array[RID] = []
-	var area = find_child("Area3D", true, false)
-	if area: rids.append(area.get_rid())
-	return rids
