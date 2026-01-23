@@ -1,6 +1,7 @@
-[gd_scene load_steps=21 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=27 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
+[ext_resource type="Script" uid="uid://1iad5uthhl45" path="res://KameraKontrol.gd" id="2_kmqc3"]
 [ext_resource type="PackedScene" uid="uid://d23veo8v7bk73" path="res://block_l.tscn" id="3_qtiyh"]
 [ext_resource type="Script" uid="uid://bnmxktemkijbe" path="res://BlokSurukle.gd" id="4_b7lqx"]
 [ext_resource type="Material" uid="uid://d4cdqnvoal" path="res://Duvar_Mat.tres" id="4_x35je"]
@@ -15,6 +16,11 @@
 [ext_resource type="Shader" uid="uid://bdknl4my2yii6" path="res://Shader.gdshader" id="11_48she"]
 [ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://PressStart2P-Regular.ttf" id="13_bpxfr"]
 [ext_resource type="Script" uid="uid://pybg1e340qyg" path="res://GridYoneticisi.gd" id="14_qtiyh"]
+[ext_resource type="PackedScene" uid="uid://bgolektkymgbc" path="res://block_kare.tscn" id="16_b7lqx"]
+[ext_resource type="PackedScene" uid="uid://cj7t4ncxfa3jh" path="res://block_cubuk.tscn" id="17_sbm3a"]
+[ext_resource type="PackedScene" uid="uid://30bh24oxy3ca" path="res://block_t.tscn" id="18_btjas"]
+[ext_resource type="PackedScene" uid="uid://c427aja5jykgk" path="res://block_z.tscn" id="19_5n3a3"]
+[ext_resource type="PackedScene" uid="uid://bq8mjuugdsa8p" path="res://block_tek.tscn" id="20_mc62c"]
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_qtiyh"]
 points = PackedVector3Array(0.01, 0.01, 0.0016615901, 0.01, -0.01, 0.0016615901, 0.01, 0.01, -0.0016615901, -0.01, 0.01, 0.0016615901, 0.01, -0.01, -0.0016615901, -0.01, -0.01, 0.0016615901, -0.01, 0.01, -0.0016615901, -0.01, -0.01, -0.0016615901)
@@ -102,6 +108,7 @@ omni_attenuation = 2.05
 [node name="Camera3D" type="Camera3D" parent="Node3D" index="5"]
 transform = Transform3D(0.9893921, -0.003130647, 0.015186816, 0, 1.3093083, 0.269904, -0.036113225, -0.46522334, 2.2568054, 0.06307815, 1.2761863, 2.4823804)
 current = true
+script = ExtResource("2_kmqc3")
 
 [node name="OmniLight3D5" type="OmniLight3D" parent="Node3D" index="6"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.37191248, -1.9833457)
@@ -112,7 +119,8 @@ omni_attenuation = -1.849
 [node name="Block_L" parent="." index="3" node_paths=PackedStringArray("grid") instance=ExtResource("3_qtiyh")]
 transform = Transform3D(0.24, 0, 0, 0, 0.23182221, 0.06211654, 0, -0.06211654, 0.23182221, -0.74137366, 0.4313832, 1.3150665)
 grid = NodePath("../GridYoneticisi")
-footprint = Array[Vector2i]([Vector2i(0, 0)])
+tekli_blok_sahnesi = ExtResource("20_mc62c")
+footprint = Array[Vector2i]([Vector2i(0, -2), Vector2i(0, -1), Vector2i(0, 0), Vector2i(1, 0)])
 hover_y_offset = 0.08
 yerlesme_yuksekligi = 0.12
 
@@ -235,6 +243,40 @@ font_size = 52
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.018025577, 0, -0.025204837)
 script = ExtResource("14_qtiyh")
 hucre_boyutu = 0.253
+
+[node name="BlokKare" parent="." index="9" node_paths=PackedStringArray("grid") instance=ExtResource("16_b7lqx")]
+transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -0.086585164, 0.521, 1.3832939)
+grid = NodePath("../GridYoneticisi")
+tekli_blok_sahnesi = ExtResource("20_mc62c")
+footprint = Array[Vector2i]([Vector2i(0, -1), Vector2i(1, -1), Vector2i(0, 0), Vector2i(1, 0)])
+yerlesme_yuksekligi = 0.12
+
+[node name="BlokCubuk" parent="." index="10" node_paths=PackedStringArray("grid") instance=ExtResource("17_sbm3a")]
+transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, 0.53413725, 0.521, 1.4186599)
+grid = NodePath("../GridYoneticisi")
+tekli_blok_sahnesi = ExtResource("20_mc62c")
+footprint = Array[Vector2i]([Vector2i(0, -3), Vector2i(0, -2), Vector2i(0, -1), Vector2i(0, 0)])
+yerlesme_yuksekligi = 0.12
+
+[node name="BlokT" parent="." index="11" node_paths=PackedStringArray("grid") instance=ExtResource("18_btjas")]
+transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, 1.2060636, 0.521, 1.3921502)
+grid = NodePath("../GridYoneticisi")
+tekli_blok_sahnesi = ExtResource("20_mc62c")
+footprint = Array[Vector2i]([Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1), Vector2i(0, 0)])
+yerlesme_yuksekligi = 0.12
+
+[node name="BlokZ" parent="." index="12" node_paths=PackedStringArray("grid") instance=ExtResource("19_5n3a3")]
+transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -1.2616234, 0.521, 1.4148206)
+grid = NodePath("../GridYoneticisi")
+tekli_blok_sahnesi = ExtResource("20_mc62c")
+footprint = Array[Vector2i]([Vector2i(1, -1), Vector2i(0, -1), Vector2i(0, 0), Vector2i(-1, 0)])
+yerlesme_yuksekligi = 0.12
+
+[node name="BlokTek" parent="." index="13" node_paths=PackedStringArray("grid") instance=ExtResource("20_mc62c")]
+transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -0.26791936, 0.66327345, 1.524)
+grid = NodePath("../GridYoneticisi")
+tekli_blok_sahnesi = ExtResource("20_mc62c")
+yerlesme_yuksekligi = 0.12
 
 [connection signal="input_event" from="Yeni_Kedi/Area3D" to="Yeni_Kedi" method="_on_area_3d_input_event"]
 

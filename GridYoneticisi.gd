@@ -2,36 +2,42 @@
 extends Node3D
 class_name GridYonetici
 
+# --- SİNYALLER ---
+signal puan_kazanildi(miktar: int)
+
 # --- AYARLAR ---
 @export_group("Grid Ayarları")
 @export var grid_boyutu: Vector2i = Vector2i(8, 8):
 	set(v):
 		grid_boyutu = v
-		if Engine.is_editor_hint(): _gridi_yenile()
+		if is_inside_tree(): _gridi_yenile()
 
 @export var hucre_boyutu: float = 1.0:
 	set(v):
 		hucre_boyutu = v
-		if Engine.is_editor_hint(): _gridi_yenile()
+		if is_inside_tree(): _gridi_yenile()
 
 @export_group("Renkler")
 @export var renk_1: Color = Color(0.2, 0.2, 0.2) 
 @export var renk_2: Color = Color(0.4, 0.4, 0.4) 
 
 # --- DEĞİŞKENLER ---
-var grid_verisi: Dictionary = {}
+var grid_verisi: Dictionary = {} # { Vector2i(x,y): Node3D }
 
-# Fizik kullanmadığımız için bu fonksiyonları boş tutuyoruz (Hata vermemesi için)
+# Fizik uyumluluğu için boş fonksiyonlar
 func set_exclude_rids(_rids: Array[RID]) -> void: pass
 func clear_exclude_rids() -> void: pass
 
 func _ready() -> void:
 	_gridi_yenile()
 
-# --- SADECE GÖRSEL (Fizik Collider Yok) ---
+# --- GÖRSEL ---
 func _gridi_yenile() -> void:
+	if not is_inside_tree(): return
 	for child in get_children():
-		child.queue_free()
+		# Sadece grid karelerini sil, blokları silme
+		if child is MeshInstance3D and not child.name.begins_with("Block"):
+			child.queue_free()
 	
 	grid_verisi.clear()
 	
@@ -52,48 +58,37 @@ func _gridi_yenile() -> void:
 			var tile = MeshInstance3D.new()
 			tile.mesh = quad_mesh
 			tile.material_override = mat1 if (x + y) % 2 == 0 else mat2
-			
 			var pos_x = baslangic_x + (x * hucre_boyutu)
 			var pos_z = baslangic_z + (y * hucre_boyutu)
 			tile.position = Vector3(pos_x, 0, pos_z)
 			add_child(tile)
 
-# --- MATEMATİKSEL DÜZLEM HESABI (Fizik Yerine) ---
+# --- MATEMATİKSEL HESAPLAMALAR ---
 func get_masa_world_noktasi() -> Variant:
 	var kamera = get_viewport().get_camera_3d()
 	if not kamera: return null
 	
 	var fare_pos = get_viewport().get_mouse_position()
-	
-	# Sonsuz bir zemin düzlemi (Y = 0)
-	# Grid'in kendi yüksekliğini baz alıyoruz.
 	var matematik_duzlemi = Plane(Vector3.UP, global_position.y)
 	
 	var from = kamera.project_ray_origin(fare_pos)
 	var dir = kamera.project_ray_normal(fare_pos)
-	
-	# Işın düzlemi nerede kesiyor?
 	var kesisim = matematik_duzlemi.intersects_ray(from, dir)
 	
 	if kesisim:
-		# Grid sınırları içinde mi?
 		if _nokta_grid_icinde_mi(kesisim):
 			return kesisim
-			
 	return null
 
 func _nokta_grid_icinde_mi(nokta: Vector3) -> bool:
 	var local_p = to_local(nokta)
 	var toplam_genislik = float(grid_boyutu.x) * hucre_boyutu
 	var toplam_uzunluk = float(grid_boyutu.y) * hucre_boyutu
-	
 	var yarim_x = toplam_genislik / 2.0
 	var yarim_z = toplam_uzunluk / 2.0
 	
-	# Hafif tolerans (0.01) ekledik ki sınırdakileri kaçırmasın
-	if local_p.x < -yarim_x - 0.01 or local_p.x > yarim_x + 0.01: return false
-	if local_p.z < -yarim_z - 0.01 or local_p.z > yarim_z + 0.01: return false
-	
+	if local_p.x < -yarim_x - 0.2 or local_p.x > yarim_x + 0.2: return false
+	if local_p.z < -yarim_z - 0.2 or local_p.z > yarim_z + 0.2: return false
 	return true
 
 func world_to_cell(world_p: Vector3) -> Variant:
@@ -119,20 +114,81 @@ func cell_center_world(cell: Vector2i) -> Vector3:
 	var lz = baslangic_z + (cell.y * hucre_boyutu)
 	return to_global(Vector3(lx, 0.0, lz))
 
+# --- YERLEŞTİRME VE PATLATMA ---
+
 func can_place(origin: Vector2i, footprint: Array[Vector2i]) -> bool:
 	for off in footprint:
 		var c = origin + off
+		# Grid dışı mı?
 		if c.x < 0 or c.x >= grid_boyutu.x or c.y < 0 or c.y >= grid_boyutu.y:
 			return false
+		# Dolu mu?
 		if grid_verisi.has(c):
 			return false
 	return true
 
-func occupy(origin: Vector2i, footprint: Array[Vector2i], item: Node) -> void:
-	for off in footprint:
-		grid_verisi[origin + off] = item
+# TEKLİ BLOK KAYIT SİSTEMİ (STAMP İÇİN)
+func tek_hucre_doldur(cell: Vector2i, item: Node3D) -> void:
+	grid_verisi[cell] = item
 
 func release_owner(item: Node) -> void:
-	for k in grid_verisi.keys():
-		if grid_verisi[k] == item:
-			grid_verisi.erase(k)
+	# Bu fonksiyon artık sadece drag sırasında kullanılır
+	pass
+
+# --- ANA PATLATMA MANTIĞI ---
+func satirlari_kontrol_et() -> void:
+	var patlayacak_hucreler = []
+	var patlayan_satir_sayisi = 0
+	
+	# 1. SÜTUNLARI KONTROL ET (X ekseni boyunca)
+	for x in range(grid_boyutu.x):
+		var dolu_mu = true
+		for y in range(grid_boyutu.y):
+			if not grid_verisi.has(Vector2i(x, y)):
+				dolu_mu = false; break
+		
+		if dolu_mu:
+			patlayan_satir_sayisi += 1
+			for y in range(grid_boyutu.y):
+				var h = Vector2i(x, y)
+				if not h in patlayacak_hucreler: patlayacak_hucreler.append(h)
+
+	# 2. SATIRLARI KONTROL ET (Z/Y ekseni boyunca)
+	for y in range(grid_boyutu.y):
+		var dolu_mu = true
+		for x in range(grid_boyutu.x):
+			if not grid_verisi.has(Vector2i(x, y)):
+				dolu_mu = false; break
+		
+		if dolu_mu:
+			patlayan_satir_sayisi += 1
+			for x in range(grid_boyutu.x):
+				var h = Vector2i(x, y)
+				if not h in patlayacak_hucreler: patlayacak_hucreler.append(h)
+	
+	# 3. PATLATMA İŞLEMİ
+	if patlayacak_hucreler.size() > 0:
+		_bloklari_yok_et(patlayacak_hucreler)
+		_puan_hesapla(patlayan_satir_sayisi, patlayacak_hucreler.size())
+
+func _bloklari_yok_et(hucreler: Array) -> void:
+	for h in hucreler:
+		if grid_verisi.has(h):
+			var blok = grid_verisi[h]
+			grid_verisi.erase(h)
+			if blok:
+				blok.queue_free() # GÖRSELİ SİL
+				# İlerde buraya "Particle Effect" eklenecek!
+
+func _puan_hesapla(satir_sayisi: int, blok_sayisi: int) -> void:
+	# Basit Puan Formülü: Blok Sayısı x 10 + (Kombo Bonusu)
+	# 1 satır = Bonus yok
+	# 2 satır = x2 Bonus
+	# 3 satır = x4 Bonus
+	var bonus = 1
+	if satir_sayisi > 1:
+		bonus = pow(2, satir_sayisi - 1)
+	
+	var toplam_puan = (blok_sayisi * 10) * bonus
+	emit_signal("puan_kazanildi", toplam_puan)
+	print("PUAN KAZANILDI: ", toplam_puan)
