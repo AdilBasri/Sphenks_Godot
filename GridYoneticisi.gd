@@ -2,10 +2,13 @@
 extends Node3D
 class_name GridYonetici
 
+# --- DIŞARIYA AÇIK AYARLAR ---
+@export var patlama_efekti_sahnesi: PackedScene # Inspector'dan PatlamaEfekti.tscn buraya atılacak!
+
 # --- SİNYALLER ---
 signal puan_kazanildi(miktar: int)
 
-# --- AYARLAR ---
+# --- GRID AYARLARI ---
 @export_group("Grid Ayarları")
 @export var grid_boyutu: Vector2i = Vector2i(8, 8):
 	set(v):
@@ -24,18 +27,18 @@ signal puan_kazanildi(miktar: int)
 # --- DEĞİŞKENLER ---
 var grid_verisi: Dictionary = {} # { Vector2i(x,y): Node3D }
 
-# Fizik uyumluluğu için boş fonksiyonlar
+# Fiziksel harici durumlar için boş fonksiyonlar
 func set_exclude_rids(_rids: Array[RID]) -> void: pass
 func clear_exclude_rids() -> void: pass
 
 func _ready() -> void:
 	_gridi_yenile()
 
-# --- GÖRSEL ---
+# --- GÖRSEL OLUŞTURMA ---
 func _gridi_yenile() -> void:
 	if not is_inside_tree(): return
 	for child in get_children():
-		# Sadece grid karelerini sil, blokları silme
+		# Sadece zemin karelerini sil, blokları veya efektleri silme
 		if child is MeshInstance3D and not child.name.begins_with("Block"):
 			child.queue_free()
 	
@@ -114,59 +117,52 @@ func cell_center_world(cell: Vector2i) -> Vector3:
 	var lz = baslangic_z + (cell.y * hucre_boyutu)
 	return to_global(Vector3(lx, 0.0, lz))
 
-# --- YERLEŞTİRME VE PATLATMA ---
-
+# --- YERLEŞTİRME MANTIĞI ---
 func can_place(origin: Vector2i, footprint: Array[Vector2i]) -> bool:
 	for off in footprint:
 		var c = origin + off
-		# Grid dışı mı?
 		if c.x < 0 or c.x >= grid_boyutu.x or c.y < 0 or c.y >= grid_boyutu.y:
 			return false
-		# Dolu mu?
 		if grid_verisi.has(c):
 			return false
 	return true
 
-# TEKLİ BLOK KAYIT SİSTEMİ (STAMP İÇİN)
 func tek_hucre_doldur(cell: Vector2i, item: Node3D) -> void:
 	grid_verisi[cell] = item
 
 func release_owner(item: Node) -> void:
-	# Bu fonksiyon artık sadece drag sırasında kullanılır
 	pass
 
-# --- ANA PATLATMA MANTIĞI ---
+# --- 🔥 PATLATMA ve EFEKT MANTIĞI 🔥 ---
 func satirlari_kontrol_et() -> void:
 	var patlayacak_hucreler = []
 	var patlayan_satir_sayisi = 0
 	
-	# 1. SÜTUNLARI KONTROL ET (X ekseni boyunca)
+	# 1. SÜTUNLARI TARA
 	for x in range(grid_boyutu.x):
 		var dolu_mu = true
 		for y in range(grid_boyutu.y):
 			if not grid_verisi.has(Vector2i(x, y)):
 				dolu_mu = false; break
-		
 		if dolu_mu:
 			patlayan_satir_sayisi += 1
 			for y in range(grid_boyutu.y):
 				var h = Vector2i(x, y)
 				if not h in patlayacak_hucreler: patlayacak_hucreler.append(h)
 
-	# 2. SATIRLARI KONTROL ET (Z/Y ekseni boyunca)
+	# 2. SATIRLARI TARA
 	for y in range(grid_boyutu.y):
 		var dolu_mu = true
 		for x in range(grid_boyutu.x):
 			if not grid_verisi.has(Vector2i(x, y)):
 				dolu_mu = false; break
-		
 		if dolu_mu:
 			patlayan_satir_sayisi += 1
 			for x in range(grid_boyutu.x):
 				var h = Vector2i(x, y)
 				if not h in patlayacak_hucreler: patlayacak_hucreler.append(h)
 	
-	# 3. PATLATMA İŞLEMİ
+	# 3. İŞLEM YAP
 	if patlayacak_hucreler.size() > 0:
 		_bloklari_yok_et(patlayacak_hucreler)
 		_puan_hesapla(patlayan_satir_sayisi, patlayacak_hucreler.size())
@@ -175,20 +171,35 @@ func _bloklari_yok_et(hucreler: Array) -> void:
 	for h in hucreler:
 		if grid_verisi.has(h):
 			var blok = grid_verisi[h]
+			
+			# --- PARÇACIK EFEKTİNİ YARAT ---
+			if patlama_efekti_sahnesi and blok:
+				var efekt = patlama_efekti_sahnesi.instantiate()
+				add_child(efekt) # Grid'in çocuğu olarak ekle
+				efekt.global_position = blok.global_position # Bloğun yerinde patlasın
+			# -------------------------------
+			# --- YENİ EKLENEN KISIM: RENK ÇALMA ---
+				# Bloğun içindeki ilk MeshInstance'ı bulup rengini alıyoruz
+				var mesh = blok.find_child("MeshInstance3D", true, false) # Alt düğümlerde ara
+				if mesh and mesh.get_active_material(0):
+					var blok_rengi = mesh.get_active_material(0).albedo_color
+					# Efektin rengini bloğun rengiyle çarp (Tint)
+					efekt.draw_pass_1.material.albedo_color = blok_rengi
+				# --------------------------------------
+
 			grid_verisi.erase(h)
 			if blok:
-				blok.queue_free() # GÖRSELİ SİL
-				# İlerde buraya "Particle Effect" eklenecek!
+				blok.queue_free() # Bloğu sahneden sil
 
 func _puan_hesapla(satir_sayisi: int, blok_sayisi: int) -> void:
-	# Basit Puan Formülü: Blok Sayısı x 10 + (Kombo Bonusu)
-	# 1 satır = Bonus yok
-	# 2 satır = x2 Bonus
-	# 3 satır = x4 Bonus
+	# Bonus Sistemi: Çoklu satırda puan katlanır
 	var bonus = 1
 	if satir_sayisi > 1:
 		bonus = pow(2, satir_sayisi - 1)
 	
 	var toplam_puan = (blok_sayisi * 10) * bonus
+	
+	print("--- PATLATMA ---")
+	print("Satır: ", satir_sayisi, " | Blok: ", blok_sayisi, " | PUAN: ", toplam_puan)
+	
 	emit_signal("puan_kazanildi", toplam_puan)
-	print("PUAN KAZANILDI: ", toplam_puan)

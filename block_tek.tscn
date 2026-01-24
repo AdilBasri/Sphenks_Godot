@@ -11,6 +11,7 @@ size = Vector3(2.0688477, 2.8617554, 1)
 transform = Transform3D(0.209, 0, 0, 0, 0.209, 0, 0, 0, 0.209, 0, 0, 0)
 script = ExtResource("1_5qd32")
 hayalet = NodePath("Hayalet")
+tekli_blok_sahnesi = ExtResource("2_a7e7m")
 
 [node name="Area3D" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.9999998, -1.1920929e-07, 0, 1.1920929e-07, 0.9999998, -0.36811852, -0.26202726, -0.12780666)
