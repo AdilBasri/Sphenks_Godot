@@ -1,14 +1,14 @@
-[gd_scene load_steps=28 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=33 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
-[ext_resource type="Script" uid="uid://1iad5uthhl45" path="res://KameraKontrol.gd" id="2_kmqc3"]
+[ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
 [ext_resource type="PackedScene" uid="uid://d23veo8v7bk73" path="res://block_l.tscn" id="3_qtiyh"]
 [ext_resource type="Material" uid="uid://d4cdqnvoal" path="res://Duvar_Mat.tres" id="4_x35je"]
 [ext_resource type="Material" uid="uid://b1b7d80hlubge" path="res://Masa_Mat.tres" id="5_b7lqx"]
 [ext_resource type="Texture2D" uid="uid://dhayshxhd2aie" path="res://Kedi_Normal.png" id="6_1b6ct"]
 [ext_resource type="Script" uid="uid://cqqrxhofxtxw6" path="res://KediEtkilesim.gd" id="7_ouiq0"]
 [ext_resource type="Texture2D" uid="uid://ogelag1lnuju" path="res://Boss.png" id="8_gqcgv"]
-[ext_resource type="Texture2D" uid="uid://bcddf7y4a2g2y" path="res://KediTutulan.png" id="8_p4fw5"]
+[ext_resource type="Texture2D" uid="uid://b2nhri0gq2vpk" path="res://KediTutulan.png" id="8_p4fw5"]
 [ext_resource type="Script" uid="uid://b816o3munmjog" path="res://BossEfekt.gd" id="9_h2n1q"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Sphenks.gdshader" id="10_h2n1q"]
 [ext_resource type="Script" uid="uid://bmnvsawx0sym2" path="res://DiyalogYoneticisi.gd" id="11_1eqvi"]
@@ -21,6 +21,7 @@
 [ext_resource type="PackedScene" uid="uid://30bh24oxy3ca" path="res://block_t.tscn" id="18_btjas"]
 [ext_resource type="PackedScene" uid="uid://c427aja5jykgk" path="res://block_z.tscn" id="19_5n3a3"]
 [ext_resource type="PackedScene" uid="uid://bq8mjuugdsa8p" path="res://block_tek.tscn" id="20_mc62c"]
+[ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://oyuncu.gd" id="23_4kj0i"]
 [ext_resource type="Script" uid="uid://8aat777heohw" path="res://BlokDagiticisi.gd" id="23_fi7dh"]
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_qtiyh"]
@@ -52,8 +53,20 @@ shader = ExtResource("11_48she")
 shader_parameter/renk = Color(0.1, 0, 0, 0.8)
 shader_parameter/hiz = 0.2
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4kj0i"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fi7dh"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hwr7g"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_lxn88"]
+
 [node name="Meshy_AI__0118084653_texture" instance=ExtResource("1_1eqvi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.031485796, 0, 0)
+script = ExtResource("2_fi7dh")
 
 [node name="Masa_Fizik" type="StaticBody3D" parent="." index="0"]
 transform = Transform3D(100, 0, 0, 0, -4.371139e-06, -100, 0, 100, -4.371139e-06, 0, 0, 0)
@@ -106,24 +119,16 @@ shadow_enabled = true
 omni_range = 3.62
 omni_attenuation = 2.05
 
-[node name="Camera3D" type="Camera3D" parent="Node3D" index="5"]
-transform = Transform3D(0.9893921, -0.003130647, 0.015186816, 0, 1.3093083, 0.269904, -0.036113225, -0.46522334, 2.2568054, 0.06307815, 1.2761863, 2.4823804)
-current = true
-script = ExtResource("2_kmqc3")
-
-[node name="OmniLight3D5" type="OmniLight3D" parent="Node3D" index="6"]
+[node name="OmniLight3D5" type="OmniLight3D" parent="Node3D" index="5"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.37191248, -1.9833457)
 light_color = Color(0.35047063, 0.24055037, 0.9999998, 1)
 omni_range = 1.75
 omni_attenuation = -1.849
 
-[node name="Block_L" parent="." index="3" node_paths=PackedStringArray("grid") instance=ExtResource("3_qtiyh")]
+[node name="Block_L" parent="." index="3" instance=ExtResource("3_qtiyh")]
 transform = Transform3D(0.24, 0, 0, 0, 0.23182221, 0.06211654, 0, -0.06211654, 0.23182221, -0.74137366, 0.4313832, 1.3150665)
 visible = false
-grid = NodePath("../GridYoneticisi")
-footprint = Array[Vector2i]([Vector2i(0, 2), Vector2i(0, 1), Vector2i(0, 0), Vector2i(-1, 0)])
-hover_y_offset = 0.08
-yerlesme_yuksekligi = 0.12
+tekli_blok_sahnesi = ExtResource("20_mc62c")
 
 [node name="Area3D" parent="Block_L" index="0"]
 collision_layer = 2
@@ -134,6 +139,7 @@ transform = Transform3D(1, 0, 0, 0, 1, -1.1920932e-07, 0, 1.1920932e-07, 1, 0.46
 
 [node name="MezarOdasi" type="CSGCombiner3D" parent="." index="4"]
 material_override = ExtResource("4_x35je")
+use_collision = true
 
 [node name="CSGBox3D" type="CSGBox3D" parent="MezarOdasi" index="0"]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -0.48000813, -4.7683716e-07, -1.8614635)
@@ -167,13 +173,15 @@ uzayan_hal = ExtResource("8_p4fw5")
 transform = Transform3D(0.99999976, 0, 0, 0, 0.99999976, 0, 0, 0, 0.99999976, 0.033602238, -0.16142029, 0)
 shape = SubResource("BoxShape3D_p4fw5")
 
-[node name="Boss" type="Sprite3D" parent="." index="6"]
+[node name="Boss" type="Sprite3D" parent="." index="6" node_paths=PackedStringArray("oyuncu", "masa_merkezi")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, -1.2060633)
 billboard = 2
 alpha_cut = 1
 texture_filter = 0
 texture = ExtResource("8_gqcgv")
 script = ExtResource("9_h2n1q")
+oyuncu = NodePath("../Oyuncu")
+masa_merkezi = NodePath("../Masa_Fizik")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="Boss" index="0"]
 
@@ -243,38 +251,34 @@ script = ExtResource("14_qtiyh")
 patlama_efekti_sahnesi = ExtResource("16_hwr7g")
 hucre_boyutu = 0.253
 
-[node name="BlokKare" parent="." index="9" node_paths=PackedStringArray("grid") instance=ExtResource("16_b7lqx")]
+[node name="BlokKare" parent="." index="9" instance=ExtResource("16_b7lqx")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -0.086585164, 0.521, 1.3832939)
 visible = false
-grid = NodePath("../GridYoneticisi")
-footprint = Array[Vector2i]([Vector2i(0, -1), Vector2i(1, -1), Vector2i(0, 0), Vector2i(1, 0)])
-yerlesme_yuksekligi = 0.12
+tekli_blok_sahnesi = null
+footprint = Array[Vector2i]([Vector2i(0, 0)])
 
-[node name="BlokCubuk" parent="." index="10" node_paths=PackedStringArray("grid") instance=ExtResource("17_sbm3a")]
+[node name="BlokCubuk" parent="." index="10" instance=ExtResource("17_sbm3a")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, 0.53413725, 0.521, 1.4186599)
 visible = false
-grid = NodePath("../GridYoneticisi")
-yerlesme_yuksekligi = 0.12
+tekli_blok_sahnesi = null
+footprint = Array[Vector2i]([Vector2i(0, 0)])
 
-[node name="BlokT" parent="." index="11" node_paths=PackedStringArray("grid") instance=ExtResource("18_btjas")]
+[node name="BlokT" parent="." index="11" instance=ExtResource("18_btjas")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, 1.2060636, 0.521, 1.3921502)
 visible = false
-grid = NodePath("../GridYoneticisi")
-footprint = Array[Vector2i]([Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1), Vector2i(0, 0)])
-yerlesme_yuksekligi = 0.12
+tekli_blok_sahnesi = null
+footprint = Array[Vector2i]([Vector2i(0, 0)])
 
-[node name="BlokZ" parent="." index="12" node_paths=PackedStringArray("grid") instance=ExtResource("19_5n3a3")]
+[node name="BlokZ" parent="." index="12" instance=ExtResource("19_5n3a3")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -1.2616234, 0.521, 1.4148206)
 visible = false
-grid = NodePath("../GridYoneticisi")
-footprint = Array[Vector2i]([Vector2i(1, -1), Vector2i(0, -1), Vector2i(0, 0), Vector2i(-1, 0)])
-yerlesme_yuksekligi = 0.12
+tekli_blok_sahnesi = null
+footprint = Array[Vector2i]([Vector2i(0, 0)])
 
-[node name="BlokTek" parent="." index="13" node_paths=PackedStringArray("grid") instance=ExtResource("20_mc62c")]
+[node name="BlokTek" parent="." index="13" instance=ExtResource("20_mc62c")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -0.26791936, 0.66327345, 1.524)
 visible = false
-grid = NodePath("../GridYoneticisi")
-yerlesme_yuksekligi = 0.12
+tekli_blok_sahnesi = null
 
 [node name="BlokDagiticisi" type="Node3D" parent="." index="14" node_paths=PackedStringArray("grid", "spawn_noktalari")]
 script = ExtResource("23_fi7dh")
@@ -285,11 +289,36 @@ blok_sahneleri = Array[PackedScene]([ExtResource("18_btjas"), ExtResource("19_5n
 [node name="Pos1" type="Marker3D" parent="BlokDagiticisi" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7479579, 0, 1.1636108)
 
+[node name="CSGCylinder3D3" type="CSGCylinder3D" parent="BlokDagiticisi/Pos1" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.017696142, -0.765625, -0.017400026)
+height = 0.46875
+material = SubResource("StandardMaterial3D_4kj0i")
+
 [node name="Pos2" type="Marker3D" parent="BlokDagiticisi" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05717367, 0, 1.1794122)
 
+[node name="CSGCylinder3D2" type="CSGCylinder3D" parent="BlokDagiticisi/Pos2" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07921949, -0.765625, -0.033201456)
+height = 0.46875
+material = SubResource("StandardMaterial3D_fi7dh")
+
 [node name="Pos3" type="Marker3D" parent="BlokDagiticisi" index="2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.51830024, 0, 1.1583085)
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="BlokDagiticisi/Pos3" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11817509, -0.765625, -0.012097716)
+height = 0.46875
+material = SubResource("StandardMaterial3D_hwr7g")
+
+[node name="Oyuncu" type="CharacterBody3D" parent="." index="15"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.2980074)
+script = ExtResource("23_4kj0i")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Oyuncu" index="0"]
+shape = SubResource("CapsuleShape3D_lxn88")
+
+[node name="Camera3D" type="Camera3D" parent="Oyuncu" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 
 [connection signal="input_event" from="Yeni_Kedi/Area3D" to="Yeni_Kedi" method="_on_area_3d_input_event"]
 

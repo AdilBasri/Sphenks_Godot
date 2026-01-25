@@ -34,6 +34,7 @@ transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 1, 0, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0)
 
 [node name="Hayalet" type="Node3D" parent="."]
+visible = false
 
 [node name="Node3D" parent="Hayalet" instance=ExtResource("2_bfjwq")]
 
