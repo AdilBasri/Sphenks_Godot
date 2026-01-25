@@ -70,6 +70,6 @@ func _process(delta):
 	# Eski kodundaki mantığı korudum: Y biraz daha az esniyor (0.5 çarpanı)
 	scale = Vector3(
 		ana_scale + scale_degisimi, 
-		ana_scale - (scale_degisimi * 0.5), 
+		ana_scale - (scale_degisimi * 0.2), 
 		ana_scale
 	)

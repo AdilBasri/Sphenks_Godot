@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://bgolektkymgbc"]
+[gd_scene load_steps=6 format=3 uid="uid://bgolektkymgbc"]
 
 [ext_resource type="Script" uid="uid://bnmxktemkijbe" path="res://BlokSurukle.gd" id="1_2x4as"]
+[ext_resource type="PackedScene" uid="uid://bq8mjuugdsa8p" path="res://block_tek.tscn" id="2_ad4u8"]
 [ext_resource type="PackedScene" uid="uid://cfk5b1431kbbh" path="res://block.tscn" id="2_bfjwq"]
 [ext_resource type="Material" uid="uid://d2gy67gtklkkk" path="res://Hayalet_Mat.tres" id="3_ad4u8"]
 
@@ -11,8 +12,8 @@ size = Vector3(2.0688477, 2.8617554, 1)
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -0.706, 0.521, 1.524)
 script = ExtResource("1_2x4as")
 hayalet = NodePath("Hayalet")
-tekli_blok_sahnesi = ExtResource("2_bfjwq")
-footprint = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)])
+tekli_blok_sahnesi = ExtResource("2_ad4u8")
+footprint = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(1, -1)])
 
 [node name="Area3D" type="Area3D" parent="."]
 

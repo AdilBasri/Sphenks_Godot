@@ -15,7 +15,7 @@ tekli_blok_sahnesi = ExtResource("2_tjfbl")
 footprint = Array[Vector2i]([Vector2i(0, -3), Vector2i(0, -2), Vector2i(0, -1), Vector2i(0, 0)])
 
 [node name="Area3D" type="Area3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.9999998, -5.9604645e-08, 0, 5.9604645e-08, 0.9999998, -0.36811852, 0.7991761, -0.38950825)
+transform = Transform3D(1, 0, 0, 0, 0.9999998, -7.4505806e-08, 0, 7.4505806e-08, 0.9999998, -0.36811852, 0.75250566, -0.21533251)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
 transform = Transform3D(1, 0, 0, 0, 0.9999998, -1.1920929e-07, 0, 1.1920929e-07, 0.9999998, 0.46710467, 0.99362993, 0.4181919)

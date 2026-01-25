@@ -15,7 +15,7 @@ signal blok_yerlesti
 @export var footprint: Array[Vector2i] = [Vector2i(0,0)]
 @export var hover_y_offset: float = 0.5 
 @export var kilitlenince_tuket: bool = true
-@export var debug_modu_aktif: bool = true # Kırmızı topları aç/kapat
+@export var debug_modu_aktif: bool = false # Kırmızı topları aç/kapat
 
 @export_group("Duruş ve Hizalama")
 @export var yerlesme_yuksekligi: float = 0.0 
@@ -92,15 +92,16 @@ func _gorsel_mouse_takip(delta: float) -> void:
 		var hedef_pos = kesisim + tutma_offseti
 		global_position = global_position.lerp(hedef_pos, 25.0 * delta)
 
-# --- AÇIYA GÖRE HAYALET VE FOOTPRINT GÜNCELLEME ---
 func _hayalet_guncelle() -> void:
 	if not grid or not hayalet: return
 	
-	hayalet.scale = Vector3.ONE 
+	# --- DÜZELTME 1: Scale'i zorla 1 yapma, mevcut boyutu koru ---
+	# hayalet.scale = Vector3.ONE  <-- BU SATIRI SİLDİK
+	
 	var current_pos_for_grid = global_position 
 	current_pos_for_grid.y = grid.global_position.y
 	
-	# 1. AÇI HESABI (Oyuncu Masanın Neresinde?)
+	# 1. AÇI HESABI
 	var cam = get_viewport().get_camera_3d()
 	var grid_y_rot = grid.global_rotation.y
 	var cam_y_rot = cam.global_rotation.y
@@ -113,14 +114,20 @@ func _hayalet_guncelle() -> void:
 	anlik_footprint = _footprint_dondur(footprint, ceyrek_turlar)
 	anlik_y_rotasyon = float(ceyrek_turlar) * (PI / 2.0)
 	
-	# 3. GÖRSEL DÖNDÜRME
-	# Önce rotasyonu sıfırla
-	hayalet.global_rotation = Vector3.ZERO
-	# Ana yönü ver (Grid + Oyuncu açısı)
-	hayalet.rotation.y = grid.global_rotation.y + anlik_y_rotasyon
+	# 3. GÖRSEL DÖNDÜRME (SCALE KORUMALI)
+	# Önceki boyutunu hafızaya al
+	var mevcut_scale = hayalet.scale 
 	
-	# Sonra "Yatır" (Local X ekseninde)
-	hayalet.rotate_object_local(Vector3.RIGHT, deg_to_rad(yatma_acisi.x))
+	var hedef_y_rot = grid.global_rotation.y + anlik_y_rotasyon
+	var y_basis = Basis(Vector3.UP, hedef_y_rot)
+	var x_basis = Basis(Vector3.RIGHT, deg_to_rad(yatma_acisi.x))
+	
+	# Döndürmeyi uygula
+	hayalet.global_transform.basis = y_basis * x_basis
+	
+	# --- DÜZELTME 2: Boyutu tekrar geri yükle ---
+	# Basis işlemi boyutu sıfırladığı için, eski boyutu tekrar yapıştırıyoruz.
+	hayalet.scale = mevcut_scale
 	
 	# -----------------------------------------------------
 
@@ -197,13 +204,23 @@ func _birak() -> void:
 
 func _eve_don() -> void:
 	if hayalet: hayalet.visible = false
-	if orjinal_parent:
-		reparent(orjinal_parent, false)
-		var tween = create_tween()
-		tween.set_parallel(true)
-		tween.tween_property(self, "position", Vector3.ZERO, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		tween.tween_property(self, "scale", orjinal_scale, 0.3)
-		tween.tween_property(self, "rotation_degrees", orjinal_rotasyon_degrees, 0.3)
+	
+	# Eğer parent zaten doğruysa tekrar atama yapma (Hata önler)
+	if orjinal_parent and get_parent() != orjinal_parent:
+		# Global pozisyonu koruyarak (true) eve geri al
+		reparent(orjinal_parent, true)
+	
+	# Tween ile sakince yerine git
+	var tween = create_tween()
+	tween.set_parallel(true)
+	
+	# Yerel koordinatta (0,0,0)'a gitmeli (Spawner'ın kucağına)
+	tween.tween_property(self, "position", Vector3.ZERO, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "scale", orjinal_scale, 0.3)
+	
+	# Rotasyonu da eski haline getir (Quaternion daha güvenlidir)
+	# Eğer orjinal_rotasyon_degrees kullanıyorsan o da olur ama bazen takla atar.
+	tween.tween_property(self, "rotation_degrees", orjinal_rotasyon_degrees, 0.3)
 
 # --- DEBUG MODU (KESİN KOORDİNAT GÖSTERİCİ) ---
 func _debug_footprint_ciz() -> void:

@@ -174,7 +174,7 @@ transform = Transform3D(0.99999976, 0, 0, 0, 0.99999976, 0, 0, 0, 0.99999976, 0.
 shape = SubResource("BoxShape3D_p4fw5")
 
 [node name="Boss" type="Sprite3D" parent="." index="6" node_paths=PackedStringArray("oyuncu", "masa_merkezi")]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, -1.2060633)
+transform = Transform3D(0.7, 0, 0, 0, 0.215, 0, 0, 0, 0.323, 0, 1.4316756, -1.2060633)
 billboard = 2
 alpha_cut = 1
 texture_filter = 0
@@ -251,34 +251,32 @@ script = ExtResource("14_qtiyh")
 patlama_efekti_sahnesi = ExtResource("16_hwr7g")
 hucre_boyutu = 0.253
 
-[node name="BlokKare" parent="." index="9" instance=ExtResource("16_b7lqx")]
+[node name="BlokKare" parent="." index="9" node_paths=PackedStringArray("grid") instance=ExtResource("16_b7lqx")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -0.086585164, 0.521, 1.3832939)
 visible = false
-tekli_blok_sahnesi = null
-footprint = Array[Vector2i]([Vector2i(0, 0)])
+grid = NodePath("../GridYoneticisi")
+hover_y_offset = 0.0
 
 [node name="BlokCubuk" parent="." index="10" instance=ExtResource("17_sbm3a")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, 0.53413725, 0.521, 1.4186599)
 visible = false
-tekli_blok_sahnesi = null
+tekli_blok_sahnesi = ExtResource("20_mc62c")
 footprint = Array[Vector2i]([Vector2i(0, 0)])
 
 [node name="BlokT" parent="." index="11" instance=ExtResource("18_btjas")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, 1.2060636, 0.521, 1.3921502)
 visible = false
-tekli_blok_sahnesi = null
-footprint = Array[Vector2i]([Vector2i(0, 0)])
+tekli_blok_sahnesi = ExtResource("20_mc62c")
 
 [node name="BlokZ" parent="." index="12" instance=ExtResource("19_5n3a3")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -1.2616234, 0.521, 1.4148206)
 visible = false
-tekli_blok_sahnesi = null
-footprint = Array[Vector2i]([Vector2i(0, 0)])
+tekli_blok_sahnesi = ExtResource("20_mc62c")
 
 [node name="BlokTek" parent="." index="13" instance=ExtResource("20_mc62c")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -0.26791936, 0.66327345, 1.524)
 visible = false
-tekli_blok_sahnesi = null
+tekli_blok_sahnesi = ExtResource("20_mc62c")
 
 [node name="BlokDagiticisi" type="Node3D" parent="." index="14" node_paths=PackedStringArray("grid", "spawn_noktalari")]
 script = ExtResource("23_fi7dh")
@@ -327,3 +325,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 [editable path="Block_L/Hayalet/Node3D2"]
 [editable path="Block_L/Hayalet/Node3D3"]
 [editable path="Block_L/Hayalet/Node3D4"]
+[editable path="BlokKare"]
+[editable path="BlokKare/Hayalet/Node3D"]
+[editable path="BlokKare/Hayalet/Node3D2"]
+[editable path="BlokKare/Hayalet/Node3D3"]
+[editable path="BlokKare/Hayalet/Node3D4"]
