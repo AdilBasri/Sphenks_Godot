@@ -205,27 +205,38 @@ func _eve_don() -> void:
 		tween.tween_property(self, "scale", orjinal_scale, 0.3)
 		tween.tween_property(self, "rotation_degrees", orjinal_rotasyon_degrees, 0.3)
 
-# --- DEBUG MODU (KIRMIZI TOPLAR) ---
+# --- DEBUG MODU (KESİN KOORDİNAT GÖSTERİCİ) ---
 func _debug_footprint_ciz() -> void:
 	# Varsa eskileri temizle
 	for c in get_children():
 		if c.name == "DebugKure": c.queue_free()
 		
 	var materyal = StandardMaterial3D.new()
-	materyal.albedo_color = Color(1, 0, 0, 0.8) # Kırmızı ve yarı şeffaf
+	materyal.albedo_color = Color(0, 1, 0, 0.5) # YEŞİL olsun ki kırmızı blokla karışmasın
 	materyal.emission_enabled = true
-	materyal.emission = Color(1, 0, 0)
+	materyal.emission = Color(0, 1, 0)
+	materyal.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	materyal.no_depth_test = true # Bloğun içinden görünsün
 	
-	# Her bir footprint noktası için top oluştur
+	# Her bir footprint noktası için KUTU oluştur
 	for nokta in footprint:
 		var mesh_inst = MeshInstance3D.new()
-		mesh_inst.mesh = SphereMesh.new()
-		mesh_inst.mesh.radius = 0.25 # Topun boyutu
-		mesh_inst.mesh.height = 0.5
+		mesh_inst.mesh = BoxMesh.new()
+		
+		# Boyutu biraz küçültelim (0.9) ki grid sınırlarını göstersin
+		mesh_inst.mesh.size = Vector3(0.9, 0.9, 0.9) 
+		
 		mesh_inst.material_override = materyal
 		mesh_inst.name = "DebugKure"
 		add_child(mesh_inst)
 		
-		# Grid (X, Y) -> Dünya (X, 0, -Y) veya (X, 0, Z)
-		# Bloklar genelde (x, -y) ekseninde tasarlandığı için Z'ye Y'yi atıyoruz
-		mesh_inst.position = Vector3(nokta.x, 0.5, nokta.y)
+		# --- KRİTİK EKSEN DÖNÜŞÜMÜ ---
+		# Footprint X -> Dünya X
+		# Footprint Y -> Dünya Z (Godot'da zemin Z eksenidir)
+		# Yükseklik   -> 0 (veya bloğun merkezi olan 0.0)
+		
+		# Eğer bloklarının pivotu alttaysa Y=0.5 yapmalıyız.
+		# Eğer bloklarının pivotu ortadaysa Y=0.0 yapmalıyız.
+		# Şimdilik "yerlesme_yuksekligi"ni de hesaba katalım.
+		
+		mesh_inst.position = Vector3(nokta.x, 0.0, nokta.y)
