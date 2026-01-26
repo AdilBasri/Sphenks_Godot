@@ -1,14 +1,15 @@
-[gd_scene load_steps=33 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=34 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
+[ext_resource type="PackedScene" uid="uid://dvucb86havcwa" path="res://oyun_arayuzu.tscn" id="3_4kj0i"]
 [ext_resource type="PackedScene" uid="uid://d23veo8v7bk73" path="res://block_l.tscn" id="3_qtiyh"]
 [ext_resource type="Material" uid="uid://d4cdqnvoal" path="res://Duvar_Mat.tres" id="4_x35je"]
 [ext_resource type="Material" uid="uid://b1b7d80hlubge" path="res://Masa_Mat.tres" id="5_b7lqx"]
 [ext_resource type="Texture2D" uid="uid://dhayshxhd2aie" path="res://Kedi_Normal.png" id="6_1b6ct"]
 [ext_resource type="Script" uid="uid://cqqrxhofxtxw6" path="res://KediEtkilesim.gd" id="7_ouiq0"]
 [ext_resource type="Texture2D" uid="uid://ogelag1lnuju" path="res://Boss.png" id="8_gqcgv"]
-[ext_resource type="Texture2D" uid="uid://b2nhri0gq2vpk" path="res://KediTutulan.png" id="8_p4fw5"]
+[ext_resource type="Texture2D" uid="uid://bcddf7y4a2g2y" path="res://KediTutulan.png" id="8_p4fw5"]
 [ext_resource type="Script" uid="uid://b816o3munmjog" path="res://BossEfekt.gd" id="9_h2n1q"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Sphenks.gdshader" id="10_h2n1q"]
 [ext_resource type="Script" uid="uid://bmnvsawx0sym2" path="res://DiyalogYoneticisi.gd" id="11_1eqvi"]
@@ -30,8 +31,7 @@ points = PackedVector3Array(0.01, 0.01, 0.0016615901, 0.01, -0.01, 0.0016615901,
 [sub_resource type="Environment" id="Environment_jcgda"]
 background_mode = 1
 background_energy_multiplier = 0.0
-ambient_light_color = Color(0.22365656, 0.00049281074, 0.5446112, 1)
-ambient_light_energy = 16.0
+ambient_light_energy = 0.0
 volumetric_fog_enabled = true
 volumetric_fog_density = 0.1
 volumetric_fog_albedo = Color(0.3528652, 0.35286516, 0, 1)
@@ -84,46 +84,21 @@ visible = false
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Node3D" index="0"]
 environment = SubResource("Environment_jcgda")
 
-[node name="OmniLight3D" type="OmniLight3D" parent="Node3D" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.346385, 4.2418365, -0.91127586)
-light_color = Color(1, 0.53333336, 0, 1)
-light_energy = 0.506
-light_indirect_energy = 0.0
-shadow_enabled = true
-omni_range = 9.112
-omni_attenuation = 1.619
-
-[node name="OmniLight3D2" type="OmniLight3D" parent="Node3D" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.1685488, 1.9810246, -0.9999405)
-light_color = Color(1, 0.53333336, 0, 1)
-light_energy = 0.506
-light_indirect_energy = 3.474
-shadow_enabled = true
-omni_range = 5.876
-omni_attenuation = 2.05
-
-[node name="OmniLight3D3" type="OmniLight3D" parent="Node3D" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.8713276, 1.8050138, -2.1330202)
-light_color = Color(1, 0.53333336, 0, 1)
-light_energy = 0.506
-light_indirect_energy = 3.474
-shadow_enabled = true
-omni_range = 3.62
-omni_attenuation = 2.05
-
-[node name="OmniLight3D4" type="OmniLight3D" parent="Node3D" index="4"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05851376, -0.076954484, 2.4256475)
-light_color = Color(1, 0.53333336, 0, 1)
-light_energy = 0.176
-shadow_enabled = true
-omni_range = 3.62
-omni_attenuation = 2.05
-
-[node name="OmniLight3D5" type="OmniLight3D" parent="Node3D" index="5"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.37191248, -1.9833457)
+[node name="OmniLight3D5" type="OmniLight3D" parent="Node3D/WorldEnvironment" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.031485796, -0.37191248, -1.9833457)
 light_color = Color(0.35047063, 0.24055037, 0.9999998, 1)
 omni_range = 1.75
 omni_attenuation = -1.849
+
+[node name="SpotLight3D" type="SpotLight3D" parent="Node3D/WorldEnvironment" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1.1924881e-08, 1, 0, -1, 1.1924881e-08, 0, 4.5142174, 0.014613152)
+light_color = Color(0.9764706, 0.77254903, 0, 1)
+shadow_enabled = true
+distance_fade_enabled = true
+spot_range = 6.202
+spot_attenuation = 0.0
+spot_angle = 90.0
+spot_angle_attenuation = 4.9245725
 
 [node name="Block_L" parent="." index="3" instance=ExtResource("3_qtiyh")]
 transform = Transform3D(0.24, 0, 0, 0, 0.23182221, 0.06211654, 0, -0.06211654, 0.23182221, -0.74137366, 0.4313832, 1.3150665)
@@ -174,7 +149,7 @@ transform = Transform3D(0.99999976, 0, 0, 0, 0.99999976, 0, 0, 0, 0.99999976, 0.
 shape = SubResource("BoxShape3D_p4fw5")
 
 [node name="Boss" type="Sprite3D" parent="." index="6" node_paths=PackedStringArray("oyuncu", "masa_merkezi")]
-transform = Transform3D(0.7, 0, 0, 0, 0.215, 0, 0, 0, 0.323, 0, 1.4316756, -1.2060633)
+transform = Transform3D(0.8, 0, 0, 0, 0.5, 0, 0, 0, 0.6, 0, 0.9514657, -1.2060633)
 billboard = 2
 alpha_cut = 1
 texture_filter = 0
@@ -309,7 +284,7 @@ height = 0.46875
 material = SubResource("StandardMaterial3D_hwr7g")
 
 [node name="Oyuncu" type="CharacterBody3D" parent="." index="15"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.2980074)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.241353)
 script = ExtResource("23_4kj0i")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Oyuncu" index="0"]
@@ -317,6 +292,8 @@ shape = SubResource("CapsuleShape3D_lxn88")
 
 [node name="Camera3D" type="Camera3D" parent="Oyuncu" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+
+[node name="OyunArayuzu" parent="." index="16" instance=ExtResource("3_4kj0i")]
 
 [connection signal="input_event" from="Yeni_Kedi/Area3D" to="Yeni_Kedi" method="_on_area_3d_input_event"]
 
@@ -330,3 +307,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 [editable path="BlokKare/Hayalet/Node3D2"]
 [editable path="BlokKare/Hayalet/Node3D3"]
 [editable path="BlokKare/Hayalet/Node3D4"]
+[editable path="OyunArayuzu"]

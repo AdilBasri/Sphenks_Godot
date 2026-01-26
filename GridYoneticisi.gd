@@ -3,7 +3,7 @@ extends Node3D
 class_name GridYonetici
 
 # --- DIŞARIYA AÇIK AYARLAR ---
-@export var patlama_efekti_sahnesi: PackedScene # Inspector'dan PatlamaEfekti.tscn buraya atılacak!
+@export var patlama_efekti_sahnesi: PackedScene 
 
 # --- SİNYALLER ---
 signal puan_kazanildi(miktar: int)
@@ -26,6 +26,7 @@ signal puan_kazanildi(miktar: int)
 
 # --- DEĞİŞKENLER ---
 var grid_verisi: Dictionary = {} # { Vector2i(x,y): Node3D }
+var arayuz: CanvasLayer = null # UI Erişimi için
 
 # Fiziksel harici durumlar için boş fonksiyonlar
 func set_exclude_rids(_rids: Array[RID]) -> void: pass
@@ -33,6 +34,8 @@ func clear_exclude_rids() -> void: pass
 
 func _ready() -> void:
 	_gridi_yenile()
+	# UI Grubunu bul ve bağlan
+	arayuz = get_tree().get_first_node_in_group("Arayuz")
 
 # --- GÖRSEL OLUŞTURMA ---
 func _gridi_yenile() -> void:
@@ -133,7 +136,7 @@ func tek_hucre_doldur(cell: Vector2i, item: Node3D) -> void:
 func release_owner(item: Node) -> void:
 	pass
 
-# --- 🔥 PATLATMA ve EFEKT MANTIĞI 🔥 ---
+# --- 🔥 PATLATMA, EFEKT ve PUAN MANTIĞI 🔥 ---
 func satirlari_kontrol_et() -> void:
 	var patlayacak_hucreler = []
 	var patlayan_satir_sayisi = 0
@@ -172,24 +175,21 @@ func _bloklari_yok_et(hucreler: Array) -> void:
 		if grid_verisi.has(h):
 			var blok = grid_verisi[h]
 			
-			# --- PARÇACIK EFEKTİNİ YARAT ---
+			# --- PARÇACIK EFEKTİ ---
 			if patlama_efekti_sahnesi and blok:
 				var efekt = patlama_efekti_sahnesi.instantiate()
-				add_child(efekt) # Grid'in çocuğu olarak ekle
-				efekt.global_position = blok.global_position # Bloğun yerinde patlasın
-			# -------------------------------
-			# --- YENİ EKLENEN KISIM: RENK ÇALMA ---
-				# Bloğun içindeki ilk MeshInstance'ı bulup rengini alıyoruz
-				var mesh = blok.find_child("MeshInstance3D", true, false) # Alt düğümlerde ara
+				add_child(efekt)
+				efekt.global_position = blok.global_position
+				
+				# Renk Transferi
+				var mesh = blok.find_child("MeshInstance3D", true, false)
 				if mesh and mesh.get_active_material(0):
 					var blok_rengi = mesh.get_active_material(0).albedo_color
-					# Efektin rengini bloğun rengiyle çarp (Tint)
 					efekt.draw_pass_1.material.albedo_color = blok_rengi
-				# --------------------------------------
 
 			grid_verisi.erase(h)
 			if blok:
-				blok.queue_free() # Bloğu sahneden sil
+				blok.queue_free()
 
 func _puan_hesapla(satir_sayisi: int, blok_sayisi: int) -> void:
 	# Bonus Sistemi: Çoklu satırda puan katlanır
@@ -203,3 +203,9 @@ func _puan_hesapla(satir_sayisi: int, blok_sayisi: int) -> void:
 	print("Satır: ", satir_sayisi, " | Blok: ", blok_sayisi, " | PUAN: ", toplam_puan)
 	
 	emit_signal("puan_kazanildi", toplam_puan)
+	
+	# --- UI GÜNCELLEME ---
+	if arayuz:
+		var mesaj = "%d Satır Temizlendi!" % satir_sayisi
+		if satir_sayisi > 1: mesaj += " (x%d KOMBO)" % bonus
+		arayuz.puan_ekle(toplam_puan, mesaj)
