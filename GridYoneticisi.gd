@@ -201,7 +201,7 @@ func _puan_hesapla(satir_sayisi: int, blok_sayisi: int) -> void:
 	
 	print("--- PATLATMA ---")
 	print("Satır: ", satir_sayisi, " | Blok: ", blok_sayisi, " | PUAN: ", toplam_puan)
-	
+	get_tree().call_group("Arayuz", "puan_ekle", 100, "Sıra Temizlendi")
 	emit_signal("puan_kazanildi", toplam_puan)
 	
 	# --- UI GÜNCELLEME ---

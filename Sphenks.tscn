@@ -1,15 +1,14 @@
-[gd_scene load_steps=34 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=36 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
 [ext_resource type="PackedScene" uid="uid://dvucb86havcwa" path="res://oyun_arayuzu.tscn" id="3_4kj0i"]
 [ext_resource type="PackedScene" uid="uid://d23veo8v7bk73" path="res://block_l.tscn" id="3_qtiyh"]
-[ext_resource type="Material" uid="uid://d4cdqnvoal" path="res://Duvar_Mat.tres" id="4_x35je"]
-[ext_resource type="Material" uid="uid://b1b7d80hlubge" path="res://Masa_Mat.tres" id="5_b7lqx"]
 [ext_resource type="Texture2D" uid="uid://dhayshxhd2aie" path="res://Kedi_Normal.png" id="6_1b6ct"]
+[ext_resource type="Texture2D" uid="uid://exewje3jhncc" path="res://tile1.png" id="7_lxn88"]
 [ext_resource type="Script" uid="uid://cqqrxhofxtxw6" path="res://KediEtkilesim.gd" id="7_ouiq0"]
 [ext_resource type="Texture2D" uid="uid://ogelag1lnuju" path="res://Boss.png" id="8_gqcgv"]
-[ext_resource type="Texture2D" uid="uid://bcddf7y4a2g2y" path="res://KediTutulan.png" id="8_p4fw5"]
+[ext_resource type="Texture2D" uid="uid://b2nhri0gq2vpk" path="res://KediTutulan.png" id="8_p4fw5"]
 [ext_resource type="Script" uid="uid://b816o3munmjog" path="res://BossEfekt.gd" id="9_h2n1q"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Sphenks.gdshader" id="10_h2n1q"]
 [ext_resource type="Script" uid="uid://bmnvsawx0sym2" path="res://DiyalogYoneticisi.gd" id="11_1eqvi"]
@@ -35,6 +34,16 @@ ambient_light_energy = 0.0
 volumetric_fog_enabled = true
 volumetric_fog_density = 0.1
 volumetric_fog_albedo = Color(0.3528652, 0.35286516, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lxn88"]
+albedo_texture = ExtResource("7_lxn88")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_offaw"]
+albedo_texture = ExtResource("7_lxn88")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yiyi8"]
+albedo_texture = ExtResource("7_lxn88")
+uv1_triplanar = true
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_p4fw5"]
 size = Vector3(4.3583374, 2.0308838, 1)
@@ -113,7 +122,6 @@ collision_mask = 2
 transform = Transform3D(1, 0, 0, 0, 1, -1.1920932e-07, 0, 1.1920932e-07, 1, 0.46710467, 0.99362993, 0.4181919)
 
 [node name="MezarOdasi" type="CSGCombiner3D" parent="." index="4"]
-material_override = ExtResource("4_x35je")
 use_collision = true
 
 [node name="CSGBox3D" type="CSGBox3D" parent="MezarOdasi" index="0"]
@@ -125,8 +133,9 @@ operation = 2
 
 [node name="Zemin" type="CSGBox3D" parent="MezarOdasi" index="2"]
 transform = Transform3D(20, 0, 0, 0, 0.5, 0, 0, 0, 20, 0, -0.85875946, 0)
-material_override = ExtResource("5_b7lqx")
-material_overlay = ExtResource("4_x35je")
+material_override = SubResource("StandardMaterial3D_lxn88")
+material_overlay = SubResource("StandardMaterial3D_offaw")
+material = SubResource("StandardMaterial3D_yiyi8")
 
 [node name="CSGBox3D3" type="CSGBox3D" parent="MezarOdasi" index="3"]
 transform = Transform3D(0.5, 0, 0, 0, 2, 0, 0, 0, 0.5, 0, -1.197927, 0)
@@ -253,11 +262,8 @@ transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182,
 visible = false
 tekli_blok_sahnesi = ExtResource("20_mc62c")
 
-[node name="BlokDagiticisi" type="Node3D" parent="." index="14" node_paths=PackedStringArray("grid", "spawn_noktalari")]
+[node name="BlokDagiticisi" type="Node3D" parent="." index="14"]
 script = ExtResource("23_fi7dh")
-grid = NodePath("../GridYoneticisi")
-spawn_noktalari = [NodePath("Pos1"), NodePath("Pos2"), NodePath("Pos3")]
-blok_sahneleri = Array[PackedScene]([ExtResource("18_btjas"), ExtResource("19_5n3a3"), ExtResource("20_mc62c"), ExtResource("16_b7lqx"), ExtResource("17_sbm3a"), ExtResource("3_qtiyh")])
 
 [node name="Pos1" type="Marker3D" parent="BlokDagiticisi" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7479579, 0, 1.1636108)
@@ -293,7 +299,7 @@ shape = SubResource("CapsuleShape3D_lxn88")
 [node name="Camera3D" type="Camera3D" parent="Oyuncu" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 
-[node name="OyunArayuzu" parent="." index="16" instance=ExtResource("3_4kj0i")]
+[node name="OyunArayuzu" parent="." index="16" groups=["Arayuz"] instance=ExtResource("3_4kj0i")]
 
 [connection signal="input_event" from="Yeni_Kedi/Area3D" to="Yeni_Kedi" method="_on_area_3d_input_event"]
 

@@ -1,161 +1,86 @@
-extends Node3D
+extends CanvasLayer
 
-# --- AYARLAR ---
-@export var grid: GridYonetici
-@export var spawn_noktalari: Array[Marker3D] 
-@export var blok_sahneleri: Array[PackedScene] 
+# --- BAĞLANTILAR ---
+@onready var panel = $ParsomenPanel
 
-# --- BÖLÜM AYARLARI ---
-@export var bolum_blok_limiti: int = 12 
-@export var elde_tutulan_max: int = 3   
+# Level Başlığı
+@onready var ana_baslik = $ParsomenPanel/ArkaplanGorseli/ToplamPuanLabel
 
-# --- DEĞİŞKENLER ---
-var kalan_stok: int = 0
-var masadaki_aktif_bloklar: int = 0
+# Tablo Elemanları
+@onready var quota_label = $ParsomenPanel/PuanTablosu/QuotaDeger
+@onready var score_label = $ParsomenPanel/PuanTablosu/TotalScoreDeger
+@onready var liste = $ParsomenPanel/PuanTablosu/Liste
 
-signal stok_bitti 
-signal stok_guncellendi(kalan: int)
+# --- OYUN DEĞİŞKENLERİ ---
+var toplam_puan: int = 0
+var hedef_puan: int = 300 # İlk kota
+var level: int = 1
+var panel_acik: bool = false
 
 func _ready() -> void:
-	kalan_stok = bolum_blok_limiti
-	emit_signal("stok_guncellendi", kalan_stok)
+	# Paneli gizle ama verileri yazdır
+	panel.visible = false
+	guncelle_ekran()
 	
-	await get_tree().create_timer(0.5).timeout
-	_stoktan_yeni_parti_ver()
+	# Başlangıçta Level 1 yazsın
+	if ana_baslik:
+		ana_baslik.text = "LEVEL 1"
 
-func _stoktan_yeni_parti_ver() -> void:
-	# Stok bitti ve masada blok kalmadı -> OYUN SONU
-	if kalan_stok <= 0 and masadaki_aktif_bloklar <= 0:
-		emit_signal("stok_bitti")
-		_oyun_sonu_kontrolu()
-		return
+func _input(event: InputEvent) -> void:
+	# Q: Paneli Aç/Kapa
+	if event is InputEventKey and event.pressed and event.keycode == KEY_Q:
+		toggle_panel()
+		
+	# P: Test Puanı Ekle (Geliştirici Hilesi)
+	if event is InputEventKey and event.pressed and event.keycode == KEY_P:
+		puan_ekle(50, "Test Puani")
 
-	var eksik_sayisi = elde_tutulan_max - masadaki_aktif_bloklar
-	var dagitilacak_adet = min(eksik_sayisi, kalan_stok)
-	
-	if dagitilacak_adet > 0:
-		spawn_bloklar(dagitilacak_adet)
+func toggle_panel() -> void:
+	panel_acik = !panel_acik
+	panel.visible = panel_acik
 
-# --- OYUN SONU (WIN/LOSE) MANTIĞI ---
-func _oyun_sonu_kontrolu() -> void:
-	print("BÖLÜM BİTTİ! Sonuç Kontrol Ediliyor...")
+func puan_ekle(miktar: int, aciklama: String) -> void:
+	toplam_puan += miktar
 	
-	var arayuz = get_tree().get_first_node_in_group("Arayuz")
+	# Kotayı geçince level atlama kontrolü
+	if toplam_puan >= hedef_puan:
+		level_atla()
 	
-	if arayuz:
-		if arayuz.puan >= arayuz.hedef_puan:
-			_bolumu_kazan()
+	# Listeye detaylı yazı ekle
+	if liste:
+		var satir = Label.new()
+		satir.text = "+%d %s" % [miktar, aciklama]
+		satir.modulate = Color(0.1, 0.6, 0.1) # Yeşil renk
+		
+		liste.add_child(satir)
+		liste.move_child(satir, 0) # Yeni gelen en üste
+		
+		# Liste çok uzamasın (Son 10 işlemi tut)
+		if liste.get_child_count() > 10:
+			liste.get_child(10).queue_free()
+
+	guncelle_ekran()
+
+func level_atla() -> void:
+	level += 1
+	hedef_puan = int(hedef_puan * 1.5) # Kotayı zorlaştır
+	
+	# Level atlayınca başlığı güncelle
+	if ana_baslik:
+		ana_baslik.text = "LEVEL " + str(level)
+		ana_baslik.modulate = Color(1, 0.8, 0) # Altın sarısı (Gold)
+
+func guncelle_ekran() -> void:
+	# 1. Kotayı Yaz
+	if quota_label:
+		quota_label.text = str(hedef_puan)
+		
+	# 2. Skoru Yaz
+	if score_label:
+		score_label.text = str(toplam_puan)
+		
+		# Kotaya yaklaştıkça renk değişsin
+		if toplam_puan >= hedef_puan:
+			score_label.modulate = Color(0, 1, 0) # Yeşil (Geçti)
 		else:
-			_bolumu_kaybet(arayuz)
-	else:
-		print("HATA: Arayüz (UI) bulunamadı! Puan kontrol edilemiyor.")
-
-func _bolumu_kazan() -> void:
-	print(">>> TEBRİKLER! KAZANDINIZ <<<")
-	# BURAYA GELECEK SİNEMATİKLER:
-	# 1. Boss Ölme Animasyonu
-	# 2. Masanın Yükselmesi
-	# 3. Kapının Parlaması
-
-func _bolumu_kaybet(arayuz_ref) -> void:
-	print(">>> OYUN BİTTİ - KAYBETTİNİZ <<<")
-	arayuz_ref.puan_ekle(0, "YETERSİZ PUAN - OYUN BİTTİ")
-
-# --- SPAWN İŞLEMLERİ ---
-func spawn_bloklar(adet: int) -> void:
-	for i in range(adet):
-		var hedef_marker = _bos_spawn_noktasi_bul()
-		
-		if hedef_marker == null:
-			break
-			
-		kalan_stok -= 1
-		emit_signal("stok_guncellendi", kalan_stok)
-		masadaki_aktif_bloklar += 1
-		
-		_blok_yarat_ve_firlat(hedef_marker)
-		await get_tree().create_timer(0.2).timeout
-
-func _bos_spawn_noktasi_bul() -> Marker3D:
-	for nokta in spawn_noktalari:
-		var blok_var = false
-		for child in nokta.get_children():
-			# Void görsellerini (Mesh/CSG) yoksay, sadece Blok (Node3D) ara
-			if not (child is MeshInstance3D or child is CSGShape3D or child is CSGCombiner3D):
-				if child is Node3D: 
-					blok_var = true
-					break
-		
-		if not blok_var:
-			return nokta
-	return null
-
-func _blok_yarat_ve_firlat(target_marker: Marker3D) -> void:
-	if blok_sahneleri.is_empty(): return
-	
-	var random_scene = blok_sahneleri.pick_random()
-	var yeni_blok = random_scene.instantiate()
-	
-	target_marker.add_child(yeni_blok)
-	
-	if yeni_blok is BlokSurukle:
-		yeni_blok.grid = grid
-		yeni_blok.blok_yerlesti.connect(_on_blok_yerlesti)
-	
-	# --- VOID ANİMASYONU ---
-	var hedef_scale = yeni_blok.scale 
-	yeni_blok.set_meta("orjinal_scale", hedef_scale)
-	
-	# "det==0" hatasını önlemek için 0.01 yapıyoruz
-	yeni_blok.scale = Vector3(0.01, 0.01, 0.01) 
-	yeni_blok.position = Vector3(0, -2, 0) 
-	yeni_blok.rotation_degrees = Vector3(0, 180, 0)
-	
-	_animasyon_oynat(yeni_blok, Vector3.ZERO, hedef_scale, Vector3.ZERO)
-
-func _on_blok_yerlesti() -> void:
-	masadaki_aktif_bloklar -= 1
-	await get_tree().create_timer(0.8).timeout
-	_stoktan_yeni_parti_ver()
-
-# --- BLOKLARI SAKLA (YÜRÜME MODU) ---
-func bloklari_gizle() -> void:
-	for marker in spawn_noktalari:
-		for child in marker.get_children():
-			if not (child is MeshInstance3D or child is CSGShape3D or child is CSGCombiner3D) and child is Node3D:
-				if child.has_meta("tween"):
-					var t = child.get_meta("tween") as Tween
-					if t and t.is_valid(): t.kill()
-				
-				var tween = create_tween()
-				child.set_meta("tween", tween)
-				tween.set_parallel(true)
-				tween.tween_property(child, "scale", Vector3(0.01, 0.01, 0.01), 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
-				tween.tween_property(child, "position", Vector3(0, -2, 0), 0.3).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-
-# --- BLOKLARI GÖSTER (OYUN MODU) ---
-func bloklari_goster() -> void:
-	for marker in spawn_noktalari:
-		for child in marker.get_children():
-			if not (child is MeshInstance3D or child is CSGShape3D or child is CSGCombiner3D) and child is Node3D:
-				if child.has_meta("tween"):
-					var t = child.get_meta("tween") as Tween
-					if t and t.is_valid(): t.kill()
-				
-				child.position = Vector3(0, -2, 0) 
-				child.scale = Vector3(0.01, 0.01, 0.01)
-				child.rotation_degrees = Vector3(0, 180, 0)
-				
-				var orjinal_scale = Vector3.ONE 
-				if child.has_meta("orjinal_scale"): 
-					orjinal_scale = child.get_meta("orjinal_scale")
-				
-				_animasyon_oynat(child, Vector3.ZERO, orjinal_scale, Vector3.ZERO)
-
-func _animasyon_oynat(target, pos, scl, rot):
-	var tween = create_tween()
-	target.set_meta("tween", tween)
-	tween.set_parallel(true)
-	tween.tween_property(target, "position", pos, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(target, "scale", scl, 0.5).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
-	tween.tween_property(target, "rotation", rot, 0.6).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+			score_label.modulate = Color(0.2, 0.1, 0.0) # Kahve (Henüz geçmedi)
