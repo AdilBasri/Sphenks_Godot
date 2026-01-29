@@ -328,12 +328,14 @@ transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182,
 visible = false
 tekli_blok_sahnesi = ExtResource("20_mc62c")
 
-[node name="BlokDagiticisi" type="Node3D" parent="." index="14" node_paths=PackedStringArray("grid", "spawn_noktalari", "boss_objesi")]
+[node name="BlokDagiticisi" type="Node3D" parent="." index="14" node_paths=PackedStringArray("grid", "spawn_noktalari", "boss_objesi", "masa_objesi")]
 script = ExtResource("23_fi7dh")
 grid = NodePath("../GridYoneticisi")
 spawn_noktalari = [NodePath("Pos1"), NodePath("Pos2"), NodePath("Pos3")]
 blok_sahneleri = Array[PackedScene]([ExtResource("17_sbm3a"), ExtResource("16_b7lqx"), ExtResource("20_mc62c"), ExtResource("19_5n3a3"), ExtResource("18_btjas"), ExtResource("3_qtiyh")])
 boss_objesi = NodePath("../Boss")
+masa_objesi = NodePath("../Mesh_0")
+baslangic_kotasi = 300
 
 [node name="Pos1" type="Marker3D" parent="BlokDagiticisi" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7479579, 0, 1.1636108)
