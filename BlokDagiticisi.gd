@@ -9,6 +9,9 @@ extends Node3D
 @export var bolum_blok_limiti: int = 12 
 @export var elde_tutulan_max: int = 3   
 
+# --- SİNEMATİK AYARLARI (Hata veren kısım burasıydı) ---
+@export var boss_objesi: Node3D  # <-- BU SATIR EKSİKTİ!
+
 # --- DEĞİŞKENLER ---
 var kalan_stok: int = 0
 var masadaki_aktif_bloklar: int = 0
@@ -23,7 +26,7 @@ func _ready() -> void:
 	_stoktan_yeni_parti_ver()
 
 func _stoktan_yeni_parti_ver() -> void:
-	# Stok bitti ve masada blok kalmadı -> OYUN SONU
+	# Stok bitti ve masada blok kalmadı -> OYUN SONU KONTROLÜ
 	if kalan_stok <= 0 and masadaki_aktif_bloklar <= 0:
 		emit_signal("stok_bitti")
 		_oyun_sonu_kontrolu()
@@ -37,31 +40,48 @@ func _stoktan_yeni_parti_ver() -> void:
 
 # --- OYUN SONU (WIN/LOSE) MANTIĞI ---
 func _oyun_sonu_kontrolu() -> void:
-	print("BÖLÜM BİTTİ! Sonuç Kontrol Ediliyor...")
+	print("--- OYUN SONU KONTROLU BAŞLADI ---")
+	
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
 	
 	if arayuz:
-		# --- DÜZELTME BURADA: .puan yerine .toplam_puan ---
-		# Eğer UI kodunda değişkenin adı 'puan' değil 'toplam_puan' ise bu hatayı veriyordu.
-		# Güvenli olması için varsa 'puan' yoksa 'toplam_puan' kullanıyoruz:
 		var skor = 0
 		if "toplam_puan" in arayuz:
 			skor = arayuz.toplam_puan
 		elif "puan" in arayuz:
 			skor = arayuz.puan
-			
+		
+		print("Skor: ", skor, " | Hedef: ", arayuz.hedef_puan)
+		
 		if skor >= arayuz.hedef_puan:
 			_bolumu_kazan()
 		else:
 			_bolumu_kaybet(arayuz)
 	else:
-		print("HATA: Arayüz (UI) bulunamadı! Puan kontrol edilemiyor.")
+		print("HATA: Arayüz bulunamadı!")
 
 func _bolumu_kazan() -> void:
-	print(">>> TEBRİKLER! KAZANDINIZ <<<")
-	# BURAYA GELECEK SİNEMATİKLER:
-	# 1. Boss Ölme Animasyonu
-	# 2. Masanın Yükselmesi
+	print(">>> KAZANDINIZ! SİNEMATİK BAŞLIYOR <<<")
+	
+	# 1. Kontrolleri kilitle
+	set_process_input(false)
+	
+	# 2. Boss Animasyonu
+	if boss_objesi:
+		var tween = create_tween()
+		
+		# Titreme (Sağa Sola)
+		for i in range(5):
+			tween.tween_property(boss_objesi, "position:x", 0.2, 0.05).as_relative()
+			tween.tween_property(boss_objesi, "position:x", -0.2, 0.05).as_relative()
+		
+		# Yerin Dibine Girme + Küçülme
+		tween.parallel().tween_property(boss_objesi, "position:y", -10.0, 2.0).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
+		tween.parallel().tween_property(boss_objesi, "scale", Vector3.ZERO, 2.0)
+		
+		tween.tween_callback(func(): print("BOSS YOK OLDU! Level Geçişi Yapılacak..."))
+	else:
+		print("HATA: Boss Objesi atanmamış!")
 
 func _bolumu_kaybet(arayuz_ref) -> void:
 	print(">>> OYUN BİTTİ - KAYBETTİNİZ <<<")
@@ -72,14 +92,11 @@ func _bolumu_kaybet(arayuz_ref) -> void:
 func spawn_bloklar(adet: int) -> void:
 	for i in range(adet):
 		var hedef_marker = _bos_spawn_noktasi_bul()
-		
-		if hedef_marker == null:
-			break
+		if hedef_marker == null: break
 			
 		kalan_stok -= 1
 		emit_signal("stok_guncellendi", kalan_stok)
 		masadaki_aktif_bloklar += 1
-		
 		_blok_yarat_ve_firlat(hedef_marker)
 		await get_tree().create_timer(0.2).timeout
 
@@ -91,8 +108,7 @@ func _bos_spawn_noktasi_bul() -> Marker3D:
 				if child is Node3D: 
 					blok_var = true
 					break
-		if not blok_var:
-			return nokta
+		if not blok_var: return nokta
 	return null
 
 func _blok_yarat_ve_firlat(target_marker: Marker3D) -> void:
@@ -115,34 +131,6 @@ func _on_blok_yerlesti() -> void:
 	masadaki_aktif_bloklar -= 1
 	await get_tree().create_timer(0.8).timeout
 	_stoktan_yeni_parti_ver()
-
-func bloklari_gizle() -> void:
-	for marker in spawn_noktalari:
-		for child in marker.get_children():
-			if not (child is MeshInstance3D or child is CSGShape3D or child is CSGCombiner3D) and child is Node3D:
-				if child.has_meta("tween"):
-					var t = child.get_meta("tween") as Tween
-					if t and t.is_valid(): t.kill()
-				var tween = create_tween()
-				child.set_meta("tween", tween)
-				tween.set_parallel(true)
-				tween.tween_property(child, "scale", Vector3(0.01, 0.01, 0.01), 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
-				tween.tween_property(child, "position", Vector3(0, -2, 0), 0.3).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-
-func bloklari_goster() -> void:
-	for marker in spawn_noktalari:
-		for child in marker.get_children():
-			if not (child is MeshInstance3D or child is CSGShape3D or child is CSGCombiner3D) and child is Node3D:
-				if child.has_meta("tween"):
-					var t = child.get_meta("tween") as Tween
-					if t and t.is_valid(): t.kill()
-				child.position = Vector3(0, -2, 0) 
-				child.scale = Vector3(0.01, 0.01, 0.01)
-				child.rotation_degrees = Vector3(0, 180, 0)
-				var orjinal_scale = Vector3.ONE 
-				if child.has_meta("orjinal_scale"): 
-					orjinal_scale = child.get_meta("orjinal_scale")
-				_animasyon_oynat(child, Vector3.ZERO, orjinal_scale, Vector3.ZERO)
 
 func _animasyon_oynat(target, pos, scl, rot):
 	var tween = create_tween()
