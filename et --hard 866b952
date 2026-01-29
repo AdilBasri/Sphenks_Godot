@@ -1,0 +1,14 @@
+[33m1ea94b6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{0}: reset: moving to 1ea94b6
+[33m866b952[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{1}: reset: moving to HEAD
+[33m866b952[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{2}: commit: Ofisten cikis - arayuz ve puan sistemi guncellemesi
+[33m1ea94b6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{3}: pull origin main: Fast-forward
+[33me30c4d7[m HEAD@{4}: commit: son hal
+[33me0690f1[m HEAD@{5}: commit: Debug gorselleri duzeltildi: Artik Yesil ve dogru eks
+[33m894b5c6[m HEAD@{6}: commit: Blok surukleme sistemi yenilendi (Raycast), Debug modu eklendi ve Hayalet rotasyonu duzeltildi
+[33mf183a4a[m HEAD@{7}: reset: moving to origin/main
+[33m6bce662[m HEAD@{8}: commit: Blok yerlestirme sistemi tamamlandi: Damgalama, duzgun rotasyon ve dinamik tutus eklendi. Hitbox sorunu cozuldu.
+[33m4c49ccc[m HEAD@{9}: commit: Grid sistemi matematiksel düzleme gecirildi: Bloklar artik zemine yapisiyor ve gridin her noktasina konabiliyor. Scale ayarlari yapildi.
+[33mc57b9be[m HEAD@{10}: reset: moving to origin/main
+[33m10f8a59[m HEAD@{11}: commit: Kedi tutma mekanigi, CRT Shader, Yeni Boss ve Diyalog sistemi altyapisi eklendi
+[33m5a073ab[m HEAD@{12}: Branch: renamed refs/heads/master to refs/heads/main
+[33m5a073ab[m HEAD@{14}: commit (initial): Proje baslangici: Mistik oda ve golge mekanigi tamam

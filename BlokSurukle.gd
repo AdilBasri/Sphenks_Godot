@@ -34,7 +34,7 @@ var orjinal_rotasyon_degrees: Vector3
 
 # Dinamik Hesaplamalar
 var anlik_footprint: Array[Vector2i] = [] 
-var anlik_y_rotasyon: float = 0.0         
+var anlik_y_rotasyon: float = 0.0          
 
 func _ready() -> void:
 	orjinal_parent = get_parent()
@@ -66,7 +66,7 @@ func _input(event: InputEvent) -> void:
 		if event.button_index == MOUSE_BUTTON_LEFT and (not event.pressed):
 			_birak()
 
-func _yakala(tiklanan_dunya_pos: Vector3) -> void:
+func _yakala(_tiklanan_dunya_pos: Vector3) -> void:
 	tutuluyor = true
 	son_hucre = null
 	if grid: grid.release_owner(self)
@@ -95,9 +95,6 @@ func _gorsel_mouse_takip(delta: float) -> void:
 func _hayalet_guncelle() -> void:
 	if not grid or not hayalet: return
 	
-	# --- DÜZELTME 1: Scale'i zorla 1 yapma, mevcut boyutu koru ---
-	# hayalet.scale = Vector3.ONE  <-- BU SATIRI SİLDİK
-	
 	var current_pos_for_grid = global_position 
 	current_pos_for_grid.y = grid.global_position.y
 	
@@ -125,8 +122,7 @@ func _hayalet_guncelle() -> void:
 	# Döndürmeyi uygula
 	hayalet.global_transform.basis = y_basis * x_basis
 	
-	# --- DÜZELTME 2: Boyutu tekrar geri yükle ---
-	# Basis işlemi boyutu sıfırladığı için, eski boyutu tekrar yapıştırıyoruz.
+	# Boyutu tekrar geri yükle
 	hayalet.scale = mevcut_scale
 	
 	# -----------------------------------------------------
@@ -204,7 +200,6 @@ func _birak() -> void:
 
 func _eve_don() -> void:
 	if hayalet: hayalet.visible = false
-	
 	# Eğer parent zaten doğruysa tekrar atama yapma (Hata önler)
 	if orjinal_parent and get_parent() != orjinal_parent:
 		# Global pozisyonu koruyarak (true) eve geri al
@@ -213,13 +208,10 @@ func _eve_don() -> void:
 	# Tween ile sakince yerine git
 	var tween = create_tween()
 	tween.set_parallel(true)
-	
 	# Yerel koordinatta (0,0,0)'a gitmeli (Spawner'ın kucağına)
 	tween.tween_property(self, "position", Vector3.ZERO, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(self, "scale", orjinal_scale, 0.3)
-	
-	# Rotasyonu da eski haline getir (Quaternion daha güvenlidir)
-	# Eğer orjinal_rotasyon_degrees kullanıyorsan o da olur ama bazen takla atar.
+	# Rotasyonu da eski haline getir
 	tween.tween_property(self, "rotation_degrees", orjinal_rotasyon_degrees, 0.3)
 
 # --- DEBUG MODU (KESİN KOORDİNAT GÖSTERİCİ) ---
@@ -229,7 +221,7 @@ func _debug_footprint_ciz() -> void:
 		if c.name == "DebugKure": c.queue_free()
 		
 	var materyal = StandardMaterial3D.new()
-	materyal.albedo_color = Color(0, 1, 0, 0.5) # YEŞİL olsun ki kırmızı blokla karışmasın
+	materyal.albedo_color = Color(0, 1, 0, 0.5) # YEŞİL
 	materyal.emission_enabled = true
 	materyal.emission = Color(0, 1, 0)
 	materyal.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -239,21 +231,10 @@ func _debug_footprint_ciz() -> void:
 	for nokta in footprint:
 		var mesh_inst = MeshInstance3D.new()
 		mesh_inst.mesh = BoxMesh.new()
-		
-		# Boyutu biraz küçültelim (0.9) ki grid sınırlarını göstersin
 		mesh_inst.mesh.size = Vector3(0.9, 0.9, 0.9) 
-		
 		mesh_inst.material_override = materyal
 		mesh_inst.name = "DebugKure"
 		add_child(mesh_inst)
 		
-		# --- KRİTİK EKSEN DÖNÜŞÜMÜ ---
-		# Footprint X -> Dünya X
-		# Footprint Y -> Dünya Z (Godot'da zemin Z eksenidir)
-		# Yükseklik   -> 0 (veya bloğun merkezi olan 0.0)
-		
-		# Eğer bloklarının pivotu alttaysa Y=0.5 yapmalıyız.
-		# Eğer bloklarının pivotu ortadaysa Y=0.0 yapmalıyız.
-		# Şimdilik "yerlesme_yuksekligi"ni de hesaba katalım.
-		
+		# Pozisyonu ayarla
 		mesh_inst.position = Vector3(nokta.x, 0.0, nokta.y)

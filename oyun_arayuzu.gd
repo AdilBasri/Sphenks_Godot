@@ -1,12 +1,9 @@
 extends CanvasLayer
 
-# --- BAĞLANTILAR (Hiyerarşine %100 Uyumlu) ---
+# --- BAĞLANTILAR ---
+# Eğer bu yollar sahnede yoksa oyun çökmesin diye güvenlik kontrolleri ekledik.
 @onready var panel = $ParsomenPanel
-
-# Level Başlığı (Resmin içinde olduğu için)
 @onready var ana_baslik = $ParsomenPanel/ArkaplanGorseli/ToplamPuanLabel
-
-# Tablo Elemanları (PuanTablosu'nun içinde)
 @onready var quota_label = $ParsomenPanel/PuanTablosu/QuotaDeger
 @onready var score_label = $ParsomenPanel/PuanTablosu/TotalScoreDeger
 @onready var liste = $ParsomenPanel/PuanTablosu/Liste
@@ -18,8 +15,13 @@ var level: int = 1
 var panel_acik: bool = false
 
 func _ready() -> void:
-	# Paneli gizle ama verileri yazdır
-	panel.visible = false
+	# KRİTİK: Bu satır olmazsa Spawner (BlokDagiticisi) bu dosyayı bulamaz!
+	add_to_group("Arayuz")
+	
+	# Paneli gizle ama verileri yazdır (Panel varsa)
+	if panel:
+		panel.visible = false
+	
 	guncelle_ekran()
 
 func _input(event: InputEvent) -> void:
@@ -27,22 +29,20 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_Q:
 		toggle_panel()
 		
-	# --- TEST İÇİN (Bunu sonra silersin) ---
-	# P Tuşuna basınca 50 puan ekler. Tablonun çalıştığını böyle anlarsın.
+	# P: Test Puanı Ekle (Hile)
 	if event is InputEventKey and event.pressed and event.keycode == KEY_P:
 		puan_ekle(50, "Test Puani")
 
 func toggle_panel() -> void:
 	panel_acik = !panel_acik
-	panel.visible = panel_acik
+	if panel:
+		panel.visible = panel_acik
 
 # --- PUAN EKLEME FONKSİYONU ---
-# Bu fonksiyonu diğer scriptlerden çağıracaksın!
-# Örnek: OyunArayuzu.puan_ekle(100, "Tekli Sıra")
 func puan_ekle(miktar: int, aciklama: String) -> void:
 	toplam_puan += miktar
 	
-	# Kotayı geçince ne olsun? (Balatro stili level atlama)
+	# Kotayı geçince level atlama kontrolü
 	if toplam_puan >= hedef_puan:
 		level_atla()
 	
@@ -51,6 +51,7 @@ func puan_ekle(miktar: int, aciklama: String) -> void:
 		var satir = Label.new()
 		satir.text = "+%d %s" % [miktar, aciklama]
 		satir.modulate = Color(0.1, 0.6, 0.1) # Yeşil renk
+		
 		# Yeni gelen en üste
 		liste.add_child(satir)
 		liste.move_child(satir, 0)
@@ -65,7 +66,6 @@ func level_atla() -> void:
 	level += 1
 	hedef_puan = int(hedef_puan * 1.5) # Kotayı zorlaştır
 	
-	# Level atlama efekti veya sesi buraya eklenebilir
 	if ana_baslik:
 		ana_baslik.text = "LEVEL " + str(level)
 		ana_baslik.modulate = Color.GOLD # Rengi parlat
@@ -79,8 +79,8 @@ func guncelle_ekran() -> void:
 	if score_label:
 		score_label.text = str(toplam_puan)
 		
-		# Kotaya yaklaştıkça renk değişsin mi?
+		# Kotaya yaklaştıkça renk değişsin
 		if toplam_puan >= hedef_puan:
 			score_label.modulate = Color.GREEN # Geçti!
 		else:
-			score_label.modulate = Color(0.2, 0.1, 0.0) # Henüz geçmedi (Kahve)
+			score_label.modulate = Color(0.2, 0.1, 0.0) # Henüz geçmedi

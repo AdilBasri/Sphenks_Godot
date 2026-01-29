@@ -1,0 +1,11 @@
+[33m866b952[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Ofisten cikis - arayuz ve puan sistemi guncellemesi
+[33m1ea94b6[m q
+[33me30c4d7[m son hal
+[33me0690f1[m Debug gorselleri duzeltildi: Artik Yesil ve dogru eks
+[33m894b5c6[m Blok surukleme sistemi yenilendi (Raycast), Debug modu eklendi ve Hayalet rotasyonu duzeltildi
+[33mf183a4a[m Patlama efekti eklendi, GridYoneticisi guncellendi ve L blogu duzeltmeleri
+[33m6bce662[m Blok yerlestirme sistemi tamamlandi: Damgalama, duzgun rotasyon ve dinamik tutus eklendi. Hitbox sorunu cozuldu.
+[33m4c49ccc[m Grid sistemi matematiksel düzleme gecirildi: Bloklar artik zemine yapisiyor ve gridin her noktasina konabiliyor. Scale ayarlari yapildi.
+[33mc57b9be[m Grid sistemi ve blok yerleşimi düzeltildi: Debug çizgileri eklendi, L şekli footprint ayarı yapıldı, masaya gömülme ve scale sorunu çözüldü.
+[33m10f8a59[m Kedi tutma mekanigi, CRT Shader, Yeni Boss ve Diyalog sistemi altyapisi eklendi
+[33m5a073ab[m Proje baslangici: Mistik oda ve golge mekanigi tamam

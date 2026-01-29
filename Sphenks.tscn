@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=43 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
@@ -23,6 +23,10 @@
 [ext_resource type="PackedScene" uid="uid://bq8mjuugdsa8p" path="res://block_tek.tscn" id="20_mc62c"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://oyuncu.gd" id="23_4kj0i"]
 [ext_resource type="Script" uid="uid://8aat777heohw" path="res://BlokDagiticisi.gd" id="23_fi7dh"]
+[ext_resource type="Texture2D" uid="uid://u5y1jjivkyg4" path="res://hand.png" id="24_4kj0i"]
+[ext_resource type="Texture2D" uid="uid://v3hgvensx0ub" path="res://mesaledeneme.png" id="25_lxn88"]
+[ext_resource type="Texture2D" uid="uid://cw3yccl0y15yc" path="res://skull.png" id="25_yiyi8"]
+[ext_resource type="Texture2D" uid="uid://diw64yisqg55h" path="res://web.png" id="27_offaw"]
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_qtiyh"]
 points = PackedVector3Array(0.01, 0.01, 0.0016615901, 0.01, -0.01, 0.0016615901, 0.01, 0.01, -0.0016615901, -0.01, 0.01, 0.0016615901, 0.01, -0.01, -0.0016615901, -0.01, -0.01, 0.0016615901, -0.01, 0.01, -0.0016615901, -0.01, -0.01, -0.0016615901)
@@ -44,6 +48,19 @@ albedo_texture = ExtResource("7_lxn88")
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yiyi8"]
 albedo_texture = ExtResource("7_lxn88")
 uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jl7q8"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("27_offaw")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kqumn"]
+albedo_texture = ExtResource("27_offaw")
+
+[sub_resource type="QuadMesh" id="QuadMesh_kqumn"]
+material = SubResource("StandardMaterial3D_kqumn")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_p4fw5"]
 size = Vector3(4.3583374, 2.0308838, 1)
@@ -109,6 +126,26 @@ spot_attenuation = 0.0
 spot_angle = 90.0
 spot_angle_attenuation = 4.9245725
 
+[node name="OmniLight3D" type="OmniLight3D" parent="Node3D/WorldEnvironment" index="2"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 2.9352772, 3.329911, -4.7490087)
+light_energy = 0.05
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 16.0
+distance_fade_enabled = true
+omni_range = 1.0
+omni_attenuation = 0.5
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="Node3D/WorldEnvironment" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8799524, 2.8669422, -2.1535542)
+light_color = Color(0.72471464, 0.13365132, 0, 1)
+light_energy = 3.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 16.0
+light_size = 0.34
+distance_fade_enabled = true
+omni_range = 1.409
+omni_attenuation = 0.5
+
 [node name="Block_L" parent="." index="3" instance=ExtResource("3_qtiyh")]
 transform = Transform3D(0.24, 0, 0, 0, 0.23182221, 0.06211654, 0, -0.06211654, 0.23182221, -0.74137366, 0.4313832, 1.3150665)
 visible = false
@@ -139,6 +176,11 @@ material = SubResource("StandardMaterial3D_yiyi8")
 
 [node name="CSGBox3D3" type="CSGBox3D" parent="MezarOdasi" index="3"]
 transform = Transform3D(0.5, 0, 0, 0, 2, 0, 0, 0, 0.5, 0, -1.197927, 0)
+
+[node name="KoseAgi" type="MeshInstance3D" parent="MezarOdasi" index="4"]
+transform = Transform3D(2.696805, 0.36331403, -1.2630303, -0.5189622, 2.9431808, -0.26146722, 1.2074438, 0.45353034, 2.7085774, 2.9630356, 3.090576, -4.8754044)
+material_override = SubResource("StandardMaterial3D_jl7q8")
+mesh = SubResource("QuadMesh_kqumn")
 
 [node name="Yeni_Kedi" type="Sprite3D" parent="." index="5" node_paths=PackedStringArray("diyalog_yoneticisi")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.4053817, -0.19308585, 0.0020349026)
@@ -262,8 +304,11 @@ transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182,
 visible = false
 tekli_blok_sahnesi = ExtResource("20_mc62c")
 
-[node name="BlokDagiticisi" type="Node3D" parent="." index="14"]
+[node name="BlokDagiticisi" type="Node3D" parent="." index="14" node_paths=PackedStringArray("grid", "spawn_noktalari")]
 script = ExtResource("23_fi7dh")
+grid = NodePath("../GridYoneticisi")
+spawn_noktalari = [NodePath("Pos1"), NodePath("Pos2"), NodePath("Pos3")]
+blok_sahneleri = Array[PackedScene]([ExtResource("17_sbm3a"), ExtResource("16_b7lqx"), ExtResource("20_mc62c"), ExtResource("19_5n3a3"), ExtResource("18_btjas"), ExtResource("3_qtiyh")])
 
 [node name="Pos1" type="Marker3D" parent="BlokDagiticisi" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7479579, 0, 1.1636108)
@@ -300,6 +345,21 @@ shape = SubResource("CapsuleShape3D_lxn88")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 
 [node name="OyunArayuzu" parent="." index="16" groups=["Arayuz"] instance=ExtResource("3_4kj0i")]
+
+[node name="Sprite3D" type="Sprite3D" parent="." index="17"]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 2.814343, 0.7904787, -4.989589)
+texture = ExtResource("24_4kj0i")
+
+[node name="Sprite3D3" type="Sprite3D" parent="." index="18"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -2.606346, 2.5711083, -2.53472)
+billboard = 2
+texture = ExtResource("25_yiyi8")
+
+[node name="Sprite3D2" type="Sprite3D" parent="." index="19"]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.980662, 2.4447017, -2.4630535)
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("25_lxn88")
 
 [connection signal="input_event" from="Yeni_Kedi/Area3D" to="Yeni_Kedi" method="_on_area_3d_input_event"]
 
