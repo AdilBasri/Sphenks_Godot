@@ -1,4 +1,4 @@
-[gd_scene load_steps=47 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=51 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
@@ -28,6 +28,7 @@
 [ext_resource type="Texture2D" uid="uid://v3hgvensx0ub" path="res://mesaledeneme.png" id="25_lxn88"]
 [ext_resource type="Texture2D" uid="uid://cw3yccl0y15yc" path="res://skull.png" id="25_yiyi8"]
 [ext_resource type="Texture2D" uid="uid://diw64yisqg55h" path="res://web.png" id="27_offaw"]
+[ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Kapi.tscn" id="29_kqumn"]
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_qtiyh"]
 points = PackedVector3Array(0.01, 0.01, 0.0016615901, 0.01, -0.01, 0.0016615901, 0.01, 0.01, -0.0016615901, -0.01, 0.01, 0.0016615901, 0.01, -0.01, -0.0016615901, -0.01, -0.01, 0.0016615901, -0.01, 0.01, -0.0016615901, -0.01, -0.01, -0.0016615901)
@@ -75,6 +76,19 @@ albedo_texture = ExtResource("27_offaw")
 
 [sub_resource type="QuadMesh" id="QuadMesh_kqumn"]
 material = SubResource("StandardMaterial3D_kqumn")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ewkc5"]
+albedo_color = Color(1, 1, 0, 1)
+albedo_texture_force_srgb = true
+emission_enabled = true
+emission = Color(1, 1, 0, 1)
+emission_energy_multiplier = 5.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_ojhqj"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1g7sh"]
+shading_mode = 0
+albedo_color = Color(0, 0, 0, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_p4fw5"]
 size = Vector3(4.3583374, 2.0308838, 1)
@@ -206,6 +220,25 @@ transform = Transform3D(2.696805, 0.36331403, -1.2630303, -0.5189622, 2.9431808,
 material_override = SubResource("StandardMaterial3D_jl7q8")
 mesh = SubResource("QuadMesh_kqumn")
 
+[node name="SabitGecitEfekti" type="Node3D" parent="MezarOdasi" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.0243692)
+visible = false
+
+[node name="AltinCerceve" type="CSGBox3D" parent="MezarOdasi/SabitGecitEfekti" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0800039, -1.3459997)
+size = Vector3(1.8, 3.2, 0.2)
+material = SubResource("StandardMaterial3D_ewkc5")
+
+[node name="OyucuKutu" type="CSGBox3D" parent="MezarOdasi/SabitGecitEfekti/AltinCerceve" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.14912271)
+operation = 2
+size = Vector3(1.5, 3, 0.5)
+
+[node name="HiclikPerdesi" type="MeshInstance3D" parent="MezarOdasi/SabitGecitEfekti" index="1"]
+transform = Transform3D(1.6, 0, 0, 0, 3.1, 0, 0, 0, 1, 0, 0.866, -1.3051925)
+mesh = SubResource("QuadMesh_ojhqj")
+surface_material_override/0 = SubResource("StandardMaterial3D_1g7sh")
+
 [node name="Yeni_Kedi" type="Sprite3D" parent="." index="5" node_paths=PackedStringArray("diyalog_yoneticisi")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.4053817, -0.19308585, 0.0020349026)
 billboard = 2
@@ -328,14 +361,14 @@ transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182,
 visible = false
 tekli_blok_sahnesi = ExtResource("20_mc62c")
 
-[node name="BlokDagiticisi" type="Node3D" parent="." index="14" node_paths=PackedStringArray("grid", "spawn_noktalari", "boss_objesi", "masa_objesi")]
+[node name="BlokDagiticisi" type="Node3D" parent="." index="14" node_paths=PackedStringArray("grid", "spawn_noktalari", "boss_objesi", "masa_objesi", "kapi_sistemi")]
 script = ExtResource("23_fi7dh")
 grid = NodePath("../GridYoneticisi")
 spawn_noktalari = [NodePath("Pos1"), NodePath("Pos2"), NodePath("Pos3")]
 blok_sahneleri = Array[PackedScene]([ExtResource("17_sbm3a"), ExtResource("16_b7lqx"), ExtResource("20_mc62c"), ExtResource("19_5n3a3"), ExtResource("18_btjas"), ExtResource("3_qtiyh")])
 boss_objesi = NodePath("../Boss")
 masa_objesi = NodePath("../Mesh_0")
-baslangic_kotasi = 300
+kapi_sistemi = NodePath("../KapiSistemi")
 
 [node name="Pos1" type="Marker3D" parent="BlokDagiticisi" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7479579, 0, 1.1636108)
@@ -395,6 +428,23 @@ material_overlay = SubResource("StandardMaterial3D_offaw")
 use_collision = true
 material = SubResource("StandardMaterial3D_yiyi8")
 
+[node name="KapiSistemi" parent="." index="21" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.68005544, 0.9280957, -5.2922864)
+kapi_isigi = NodePath("../SpotLight3D")
+gecit_efektleri = NodePath("../MezarOdasi/SabitGecitEfekti")
+
+[node name="OnYuz" parent="KapiSistemi/Govde" index="0"]
+transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
+
+[node name="SpotLight3D" type="SpotLight3D" parent="." index="22"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.31994456, 1.1450957, -5.2922864)
+visible = false
+light_color = Color(1, 0.91764706, 0, 1)
+light_energy = 10.0
+shadow_enabled = true
+distance_fade_enabled = true
+spot_angle = 60.0
+
 [connection signal="input_event" from="Yeni_Kedi/Area3D" to="Yeni_Kedi" method="_on_area_3d_input_event"]
 
 [editable path="Block_L"]
@@ -408,3 +458,4 @@ material = SubResource("StandardMaterial3D_yiyi8")
 [editable path="BlokKare/Hayalet/Node3D3"]
 [editable path="BlokKare/Hayalet/Node3D4"]
 [editable path="OyunArayuzu"]
+[editable path="KapiSistemi"]
