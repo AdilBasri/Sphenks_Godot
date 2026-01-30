@@ -30,9 +30,6 @@
 [ext_resource type="Texture2D" uid="uid://diw64yisqg55h" path="res://web.png" id="27_offaw"]
 [ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Kapi.tscn" id="29_kqumn"]
 
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_qtiyh"]
-points = PackedVector3Array(0.01, 0.01, 0.0016615901, 0.01, -0.01, 0.0016615901, 0.01, 0.01, -0.0016615901, -0.01, 0.01, 0.0016615901, 0.01, -0.01, -0.0016615901, -0.01, -0.01, 0.0016615901, -0.01, 0.01, -0.0016615901, -0.01, -0.01, -0.0016615901)
-
 [sub_resource type="Environment" id="Environment_jcgda"]
 background_mode = 1
 background_energy_multiplier = 0.0
@@ -107,15 +104,6 @@ shader = ExtResource("11_48she")
 shader_parameter/renk = Color(0.1, 0, 0, 0.8)
 shader_parameter/hiz = 0.2
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4kj0i"]
-albedo_color = Color(0, 0, 0, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fi7dh"]
-albedo_color = Color(0, 0, 0, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hwr7g"]
-albedo_color = Color(0, 0, 0, 1)
-
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_lxn88"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lxn88"]
@@ -131,22 +119,26 @@ albedo_texture = ExtResource("7_lxn88")
 albedo_texture = ExtResource("7_lxn88")
 uv1_triplanar = true
 
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_qtiyh"]
+points = PackedVector3Array(0.01, 0.01, 0.0016615901, 0.01, -0.01, 0.0016615901, 0.01, 0.01, -0.0016615901, -0.01, 0.01, 0.0016615901, 0.01, -0.01, -0.0016615901, -0.01, -0.01, 0.0016615901, -0.01, 0.01, -0.0016615901, -0.01, -0.01, -0.0016615901)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4kj0i"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fi7dh"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hwr7g"]
+albedo_color = Color(0, 0, 0, 1)
+
 [node name="Meshy_AI__0118084653_texture" instance=ExtResource("1_1eqvi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.031485796, 0, 0)
 script = ExtResource("2_fi7dh")
 
-[node name="Masa_Fizik" type="StaticBody3D" parent="." index="0"]
-transform = Transform3D(100, 0, 0, 0, -4.371139e-06, -100, 0, 100, -4.371139e-06, 0, 0, 0)
+[node name="Mesh_0" parent="." index="0"]
 visible = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Masa_Fizik" index="0"]
-visible = false
-shape = SubResource("ConvexPolygonShape3D_qtiyh")
-
-[node name="Mesh_0" parent="." index="1"]
-visible = false
-
-[node name="Node3D" type="Node3D" parent="." index="2"]
+[node name="Node3D" type="Node3D" parent="." index="1"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Node3D" index="0"]
 environment = SubResource("Environment_jcgda")
@@ -187,7 +179,7 @@ distance_fade_enabled = true
 omni_range = 1.409
 omni_attenuation = 0.5
 
-[node name="Block_L" parent="." index="3" instance=ExtResource("3_qtiyh")]
+[node name="Block_L" parent="." index="2" instance=ExtResource("3_qtiyh")]
 transform = Transform3D(0.24, 0, 0, 0, 0.23182221, 0.06211654, 0, -0.06211654, 0.23182221, -0.74137366, 0.4313832, 1.3150665)
 visible = false
 tekli_blok_sahnesi = ExtResource("20_mc62c")
@@ -199,7 +191,7 @@ collision_mask = 2
 [node name="CollisionShape3D" parent="Block_L/Area3D" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, -1.1920932e-07, 0, 1.1920932e-07, 1, 0.46710467, 0.99362993, 0.4181919)
 
-[node name="MezarOdasi" type="CSGCombiner3D" parent="." index="4"]
+[node name="MezarOdasi" type="CSGCombiner3D" parent="." index="3"]
 material_override = SubResource("StandardMaterial3D_5u6ys")
 use_collision = true
 
@@ -212,15 +204,12 @@ transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, -0.15582418, 0.6819415, -1.35
 material_override = SubResource("StandardMaterial3D_ush30")
 operation = 2
 
-[node name="CSGBox3D3" type="CSGBox3D" parent="MezarOdasi" index="2"]
-transform = Transform3D(0.5, 0, 0, 0, 2, 0, 0, 0, 0.5, 0, -1.197927, 0)
-
-[node name="KoseAgi" type="MeshInstance3D" parent="MezarOdasi" index="3"]
+[node name="KoseAgi" type="MeshInstance3D" parent="MezarOdasi" index="2"]
 transform = Transform3D(2.696805, 0.36331403, -1.2630303, -0.5189622, 2.9431808, -0.26146722, 1.2074438, 0.45353034, 2.7085774, 2.9630356, 3.090576, -4.8754044)
 material_override = SubResource("StandardMaterial3D_jl7q8")
 mesh = SubResource("QuadMesh_kqumn")
 
-[node name="SabitGecitEfekti" type="Node3D" parent="MezarOdasi" index="4"]
+[node name="SabitGecitEfekti" type="Node3D" parent="MezarOdasi" index="3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.0243692)
 visible = false
 
@@ -239,7 +228,7 @@ transform = Transform3D(1.6, 0, 0, 0, 3.1, 0, 0, 0, 1, 0, 0.866, -1.3051925)
 mesh = SubResource("QuadMesh_ojhqj")
 surface_material_override/0 = SubResource("StandardMaterial3D_1g7sh")
 
-[node name="Yeni_Kedi" type="Sprite3D" parent="." index="5" node_paths=PackedStringArray("diyalog_yoneticisi")]
+[node name="Yeni_Kedi" type="Sprite3D" parent="." index="4" node_paths=PackedStringArray("diyalog_yoneticisi")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.4053817, -0.19308585, 0.0020349026)
 billboard = 2
 alpha_cut = 1
@@ -256,7 +245,7 @@ uzayan_hal = ExtResource("8_p4fw5")
 transform = Transform3D(0.99999976, 0, 0, 0, 0.99999976, 0, 0, 0, 0.99999976, 0.033602238, -0.16142029, 0)
 shape = SubResource("BoxShape3D_p4fw5")
 
-[node name="Boss" type="Sprite3D" parent="." index="6" node_paths=PackedStringArray("oyuncu", "masa_merkezi")]
+[node name="Boss" type="Sprite3D" parent="." index="5" node_paths=PackedStringArray("oyuncu", "masa_merkezi")]
 transform = Transform3D(0.7, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0.4112321, -1.3106129)
 billboard = 2
 alpha_cut = 1
@@ -264,7 +253,7 @@ texture_filter = 0
 texture = ExtResource("10_jl7q8")
 script = ExtResource("9_h2n1q")
 oyuncu = NodePath("../Oyuncu")
-masa_merkezi = NodePath("../Masa_Fizik")
+masa_merkezi = NodePath("../TumMasaSistemi/Masa_Fizik")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="Boss" index="0"]
 
@@ -321,80 +310,41 @@ layout_mode = 2
 [node name="Button2" type="Button" parent="Boss/CanvasLayer/DiyalogKatmani/Panel/VBoxContainer" index="1"]
 layout_mode = 2
 
-[node name="Label3D" type="Label3D" parent="." index="7"]
+[node name="Label3D" type="Label3D" parent="." index="6"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2689905, 0.39843994, 0)
 billboard = 2
 modulate = Color(0.9424361, 0, 0.18018493, 1)
 text = "Beni Tut!"
 font_size = 52
 
-[node name="GridYoneticisi" type="Node3D" parent="." index="8"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.018025577, 0, -0.025204837)
-script = ExtResource("14_qtiyh")
-patlama_efekti_sahnesi = ExtResource("16_hwr7g")
-hucre_boyutu = 0.253
-
-[node name="BlokKare" parent="." index="9" node_paths=PackedStringArray("grid") instance=ExtResource("16_b7lqx")]
+[node name="BlokKare" parent="." index="7" node_paths=PackedStringArray("grid") instance=ExtResource("16_b7lqx")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -0.086585164, 0.521, 1.3832939)
 visible = false
-grid = NodePath("../GridYoneticisi")
+grid = NodePath("../TumMasaSistemi/GridYoneticisi")
 hover_y_offset = 0.0
 
-[node name="BlokCubuk" parent="." index="10" instance=ExtResource("17_sbm3a")]
+[node name="BlokCubuk" parent="." index="8" instance=ExtResource("17_sbm3a")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, 0.53413725, 0.521, 1.4186599)
 visible = false
 tekli_blok_sahnesi = ExtResource("20_mc62c")
 footprint = Array[Vector2i]([Vector2i(0, 0)])
 
-[node name="BlokT" parent="." index="11" instance=ExtResource("18_btjas")]
+[node name="BlokT" parent="." index="9" instance=ExtResource("18_btjas")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, 1.2060636, 0.521, 1.3921502)
 visible = false
 tekli_blok_sahnesi = ExtResource("20_mc62c")
 
-[node name="BlokZ" parent="." index="12" instance=ExtResource("19_5n3a3")]
+[node name="BlokZ" parent="." index="10" instance=ExtResource("19_5n3a3")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -1.2616234, 0.521, 1.4148206)
 visible = false
 tekli_blok_sahnesi = ExtResource("20_mc62c")
 
-[node name="BlokTek" parent="." index="13" instance=ExtResource("20_mc62c")]
+[node name="BlokTek" parent="." index="11" instance=ExtResource("20_mc62c")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -0.26791936, 0.66327345, 1.524)
 visible = false
 tekli_blok_sahnesi = ExtResource("20_mc62c")
 
-[node name="BlokDagiticisi" type="Node3D" parent="." index="14" node_paths=PackedStringArray("grid", "spawn_noktalari", "boss_objesi", "masa_objesi", "kapi_sistemi")]
-script = ExtResource("23_fi7dh")
-grid = NodePath("../GridYoneticisi")
-spawn_noktalari = [NodePath("Pos1"), NodePath("Pos2"), NodePath("Pos3")]
-blok_sahneleri = Array[PackedScene]([ExtResource("17_sbm3a"), ExtResource("16_b7lqx"), ExtResource("20_mc62c"), ExtResource("19_5n3a3"), ExtResource("18_btjas"), ExtResource("3_qtiyh")])
-boss_objesi = NodePath("../Boss")
-masa_objesi = NodePath("../Mesh_0")
-kapi_sistemi = NodePath("../KapiSistemi")
-
-[node name="Pos1" type="Marker3D" parent="BlokDagiticisi" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7479579, 0, 1.1636108)
-
-[node name="CSGCylinder3D3" type="CSGCylinder3D" parent="BlokDagiticisi/Pos1" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.017696142, -0.765625, -0.017400026)
-height = 0.46875
-material = SubResource("StandardMaterial3D_4kj0i")
-
-[node name="Pos2" type="Marker3D" parent="BlokDagiticisi" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05717367, 0, 1.1794122)
-
-[node name="CSGCylinder3D2" type="CSGCylinder3D" parent="BlokDagiticisi/Pos2" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07921949, -0.765625, -0.033201456)
-height = 0.46875
-material = SubResource("StandardMaterial3D_fi7dh")
-
-[node name="Pos3" type="Marker3D" parent="BlokDagiticisi" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.51830024, 0, 1.1583085)
-
-[node name="CSGCylinder3D" type="CSGCylinder3D" parent="BlokDagiticisi/Pos3" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11817509, -0.765625, -0.012097716)
-height = 0.46875
-material = SubResource("StandardMaterial3D_hwr7g")
-
-[node name="Oyuncu" type="CharacterBody3D" parent="." index="15"]
+[node name="Oyuncu" type="CharacterBody3D" parent="." index="12"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.241353)
 script = ExtResource("23_4kj0i")
 
@@ -404,31 +354,31 @@ shape = SubResource("CapsuleShape3D_lxn88")
 [node name="Camera3D" type="Camera3D" parent="Oyuncu" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 
-[node name="OyunArayuzu" parent="." index="16" groups=["Arayuz"] instance=ExtResource("3_4kj0i")]
+[node name="OyunArayuzu" parent="." index="13" groups=["Arayuz"] instance=ExtResource("3_4kj0i")]
 
-[node name="Sprite3D" type="Sprite3D" parent="." index="17"]
+[node name="Sprite3D" type="Sprite3D" parent="." index="14"]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 2.814343, 0.7904787, -4.989589)
 texture = ExtResource("24_4kj0i")
 
-[node name="Sprite3D3" type="Sprite3D" parent="." index="18"]
+[node name="Sprite3D3" type="Sprite3D" parent="." index="15"]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -2.606346, 2.5711083, -2.53472)
 billboard = 2
 texture = ExtResource("25_yiyi8")
 
-[node name="Sprite3D2" type="Sprite3D" parent="." index="19"]
+[node name="Sprite3D2" type="Sprite3D" parent="." index="16"]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.980662, 2.4447017, -2.4630535)
 alpha_cut = 1
 texture_filter = 0
 texture = ExtResource("25_lxn88")
 
-[node name="Zemin" type="CSGBox3D" parent="." index="20"]
+[node name="Zemin" type="CSGBox3D" parent="." index="17"]
 transform = Transform3D(20, 0, 0, 0, 0.5, 0, 0, 0, 20, 0, -0.85875946, 0)
 material_override = SubResource("StandardMaterial3D_lxn88")
 material_overlay = SubResource("StandardMaterial3D_offaw")
 use_collision = true
 material = SubResource("StandardMaterial3D_yiyi8")
 
-[node name="KapiSistemi" parent="." index="21" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
+[node name="KapiSistemi" parent="." index="18" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.68005544, 0.9280957, -5.2922864)
 kapi_isigi = NodePath("../SpotLight3D")
 gecit_efektleri = NodePath("../MezarOdasi/SabitGecitEfekti")
@@ -436,7 +386,7 @@ gecit_efektleri = NodePath("../MezarOdasi/SabitGecitEfekti")
 [node name="OnYuz" parent="KapiSistemi/Govde" index="0"]
 transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
 
-[node name="SpotLight3D" type="SpotLight3D" parent="." index="22"]
+[node name="SpotLight3D" type="SpotLight3D" parent="." index="19"]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.31994456, 1.1450957, -5.2922864)
 visible = false
 light_color = Color(1, 0.91764706, 0, 1)
@@ -444,6 +394,58 @@ light_energy = 10.0
 shadow_enabled = true
 distance_fade_enabled = true
 spot_angle = 60.0
+
+[node name="TumMasaSistemi" type="Node3D" parent="." index="20"]
+
+[node name="GridYoneticisi" type="Node3D" parent="TumMasaSistemi" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.018025577, 0, -0.025204837)
+script = ExtResource("14_qtiyh")
+patlama_efekti_sahnesi = ExtResource("16_hwr7g")
+hucre_boyutu = 0.253
+
+[node name="Masa_Fizik" type="StaticBody3D" parent="TumMasaSistemi" index="1"]
+transform = Transform3D(100, 0, 0, 0, -4.371139e-06, -100, 0, 100, -4.371139e-06, 0, 0, 0)
+visible = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TumMasaSistemi/Masa_Fizik" index="0"]
+visible = false
+shape = SubResource("ConvexPolygonShape3D_qtiyh")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="TumMasaSistemi" index="2"]
+transform = Transform3D(0.5, 0, 0, 0, 2, 0, 0, 0, 0.5, 0, -1.0288582, 0)
+
+[node name="BlokDagiticisi" type="Node3D" parent="TumMasaSistemi" index="3" node_paths=PackedStringArray("grid", "spawn_noktalari", "boss_objesi", "masa_objesi", "kapi_sistemi")]
+script = ExtResource("23_fi7dh")
+grid = NodePath("../GridYoneticisi")
+spawn_noktalari = [NodePath("Pos1"), NodePath("Pos2"), NodePath("Pos3")]
+blok_sahneleri = Array[PackedScene]([ExtResource("17_sbm3a"), ExtResource("16_b7lqx"), ExtResource("20_mc62c"), ExtResource("19_5n3a3"), ExtResource("18_btjas"), ExtResource("3_qtiyh")])
+boss_objesi = NodePath("../../Boss")
+masa_objesi = NodePath("..")
+kapi_sistemi = NodePath("../../KapiSistemi")
+
+[node name="Pos1" type="Marker3D" parent="TumMasaSistemi/BlokDagiticisi" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7479579, 0, 1.1636108)
+
+[node name="CSGCylinder3D3" type="CSGCylinder3D" parent="TumMasaSistemi/BlokDagiticisi/Pos1" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.017696142, -0.765625, -0.017400026)
+height = 0.46875
+material = SubResource("StandardMaterial3D_4kj0i")
+
+[node name="Pos2" type="Marker3D" parent="TumMasaSistemi/BlokDagiticisi" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05717367, 0, 1.1794122)
+
+[node name="CSGCylinder3D2" type="CSGCylinder3D" parent="TumMasaSistemi/BlokDagiticisi/Pos2" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07921949, -0.765625, -0.033201456)
+height = 0.46875
+material = SubResource("StandardMaterial3D_fi7dh")
+
+[node name="Pos3" type="Marker3D" parent="TumMasaSistemi/BlokDagiticisi" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.51830024, 0, 1.1583085)
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="TumMasaSistemi/BlokDagiticisi/Pos3" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11817509, -0.765625, -0.012097716)
+height = 0.46875
+material = SubResource("StandardMaterial3D_hwr7g")
 
 [connection signal="input_event" from="Yeni_Kedi/Area3D" to="Yeni_Kedi" method="_on_area_3d_input_event"]
 
