@@ -1,4 +1,4 @@
-[gd_scene load_steps=50 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=60 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
@@ -8,10 +8,10 @@
 [ext_resource type="Texture2D" uid="uid://dhayshxhd2aie" path="res://Kedi_Normal.png" id="6_1b6ct"]
 [ext_resource type="Texture2D" uid="uid://exewje3jhncc" path="res://tile1.png" id="7_lxn88"]
 [ext_resource type="Script" uid="uid://cqqrxhofxtxw6" path="res://KediEtkilesim.gd" id="7_ouiq0"]
-[ext_resource type="Texture2D" uid="uid://b2nhri0gq2vpk" path="res://KediTutulan.png" id="8_p4fw5"]
+[ext_resource type="Texture2D" uid="uid://bcddf7y4a2g2y" path="res://KediTutulan.png" id="8_p4fw5"]
 [ext_resource type="Script" uid="uid://b816o3munmjog" path="res://BossEfekt.gd" id="9_h2n1q"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Sphenks.gdshader" id="10_h2n1q"]
-[ext_resource type="Texture2D" uid="uid://81ov5s7ykwpl" path="res://blob.png" id="10_jl7q8"]
+[ext_resource type="Texture2D" uid="uid://b7j5ikchr6yce" path="res://blob.png" id="10_jl7q8"]
 [ext_resource type="Script" uid="uid://bmnvsawx0sym2" path="res://DiyalogYoneticisi.gd" id="11_1eqvi"]
 [ext_resource type="Shader" uid="uid://bdknl4my2yii6" path="res://Shader.gdshader" id="11_48she"]
 [ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://PressStart2P-Regular.ttf" id="13_bpxfr"]
@@ -24,12 +24,15 @@
 [ext_resource type="PackedScene" uid="uid://bq8mjuugdsa8p" path="res://block_tek.tscn" id="20_mc62c"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://oyuncu.gd" id="23_4kj0i"]
 [ext_resource type="Script" uid="uid://8aat777heohw" path="res://BlokDagiticisi.gd" id="23_fi7dh"]
-[ext_resource type="Texture2D" uid="uid://u5y1jjivkyg4" path="res://hand.png" id="24_4kj0i"]
-[ext_resource type="Texture2D" uid="uid://v3hgvensx0ub" path="res://mesaledeneme.png" id="25_lxn88"]
-[ext_resource type="Texture2D" uid="uid://cw3yccl0y15yc" path="res://skull.png" id="25_yiyi8"]
+[ext_resource type="Texture2D" uid="uid://c2r1kq8qmui5u" path="res://hand.png" id="24_4kj0i"]
+[ext_resource type="Texture2D" uid="uid://dxocxwnf7pv0r" path="res://mesaledeneme.png" id="25_lxn88"]
+[ext_resource type="Texture2D" uid="uid://crq17pk8urwv2" path="res://skull.png" id="25_yiyi8"]
 [ext_resource type="Texture2D" uid="uid://diw64yisqg55h" path="res://web.png" id="27_offaw"]
 [ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Kapi.tscn" id="29_kqumn"]
 [ext_resource type="PackedScene" uid="uid://cobgol1r61s8u" path="res://karanlik_koridor.tscn" id="30_1283l"]
+[ext_resource type="Texture2D" uid="uid://dts5ye3ydelp0" path="res://tabela_market.png" id="31_ewkc5"]
+[ext_resource type="Texture2D" uid="uid://b5lev6qm0rdoe" path="res://tabela_fire.png" id="32_ojhqj"]
+[ext_resource type="PackedScene" uid="uid://crts7a2wj50ro" path="res://campfire_odasi.tscn" id="33_1g7sh"]
 
 [sub_resource type="Environment" id="Environment_jcgda"]
 background_mode = 1
@@ -125,6 +128,38 @@ albedo_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hwr7g"]
 albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ojhqj"]
+albedo_texture = ExtResource("5_jl7q8")
+albedo_texture_force_srgb = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1g7sh"]
+albedo_texture = ExtResource("5_jl7q8")
+albedo_texture_force_srgb = true
+emission_enabled = true
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oaawk"]
+albedo_texture = ExtResource("5_jl7q8")
+albedo_texture_force_srgb = true
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mu64t"]
+albedo_texture = ExtResource("5_jl7q8")
+albedo_texture_force_srgb = true
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mmuev"]
+albedo_texture = ExtResource("5_jl7q8")
+albedo_texture_force_srgb = true
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fknsn"]
+albedo_texture = ExtResource("5_jl7q8")
+albedo_texture_force_srgb = true
+uv1_triplanar = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ipvml"]
 
 [node name="Meshy_AI__0118084653_texture" instance=ExtResource("1_1eqvi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.031485796, 0, 0)
@@ -438,6 +473,161 @@ material = SubResource("StandardMaterial3D_hwr7g")
 [node name="KaranlikKoridor" parent="." index="20" instance=ExtResource("30_1283l")]
 transform = Transform3D(0.58, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.93540573, -11.2914505)
 
+[node name="DisDuvar" parent="KaranlikKoridor" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.038085938)
+size = Vector3(4, 4, 12.076172)
+
+[node name="IcBosluk" parent="KaranlikKoridor/DisDuvar" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06335449, 0)
+size = Vector3(2.5, 3.126709, 14)
+
+[node name="Oda_2" type="CSGBox3D" parent="." index="21"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.020557582, 1.466571, -22.436665)
+use_collision = true
+size = Vector3(10, 6.290039, 9.981107)
+material = SubResource("StandardMaterial3D_ojhqj")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Oda_2" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.37565458, -0.031238556)
+operation = 2
+size = Vector3(9.5, 5.0718994, 9.907251)
+material = SubResource("StandardMaterial3D_1g7sh")
+
+[node name="oda2_koridorkapi" type="CSGBox3D" parent="Oda_2" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.014709473, -0.68739843, 5.028185)
+visible = false
+operation = 2
+size = Vector3(1.5, 3, 0.5)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Oda_2" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.334017, 0, 0)
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="Oda_2" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.733116)
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="Oda_2" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.126993, 0.19324851, 0)
+
+[node name="marketkapideligi" type="CSGBox3D" parent="Oda_2" index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1311731, -0.7990906, -5.068287)
+operation = 2
+size = Vector3(1.5, 3, 0.2)
+
+[node name="campfirekapideligi" type="CSGBox3D" parent="Oda_2" index="6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9005396, -0.682544, -5.0773163)
+operation = 2
+size = Vector3(1.5, 2.7669067, 0.2)
+
+[node name="KaranlikKoridor" parent="Oda_2" index="7" instance=ExtResource("30_1283l")]
+transform = Transform3D(0.58, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9354056, 8.45308)
+
+[node name="DisDuvar" parent="Oda_2/KaranlikKoridor" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.028564453, -1.7345321, 2.4212494)
+size = Vector3(4.057129, 4.3667603, 12.171387)
+
+[node name="Koridorkapideligi" type="CSGBox3D" parent="Oda_2" index="8"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.028452456, -0.63649964, 4.907215)
+operation = 2
+size = Vector3(1.5, 2.9863281, 0.2)
+
+[node name="Market_tabela" type="Sprite3D" parent="Oda_2" index="9"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, -2.1760197, 1.3525583, -4.97217)
+modulate = Color(1, 1, 1, 0.39215687)
+texture = ExtResource("31_ewkc5")
+
+[node name="campfire_tabela" type="Sprite3D" parent="Oda_2" index="10"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 1.8211832, 1.3574995, -4.9742317)
+modulate = Color(1, 1, 1, 0.39215687)
+texture = ExtResource("32_ojhqj")
+
+[node name="Market" type="CSGBox3D" parent="." index="22"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2407465, 1.6105278, -32.776985)
+use_collision = true
+size = Vector3(10, 6, 10)
+material = SubResource("StandardMaterial3D_oaawk")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Market" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03969288, 0.30154967, 0.22190857)
+operation = 2
+size = Vector3(9.5, 5.310791, 9.409497)
+material = SubResource("StandardMaterial3D_mu64t")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Market" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.10346377, -4.0844765)
+
+[node name="marketkapideligiCSG" type="CSGBox3D" parent="Market" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9454231, -0.93358433, 5.1652565)
+operation = 2
+size = Vector3(1.5, 2.720089, 0.5258881)
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="Market" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5660563, 0.5653088, 0)
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="Market" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.7390316, 0.40315843, 0)
+
+[node name="Campfire_room" type="CSGBox3D" parent="." index="23"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2604437, 2.0074055, -32.759567)
+use_collision = true
+size = Vector3(10, 5.120056, 10)
+material = SubResource("StandardMaterial3D_mmuev")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Campfire_room" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03969288, -0.0013358593, 0.22190857)
+operation = 2
+size = Vector3(9.5, 5.114258, 9.409497)
+material = SubResource("StandardMaterial3D_fknsn")
+
+[node name="campfirekapideligi" type="CSGBox3D" parent="Campfire_room" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.3307421, -1.1378739, 4.916786)
+operation = 2
+size = Vector3(1.5100098, 2.8344116, 0.28303224)
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="Campfire_room" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.009578705, -2.1542864, -0.9618454)
+light_color = Color(1, 0.6666667, 0, 1)
+light_energy = 5.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 1.5
+
+[node name="KapiSistemi2" parent="." index="24" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3658109, 0.82464886, -27.316551)
+kapi_isigi = NodePath("../SpotLight3D")
+gecit_efektleri = NodePath("../MezarOdasi/SabitGecitEfekti")
+
+[node name="Govde" parent="KapiSistemi2" index="0"]
+transform = Transform3D(-0.07126116, 0, 0.19977418, 0, 2.9999998, 0, -1.4983063, 0, -0.009501488, -0.1344558, 0, -0.0019664764)
+skeleton = NodePath("../../KapiSistemi2")
+
+[node name="OnYuz" parent="KapiSistemi2/Govde" index="0"]
+transform = Transform3D(0.49999982, 0, 0, 0, -1.3113414e-07, -0.49999982, 0, 2.999999, -2.1855687e-08, -5.8054924e-05, 0, 0.5622711)
+
+[node name="campfire_gecis" type="CSGBox3D" parent="." index="25"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8984134, 0.9008086, -27.660534)
+operation = 2
+size = Vector3(1.5482178, 2.852666, 0.48053682)
+material = SubResource("StandardMaterial3D_ipvml")
+
+[node name="campfire_roomgecisCSGB" type="CSGBox3D" parent="campfire_gecis" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.008218527, -0.06420374, -0.015083313)
+operation = 2
+size = Vector3(1.5482178, 2.9299502, 0.6573989)
+
+[node name="KapiSistemi3" parent="." index="26" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
+transform = Transform3D(-0.09605421, 0, 0.9953761, 0, 1, 0, -0.9953761, 0, -0.09605421, 2.647231, 0.82464886, -27.316551)
+kapi_isigi = NodePath("../SpotLight3D")
+gecit_efektleri = NodePath("../MezarOdasi/SabitGecitEfekti")
+
+[node name="Govde" parent="KapiSistemi3" index="0"]
+transform = Transform3D(1.5, 0, 0, 0, 3, 0, 0, 0, 0.2, -0.75, 0, -0.012796402)
+skeleton = NodePath("../../KapiSistemi3")
+
+[node name="OnYuz" parent="KapiSistemi3/Govde" index="0"]
+transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
+
+[node name="CampfireOdasi" parent="." index="27" instance=ExtResource("33_1g7sh")]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 5.427616, 0.8997017, -33.59956)
+
 [connection signal="input_event" from="Yeni_Kedi/Area3D" to="Yeni_Kedi" method="_on_area_3d_input_event"]
 
 [editable path="Block_L"]
@@ -453,3 +643,6 @@ transform = Transform3D(0.58, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.93540573, -11.2914505
 [editable path="OyunArayuzu"]
 [editable path="KapiSistemi"]
 [editable path="KaranlikKoridor"]
+[editable path="Oda_2/KaranlikKoridor"]
+[editable path="KapiSistemi2"]
+[editable path="KapiSistemi3"]
