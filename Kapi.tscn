@@ -46,3 +46,5 @@ surface_material_override/0 = SubResource("StandardMaterial3D_f0fqk")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Govde/StaticBody3D"]
 shape = SubResource("BoxShape3D_c6yh4")
+
+[connection signal="input_event" from="Govde/StaticBody3D" to="." method="_on_static_body_3d_input_event"]
