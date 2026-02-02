@@ -41,6 +41,7 @@
 [ext_resource type="Texture2D" uid="uid://brup05bqrvcp" path="res://shroom.png" id="36_fknsn"]
 [ext_resource type="Texture2D" uid="uid://cb165au7hbhm2" path="res://shanks.png" id="38_kt702"]
 [ext_resource type="Texture2D" uid="uid://doh1kv2f0quxr" path="res://own.png" id="39_fknsn"]
+[ext_resource type="Texture2D" uid="uid://bpltnjm6hg5a3" path="res://kese.png" id="41_q0r6j"]
 
 [sub_resource type="Environment" id="Environment_jcgda"]
 background_mode = 1
@@ -169,9 +170,6 @@ size = Vector3(9.250122, 12.546631, 6.5539246)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_8wtdy"]
 size = Vector3(0.93640137, 1, 0.88414764)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_kt702"]
-size = Vector3(1.1201166, 0.41779137, 1.5081148)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mmuev"]
 albedo_texture = ExtResource("5_jl7q8")
@@ -587,12 +585,15 @@ transform = Transform3D(1.5, 0, 0, 0, 3, 0, 0, 0, 0.2, -0.75, 0, -0.012796402)
 [node name="OnYuz" parent="CatalOdasi/KapiMarket/Govde" index="0"]
 transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
 
-[node name="Market" type="CSGBox3D" parent="." index="22"]
+[node name="Market" type="CSGBox3D" parent="." index="22" node_paths=PackedStringArray("market_kapisi", "hedef_marketci", "kese_sprite")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2407465, 1.6105278, -32.776985)
 use_collision = true
 size = Vector3(10, 6, 10)
 material = SubResource("StandardMaterial3D_oaawk")
 script = ExtResource("34_kt702")
+market_kapisi = NodePath("../CatalOdasi/KapiMarket")
+hedef_marketci = NodePath("Sprite3D")
+kese_sprite = NodePath("OyuncuEli/KeseResmi")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="Market" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03969288, 0.30154967, 0.22190857)
@@ -676,25 +677,11 @@ transform = Transform3D(-0.15, 2.2649372e-08, -9.900355e-16, 0, -6.5567085e-09, 
 no_depth_test = true
 texture = ExtResource("39_fknsn")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Market/OyuncuEli" index="1"]
-transform = Transform3D(0.99999976, 0, 0, 0, 0.99999976, 0, 0, 0, 0.99999976, 0.23747921, 0.014934063, 0.7920151)
-shape = SubResource("BoxShape3D_kt702")
-
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="Market/OyuncuEli" index="2"]
-transform = Transform3D(-4.371138e-08, -0.99999976, 0, 0.99999976, -4.371138e-08, 0, 0, 0, 0.99999976, -0.28751612, -0.055573285, 0.6494484)
-shape = SubResource("BoxShape3D_kt702")
-
-[node name="CollisionShape3D3" type="CollisionShape3D" parent="Market/OyuncuEli" index="3"]
-transform = Transform3D(-4.371138e-08, -0.99999976, 0, 0.99999976, -4.371138e-08, 0, 0, 0, 0.99999976, 0.85885286, -0.019970417, 0.7252846)
-shape = SubResource("BoxShape3D_kt702")
-
-[node name="CollisionShape3D4" type="CollisionShape3D" parent="Market/OyuncuEli" index="4"]
-transform = Transform3D(1.9106855e-15, 4.371138e-08, 0.99999976, 0.99999976, -4.371138e-08, 0, 4.371138e-08, 0.99999976, -4.371138e-08, 0.2550106, 0.12624794, 1.5296707)
-shape = SubResource("BoxShape3D_kt702")
-
-[node name="CollisionShape3D5" type="CollisionShape3D" parent="Market/OyuncuEli" index="5"]
-transform = Transform3D(1.9106855e-15, 4.371138e-08, 0.99999976, 0.99999976, -4.371138e-08, 0, 4.371138e-08, 0.99999976, -4.371138e-08, 0.21425772, 0.092181146, -0.17565918)
-shape = SubResource("BoxShape3D_kt702")
+[node name="KeseResmi" type="Sprite3D" parent="Market/OyuncuEli" index="1"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0.42353106, 0.16448301, 0.4694748)
+billboard = 2
+no_depth_test = true
+texture = ExtResource("41_q0r6j")
 
 [node name="Campfire_room" type="CSGBox3D" parent="." index="23"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2604437, 2.0074055, -32.759567)

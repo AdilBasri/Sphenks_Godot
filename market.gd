@@ -1,31 +1,31 @@
 extends Node3D
 
 # --- REFERANSLAR ---
-@onready var oyuncu_eli = $OyuncuEli 
+@onready var oyuncu_kolu = $OyuncuEli 
 @onready var giris_sensoru = $GirisSensoru
 @onready var altin_sahnesi = preload("res://Altin.tscn")
 @export var market_kapisi: Node3D 
 
-# --- EL POZİSYONU (Senin Ayarların) ---
-# Elin kameraya göre konumu
-var hedef_pozisyon = Vector3(0.35, -0.8, -2.5) 
-var baslangic_pozisyonu = Vector3(0.35, -3.0, -2.5) 
-var hedef_rotasyon = Vector3(0.0, 0.0, 0.0) 
+# EDİTÖRDEN ATANACAKLAR
+@export var hedef_marketci: Node3D # Altınların gideceği yer (Marketçi/Kasa)
+@export var kese_sprite: Sprite3D   # Altınların çıkacağı yer (Kese Resmi)
+
+# --- KONUM AYARLARI ---
+# Kolun ekrandaki duruşu (Senin -2.5 ayarın)
+var kol_hedef_pos = Vector3(0.35, -0.8, -2.5) 
+var kol_baslangic_pos = Vector3(0.35, -3.0, -2.5) 
 
 var iceride_mi: bool = false
 
 func _ready():
-	if oyuncu_eli: 
-		oyuncu_eli.visible = false
-		# Fiziği tamamen yok ediyoruz, sadece görüntü kalıyor
-		oyuncu_eli.collision_layer = 0
-		oyuncu_eli.collision_mask = 0
+	if oyuncu_kolu: 
+		oyuncu_kolu.visible = false
 	
 	if giris_sensoru:
 		giris_sensoru.body_entered.connect(_on_giris_sensoru_body_entered)
 
 func _process(delta):
-	# Lag önleme: Eli her karede zorla ebeveynine (kameraya) sıfırlıyoruz
+	# Titreme önleyici (Opsiyonel)
 	pass
 
 func _on_giris_sensoru_body_entered(body):
@@ -33,27 +33,29 @@ func _on_giris_sensoru_body_entered(body):
 	if body.name == "Oyuncu" or body is CharacterBody3D:
 		var kamera = body.find_child("Camera3D", true, false)
 		if not kamera: kamera = body 
+		
 		if kamera:
 			iceride_mi = true
-			call_deferred("eli_kameraya_tasi", kamera)
+			call_deferred("kolu_kaldir", kamera)
 
-func eli_kameraya_tasi(yeni_ebeveyn):
-	if oyuncu_eli.get_parent():
-		oyuncu_eli.get_parent().remove_child(oyuncu_eli)
-	yeni_ebeveyn.add_child(oyuncu_eli)
+func kolu_kaldir(kamera):
+	# 1. Kolu Kameraya Tak
+	if oyuncu_kolu.get_parent():
+		oyuncu_kolu.get_parent().remove_child(oyuncu_kolu)
+	kamera.add_child(oyuncu_kolu)
 	
-	oyuncu_eli.set_physics_process(false) 
+	# 2. Sıfırla
+	oyuncu_kolu.transform = Transform3D.IDENTITY
+	oyuncu_kolu.visible = true
+	oyuncu_kolu.position = kol_baslangic_pos
+	oyuncu_kolu.rotation_degrees = Vector3(0, 0, 0) 
 	
-	# Konum Sıfırlama
-	oyuncu_eli.transform = Transform3D.IDENTITY
-	oyuncu_eli.visible = true
-	oyuncu_eli.position = baslangic_pozisyonu
-	oyuncu_eli.rotation_degrees = hedef_rotasyon
-	
-	# El Çıkma Animasyonu
+	# 3. Çıkarma Animasyonu (El + Kese yukarı çıkar)
 	var tween = create_tween()
-	tween.tween_property(oyuncu_eli, "position", hedef_pozisyon, 0.8).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_callback(altin_ver.bind(5))
+	tween.tween_property(oyuncu_kolu, "position", kol_hedef_pos, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	
+	# Test: Otomatik ödeme (Bunu sonra silersin)
+	tween.tween_callback(odeme_yap.bind(3))
 	
 	# Kapı Kapatma
 	if market_kapisi:
@@ -61,41 +63,45 @@ func eli_kameraya_tasi(yeni_ebeveyn):
 		var kapi_tween = create_tween()
 		kapi_tween.tween_property(market_kapisi, "rotation_degrees:y", 0.0, 1.0)
 
-func altin_ver(adet):
-	print(str(adet) + " Altın veriliyor...")
+func odeme_yap(adet):
+	print(str(adet) + " Altın ödeniyor...")
+	
+	# Hedef Nokta Belirleme
+	var hedef_nokta_global = Vector3.ZERO
+	if hedef_marketci:
+		hedef_nokta_global = hedef_marketci.global_position
+	else:
+		# Hedef yoksa ileriye salla
+		if oyuncu_kolu.get_parent():
+			hedef_nokta_global = oyuncu_kolu.get_parent().to_global(Vector3(0, 0, -3.0))
 	
 	for i in range(adet):
 		var yeni_altin = altin_sahnesi.instantiate()
-		oyuncu_eli.add_child(yeni_altin)
 		
-		# --- KRİTİK AYARLAR ---
-		# 1. Fiziği ve Çarpışmayı TAMAMEN KAPAT
-		yeni_altin.freeze = true 
-		yeni_altin.freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
-		yeni_altin.collision_layer = 0 
-		yeni_altin.collision_mask = 0 
+		# Altını DÜNYAYA ekle (Bağımsız uçsun diye)
+		get_tree().current_scene.add_child(yeni_altin)
 		
-		# 2. Top Level KAPALI olmalı (Elin çocuğu olsun)
-		yeni_altin.top_level = false 
+		# BAŞLANGIÇ: Kese Resminin Tam Üzeri
+		if kese_sprite:
+			# Kesenin ağzı (Y ekseninde biraz yukarısı: +0.15)
+			yeni_altin.global_position = kese_sprite.global_position + (kese_sprite.global_transform.basis.y * 0.15)
+		else:
+			# Kese atanmadıysa kolun ortasından çıksın
+			yeni_altin.global_position = oyuncu_kolu.global_position
 		
-		# --- SABİT YEREL KONUMLAR ---
-		# Artık GlobalPosition kullanmıyoruz. Sadece "Elin Merkezi"ne göre konuşuyoruz.
-		# (0,0,0) noktası elin tam ortasıdır.
+		yeni_altin.scale = Vector3(0.5, 0.5, 0.5) 
 		
-		# Başlangıç: Elin 30cm yukarısı (Y: 0.3)
-		var local_baslangic = Vector3(randf_range(-0.05, 0.05), 0.3, randf_range(-0.05, 0.05))
+		# HEDEF SAPMA (Doğal dağılım)
+		var sapma = Vector3(randf_range(-0.1, 0.1), randf_range(0.0, 0.3), randf_range(-0.1, 0.1))
+		var final_hedef = hedef_nokta_global + sapma
 		
-		# Bitiş: Elin avuç içi (Y: -0.1)
-		# Z değeriyle oynayarak ileri/geri ayarı yapabilirsin
-		var local_bitis = Vector3(randf_range(-0.02, 0.02), -0.1, randf_range(-0.02, 0.02))
-		
-		# Pozisyonu ata
-		yeni_altin.position = local_baslangic
-		yeni_altin.rotation_degrees = Vector3(randf_range(0,360), randf_range(0,360), randf_range(0,360))
-		yeni_altin.scale = Vector3(1, 1, 1)
-		
-		# Animasyon (Local Position üzerinde çalışır)
+		# UÇUŞ ANİMASYONU
 		var tween = create_tween()
-		tween.tween_property(yeni_altin, "position", local_bitis, 0.4).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+		# 1. Kesenin ağzından fırlama (Hafif yukarı)
+		tween.tween_property(yeni_altin, "global_position", yeni_altin.global_position + Vector3(0, 0.2, 0), 0.1).set_ease(Tween.EASE_OUT)
+		# 2. Hedefe uçuş
+		tween.tween_property(yeni_altin, "global_position", final_hedef, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		# 3. Yok oluş
+		tween.tween_callback(yeni_altin.queue_free)
 		
-		await get_tree().create_timer(0.15).timeout
+		await get_tree().create_timer(0.2).timeout
