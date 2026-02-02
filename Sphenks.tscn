@@ -1,4 +1,4 @@
-[gd_scene load_steps=72 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=73 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
@@ -169,6 +169,9 @@ size = Vector3(9.250122, 12.546631, 6.5539246)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_8wtdy"]
 size = Vector3(0.93640137, 1, 0.88414764)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_kt702"]
+size = Vector3(1.1201166, 0.41779137, 1.5081148)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mmuev"]
 albedo_texture = ExtResource("5_jl7q8")
@@ -584,13 +587,12 @@ transform = Transform3D(1.5, 0, 0, 0, 3, 0, 0, 0, 0.2, -0.75, 0, -0.012796402)
 [node name="OnYuz" parent="CatalOdasi/KapiMarket/Govde" index="0"]
 transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
 
-[node name="Market" type="CSGBox3D" parent="." index="22" node_paths=PackedStringArray("market_kapisi")]
+[node name="Market" type="CSGBox3D" parent="." index="22"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2407465, 1.6105278, -32.776985)
 use_collision = true
 size = Vector3(10, 6, 10)
 material = SubResource("StandardMaterial3D_oaawk")
 script = ExtResource("34_kt702")
-market_kapisi = NodePath("../CatalOdasi/KapiMarket")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="Market" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03969288, 0.30154967, 0.22190857)
@@ -606,12 +608,20 @@ light_indirect_energy = 5.0
 light_volumetric_fog_energy = 16.0
 light_size = 2.0
 
-[node name="marketkapideligiCSG" type="CSGBox3D" parent="Market" index="2"]
+[node name="OmniLight3D2" type="OmniLight3D" parent="Market" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04316473, -1.8724808, 3.226982)
+light_color = Color(1, 0.8627451, 0, 1)
+light_energy = 5.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 16.0
+light_size = 2.0
+
+[node name="marketkapideligiCSG" type="CSGBox3D" parent="Market" index="3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9454231, -0.93358433, 5.1652565)
 operation = 2
 size = Vector3(1.5, 2.720089, 0.5258881)
 
-[node name="CSGBox3D2" type="CSGBox3D" parent="Market" index="3"]
+[node name="CSGBox3D2" type="CSGBox3D" parent="Market" index="4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.20578432, -1.6250725, -1.1469078)
 size = Vector3(5.9655075, 1.4327393, 1.5761719)
 material = SubResource("StandardMaterial3D_kt702")
@@ -639,33 +649,15 @@ texture = ExtResource("36_fknsn")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42534637, -0.22888184, -0.17868042)
 shape = SubResource("BoxShape3D_1hcel")
 
-[node name="Sprite3D" type="Sprite3D" parent="Market" index="4"]
+[node name="Sprite3D" type="Sprite3D" parent="Market" index="5"]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, -1.1033959, -2.381958)
 billboard = 2
 texture = ExtResource("34_1g7sh")
 
-[node name="Sprite3D2" type="Sprite3D" parent="Market" index="5"]
+[node name="Sprite3D2" type="Sprite3D" parent="Market" index="6"]
 transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 0, 2.0759084, -1.0868073)
 billboard = 2
 texture = ExtResource("38_kt702")
-
-[node name="CanvasLayer" type="CanvasLayer" parent="Market" index="6"]
-
-[node name="TextureRect" type="TextureRect" parent="Market/CanvasLayer" index="0"]
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -1199.0
-offset_top = -1436.0
-offset_right = 1301.0
-offset_bottom = 964.0
-grow_horizontal = 0
-grow_vertical = 0
-scale = Vector2(0.6, 0.6)
-texture = ExtResource("39_fknsn")
-flip_h = true
 
 [node name="GirisSensoru" type="Area3D" parent="Market" index="7"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8207242, 0, 1.0033932)
@@ -673,6 +665,36 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8207242, 0, 1.0033932)
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Market/GirisSensoru" index="0"]
 transform = Transform3D(10, 0, 0, 0, 6, 0, 0, 0, 10, -1.7974851, 0, -0.5792599)
 shape = SubResource("BoxShape3D_8wtdy")
+
+[node name="OyuncuEli" type="AnimatableBody3D" parent="Market" index="8"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.322, -0.652, -1.915)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Sprite3D" type="Sprite3D" parent="Market/OyuncuEli" index="0"]
+transform = Transform3D(-0.15, 2.2649372e-08, -9.900355e-16, 0, -6.5567085e-09, -0.15, -2.2649372e-08, -0.15, 6.5567085e-09, 0, 0, 0)
+no_depth_test = true
+texture = ExtResource("39_fknsn")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Market/OyuncuEli" index="1"]
+transform = Transform3D(0.99999976, 0, 0, 0, 0.99999976, 0, 0, 0, 0.99999976, 0.23747921, 0.014934063, 0.7920151)
+shape = SubResource("BoxShape3D_kt702")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Market/OyuncuEli" index="2"]
+transform = Transform3D(-4.371138e-08, -0.99999976, 0, 0.99999976, -4.371138e-08, 0, 0, 0, 0.99999976, -0.28751612, -0.055573285, 0.6494484)
+shape = SubResource("BoxShape3D_kt702")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Market/OyuncuEli" index="3"]
+transform = Transform3D(-4.371138e-08, -0.99999976, 0, 0.99999976, -4.371138e-08, 0, 0, 0, 0.99999976, 0.85885286, -0.019970417, 0.7252846)
+shape = SubResource("BoxShape3D_kt702")
+
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="Market/OyuncuEli" index="4"]
+transform = Transform3D(1.9106855e-15, 4.371138e-08, 0.99999976, 0.99999976, -4.371138e-08, 0, 4.371138e-08, 0.99999976, -4.371138e-08, 0.2550106, 0.12624794, 1.5296707)
+shape = SubResource("BoxShape3D_kt702")
+
+[node name="CollisionShape3D5" type="CollisionShape3D" parent="Market/OyuncuEli" index="5"]
+transform = Transform3D(1.9106855e-15, 4.371138e-08, 0.99999976, 0.99999976, -4.371138e-08, 0, 4.371138e-08, 0.99999976, -4.371138e-08, 0.21425772, 0.092181146, -0.17565918)
+shape = SubResource("BoxShape3D_kt702")
 
 [node name="Campfire_room" type="CSGBox3D" parent="." index="23"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2604437, 2.0074055, -32.759567)
