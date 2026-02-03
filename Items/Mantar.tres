@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://c3nrit3lega7q"]
+
+[ext_resource type="Script" uid="uid://drbl7e8h0wosy" path="res://ItemData.gd" id="1_14wri"]
+[ext_resource type="Texture2D" uid="uid://brup05bqrvcp" path="res://shroom.png" id="1_upwia"]
+
+[resource]
+script = ExtResource("1_14wri")
+esya_adi = "Mantar"
+aciklama = "Renk bonusu kazandırır."
+ikon = ExtResource("1_upwia")
+fiyat = 5
+metadata/_custom_type_script = "uid://drbl7e8h0wosy"

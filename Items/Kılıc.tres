@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://ck3oqbbnnb0ka"]
+
+[ext_resource type="Script" uid="uid://drbl7e8h0wosy" path="res://ItemData.gd" id="1_50lhf"]
+[ext_resource type="Texture2D" uid="uid://bcxt1usybblyl" path="res://sword.png" id="1_vduey"]
+
+[resource]
+script = ExtResource("1_50lhf")
+esya_adi = "Kılıç"
+aciklama = "Seçilen TEK BİR bloku paramparça eder."
+fiyat = 8
+ikon = ExtResource("1_vduey")
+tur = 4
+metadata/_custom_type_script = "uid://drbl7e8h0wosy"

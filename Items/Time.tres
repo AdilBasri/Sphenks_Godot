@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://bao7tm1eas554"]
+
+[ext_resource type="Texture2D" uid="uid://c5lo3jls31s0l" path="res://Items/timer.png" id="1_3abkt"]
+[ext_resource type="Script" uid="uid://drbl7e8h0wosy" path="res://ItemData.gd" id="1_niy47"]
+
+[resource]
+script = ExtResource("1_niy47")
+esya_adi = "Kumsaati"
+aciklama = "Pyro modunda düşman hızını %50 azaltır."
+fiyat = 12
+ikon = ExtResource("1_3abkt")
+tur = 8
+metadata/_custom_type_script = "uid://drbl7e8h0wosy"

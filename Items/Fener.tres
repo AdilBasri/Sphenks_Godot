@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://bg76liqgpv5x4"]
+
+[ext_resource type="Texture2D" uid="uid://dbenmrhiu7rjo" path="res://Items/fener.png" id="1_7bh0h"]
+[ext_resource type="Script" uid="uid://drbl7e8h0wosy" path="res://ItemData.gd" id="1_mc5e3"]
+
+[resource]
+script = ExtResource("1_mc5e3")
+esya_adi = "Kör Fener"
+aciklama = "Bilmiyorum şimdilik."
+fiyat = 5
+ikon = ExtResource("1_7bh0h")
+tur = 11
+metadata/_custom_type_script = "uid://drbl7e8h0wosy"

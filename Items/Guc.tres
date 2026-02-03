@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://b0i0au8mta6vq"]
+
+[ext_resource type="Script" uid="uid://drbl7e8h0wosy" path="res://ItemData.gd" id="1_2qn2s"]
+[ext_resource type="Texture2D" uid="uid://x34rdbby2vdw" path="res://Items/Kızıl_İksir.png" id="1_snd7x"]
+
+[resource]
+script = ExtResource("1_2qn2s")
+esya_adi = "Altın Şerbet"
+aciklama = "Bölümde kazanılan puanları 1.3x çarpar."
+fiyat = 12
+ikon = ExtResource("1_snd7x")
+tur = 2
+metadata/_custom_type_script = "uid://drbl7e8h0wosy"

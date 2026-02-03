@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://c63kqruteqes4"]
+
+[ext_resource type="Texture2D" uid="uid://cromgj5wvpnd1" path="res://Items/Asit.png" id="1_lx5aj"]
+[ext_resource type="Script" uid="uid://drbl7e8h0wosy" path="res://ItemData.gd" id="1_thk3p"]
+
+[resource]
+script = ExtResource("1_thk3p")
+esya_adi = "Asit Şişesi"
+aciklama = "Sütundaki tüm blokları yok eder (puan yok)."
+fiyat = 8
+ikon = ExtResource("1_lx5aj")
+tur = 3
+metadata/_custom_type_script = "uid://drbl7e8h0wosy"
