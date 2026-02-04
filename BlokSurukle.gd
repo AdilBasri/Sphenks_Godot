@@ -15,11 +15,10 @@ signal blok_yerlesti
 @export var footprint: Array[Vector2i] = [Vector2i(0,0)]
 @export var hover_y_offset: float = 0.5 
 @export var kilitlenince_tuket: bool = true
-@export var debug_modu_aktif: bool = false # Kırmızı topları aç/kapat
+@export var debug_modu_aktif: bool = false 
 
 @export_group("Duruş ve Hizalama")
 @export var yerlesme_yuksekligi: float = 0.0 
-# Yatma açısını sadece GÖRSEL düzeltme için kullanacağız
 @export var yatma_acisi: Vector3 = Vector3(-90, 0, 0) 
 @export var grid_uzerindeki_aci: Vector3 = Vector3.ZERO 
 
@@ -34,7 +33,7 @@ var orjinal_rotasyon_degrees: Vector3
 
 # Dinamik Hesaplamalar
 var anlik_footprint: Array[Vector2i] = [] 
-var anlik_y_rotasyon: float = 0.0          
+var anlik_y_rotasyon: float = 0.0           
 
 func _ready() -> void:
 	orjinal_parent = get_parent()
@@ -43,10 +42,8 @@ func _ready() -> void:
 	dik_rotasyon = global_transform.basis.get_rotation_quaternion()
 	if hayalet: hayalet.visible = false
 	
-	# Başlangıç footprint'ini al
 	anlik_footprint = footprint.duplicate()
 	
-	# DEBUG: Kırmızı topları çiz
 	if debug_modu_aktif:
 		_debug_footprint_ciz()
 
@@ -98,7 +95,6 @@ func _hayalet_guncelle() -> void:
 	var current_pos_for_grid = global_position 
 	current_pos_for_grid.y = grid.global_position.y
 	
-	# 1. AÇI HESABI
 	var cam = get_viewport().get_camera_3d()
 	var grid_y_rot = grid.global_rotation.y
 	var cam_y_rot = cam.global_rotation.y
@@ -107,26 +103,18 @@ func _hayalet_guncelle() -> void:
 	var ceyrek_turlar = int(round(rot_diff / (PI / 2.0)))
 	ceyrek_turlar = (ceyrek_turlar % 4 + 4) % 4
 	
-	# 2. FOOTPRINT ÇEVİRME
 	anlik_footprint = _footprint_dondur(footprint, ceyrek_turlar)
 	anlik_y_rotasyon = float(ceyrek_turlar) * (PI / 2.0)
 	
-	# 3. GÖRSEL DÖNDÜRME (SCALE KORUMALI)
-	# Önceki boyutunu hafızaya al
 	var mevcut_scale = hayalet.scale 
 	
 	var hedef_y_rot = grid.global_rotation.y + anlik_y_rotasyon
 	var y_basis = Basis(Vector3.UP, hedef_y_rot)
 	var x_basis = Basis(Vector3.RIGHT, deg_to_rad(yatma_acisi.x))
 	
-	# Döndürmeyi uygula
 	hayalet.global_transform.basis = y_basis * x_basis
-	
-	# Boyutu tekrar geri yükle
 	hayalet.scale = mevcut_scale
 	
-	# -----------------------------------------------------
-
 	var vcell = grid.world_to_cell(current_pos_for_grid)
 	if vcell == null:
 		son_hucre = null
@@ -182,7 +170,6 @@ func _birak() -> void:
 					var pos = grid.cell_center_world(hedef_hucre)
 					yeni_blok.global_position = pos
 					
-					# Yerleştirilen bloğun açısını ayarla
 					var y_deg = rad_to_deg(anlik_y_rotasyon)
 					var final_rot = grid_uzerindeki_aci + Vector3(0, y_deg, 0)
 					yeni_blok.rotation_degrees = final_rot
@@ -192,7 +179,14 @@ func _birak() -> void:
 			if grid.has_method("satirlari_kontrol_et"):
 				grid.satirlari_kontrol_et()
 			if hayalet: hayalet.visible = false
+			
+			# MEVCUT SİNYAL (Spawner için)
 			emit_signal("blok_yerlesti")
+			
+			# 🔥 YENİ SİNYAL (Boss Saldırısı İçin)
+			# Bu sinyal sayesinde OyunOdasi, "Blok konuldu, saldır!" emrini alabilir.
+			GameManager.blok_yerlestirildi.emit()
+			
 			queue_free() 
 
 	if not basarili:
@@ -200,34 +194,26 @@ func _birak() -> void:
 
 func _eve_don() -> void:
 	if hayalet: hayalet.visible = false
-	# Eğer parent zaten doğruysa tekrar atama yapma (Hata önler)
 	if orjinal_parent and get_parent() != orjinal_parent:
-		# Global pozisyonu koruyarak (true) eve geri al
 		reparent(orjinal_parent, true)
 	
-	# Tween ile sakince yerine git
 	var tween = create_tween()
 	tween.set_parallel(true)
-	# Yerel koordinatta (0,0,0)'a gitmeli (Spawner'ın kucağına)
 	tween.tween_property(self, "position", Vector3.ZERO, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.tween_property(self, "scale", orjinal_scale, 0.3)
-	# Rotasyonu da eski haline getir
 	tween.tween_property(self, "rotation_degrees", orjinal_rotasyon_degrees, 0.3)
 
-# --- DEBUG MODU (KESİN KOORDİNAT GÖSTERİCİ) ---
 func _debug_footprint_ciz() -> void:
-	# Varsa eskileri temizle
 	for c in get_children():
 		if c.name == "DebugKure": c.queue_free()
 		
 	var materyal = StandardMaterial3D.new()
-	materyal.albedo_color = Color(0, 1, 0, 0.5) # YEŞİL
+	materyal.albedo_color = Color(0, 1, 0, 0.5)
 	materyal.emission_enabled = true
 	materyal.emission = Color(0, 1, 0)
 	materyal.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	materyal.no_depth_test = true # Bloğun içinden görünsün
+	materyal.no_depth_test = true
 	
-	# Her bir footprint noktası için KUTU oluştur
 	for nokta in footprint:
 		var mesh_inst = MeshInstance3D.new()
 		mesh_inst.mesh = BoxMesh.new()
@@ -235,6 +221,4 @@ func _debug_footprint_ciz() -> void:
 		mesh_inst.material_override = materyal
 		mesh_inst.name = "DebugKure"
 		add_child(mesh_inst)
-		
-		# Pozisyonu ayarla
 		mesh_inst.position = Vector3(nokta.x, 0.0, nokta.y)

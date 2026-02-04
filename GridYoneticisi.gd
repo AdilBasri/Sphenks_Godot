@@ -26,22 +26,19 @@ signal puan_kazanildi(miktar: int)
 
 # --- DEĞİŞKENLER ---
 var grid_verisi: Dictionary = {} # { Vector2i(x,y): Node3D }
-var arayuz: CanvasLayer = null # UI Erişimi için
+var arayuz: CanvasLayer = null 
 
-# Fiziksel harici durumlar için boş fonksiyonlar
 func set_exclude_rids(_rids: Array[RID]) -> void: pass
 func clear_exclude_rids() -> void: pass
 
 func _ready() -> void:
 	_gridi_yenile()
-	# UI Grubunu bul ve bağlan
 	arayuz = get_tree().get_first_node_in_group("Arayuz")
 
 # --- GÖRSEL OLUŞTURMA ---
 func _gridi_yenile() -> void:
 	if not is_inside_tree(): return
 	for child in get_children():
-		# Sadece zemin karelerini sil, blokları veya efektleri silme
 		if child is MeshInstance3D and not child.name.begins_with("Block"):
 			child.queue_free()
 	
@@ -169,19 +166,21 @@ func satirlari_kontrol_et() -> void:
 	if patlayacak_hucreler.size() > 0:
 		_bloklari_yok_et(patlayacak_hucreler)
 		_puan_hesapla(patlayan_satir_sayisi, patlayacak_hucreler.size())
+		
+		# 🔥 YENİ: SİNYAL GÖNDER!
+		# Bu sinyali duyan OyunOdasi (Yönetici), Boss'u uyandıracak.
+		GameManager.satir_patladi.emit()
 
 func _bloklari_yok_et(hucreler: Array) -> void:
 	for h in hucreler:
 		if grid_verisi.has(h):
 			var blok = grid_verisi[h]
 			
-			# --- PARÇACIK EFEKTİ ---
 			if patlama_efekti_sahnesi and blok:
 				var efekt = patlama_efekti_sahnesi.instantiate()
 				add_child(efekt)
 				efekt.global_position = blok.global_position
 				
-				# Renk Transferi
 				var mesh = blok.find_child("MeshInstance3D", true, false)
 				if mesh and mesh.get_active_material(0):
 					var blok_rengi = mesh.get_active_material(0).albedo_color
@@ -192,7 +191,6 @@ func _bloklari_yok_et(hucreler: Array) -> void:
 				blok.queue_free()
 
 func _puan_hesapla(satir_sayisi: int, blok_sayisi: int) -> void:
-	# Bonus Sistemi: Çoklu satırda puan katlanır
 	var bonus = 1
 	if satir_sayisi > 1:
 		bonus = pow(2, satir_sayisi - 1)
@@ -204,7 +202,6 @@ func _puan_hesapla(satir_sayisi: int, blok_sayisi: int) -> void:
 	get_tree().call_group("Arayuz", "puan_ekle", 100, "Sıra Temizlendi")
 	emit_signal("puan_kazanildi", toplam_puan)
 	
-	# --- UI GÜNCELLEME ---
 	if arayuz:
 		var mesaj = "%d Satır Temizlendi!" % satir_sayisi
 		if satir_sayisi > 1: mesaj += " (x%d KOMBO)" % bonus

@@ -1,7 +1,10 @@
 extends Node
 
-# YENİ: Sinyal Tanımla
+# --- SİNYALLER ---
 signal envanter_guncellendi 
+signal blok_yerlestirildi # Blok konulunca
+signal satir_patladi      # Satır silinince
+signal boss_oldu          # YENİ: Boss ölünce (Zar atmayı kesmek için)
 
 var envanter = [] 
 var max_totem_sayisi = 5
@@ -12,10 +15,5 @@ func totem_ekle(yeni_esya: ItemData) -> bool:
 	
 	envanter.append(yeni_esya)
 	print("Envantere eklendi. Toplam: " + str(envanter.size()))
-	
-	# YENİ: Sinyali Ateşle! (Bütün oyuna haber ver)
 	envanter_guncellendi.emit() 
-	
 	return true
-
-# (Diğer fonksiyonlar aynen kalsın)
