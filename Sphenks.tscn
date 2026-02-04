@@ -1,4 +1,4 @@
-[gd_scene load_steps=94 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=95 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
@@ -61,6 +61,7 @@
 [ext_resource type="Resource" uid="uid://bifkv4jermqcn" path="res://Items/Revive.tres" id="48_2531s"]
 [ext_resource type="Script" uid="uid://cr3bhd7ohfluw" path="res://market_ui.gd" id="56_16a52"]
 [ext_resource type="AudioStream" uid="uid://cxr8wtfv6xnps" path="res://ErrorSound.mp3" id="57_sroql"]
+[ext_resource type="PackedScene" uid="uid://bafdowoddcpqw" path="res://zar.tscn" id="62_q606s"]
 
 [sub_resource type="Environment" id="Environment_jcgda"]
 background_mode = 1
@@ -889,6 +890,9 @@ size = Vector3(1.5482178, 2.9299502, 0.6573989)
 
 [node name="CampfireOdasi" parent="." index="25" instance=ExtResource("33_1g7sh")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 5.427616, 0.8997017, -33.59956)
+
+[node name="Zar" parent="." index="26" instance=ExtResource("62_q606s")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 1.4422805, 1.1790333, -0.17237636)
 
 [connection signal="input_event" from="Yeni_Kedi/Area3D" to="Yeni_Kedi" method="_on_area_3d_input_event"]
 

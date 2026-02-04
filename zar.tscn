@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3 uid="uid://bafdowoddcpqw"]
+
+[ext_resource type="Script" uid="uid://dkb7kungb814" path="res://zar.gd" id="1_0yrgi"]
+[ext_resource type="ArrayMesh" uid="uid://baeb0bj358fd" path="res://dice_black.obj" id="1_aeeky"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0yrgi"]
+rough = true
+bounce = 0.5
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0yrgi"]
+size = Vector3(0.5, 0.5, 0.5)
+
+[node name="Zar" type="RigidBody3D"]
+physics_material_override = SubResource("PhysicsMaterial_0yrgi")
+script = ExtResource("1_0yrgi")
+
+[node name="DiceBlack" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.001, 0, 0, 0, 0.001, 0, 0, 0, 0.001, 0, 0, 0)
+mesh = ExtResource("1_aeeky")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_0yrgi")
