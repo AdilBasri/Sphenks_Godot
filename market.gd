@@ -1,15 +1,16 @@
 extends Node3D
 
-# --- BÖLÜM 1: REFERANSLAR (El ve Giriş) ---
+# --- BÖLÜM 1: REFERANSLAR (El, Giriş ve UI) ---
 @onready var oyuncu_kolu = $OyuncuEli 
 @onready var giris_sensoru = $GirisSensoru
 @onready var altin_sahnesi = preload("res://Altin.tscn")
 @export var market_kapisi: Node3D 
+@export var market_ui: Control # UI Düğümünü buraya sürükleyeceğiz
 
 # --- BÖLÜM 2: REFERANSLAR (Eşya Spawn Sistemi) ---
 # Masanın üzerine koyacağımız görünmez noktaların babası
 @onready var spawn_noktalari_node = $SpawnNoktalari 
-# Masada oluşacak nesnenin sahnesi (Doğru dosya yolu)
+# Masada oluşacak nesnenin sahnesi
 @onready var market_item_sahnesi = preload("res://Items/market_item.tscn") 
 
 # --- BÖLÜM 3: EDİTÖRDEN ATANACAKLAR ---
@@ -29,17 +30,21 @@ func _ready():
 	if oyuncu_kolu: 
 		oyuncu_kolu.visible = false
 	
-	# 2. Giriş ve Çıkış Sensörlerini Bağla
+	# 2. UI'ı Başlangıçta Gizle (Sadece girince görünsün)
+	if market_ui:
+		market_ui.visible = false
+	
+	# 3. Giriş ve Çıkış Sensörlerini Bağla
 	if giris_sensoru:
 		# İçeri girince
 		if not giris_sensoru.body_entered.is_connected(_on_giris_sensoru_body_entered):
 			giris_sensoru.body_entered.connect(_on_giris_sensoru_body_entered)
 		
-		# Dışarı çıkınca (YENİ EKLENDİ - Kapı sorunu için)
+		# Dışarı çıkınca
 		if not giris_sensoru.body_exited.is_connected(_on_giris_sensoru_body_exited):
 			giris_sensoru.body_exited.connect(_on_giris_sensoru_body_exited)
 	
-	# 3. RASTGELE EŞYA DİZME İŞLEMİ
+	# 4. RASTGELE EŞYA DİZME İŞLEMİ
 	randomize() 
 	rastgele_esya_diz()
 
@@ -83,7 +88,7 @@ func rastgele_esya_diz():
 			yeni_urun.esya_verisi = secilen_veri
 			yeni_urun.veriyi_yukle()
 
-# --- SATIN ALMA İZNİ ---
+# --- SATIN ALMA İŞLEMLERİ ---
 func satin_almaya_calis(fiyat: int, esya_data: ItemData) -> bool:
 	
 	# 1. KONTROL: Çanta Dolu mu?
@@ -95,31 +100,47 @@ func satin_almaya_calis(fiyat: int, esya_data: ItemData) -> bool:
 	GameManager.totem_ekle(esya_data)
 	odeme_yap(fiyat) 
 	
-	# (Sehpa güncellemesi artık burada değil, GameManager sinyaliyle diğer odada oluyor)
+	# --- UI GÜNCELLEMESİ ---
+	if market_ui:
+		market_ui.guncelle(GameManager.envanter.size(), GameManager.max_totem_sayisi)
 	
 	return true
 
 func red_efekti_oynat():
 	print("REDDEDİLDİ! Çanta Dolu!")
-	# İleride buraya ses/titreme eklenecek
+	
+	# --- UI HATA EFEKTİ ---
+	if market_ui:
+		market_ui.hata_ver()
 
 # --- SENSÖR VE ANİMASYONLAR ---
 
 func _on_giris_sensoru_body_entered(body):
 	if iceride_mi: return
+	
 	if body.name == "Oyuncu" or body is CharacterBody3D:
 		var kamera = body.find_child("Camera3D", true, false)
 		if not kamera: kamera = body 
 		
 		if kamera:
 			iceride_mi = true
+			
+			# UI'ı GÖSTER
+			if market_ui:
+				market_ui.visible = true
+				
 			call_deferred("kolu_kaldir", kamera)
 
-# YENİ: Marketten çıkınca sistemi sıfırla
+# YENİ: Marketten çıkınca sistemi sıfırla ve UI'ı kapat
 func _on_giris_sensoru_body_exited(body):
 	if body.name == "Oyuncu" or body is CharacterBody3D:
 		iceride_mi = false
 		print("Oyuncu çıktı. Market resetlendi.")
+		
+		# UI'ı GİZLE
+		if market_ui:
+			market_ui.visible = false
+		
 		# İstersen çıkınca kapı açılsın diye buraya animasyon ekleyebiliriz.
 
 func kolu_kaldir(kamera):
@@ -159,14 +180,18 @@ func odeme_yap(adet):
 		else:
 			yeni_altin.global_position = oyuncu_kolu.global_position
 		
+		# Altının boyutu
 		yeni_altin.scale = Vector3(0.5, 0.5, 0.5) 
 		
 		var sapma = Vector3(randf_range(-0.1, 0.1), randf_range(0.0, 0.3), randf_range(-0.1, 0.1))
 		var final_hedef = hedef_nokta_global + sapma
 		
 		var tween = create_tween()
+		# Ufak zıplama
 		tween.tween_property(yeni_altin, "global_position", yeni_altin.global_position + Vector3(0, 0.2, 0), 0.1).set_ease(Tween.EASE_OUT)
+		# Hedefe gitme
 		tween.tween_property(yeni_altin, "global_position", final_hedef, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		# Yok olma
 		tween.tween_callback(yeni_altin.queue_free)
 		
 		await get_tree().create_timer(0.2).timeout

@@ -1,0 +1,25 @@
+[33m33e0ad9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge branch 'main' of https://github.com/AdilBasri/Sphenks_Godot
+[33m360dfda[m Benim son yaptigim market ve sehpa degisiklikleri
+[33m2ed2e10[m Proje baglantisi ve yerel degisiklikler
+[33m39ce83c[m market yarıda
+[33m35c7769[m kese tamam
+[33m09b22e7[m Market sistemi fizik denemeleri yapildi, kese sistemine gecis oncesi yedek
+[33me8af2cf[m Market sahnesi mantigi, giris sensoru, el arayuzu tetikleyicisi ve kapi kapanma sistemi eklendi
+[33ma627d40[m Oda 2 eklendi, koridor baglantilari ve tabelalar yapildi
+[33m5e2e4da[m Karanlik koridor eklendi, kapi arkasi fiziksel olarak delindi ve textureler tamamlandi
+[33md184012[m Masa, Grid ve Spawner TumMasaSistemi altinda toplandi, kapi arkasi hiclik ve cerceve eklendi, crash fixlendi
+[33m0ad7d2d[m Kapi acilma yonu ve mentesesi duzeltildi, kapi arkasi hiclik ve altin cerceve VFX eklendi, boss olum mantigi anlik hale getirildi
+[33ma96c860[m Level kazanma mantigi duzeltildi (Score > Quota), Boss animasyonu eklendi, UI hedef puani ayristirildi
+[33ma5de1e1[m Zemin materyal sorunu cozuldu (ayri obje yapildi), duvar tiles import ayarlari duzeltildi
+[33mdb3d856[m Kenar çizgileri temizlendi, atmosfer oturtuldu, duvar texture hazirligi
+[33m866b952[m Ofisten cikis - arayuz ve puan sistemi guncellemesi
+[33m1ea94b6[m q
+[33me30c4d7[m son hal
+[33me0690f1[m Debug gorselleri duzeltildi: Artik Yesil ve dogru eks
+[33m894b5c6[m Blok surukleme sistemi yenilendi (Raycast), Debug modu eklendi ve Hayalet rotasyonu duzeltildi
+[33mf183a4a[m Patlama efekti eklendi, GridYoneticisi guncellendi ve L blogu duzeltmeleri
+[33m6bce662[m Blok yerlestirme sistemi tamamlandi: Damgalama, duzgun rotasyon ve dinamik tutus eklendi. Hitbox sorunu cozuldu.
+[33m4c49ccc[m Grid sistemi matematiksel düzleme gecirildi: Bloklar artik zemine yapisiyor ve gridin her noktasina konabiliyor. Scale ayarlari yapildi.
+[33mc57b9be[m Grid sistemi ve blok yerleşimi düzeltildi: Debug çizgileri eklendi, L şekli footprint ayarı yapıldı, masaya gömülme ve scale sorunu çözüldü.
+[33m10f8a59[m Kedi tutma mekanigi, CRT Shader, Yeni Boss ve Diyalog sistemi altyapisi eklendi
+[33m5a073ab[m Proje baslangici: Mistik oda ve golge mekanigi tamam

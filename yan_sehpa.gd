@@ -46,14 +46,33 @@ func envanteri_yukle(liste: Array):
 		gorseli_olustur(slotlar[i], liste[i])
 		dolu_slot_sayisi += 1
 
+# yan_sehpa.gd içindeki fonksiyon
+
 func gorseli_olustur(marker, data):
 	var sprite = Sprite3D.new()
 	sprite.texture = data.ikon 
-	sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED 
-	sprite.pixel_size = 0.005 
 	
+	# --- 1. BOYUT AYARI (Pixel Size) ---
+	# Bu sayı ne kadar küçükse, resim o kadar küçülür ama kalitesi artar.
+	# Eğer hala büyükse 0.0005 yap. Küçükse 0.002 yap.
+	sprite.pixel_size = 0.001 
+	
+	# --- 2. YÖN AYARI (Billboard) ---
+	# Nesne oyuncuya sürekli dönsün mü?
+	# "Yanlamasına" duruyorsa sebebi muhtemelen Marker'ın rotasyonudur.
+	# Billboard'u açarsak marker nasıl durursa dursun resim kameraya bakar.
+	sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED 
+	
+	# Eğer "Hayır, masanın üstünde kağıt gibi dümdüz YATSIN" istiyorsan:
+	# sprite.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+	# sprite.axis = Vector3.AXIS_Y # Yere yapıştır
+	
+	# Sprite'ı Marker'a ekle
 	marker.add_child(sprite)
 	
-	sprite.scale = Vector3.ZERO
+	# Animasyon (Pop efekti)
+	sprite.scale = Vector3(0.01, 0.01, 0.01)
 	var tween = create_tween()
+	# Hedef boyutu Vector3(1, 1, 1) yapıyoruz. 
+	# Eğer pixel_size ile küçülmezse burayı Vector3(0.5, 0.5, 0.5) yaparak da küçültebilirsin.
 	tween.tween_property(sprite, "scale", Vector3(1, 1, 1), 0.3).set_trans(Tween.TRANS_BACK)
