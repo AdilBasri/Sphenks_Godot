@@ -5,12 +5,13 @@
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0yrgi"]
 rough = true
-bounce = 0.5
+bounce = 0.3
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_0yrgi"]
 size = Vector3(0.5, 0.5, 0.5)
 
 [node name="Zar" type="RigidBody3D"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 physics_material_override = SubResource("PhysicsMaterial_0yrgi")
 script = ExtResource("1_0yrgi")
 
