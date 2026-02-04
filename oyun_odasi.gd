@@ -15,6 +15,11 @@ extends Node3D
 @export var oyuncu: CharacterBody3D
 @export var hasar_label: Label
 
+# --- UI BAĞLANTILARI ---
+@export_group("UI Bağlantıları")
+# Ölüm ekranı sahnesini (OyunSonu.tscn) Inspector'dan buraya sürükle
+@export var olum_ekrani_sahnesi: PackedScene # <--- YENİ EKLENDİ
+
 # --- OYUN DEĞİŞKENLERİ ---
 var atilan_zarlar = []
 var toplam_sonuc = 0
@@ -22,7 +27,7 @@ var duran_zar_sayisi = 0
 
 # --- MANTIK DEĞİŞKENLERİ ---
 var boss_uyandi_mi : bool = false
-var boss_oldu_mu : bool = false # YENİ: Boss'un ölme durumu
+var boss_oldu_mu : bool = false 
 
 func _ready():
 	# Envanter
@@ -42,9 +47,13 @@ func _ready():
 		if not GameManager.blok_yerlestirildi.is_connected(_on_blok_yerlestirildi):
 			GameManager.blok_yerlestirildi.connect(_on_blok_yerlestirildi)
 			
-		# YENİ: Boss öldü sinyali
 		if not GameManager.boss_oldu.is_connected(_on_boss_oldu):
 			GameManager.boss_oldu.connect(_on_boss_oldu)
+	
+	# YENİ: OYUNCU ÖLÜMÜNÜ DİNLEME
+	if oyuncu:
+		if not oyuncu.oyuncu_oldu.is_connected(_on_oyuncu_oldu):
+			oyuncu.oyuncu_oldu.connect(_on_oyuncu_oldu)
 
 # --- TETİKLEYİCİLER ---
 
@@ -58,26 +67,35 @@ func _on_satir_patladi():
 		print("⚠️ İLK SATIR PATLADI! BOSS UYANDI!")
 
 func _on_blok_yerlestirildi():
-	# KRİTİK ZAMANLAMA AYARI:
-	# Blok konulduğunda önce skor hesaplanıp Boss ölebilir.
-	# O yüzden 0.1 saniye bekleyip, Boss hala yaşıyor mu diye bakacağız.
 	await get_tree().create_timer(0.1).timeout
-	
-	# Boss uyanıksa VE henüz ölmediyse saldır
 	if boss_uyandi_mi and not boss_oldu_mu:
 		boss_zar_at()
+
+# YENİ: Oyuncu öldüğünde çalışacak fonksiyon
+func _on_oyuncu_oldu():
+	print("💀 Oyun Odası Duydu: Oyuncu Öldü! Ekran geliyor...")
+	
+	# Biraz bekle (Düşme animasyonu tamamlasın)
+	await get_tree().create_timer(2.0).timeout
+	
+	if olum_ekrani_sahnesi:
+		var ekran = olum_ekrani_sahnesi.instantiate()
+		add_child(ekran)
+		# Mouse'u görünür yap ki tıklayabilelim
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	else:
+		print("HATA: Ölüm Ekranı Sahnesi Inspector'dan atanmamış!")
 
 # --- BOSS ZAR FONKSİYONLARI ---
 
 func boss_zar_at():
-	# Çifte kontrol (Garanti olsun)
 	if boss_oldu_mu: return
 	
 	print("🎲 SALDIRI BAŞLIYOR!")
 	
 	if zar_kamerasi and oyuncu_kamerasi:
 		oyuncu_kamerasi.current = false 
-		zar_kamerasi.current = true     
+		zar_kamerasi.current = true      
 	
 	toplam_sonuc = 0
 	duran_zar_sayisi = 0
@@ -110,8 +128,6 @@ func _on_zar_durdu(gelen_sayi):
 	if duran_zar_sayisi >= 2:
 		await get_tree().create_timer(1.5).timeout
 		
-		# Boss ölse bile zarlar atıldıysa sonucunu gösterip öyle bitirelim
-		# Ama kamera dönsün
 		if oyuncu_kamerasi:
 			zar_kamerasi.current = false
 			oyuncu_kamerasi.current = true
@@ -120,7 +136,6 @@ func _on_zar_durdu(gelen_sayi):
 			if is_instance_valid(zar): zar.queue_free()
 		atilan_zarlar.clear()
 		
-		# Boss bu arada öldüyse hasar vermeyelim (Opsiyonel, ama adil olan bu)
 		if boss_oldu_mu:
 			print("😌 Boss öldüğü için son hasar iptal edildi.")
 			return

@@ -1,4 +1,4 @@
-[gd_scene load_steps=96 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=97 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://df8kicnf6xi1m" path="res://yan_sehpa.tscn" id="7_kn6rn"]
 [ext_resource type="Texture2D" uid="uid://exewje3jhncc" path="res://tile1.png" id="7_lxn88"]
 [ext_resource type="Script" uid="uid://cqqrxhofxtxw6" path="res://KediEtkilesim.gd" id="7_ouiq0"]
+[ext_resource type="PackedScene" uid="uid://5wga44lwetiq" path="res://oyun_sonu.tscn" id="8_5uvl0"]
 [ext_resource type="Texture2D" uid="uid://b2nhri0gq2vpk" path="res://KediTutulan.png" id="8_p4fw5"]
 [ext_resource type="Script" uid="uid://b816o3munmjog" path="res://BossEfekt.gd" id="9_h2n1q"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Sphenks.gdshader" id="10_h2n1q"]
@@ -295,6 +296,7 @@ zar_kamerasi = NodePath("ZarKamerasi")
 oyuncu_kamerasi = NodePath("../Oyuncu/Camera3D")
 oyuncu = NodePath("../Oyuncu")
 hasar_label = NodePath("../Oyuncu/CanvasLayer/HasarYazisi")
+olum_ekrani_sahnesi = ExtResource("8_5uvl0")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="MezarOdasi" index="0"]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -0.48000813, -4.7683716e-07, -1.8614635)

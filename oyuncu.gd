@@ -1,5 +1,8 @@
 extends CharacterBody3D
 
+# --- SİNYALLER ---
+signal oyuncu_oldu 
+
 # --- AYARLAR ---
 var speed = 5.0
 var mouse_sensitivity = 0.003
@@ -12,15 +15,13 @@ var suanki_can_bari = 4     # Şu an kaç barımız var?
 var bar_hp = 10             # Her barın içindeki parça sayısı
 var suanki_hp = 10          # Şu anki barın doluluk oranı
 
-var yere_dustu_mu: bool = false # Hareket kilidi için
+var yere_dustu_mu: bool = false # Hareket kilidi için (Geçici düşüş)
+var oldu_mu: bool = false       # Tamamen öldü mü? (Kalıcı kilit)
 
 # --- REFERANSLAR ---
-# Inspector'dan atanacaklar:
 @export var kamera: Camera3D 
-# AnimPlayer artık GEREKSİZ, kodla yapıyoruz.
-@export var ui_container: HBoxContainer  # UI'daki Barların Kutusu
+@export var ui_container: HBoxContainer 
 
-# Kodun içinde doldurulacaklar:
 var raycast: RayCast3D = null
 var etkilesim_label: Label = null
 var tutulan_nesne: RigidBody3D = null 
@@ -30,14 +31,13 @@ var mouse_serbest_modu: bool = false
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	
-	# --- HATA KONTROLLERİ ---
 	if not kamera:
 		print("🔴 HATA: Lütfen Inspector'dan 'Kamera'yı ata!")
 		return
 	if not ui_container:
 		print("🔴 UYARI: Inspector'dan 'UI Container' atanmamış!")
 
-	# --- 1. RAYCAST KURULUMU ---
+	# 1. RAYCAST KURULUMU
 	raycast = kamera.get_node_or_null("RayCast3D")
 	if raycast == null:
 		var yeni_ray = RayCast3D.new()
@@ -48,11 +48,9 @@ func _ready():
 	raycast.enabled = true
 	raycast.target_position = Vector3(0, 0, -4.0)
 	raycast.collision_mask = 0xFFFFFFFF 
-	
-	# 🔥 FPS DROP ÇÖZÜMÜ 1: RayCast'in oyuncunun kendisine çarpmasını engelle
 	raycast.add_exception(self)
 
-	# --- 2. TUTMA NOKTASI KURULUMU ---
+	# 2. TUTMA NOKTASI KURULUMU
 	if kamera.has_node("TutmaNoktasi"):
 		tutma_noktasi = kamera.get_node("TutmaNoktasi")
 	else:
@@ -62,36 +60,37 @@ func _ready():
 		kamera.add_child(marker)
 		tutma_noktasi = marker
 
-	# --- 3. UI LABEL BULMA ---
+	# 3. UI LABEL BULMA
 	if has_node("CanvasLayer/EtkilesimYazisi"):
 		etkilesim_label = $CanvasLayer/EtkilesimYazisi
 		
-	# --- 4. BAŞLANGIÇ GÜNCELLEMELERİ ---
 	ui_guncelle()
 
 func _input(event):
 	if not kamera: return 
-	if yere_dustu_mu: return # Düşersek mouse ve hareket kilitlenir
+	
+	# 🔥 KRİTİK DEĞİŞİKLİK: Öldüysek hiçbir input çalışmasın (Bakış dahil)
+	if oldu_mu: return 
+	
+	if yere_dustu_mu: return 
 
-	# --- TEST TUŞU: Z (Hasar Alma) ---
+	# TEST TUŞU: Z
 	if event is InputEventKey and event.pressed and event.keycode == KEY_Z:
-		hasar_al(1) # Test için 1 hasar ver
+		hasar_al(1)
 
-	# --- SPACE TUŞU ---
+	# SPACE TUŞU
 	if event is InputEventKey and event.pressed and event.keycode == KEY_SPACE:
 		toggle_mouse_mode()
 
-	# --- MOUSE HAREKETİ ---
+	# MOUSE HAREKETİ
 	if not mouse_serbest_modu:
 		if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 			rotate_y(-event.relative.x * mouse_sensitivity)
-			# Kamerayı döndürürken yere_dustu_mu kontrolü yapılmalı
-			# Eğer düşüyorsak kamera kontrolünü tween'e bırakıyoruz
 			if not yere_dustu_mu:
 				kamera.rotate_x(-event.relative.y * mouse_sensitivity)
 				kamera.rotation.x = clamp(kamera.rotation.x, -1.2, 1.2)
 	
-	# --- TIKLAMA ---
+	# TIKLAMA
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		if tutulan_nesne:
 			birak_veya_firlat()
@@ -99,8 +98,8 @@ func _input(event):
 			etkilesime_gir()
 
 func _physics_process(delta):
-	# Eğer düştüysek fiziksel hareket durur
-	if yere_dustu_mu: return
+	# Öldüysek veya düştüysek hareket etme
+	if yere_dustu_mu or oldu_mu: return
 
 	if not is_on_floor():
 		velocity.y -= gravity * delta
@@ -129,10 +128,11 @@ func _physics_process(delta):
 # --- CAN VE HASAR SİSTEMİ ---
 
 func hasar_al(miktar: int):
-	if yere_dustu_mu: return 
+	# Öldüysek veya düşüyorsak hasar alma
+	if yere_dustu_mu or oldu_mu: return 
 	
 	suanki_hp -= miktar
-	print("Hasar alındı! Şu anki Barda Kalan HP: " + str(suanki_hp))
+	print("Hasar alındı! Kalan HP: " + str(suanki_hp))
 	
 	if suanki_hp <= 0:
 		suanki_hp = 0 
@@ -144,83 +144,78 @@ func bar_kirildi():
 	yere_dustu_mu = true
 	tutulan_nesne = null 
 	
-	print("BAR KIRILDI! Tween ile düşülüyor...")
+	print("BAR KIRILDI! Düşüyor...")
 	
-	# --- KODLA DÜŞME ANİMASYONU (TWEEN) ---
-	# AnimationPlayer yerine bunu kullanıyoruz.
 	var tween = create_tween()
 	
-	# 1. Yere Çakılma (Z ekseninde yan yat + Y ekseninde yere in)
+	# 1. Yere Çakılma
 	tween.parallel().tween_property(kamera, "rotation:z", deg_to_rad(80.0), 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 	tween.parallel().tween_property(kamera, "position:y", -0.5, 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 	
-	# 2. Yerde 2 saniye baygın kal
+	# 2. Bekle
 	tween.tween_interval(2.0)
 	
-	# 3. Kalkışı başlat
-	tween.tween_callback(kalkis_baslat)
+	# 🔥 KRİTİK DEĞİŞİKLİK: KARAR ANI
+	# Eğer bu son can barıysa (1 ise), kırılınca 0 olacak. O yüzden KALKMA!
+	if suanki_can_bari <= 1:
+		tween.tween_callback(game_over) # Direkt oyun sonu, yerde kal.
+	else:
+		tween.tween_callback(kalkis_baslat) # Can var, kalk.
 
 func kalkis_baslat():
 	print("Ayılıyor...")
 	var tween = create_tween()
 	
-	# Kamerayı eski haline getir (Sıfırla)
-	# Başlangıç Y pozisyonu genelde 0.6 veya 0.0'dır (Sahne ayarına göre değişir, 0 yapıyoruz)
 	tween.parallel().tween_property(kamera, "rotation:z", 0.0, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	tween.parallel().tween_property(kamera, "position:y", 0.6, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	tween.parallel().tween_property(kamera, "rotation:x", 0.0, 1.0) # Kafayı da düzelt
+	tween.parallel().tween_property(kamera, "rotation:x", 0.0, 1.0) 
 	
-	# İşlem bitince sistemi resetle
 	tween.tween_callback(_on_kalkis_tamamlandi)
 
 func _on_kalkis_tamamlandi():
-	print("Kalktık ama o bar artık çöp!")
-	
+	print("Kalktık, bir bar gitti.")
 	yere_dustu_mu = false
 	suanki_can_bari -= 1 
 	suanki_hp = 10 
-	
-	if suanki_can_bari <= 0:
-		game_over()
-	
 	ui_guncelle()
+
+func game_over():
+	print("OYUN BİTTİ - SON KEZ DÜŞTÜ VE KALKMADI!")
+	
+	oldu_mu = true             # 1. Kalıcı kilit
+	yere_dustu_mu = true       # 2. Fizik kilidi
+	set_physics_process(false) # 3. İşlemci kilidi
+	
+	# Mouse'u serbest bırak ki menüye tıklayabilsin
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE 
+	
+	oyuncu_oldu.emit() 
+
+# --- DİĞER FONKSİYONLAR ---
 
 func ui_guncelle():
 	if not ui_container: return
-	
 	var barlar = ui_container.get_children()
-	
 	for i in range(max_can_bari):
 		if i >= barlar.size(): break
-		
 		var bar = barlar[i] 
 		var carpi_resmi = bar.get_node_or_null("Carpi") 
-		
 		if i < suanki_can_bari - 1:
 			bar.value = 10
 			if carpi_resmi: carpi_resmi.visible = false
-			
 		elif i == suanki_can_bari - 1:
 			bar.value = suanki_hp
 			if carpi_resmi: carpi_resmi.visible = false
-			
 		else:
 			bar.value = 0
 			if carpi_resmi: carpi_resmi.visible = true 
 
-func game_over():
-	print("OYUN BİTTİ - ÖLDÜN!")
-	set_physics_process(false) 
-
-# --- DİĞER FONKSİYONLAR ---
 func etkilesime_gir():
 	if not raycast or not raycast.is_colliding(): return
 	var nesne = raycast.get_collider()
-	
 	if "esya_verisi" in nesne:
 		satin_al(nesne)
 		return
-
 	if nesne is RigidBody3D:
 		nesne_tut(nesne)
 
@@ -240,8 +235,6 @@ func satin_al(urun):
 		var basarili = market_node.satin_almaya_calis(urun.esya_verisi.fiyat, urun.esya_verisi)
 		if basarili:
 			var tween = create_tween()
-			# 🔥 FPS DROP ÇÖZÜMÜ 2: 
-			# Sıfıra (Vector3.ZERO) değil, çok küçüğe (0.01) düşürüyoruz.
 			tween.tween_property(urun, "scale", Vector3(0.01, 0.01, 0.01), 0.2)
 			tween.tween_callback(urun.queue_free)
 

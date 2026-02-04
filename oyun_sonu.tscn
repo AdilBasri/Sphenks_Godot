@@ -1,0 +1,46 @@
+[gd_scene load_steps=4 format=3 uid="uid://5wga44lwetiq"]
+
+[ext_resource type="Script" uid="uid://dk1bu1a5jsnlw" path="res://OyunSonu.gd" id="1_it0ne"]
+[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://PressStart2P-Regular.ttf" id="2_lf765"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_bj6ru"]
+font = ExtResource("2_lf765")
+font_size = 48
+font_color = Color(1, 0, 0, 1)
+shadow_size = 10
+shadow_color = Color(0, 0, 0, 1)
+
+[node name="OyunSonu" type="CanvasLayer"]
+script = ExtResource("1_it0ne")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5882353)
+
+[node name="Label" type="Label" parent="ColorRect"]
+layout_mode = 0
+offset_left = 506.0
+offset_top = 225.0
+offset_right = 794.0
+offset_bottom = 273.0
+text = "ÖLDÜN!"
+label_settings = SubResource("LabelSettings_bj6ru")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/Label"]
+layout_mode = 0
+offset_left = 73.0
+offset_top = 81.0
+offset_right = 189.0
+offset_bottom = 147.0
+
+[node name="TekrarButonu" type="Button" parent="ColorRect/Label/VBoxContainer"]
+layout_mode = 2
+text = "TEKRAR DENE"
+
+[node name="MenuButonu" type="Button" parent="ColorRect/Label/VBoxContainer"]
+layout_mode = 2
+text = "MENÜYE DÖN"
