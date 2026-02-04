@@ -9,7 +9,7 @@ extends Node3D
 # --- BÖLÜM 2: REFERANSLAR (Eşya Spawn Sistemi) ---
 # Masanın üzerine koyacağımız görünmez noktaların babası
 @onready var spawn_noktalari_node = $SpawnNoktalari 
-# Masada oluşacak nesnenin sahnesi
+# Masada oluşacak nesnenin sahnesi (Doğru dosya yolu)
 @onready var market_item_sahnesi = preload("res://Items/market_item.tscn") 
 
 # --- BÖLÜM 3: EDİTÖRDEN ATANACAKLAR ---
@@ -19,7 +19,6 @@ extends Node3D
 @export var olasi_esyalari_listesi: Array[ItemData] 
 
 # --- BÖLÜM 4: KONUM AYARLARI ---
-# Kolun ekrandaki duruşu (Senin -2.5 ayarın)
 var kol_hedef_pos = Vector3(0.35, -0.8, -2.5) 
 var kol_baslangic_pos = Vector3(0.35, -3.0, -2.5) 
 
@@ -30,51 +29,46 @@ func _ready():
 	if oyuncu_kolu: 
 		oyuncu_kolu.visible = false
 	
-	# 2. Giriş Sensörünü Bağla
+	# 2. Giriş ve Çıkış Sensörlerini Bağla
 	if giris_sensoru:
+		# İçeri girince
 		if not giris_sensoru.body_entered.is_connected(_on_giris_sensoru_body_entered):
 			giris_sensoru.body_entered.connect(_on_giris_sensoru_body_entered)
+		
+		# Dışarı çıkınca (YENİ EKLENDİ - Kapı sorunu için)
+		if not giris_sensoru.body_exited.is_connected(_on_giris_sensoru_body_exited):
+			giris_sensoru.body_exited.connect(_on_giris_sensoru_body_exited)
 	
 	# 3. RASTGELE EŞYA DİZME İŞLEMİ
-	randomize() # Her açılışta farklı olsun
+	randomize() 
 	rastgele_esya_diz()
 
+# --- MASAYI DOLDURMA (AKILLI SEÇİM) ---
 func rastgele_esya_diz():
-	# Hata Kontrolleri
 	if olasi_esyalari_listesi.is_empty():
 		print("UYARI: Market eşya listesi boş!")
 		return
 	
 	if not spawn_noktalari_node:
-		print("HATA: 'SpawnNoktalari' bulunamadı!")
+		print("HATA: 'SpawnNoktalari' düğümü bulunamadı!")
 		return
-
-	# Önce masayı temizle (Eğer daha önce eşya konduysa sil)
-	for cocuk in spawn_noktalari_node.get_children():
-		# Sadece Marker3D'ler kalsın, MarketItem'ları temizle
-		# (Marker3D'lerin altına eklemediğimiz için bu adım şimdilik opsiyonel ama güvenli)
-		pass
 
 	# Listeyi karıştır
 	olasi_esyalari_listesi.shuffle()
 	
 	var noktalar = spawn_noktalari_node.get_children()
-	var masaya_konacaklar = [] # Seçilenleri burada biriktireceğiz
+	var masaya_konacaklar = [] 
 	
-	# --- AKILLI SEÇİM DÖNGÜSÜ ---
+	# Akıllı Seçim Döngüsü (Max 2 aynı eşya)
 	for aday_esya in olasi_esyalari_listesi:
-		# Masadaki nokta sayısı dolduysa dur
 		if masaya_konacaklar.size() >= noktalar.size():
 			break
 		
-		# KURAL: Aynı eşyadan masada kaç tane var say
 		var adet = masaya_konacaklar.count(aday_esya)
-		
-		# Eğer 2'den azsa (0 veya 1 ise) ekle. 2 ise ekleme, pas geç.
 		if adet < 2:
 			masaya_konacaklar.append(aday_esya)
 	
-	# --- YERLEŞTİRME ---
+	# Yerleştirme
 	for i in range(masaya_konacaklar.size()):
 		var spawn_pos = noktalar[i]
 		var secilen_veri = masaya_konacaklar[i]
@@ -89,25 +83,28 @@ func rastgele_esya_diz():
 			yeni_urun.esya_verisi = secilen_veri
 			yeni_urun.veriyi_yukle()
 
-# --- YENİ FONKSİYON: SATIN ALMA İZNİ ---
-# Oyuncu.gd bu fonksiyonu çağıracak
+# --- SATIN ALMA İZNİ ---
 func satin_almaya_calis(fiyat: int, esya_data: ItemData) -> bool:
 	
-	# 1. KONTROL: Çanta Dolu mu? (GameManager Singleton'ı lazım)
+	# 1. KONTROL: Çanta Dolu mu?
 	if GameManager.envanter.size() >= GameManager.max_totem_sayisi:
 		red_efekti_oynat()
-		return false # Satın alma BAŞARISIZ
+		return false
 	
-	# 2. İŞLEM: Satın Alma BAŞARILI
+	# 2. İŞLEM: Satın Alma
 	GameManager.totem_ekle(esya_data)
-	odeme_yap(fiyat) # Senin yazdığın altın uçurma fonksiyonunu çalıştır
+	odeme_yap(fiyat) 
 	
-	return true 
+	# (Sehpa güncellemesi artık burada değil, GameManager sinyaliyle diğer odada oluyor)
+	
+	return true
 
 func red_efekti_oynat():
-	print("REDDEDİLDİ! Çanta Dolu! (Buraya ses efekti gelecek)")
+	print("REDDEDİLDİ! Çanta Dolu!")
+	# İleride buraya ses/titreme eklenecek
 
-# --- ESKİ FONKSİYONLAR (El Animasyonu & Ödeme) ---
+# --- SENSÖR VE ANİMASYONLAR ---
+
 func _on_giris_sensoru_body_entered(body):
 	if iceride_mi: return
 	if body.name == "Oyuncu" or body is CharacterBody3D:
@@ -117,6 +114,13 @@ func _on_giris_sensoru_body_entered(body):
 		if kamera:
 			iceride_mi = true
 			call_deferred("kolu_kaldir", kamera)
+
+# YENİ: Marketten çıkınca sistemi sıfırla
+func _on_giris_sensoru_body_exited(body):
+	if body.name == "Oyuncu" or body is CharacterBody3D:
+		iceride_mi = false
+		print("Oyuncu çıktı. Market resetlendi.")
+		# İstersen çıkınca kapı açılsın diye buraya animasyon ekleyebiliriz.
 
 func kolu_kaldir(kamera):
 	if oyuncu_kolu.get_parent():

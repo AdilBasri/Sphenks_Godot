@@ -1,4 +1,4 @@
-[gd_scene load_steps=87 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=89 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
@@ -6,6 +6,8 @@
 [ext_resource type="PackedScene" uid="uid://d23veo8v7bk73" path="res://block_l.tscn" id="3_qtiyh"]
 [ext_resource type="Texture2D" uid="uid://btas4blpjv33o" path="res://duvar_tiles.png" id="5_jl7q8"]
 [ext_resource type="Texture2D" uid="uid://dhayshxhd2aie" path="res://Kedi_Normal.png" id="6_1b6ct"]
+[ext_resource type="Script" uid="uid://bf27q5gmgymlx" path="res://oyun_odasi.gd" id="6_16a52"]
+[ext_resource type="PackedScene" uid="uid://df8kicnf6xi1m" path="res://yan_sehpa.tscn" id="7_kn6rn"]
 [ext_resource type="Texture2D" uid="uid://exewje3jhncc" path="res://tile1.png" id="7_lxn88"]
 [ext_resource type="Script" uid="uid://cqqrxhofxtxw6" path="res://KediEtkilesim.gd" id="7_ouiq0"]
 [ext_resource type="Texture2D" uid="uid://b2nhri0gq2vpk" path="res://KediTutulan.png" id="8_p4fw5"]
@@ -263,6 +265,7 @@ transform = Transform3D(1, 0, 0, 0, 1, -1.1920932e-07, 0, 1.1920932e-07, 1, 0.46
 [node name="MezarOdasi" type="CSGCombiner3D" parent="." index="3"]
 material_override = SubResource("StandardMaterial3D_5u6ys")
 use_collision = true
+script = ExtResource("6_16a52")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="MezarOdasi" index="0"]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -0.48000813, -4.7683716e-07, -1.8614635)
@@ -296,6 +299,9 @@ size = Vector3(1.5, 3, 0.5)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9261322, -6.448144)
 operation = 2
 size = Vector3(1.5, 3, 2.2)
+
+[node name="YanSehpa" parent="MezarOdasi" index="5" instance=ExtResource("7_kn6rn")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.3476341, -0.6611836, 0)
 
 [node name="Yeni_Kedi" type="Sprite3D" parent="." index="4" node_paths=PackedStringArray("diyalog_yoneticisi")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.4053817, -0.19308585, 0.0020349026)
@@ -733,9 +739,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2660685, -0.42271292, -0.9
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3234415, -0.4332639, -0.99705887)
 
 [node name="Campfire_room" type="CSGBox3D" parent="." index="23"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2604437, 2.0074055, -32.759567)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2604437, 1.6030934, -32.759567)
 use_collision = true
-size = Vector3(10, 5.120056, 10)
+size = Vector3(10, 5.9286804, 10)
 material = SubResource("StandardMaterial3D_mmuev")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="Campfire_room" index="0"]
