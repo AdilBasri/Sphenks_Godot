@@ -4,6 +4,7 @@ extends Node3D
 signal kapi_acildi
 
 # --- AYARLAR ---
+# MARKET ve CAMPFIRE sadece kilitleme mantığı için var, ışınlanma için değil.
 enum HedefTipi { SADECE_ACIL, SONRAKI_LEVEL, MARKET, CAMPFIRE }
 @export var hedef_tipi: HedefTipi = HedefTipi.SADECE_ACIL
 
@@ -23,44 +24,37 @@ func etkilesim():
 	kapiyi_ac()
 
 func kapiyi_ac():
+	# 1. Kilit veya Açıklık Kontrolü
 	if kilitli_mi:
-		print("!!! BU KAPI KİLİTLENDİ, AÇILAMAZ !!!")
+		print("!!! BU KAPI KİLİTLENDİ !!!")
 		return
-		
 	if acik_mi:
 		return 
 
-	print(">>> KAPI AÇILIYOR... HEDEF: ", hedef_tipi)
+	# 2. Kapıyı Aç
+	print(">>> KAPI AÇILIYOR... TİP: ", hedef_tipi)
 	acik_mi = true
-	kapi_acildi.emit()
+	kapi_acildi.emit() # Odaya haber ver (Diğer kapıyı kilitlesin diye)
 	
 	if gecit_efektleri:
 		gecit_efektleri.visible = true
 	
-	# Animasyon
+	# 3. Animasyon (Fiziksel Açılma)
 	var tween = create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(self, "rotation_degrees:y", 95.0, 3.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "rotation_degrees:y", 95.0, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	
 	if kapi_isigi:
 		kapi_isigi.visible = true 
-		kapi_isigi.light_energy = 0 
-		tween.tween_property(kapi_isigi, "light_energy", 12.0, 2.0)
+		tween.tween_property(kapi_isigi, "light_energy", 12.0, 1.0)
 	
-	# --- SAHNE GEÇİŞİ ---
-	# Kapı açıldıktan biraz sonra geçiş yapsın (Animasyonu görelim)
-	if hedef_tipi != HedefTipi.SADECE_ACIL:
-		await get_tree().create_timer(1.5).timeout
-		_gecis_yap()
-
-func _gecis_yap():
-	match hedef_tipi:
-		HedefTipi.SONRAKI_LEVEL:
-			LevelManager.sonraki_seviyeye_gec()
-		HedefTipi.MARKET:
-			LevelManager.markete_git()
-		HedefTipi.CAMPFIRE:
-			LevelManager.campfire_git()
+	# 4. ÖZEL DURUM: Sadece "SONRAKI LEVEL" kapısıysa sahneyi resetle
+	if hedef_tipi == HedefTipi.SONRAKI_LEVEL:
+		await get_tree().create_timer(1.0).timeout
+		LevelManager.odaya_don_ve_level_atla()
+	
+	# DİKKAT: Market ve Campfire için hiçbir şey yapmıyoruz. 
+	# Kapı açıldı, oyuncu yürüyerek içeri girecek.
 
 func kilitle():
 	if acik_mi: return 
@@ -69,6 +63,6 @@ func kilitle():
 		kapi_isigi.visible = false
 		kapi_isigi.light_energy = 0
 
-func _on_static_body_3d_input_event(camera, event, position, normal, shape_idx):
+func _on_static_body_3d_input_event(_camera, event, _position, _normal, _shape_idx):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		kapiyi_ac()

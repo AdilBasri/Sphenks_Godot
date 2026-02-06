@@ -21,6 +21,7 @@ var oldu_mu: bool = false
 # --- ÖZEL EŞYA DEĞİŞKENLERİ ---
 var eldeki_ozel_esya: Node3D = null 
 var ozel_esya_verisi: ItemData = null
+var active_tween: Tween = null # <--- YENİ: Aktif animasyonu takip etmek için
 
 # --- REFERANSLAR ---
 @export var kamera: Camera3D 
@@ -133,6 +134,9 @@ func satin_al(urun_node):
 			esyayi_ele_al(urun_node)
 
 func esyayi_ele_al(urun_node):
+	# Yeni eşya alırken eskisinin animasyonu varsa durdur
+	if active_tween: active_tween.kill()
+	
 	if eldeki_ozel_esya: esya_birak()
 	if tutulan_nesne: birak_veya_firlat()
 	
@@ -143,13 +147,20 @@ func esyayi_ele_al(urun_node):
 		eldeki_ozel_esya.freeze = true
 		eldeki_ozel_esya.collision_layer = 0
 	
-	var tween = create_tween()
+	# Yeni animasyon başlat
+	active_tween = create_tween()
 	eldeki_ozel_esya.reparent(tutma_noktasi)
-	tween.tween_property(eldeki_ozel_esya, "position", Vector3(0.5, -0.5, 0.5), 0.3).set_trans(Tween.TRANS_BACK)
-	tween.tween_property(eldeki_ozel_esya, "rotation", Vector3(0, 0, 0), 0.3)
+	active_tween.tween_property(eldeki_ozel_esya, "position", Vector3(0.5, -0.5, 0.5), 0.3).set_trans(Tween.TRANS_BACK)
+	active_tween.tween_property(eldeki_ozel_esya, "rotation", Vector3(0, 0, 0), 0.3)
 
 func esya_birak():
+	# Eşya bırakıyorsak, üzerindeki "yok olma" animasyonlarını iptal et
+	if active_tween: active_tween.kill()
+	
 	if not eldeki_ozel_esya: return
+	
+	# Görseli düzelt (Eğer animasyon yarıda kaldıysa scale bozuk olabilir)
+	eldeki_ozel_esya.scale = Vector3.ONE 
 	
 	if eldeki_ozel_esya is RigidBody3D:
 		eldeki_ozel_esya.freeze = false
@@ -160,6 +171,7 @@ func esya_birak():
 	
 	eldeki_ozel_esya = null
 	ozel_esya_verisi = null
+	mouse_serbest_modu = false # Kilidi aç
 	
 	var grid = get_tree().current_scene.find_child("GridMasa", true, false)
 	if grid: grid.hedef_goster(Vector2i.ZERO, false)
@@ -167,6 +179,9 @@ func esya_birak():
 func esya_kullan():
 	if not eldeki_ozel_esya: return
 	
+	# Eğer zaten bir kullanım animasyonu oynuyorsa bekle
+	if active_tween and active_tween.is_running() and mouse_serbest_modu: return
+
 	var id = ozel_esya_verisi.etki_id
 	var anim_tip = ozel_esya_verisi.animasyon_tipi
 	var grid = get_tree().current_scene.find_child("GridMasa", true, false)
@@ -231,47 +246,50 @@ func esya_kullan():
 		print("Geçersiz Hedef!")
 
 func _ozel_animasyon_oynat(tip: String):
+	# Önceki animasyonu öldür
+	if active_tween: active_tween.kill()
+	
 	mouse_serbest_modu = true 
-	var tween = create_tween()
+	active_tween = create_tween() # Tween'i değişkene ata
 	var esya = eldeki_ozel_esya
 	
-	# HATA ÇÖZÜMÜ: Vector3.ZERO yerine çok küçük bir değer kullanıyoruz.
-	# Bu 'det == 0' hatasını engeller.
 	var minik_scale = Vector3(0.01, 0.01, 0.01)
 
 	match tip:
 		"icme":
-			tween.tween_property(esya, "position", Vector3(0, -0.1, 0.4), 0.3)
-			tween.tween_property(esya, "rotation:x", deg_to_rad(60), 0.4).set_trans(Tween.TRANS_BACK)
-			tween.tween_callback(func(): print("Lık lık..."))
-			tween.tween_property(esya, "scale", minik_scale, 0.2)
+			active_tween.tween_property(esya, "position", Vector3(0, -0.1, 0.4), 0.3)
+			active_tween.tween_property(esya, "rotation:x", deg_to_rad(60), 0.4).set_trans(Tween.TRANS_BACK)
+			active_tween.tween_callback(func(): print("Lık lık..."))
+			active_tween.tween_property(esya, "scale", minik_scale, 0.2)
 			
 		"yeme":
-			tween.tween_property(esya, "position:z", 0.2, 0.3)
+			active_tween.tween_property(esya, "position:z", 0.2, 0.3)
 			for i in range(3):
-				tween.tween_property(esya, "scale", esya.scale * 0.7, 0.1)
-				tween.tween_property(esya, "rotation:z", deg_to_rad(randf_range(-20, 20)), 0.1)
-			tween.tween_property(esya, "scale", minik_scale, 0.1)
+				active_tween.tween_property(esya, "scale", esya.scale * 0.7, 0.1)
+				active_tween.tween_property(esya, "rotation:z", deg_to_rad(randf_range(-20, 20)), 0.1)
+			active_tween.tween_property(esya, "scale", minik_scale, 0.1)
 			
 		"kirma": 
-			tween.tween_property(esya, "position:z", -1.0, 0.1).set_trans(Tween.TRANS_EXPO)
-			tween.parallel().tween_property(esya, "scale:x", 0.1, 0.2)
-			tween.parallel().tween_property(esya, "scale:y", 2.0, 0.2)
-			tween.tween_property(esya, "modulate:a", 0.0, 0.1)
+			active_tween.tween_property(esya, "position:z", -1.0, 0.1).set_trans(Tween.TRANS_EXPO)
+			active_tween.parallel().tween_property(esya, "scale:x", 0.1, 0.2)
+			active_tween.parallel().tween_property(esya, "scale:y", 2.0, 0.2)
+			active_tween.tween_property(esya, "modulate:a", 0.0, 0.1)
 			
 		"buyume": 
-			tween.tween_property(esya, "scale", Vector3(2, 2, 2), 0.5).set_trans(Tween.TRANS_ELASTIC)
-			tween.tween_property(esya, "rotation:y", deg_to_rad(720), 0.5)
-			tween.tween_property(esya, "scale", minik_scale, 0.3)
+			active_tween.tween_property(esya, "scale", Vector3(2, 2, 2), 0.5).set_trans(Tween.TRANS_ELASTIC)
+			active_tween.tween_property(esya, "rotation:y", deg_to_rad(720), 0.5)
+			active_tween.tween_property(esya, "scale", minik_scale, 0.3)
 			
 		"cokme": 
 			esya.reparent(get_tree().current_scene)
-			tween.tween_property(esya, "position:y", 0.0, 0.3).set_trans(Tween.TRANS_BOUNCE)
-			tween.tween_property(esya, "scale", Vector3(1.5, 0.1, 1.5), 0.2)
-			tween.tween_property(esya, "scale", minik_scale, 0.2)
+			active_tween.tween_property(esya, "position:y", 0.0, 0.3).set_trans(Tween.TRANS_BOUNCE)
+			active_tween.tween_property(esya, "scale", Vector3(1.5, 0.1, 1.5), 0.2)
+			active_tween.tween_property(esya, "scale", minik_scale, 0.2)
 
-	tween.tween_callback(func():
-		esya.queue_free()
+	# GÜVENLİ CALLBACK
+	active_tween.tween_callback(func():
+		if is_instance_valid(esya):
+			esya.queue_free()
 		eldeki_ozel_esya = null
 		ozel_esya_verisi = null
 		mouse_serbest_modu = false

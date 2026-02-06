@@ -8,11 +8,8 @@ extends CanvasLayer
 @onready var liste = $ParsomenPanel/PuanTablosu/Liste
 
 # --- YENİ BAĞLANTILAR (Editörde oluşturman gerek) ---
-# Ekranda "KATMAN 1" yazacak büyük Label
-@onready var katman_label = $KatmanLabel 
-# Animasyon Oynatıcı
-@onready var anim_player = $AnimationPlayer 
-
+var katman_label = null
+var anim_player = null
 var progress_bar = null 
 
 # --- OYUN DEĞİŞKENLERİ ---
@@ -23,14 +20,21 @@ var panel_acik: bool = false
 func _ready() -> void:
 	add_to_group("Arayuz")
 	
+	# Güvenli Erişim: Varsa al, yoksa null
+	if has_node("KatmanLabel"):
+		katman_label = $KatmanLabel
+		katman_label.visible = false
+	else:
+		print("UYARI: KatmanLabel bulunamadı!")
+
+	if has_node("AnimationPlayer"):
+		anim_player = $AnimationPlayer
+
 	if panel and panel.has_node("TextureProgressBar"):
 		progress_bar = panel.get_node("TextureProgressBar")
 	
 	if panel:
 		panel.visible = false
-	
-	# Başlangıçta Katman yazısını gizle
-	if katman_label: katman_label.visible = false
 	
 	guncelle_ekran()
 
@@ -46,11 +50,10 @@ func katman_yazisi_goster(kat_no: int):
 		katman_label.text = "KATMAN " + str(kat_no)
 		katman_label.visible = true
 		
-		# Eğer animasyon varsa oynat
 		if anim_player and anim_player.has_animation("katman_giris"):
 			anim_player.play("katman_giris")
 		else:
-			# Animasyon yoksa manuel tween yapalım
+			# Animasyon yoksa manuel yap (Çökmesin)
 			var tween = create_tween()
 			katman_label.modulate.a = 0
 			katman_label.scale = Vector2(2, 2)
