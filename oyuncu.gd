@@ -16,12 +16,12 @@ var bar_hp = 10
 var suanki_hp = 10          
 
 var yere_dustu_mu: bool = false 
-var oldu_mu: bool = false       
+var oldu_mu: bool = false        
 
-# --- ÖZEL EŞYA DEĞİŞKENLERİ ---
+# --- ÖZEL EŞYA ---
 var eldeki_ozel_esya: Node3D = null 
 var ozel_esya_verisi: ItemData = null
-var active_tween: Tween = null # <--- YENİ: Aktif animasyonu takip etmek için
+var active_tween: Tween = null
 
 # --- REFERANSLAR ---
 @export var kamera: Camera3D 
@@ -35,12 +35,8 @@ var mouse_serbest_modu: bool = false
 
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if not kamera: return
 	
-	if not kamera:
-		print("🔴 HATA: Kamera atanmamış!")
-		return
-	
-	# Raycast Kurulumu
 	raycast = kamera.get_node_or_null("RayCast3D")
 	if raycast == null:
 		var yeni_ray = RayCast3D.new()
@@ -52,19 +48,21 @@ func _ready():
 	raycast.collision_mask = 0xFFFFFFFF 
 	raycast.add_exception(self)
 
-	# Tutma Noktası
 	if kamera.has_node("TutmaNoktasi"):
 		tutma_noktasi = kamera.get_node("TutmaNoktasi")
 	else:
 		var marker = Marker3D.new()
 		marker.name = "TutmaNoktasi"
-		marker.position = Vector3(0, 0, -2.5) 
 		kamera.add_child(marker)
+		marker.position = Vector3(0, 0, -2.5) 
 		tutma_noktasi = marker
 
-	# UI Label
 	if has_node("CanvasLayer/EtkilesimYazisi"):
 		etkilesim_label = $CanvasLayer/EtkilesimYazisi
+	
+	if GameManager:
+		suanki_can_bari = GameManager.oyuncu_kalan_bar
+		suanki_hp = GameManager.oyuncu_suanki_hp
 		
 	ui_guncelle()
 
@@ -124,44 +122,52 @@ func _physics_process(delta):
 	_hedef_gosterge_guncelle()
 	check_ui_text()
 
-# --- ÖZEL EŞYA SİSTEMİ ---
+# --- SİSTEMLER ---
 
 func satin_al(urun_node):
 	var market = get_tree().current_scene.find_child("Market", true, false)
 	if market and market.has_method("satin_almaya_calis"):
-		var basarili = market.satin_almaya_calis(urun_node.esya_verisi.fiyat, urun_node.esya_verisi)
+		var veri = urun_node.get("esya_verisi")
+		if not veri: return
+		
+		var basarili = market.satin_almaya_calis(veri.fiyat, veri)
 		if basarili:
-			esyayi_ele_al(urun_node)
+			var tween = create_tween()
+			tween.tween_property(urun_node, "scale", Vector3.ZERO, 0.2)
+			tween.tween_callback(urun_node.queue_free)
 
 func esyayi_ele_al(urun_node):
-	# Yeni eşya alırken eskisinin animasyonu varsa durdur
+	# Önceki animasyonları durdur
 	if active_tween: active_tween.kill()
 	
+	# Elimizde zaten bir şey varsa bırak
 	if eldeki_ozel_esya: esya_birak()
 	if tutulan_nesne: birak_veya_firlat()
 	
 	eldeki_ozel_esya = urun_node
-	ozel_esya_verisi = urun_node.esya_verisi
+	ozel_esya_verisi = urun_node.get("esya_verisi")
 	
 	if eldeki_ozel_esya is RigidBody3D:
 		eldeki_ozel_esya.freeze = true
-		eldeki_ozel_esya.collision_layer = 0
+		eldeki_ozel_esya.collision_layer = 0 # Çarpışmayı kapat ki içinden geçmesin
 	
-	# Yeni animasyon başlat
-	active_tween = create_tween()
+	# Ebeveyn değiştir (Sehpadan -> Oyuncuya)
 	eldeki_ozel_esya.reparent(tutma_noktasi)
+	
+	# --- KRİTİK DÜZELTME: Boyutu ve Açıyı Sıfırla ---
+	# Sehpadan gelirken ezilmişse burada düzeltiyoruz.
+	eldeki_ozel_esya.scale = Vector3.ONE 
+	
+	# Animasyon (Eline gelme)
+	active_tween = create_tween()
 	active_tween.tween_property(eldeki_ozel_esya, "position", Vector3(0.5, -0.5, 0.5), 0.3).set_trans(Tween.TRANS_BACK)
 	active_tween.tween_property(eldeki_ozel_esya, "rotation", Vector3(0, 0, 0), 0.3)
 
 func esya_birak():
-	# Eşya bırakıyorsak, üzerindeki "yok olma" animasyonlarını iptal et
 	if active_tween: active_tween.kill()
-	
 	if not eldeki_ozel_esya: return
 	
-	# Görseli düzelt (Eğer animasyon yarıda kaldıysa scale bozuk olabilir)
 	eldeki_ozel_esya.scale = Vector3.ONE 
-	
 	if eldeki_ozel_esya is RigidBody3D:
 		eldeki_ozel_esya.freeze = false
 		eldeki_ozel_esya.collision_layer = 1
@@ -171,7 +177,7 @@ func esya_birak():
 	
 	eldeki_ozel_esya = null
 	ozel_esya_verisi = null
-	mouse_serbest_modu = false # Kilidi aç
+	mouse_serbest_modu = false 
 	
 	var grid = get_tree().current_scene.find_child("GridMasa", true, false)
 	if grid: grid.hedef_goster(Vector2i.ZERO, false)
@@ -179,8 +185,9 @@ func esya_birak():
 func esya_kullan():
 	if not eldeki_ozel_esya: return
 	
-	# Eğer zaten bir kullanım animasyonu oynuyorsa bekle
-	if active_tween and active_tween.is_running() and mouse_serbest_modu: return
+	# --- YENİ DÜZELTME: Çift Tıklama Engeli ---
+	# Eğer eşya hala eline geliyorsa (animasyon sürüyorsa) kullanma.
+	if active_tween and active_tween.is_running(): return
 
 	var id = ozel_esya_verisi.etki_id
 	var anim_tip = ozel_esya_verisi.animasyon_tipi
@@ -191,105 +198,54 @@ func esya_kullan():
 		hedef_hucre = grid.world_to_cell(raycast.get_collision_point())
 	
 	var basarili = false
-	
 	match id:
 		"mantar":
-			var spawner = get_tree().current_scene.find_child("BlokDagitici", true, false)
-			if spawner and spawner.get("suanki_blok"):
-				var blok = spawner.suanki_blok
-				blok.set_meta("boyali_renk", Color.PURPLE)
-				for c in blok.get_children():
-					if c is MeshInstance3D:
-						var mat = StandardMaterial3D.new()
-						mat.albedo_color = Color.PURPLE
-						c.material_override = mat
 			_ekran_bozma_efekti(true)
 			basarili = true
-
 		"kilic":
 			if hedef_hucre != null:
 				grid.blok_dusur(hedef_hucre)
 				basarili = true
-		
 		"firca":
 			if hedef_hucre != null:
 				grid.bloku_boya(hedef_hucre, Color.PURPLE) 
 				basarili = true
-		
 		"asit":
 			if hedef_hucre != null:
 				grid.sutunu_yok_et(hedef_hucre)
 				basarili = true
-				
-		"mama":
-			if raycast.is_colliding():
-				var collider = raycast.get_collider()
-				if collider.is_in_group("Kedi"):
-					print("Oyun Kaydedildi!")
-					basarili = true
-		
 		"canlan":
 			suanki_can_bari = min(suanki_can_bari + 1, max_can_bari)
+			if GameManager: GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
 			ui_guncelle()
 			basarili = true
-
-		"kumsaati":
-			basarili = true
-			
 		_: 
 			basarili = true
 
 	if basarili:
 		if grid: grid.hedef_goster(Vector2i.ZERO, false)
 		_ozel_animasyon_oynat(anim_tip)
-	else:
-		print("Geçersiz Hedef!")
 
 func _ozel_animasyon_oynat(tip: String):
-	# Önceki animasyonu öldür
 	if active_tween: active_tween.kill()
-	
 	mouse_serbest_modu = true 
-	active_tween = create_tween() # Tween'i değişkene ata
+	active_tween = create_tween() 
 	var esya = eldeki_ozel_esya
-	
 	var minik_scale = Vector3(0.01, 0.01, 0.01)
 
 	match tip:
 		"icme":
 			active_tween.tween_property(esya, "position", Vector3(0, -0.1, 0.4), 0.3)
 			active_tween.tween_property(esya, "rotation:x", deg_to_rad(60), 0.4).set_trans(Tween.TRANS_BACK)
-			active_tween.tween_callback(func(): print("Lık lık..."))
 			active_tween.tween_property(esya, "scale", minik_scale, 0.2)
-			
-		"yeme":
-			active_tween.tween_property(esya, "position:z", 0.2, 0.3)
-			for i in range(3):
-				active_tween.tween_property(esya, "scale", esya.scale * 0.7, 0.1)
-				active_tween.tween_property(esya, "rotation:z", deg_to_rad(randf_range(-20, 20)), 0.1)
-			active_tween.tween_property(esya, "scale", minik_scale, 0.1)
-			
 		"kirma": 
 			active_tween.tween_property(esya, "position:z", -1.0, 0.1).set_trans(Tween.TRANS_EXPO)
-			active_tween.parallel().tween_property(esya, "scale:x", 0.1, 0.2)
-			active_tween.parallel().tween_property(esya, "scale:y", 2.0, 0.2)
 			active_tween.tween_property(esya, "modulate:a", 0.0, 0.1)
-			
-		"buyume": 
-			active_tween.tween_property(esya, "scale", Vector3(2, 2, 2), 0.5).set_trans(Tween.TRANS_ELASTIC)
-			active_tween.tween_property(esya, "rotation:y", deg_to_rad(720), 0.5)
-			active_tween.tween_property(esya, "scale", minik_scale, 0.3)
-			
-		"cokme": 
-			esya.reparent(get_tree().current_scene)
-			active_tween.tween_property(esya, "position:y", 0.0, 0.3).set_trans(Tween.TRANS_BOUNCE)
-			active_tween.tween_property(esya, "scale", Vector3(1.5, 0.1, 1.5), 0.2)
+		_: 
 			active_tween.tween_property(esya, "scale", minik_scale, 0.2)
 
-	# GÜVENLİ CALLBACK
 	active_tween.tween_callback(func():
-		if is_instance_valid(esya):
-			esya.queue_free()
+		if is_instance_valid(esya): esya.queue_free()
 		eldeki_ozel_esya = null
 		ozel_esya_verisi = null
 		mouse_serbest_modu = false
@@ -299,20 +255,16 @@ func _ozel_animasyon_oynat(tip: String):
 func _hedef_gosterge_guncelle():
 	if not eldeki_ozel_esya: return
 	var id = ozel_esya_verisi.etki_id
-	
 	if id == "kilic" or id == "firca" or id == "asit":
 		var grid = get_tree().current_scene.find_child("GridMasa", true, false)
 		if grid and raycast.is_colliding():
 			var hit = raycast.get_collision_point()
 			var cell = grid.world_to_cell(hit)
-			if cell != null:
-				grid.hedef_goster(cell, true)
-			else:
-				grid.hedef_goster(Vector2i.ZERO, false)
+			if cell != null: grid.hedef_goster(cell, true)
+			else: grid.hedef_goster(Vector2i.ZERO, false)
 
 func _ekran_bozma_efekti(aktif: bool):
-	if has_node("CanvasLayer/MantarEfekti"):
-		$CanvasLayer/MantarEfekti.visible = aktif
+	if has_node("CanvasLayer/MantarEfekti"): $CanvasLayer/MantarEfekti.visible = aktif
 
 func hasar_al(miktar: int):
 	if yere_dustu_mu or oldu_mu: return 
@@ -320,6 +272,7 @@ func hasar_al(miktar: int):
 	if suanki_hp <= 0:
 		suanki_hp = 0 
 		bar_kirildi() 
+	if GameManager: GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
 	ui_guncelle()
 
 func bar_kirildi():
@@ -329,10 +282,8 @@ func bar_kirildi():
 	tween.parallel().tween_property(kamera, "rotation:z", deg_to_rad(80.0), 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 	tween.parallel().tween_property(kamera, "position:y", -0.5, 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 	tween.tween_interval(2.0)
-	if suanki_can_bari <= 1:
-		tween.tween_callback(game_over)
-	else:
-		tween.tween_callback(kalkis_baslat)
+	if suanki_can_bari <= 1: tween.tween_callback(game_over)
+	else: tween.tween_callback(kalkis_baslat)
 
 func kalkis_baslat():
 	var tween = create_tween()
@@ -345,6 +296,7 @@ func _on_kalkis_tamamlandi():
 	yere_dustu_mu = false
 	suanki_can_bari -= 1 
 	suanki_hp = 10 
+	if GameManager: GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
 	ui_guncelle()
 
 func game_over():
@@ -371,14 +323,7 @@ func ui_guncelle():
 			bar.value = 0
 			if carpi: carpi.visible = true 
 
-func etkilesime_gir():
-	if not raycast or not raycast.is_colliding(): return
-	var nesne = raycast.get_collider()
-	if "esya_verisi" in nesne:
-		satin_al(nesne)
-		return
-	if nesne is RigidBody3D:
-		nesne_tut(nesne)
+# --- YARDIMCI FONKSİYONLAR ---
 
 func nesne_tut(nesne: RigidBody3D):
 	tutulan_nesne = nesne
@@ -392,16 +337,41 @@ func birak_veya_firlat():
 
 func check_ui_text():
 	if not etkilesim_label: return
+	etkilesim_label.text = ""
+	
 	if raycast and raycast.is_colliding():
 		var nesne = raycast.get_collider()
-		if nesne and "esya_verisi" in nesne:
-			etkilesim_label.text = "[SOL TIK] SATIN AL\n" + nesne.esya_verisi.esya_adi + " (" + str(nesne.esya_verisi.fiyat) + ")"
+		
+		# Veriyi güvenli oku (Script olmasa bile meta verisinden veya değişkenden)
+		var veri = nesne.get("esya_verisi")
+		var market_modu = nesne.get("market_modu")
+		
+		if veri:
+			if market_modu == true:
+				etkilesim_label.text = "[SOL TIK] SATIN AL\n" + veri.esya_adi + " (" + str(veri.fiyat) + " Altın)"
+			else:
+				etkilesim_label.text = "[SOL TIK] AL\n" + veri.esya_adi
+		
+		# Düz fiziksel nesne
 		elif nesne is RigidBody3D and not tutulan_nesne:
 			etkilesim_label.text = "TUT"
+
+func etkilesime_gir():
+	if not raycast or not raycast.is_colliding(): return
+	var nesne = raycast.get_collider()
+	
+	var veri = nesne.get("esya_verisi")
+	var market_modu = nesne.get("market_modu")
+	
+	if veri:
+		if market_modu == true:
+			satin_al(nesne)
 		else:
-			etkilesim_label.text = ""
-	else:
-		etkilesim_label.text = ""
+			esyayi_ele_al(nesne)
+		return
+
+	if nesne is RigidBody3D:
+		nesne_tut(nesne)
 
 func toggle_mouse_mode():
 	if oldu_mu: return

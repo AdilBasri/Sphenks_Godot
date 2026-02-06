@@ -3,60 +3,69 @@ extends Node3D
 @onready var slotlar_node = $Slotlar
 
 func _ready():
-	# GameManager'ı dinle
 	if not GameManager.envanter_guncellendi.is_connected(tazele):
 		GameManager.envanter_guncellendi.connect(tazele)
 	
-	# Başlangıçta yükle
+	await get_tree().process_frame
 	tazele()
 
 func tazele():
-	# Önce masayı temizle
-	temizle()
-	
+	temizle() # Bu fonksiyon aşağıda tanımlı, artık hata vermez.
 	if not slotlar_node: return
+	
+	# --- KRİTİK: Slotlar düğümünü sıfırla ---
+	slotlar_node.scale = Vector3.ONE
 	
 	var slotlar = slotlar_node.get_children()
 	var envanter = GameManager.envanter
 	
-	# Envanterdeki her eşya için döngü
 	for i in range(min(envanter.size(), slotlar.size())):
 		var veri = envanter[i]
 		var hedef_marker = slotlar[i]
 		
-		# RESİM YERİNE MODEL OLUŞTURUYORUZ
-		esya_modelini_koy(hedef_marker, veri)
+		# --- KRİTİK: Marker'ı sıfırla ---
+		hedef_marker.scale = Vector3.ONE
+		
+		sprite_nesnesi_yarat(veri, hedef_marker)
 
-func esya_modelini_koy(marker: Marker3D, veri: ItemData):
-	if not veri or not veri.model_sahnesi: 
-		print("Model sahnesi yok, Sprite deneniyor...")
-		# Model yoksa eski usül sprite koyabilirsin (yedek plan) ama model olmalı.
-		return
+func sprite_nesnesi_yarat(veri: ItemData, marker: Marker3D):
+	if not veri or not veri.ikon: return
 
-	# 1. Modeli Sahneye Ekle (Instantiate)
-	var yeni_esya = veri.model_sahnesi.instantiate()
-	marker.add_child(yeni_esya)
+	# 1. Fiziksel Vücut
+	var body = RigidBody3D.new()
+	marker.add_child(body)
 	
-	# 2. Pozisyon ve Boyut Ayarı
-	yeni_esya.position = Vector3.ZERO
-	yeni_esya.rotation = Vector3.ZERO
-	yeni_esya.scale = Vector3.ONE # Ezikliği önlemek için 1,1,1 yapıyoruz
+	# Konumlandırma (Masanın hafif üstüne)
+	body.position = Vector3(0, 0.2, 0)
+	body.rotation = Vector3.ZERO
+	body.scale = Vector3.ONE 
 	
-	# 3. Script Enjeksiyonu (Etkileşim için)
-	# Eğer modelin üzerinde zaten script yoksa, SatinAlinabilirNesne.gd'yi takıyoruz.
-	if not yeni_esya.get_script():
-		yeni_esya.set_script(load("res://Scripts/SatinAlinabilirNesne.gd"))
+	body.freeze = true 
+	body.collision_layer = 1 
 	
-	# 4. Verileri İşle
-	# SatinAlinabilirNesne scripti bu değişkenleri arar
-	yeni_esya.set("esya_verisi", veri)
-	yeni_esya.set("market_modu", false) # BURASI KRİTİK: Sehpadaki eşya bedava alınır.
+	# 2. Resim
+	var sprite = Sprite3D.new()
+	body.add_child(sprite)
+	sprite.texture = veri.ikon
+	sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sprite.pixel_size = 0.0005 
+	sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
 	
-	# 5. Fizik Ayarı (Masadan düşmemesi için dondur)
-	if yeni_esya is RigidBody3D:
-		yeni_esya.freeze = true
-		yeni_esya.collision_layer = 1 # Raycast görsün diye katman açık
+	# 3. Kutu
+	var col = CollisionShape3D.new()
+	var shape = BoxShape3D.new()
+	shape.size = Vector3(0.5, 0.5, 0.5) 
+	col.shape = shape
+	body.add_child(col)
+	
+	# 4. Script
+	var script = load("res://Nesne.gd")
+	if script:
+		body.set_script(script)
+		body.set("esya_verisi", veri)
+		body.set("market_modu", false)
 
+# --- İŞTE EKSİK OLAN FONKSİYON BURASI ---
 func temizle():
 	if slotlar_node:
 		for marker in slotlar_node.get_children():
