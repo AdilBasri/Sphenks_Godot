@@ -1,4 +1,4 @@
-[gd_scene load_steps=97 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=98 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
@@ -154,6 +154,12 @@ region = Rect2(389.22156, 296.0412, 1253.7622, 1473.935)
 [sub_resource type="AtlasTexture" id="AtlasTexture_5uvl0"]
 atlas = ExtResource("24_uxn7w")
 region = Rect2(375.71313, 280.9171, 1237.1509, 1443.3556)
+
+[sub_resource type="LabelSettings" id="LabelSettings_5uvl0"]
+font = ExtResource("13_bpxfr")
+font_size = 38
+shadow_size = 5
+shadow_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lxn88"]
 albedo_texture = ExtResource("7_lxn88")
@@ -580,6 +586,21 @@ collision_mask = 15
 
 [node name="OyunArayuzu" parent="." index="12" groups=["Arayuz"] instance=ExtResource("3_4kj0i")]
 
+[node name="KatmanLabel" type="Label" parent="OyunArayuzu" index="1"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -0.5
+offset_top = -11.5
+offset_right = 0.5
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "KATMAN 1"
+label_settings = SubResource("LabelSettings_5uvl0")
+
 [node name="Sprite3D" type="Sprite3D" parent="." index="13"]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 2.814343, 0.7904787, -4.989589)
 texture = ExtResource("24_4kj0i")
@@ -744,6 +765,7 @@ texture = ExtResource("32_ojhqj")
 
 [node name="KapiCampfire" parent="CatalOdasi" index="11" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6266735, -0.6419221, -4.8798866)
+hedef_tipi = 3
 kapi_isigi = NodePath("../../SpotLight3D")
 gecit_efektleri = NodePath("../../MezarOdasi/SabitGecitEfekti")
 
@@ -755,6 +777,7 @@ transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9
 
 [node name="KapiMarket" parent="CatalOdasi" index="12" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3873303, -0.6419221, -4.8798866)
+hedef_tipi = 2
 kapi_isigi = NodePath("../../SpotLight3D")
 gecit_efektleri = NodePath("../../MezarOdasi/SabitGecitEfekti")
 

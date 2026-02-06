@@ -7,32 +7,58 @@ extends CanvasLayer
 @onready var score_label = $ParsomenPanel/PuanTablosu/TotalScoreDeger
 @onready var liste = $ParsomenPanel/PuanTablosu/Liste
 
-# Bu arkadaş hata veriyordu, onu güvenli hale getirdik:
+# --- YENİ BAĞLANTILAR (Editörde oluşturman gerek) ---
+# Ekranda "KATMAN 1" yazacak büyük Label
+@onready var katman_label = $KatmanLabel 
+# Animasyon Oynatıcı
+@onready var anim_player = $AnimationPlayer 
+
 var progress_bar = null 
 
 # --- OYUN DEĞİŞKENLERİ ---
 var toplam_puan: int = 0
-var hedef_puan: int = 300 # Varsayılanı düşürdük
+var hedef_puan: int = 300 
 var panel_acik: bool = false
 
 func _ready() -> void:
 	add_to_group("Arayuz")
 	
-	# Progress bar var mı diye nazikçe bakıyoruz, yoksa hata verip oyunu çökertmiyoruz
 	if panel and panel.has_node("TextureProgressBar"):
 		progress_bar = panel.get_node("TextureProgressBar")
 	
 	if panel:
 		panel.visible = false
 	
+	# Başlangıçta Katman yazısını gizle
+	if katman_label: katman_label.visible = false
+	
 	guncelle_ekran()
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_Q:
 		toggle_panel()
-	# Hile tuşu (P)
 	if event is InputEventKey and event.pressed and event.keycode == KEY_P:
 		puan_ekle(200, "Hile")
+
+# --- YENİ FONKSİYON: Katman Yazısı ---
+func katman_yazisi_goster(kat_no: int):
+	if katman_label:
+		katman_label.text = "KATMAN " + str(kat_no)
+		katman_label.visible = true
+		
+		# Eğer animasyon varsa oynat
+		if anim_player and anim_player.has_animation("katman_giris"):
+			anim_player.play("katman_giris")
+		else:
+			# Animasyon yoksa manuel tween yapalım
+			var tween = create_tween()
+			katman_label.modulate.a = 0
+			katman_label.scale = Vector2(2, 2)
+			
+			tween.tween_property(katman_label, "modulate:a", 1.0, 0.5)
+			tween.parallel().tween_property(katman_label, "scale", Vector2(1, 1), 0.5)
+			tween.tween_interval(2.0)
+			tween.tween_property(katman_label, "modulate:a", 0.0, 0.5)
 
 func toggle_panel() -> void:
 	panel_acik = !panel_acik

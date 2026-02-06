@@ -8,12 +8,12 @@ extends Node3D
 # --- SAHNE OBJELERİ ---
 @export var boss_objesi: Node3D 
 @export var masa_objesi: Node3D 
-@export var kapi_sistemi: Node3D 
+@export var kapi_sistemi: Node3D # NOT: Artık odada 2 kapı olmalı, bunu array yapabilirsin veya manuel açabilirsin.
 
 # --- BÖLÜM AYARLARI ---
-@export var bolum_blok_limiti: int = 12 
-@export var elde_tutulan_max: int = 3    
-@export var baslangic_kotasi: int = 300 
+var bolum_blok_limiti: int = 12 
+var elde_tutulan_max: int = 3    
+var baslangic_kotasi: int = 300 
 
 # --- DEĞİŞKENLER ---
 var kalan_stok: int = 0
@@ -26,9 +26,22 @@ signal stok_guncellendi(kalan: int)
 signal bolum_temizlendi 
 
 func _ready() -> void:
+	# 1. LEVEL MANAGER'DAN ZORLUĞU AL
+	var veri = LevelManager.bolum_verilerini_getir()
+	bolum_blok_limiti = veri["blok_limiti"]
+	baslangic_kotasi = veri["hedef_puan"]
+	var suanki_katman = veri["katman"]
+	
+	print("--- BÖLÜM BAŞLIYOR: KATMAN ", suanki_katman, " HEDEF: ", baslangic_kotasi, " ---")
+
+	# 2. ARAYÜZÜ KUR
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
-	if arayuz and arayuz.has_method("bolum_kurulumu"):
-		arayuz.bolum_kurulumu(baslangic_kotasi)
+	if arayuz:
+		if arayuz.has_method("bolum_kurulumu"):
+			arayuz.bolum_kurulumu(baslangic_kotasi)
+		# "KATMAN X" yazısını ekrana bas
+		if arayuz.has_method("katman_yazisi_goster"):
+			arayuz.katman_yazisi_goster(suanki_katman)
 
 	kalan_stok = bolum_blok_limiti
 	tur_bitti_mi = false
@@ -78,7 +91,6 @@ func _boss_olum_animasyonu() -> void:
 	print(">>> KOTA AŞILDI! BOSS YOK OLUYOR... <<<")
 	boss_oldu_mu = true 
 	
-	# 🔥 YENİ: OyunOdasi'na haber ver ki zar atmayı kessin
 	GameManager.boss_oldu.emit()
 	
 	if is_instance_valid(boss_objesi):
@@ -127,8 +139,12 @@ func _sahne_bitis_animasyonu() -> void:
 	tween.chain().tween_callback(func(): 
 		if is_instance_valid(boss_objesi): boss_objesi.queue_free()
 		if is_instance_valid(masa_objesi): masa_objesi.queue_free()
+		
+		# BURADA KAPILARI AÇMA KODU ÇAĞRILACAK
+		# Örn: get_tree().call_group("Kapilar", "kilidi_ac") gibi bir yapı kurabilirsin.
 		if kapi_sistemi and kapi_sistemi.has_method("kapiyi_ac"):
 			kapi_sistemi.kapiyi_ac()
+			
 		emit_signal("bolum_temizlendi") 
 	)
 
