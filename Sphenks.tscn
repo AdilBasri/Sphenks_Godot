@@ -1,4 +1,4 @@
-[gd_scene load_steps=98 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=99 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
@@ -62,6 +62,7 @@
 [ext_resource type="Resource" uid="uid://bifkv4jermqcn" path="res://Items/Revive.tres" id="48_2531s"]
 [ext_resource type="Script" uid="uid://cr3bhd7ohfluw" path="res://market_ui.gd" id="56_16a52"]
 [ext_resource type="AudioStream" uid="uid://cxr8wtfv6xnps" path="res://ErrorSound.mp3" id="57_sroql"]
+[ext_resource type="Script" uid="uid://ccn3umee5kexm" path="res://MasaSpawner.gd" id="59_q606s"]
 [ext_resource type="PackedScene" uid="uid://bafdowoddcpqw" path="res://zar.tscn" id="62_q606s"]
 
 [sub_resource type="Environment" id="Environment_jcgda"]
@@ -579,6 +580,7 @@ texture = ExtResource("25_q606s")
 
 [node name="Camera3D" type="Camera3D" parent="Oyuncu" index="3"]
 transform = Transform3D(0.99888355, -0.024378376, -0.040465526, 0.01922809, 0.9922066, -0.12311137, 0.043151416, 0.12219585, 0.9915675, -0.045120563, 0.83062285, 0.014348984)
+current = true
 
 [node name="RayCast3D" type="RayCast3D" parent="Oyuncu/Camera3D" index="0"]
 target_position = Vector3(0, 0, -2.5)
@@ -600,6 +602,15 @@ grow_horizontal = 2
 grow_vertical = 2
 text = "KATMAN 1"
 label_settings = SubResource("LabelSettings_5uvl0")
+
+[node name="Perde" type="ColorRect" parent="OyunArayuzu" index="2"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
 
 [node name="Sprite3D" type="Sprite3D" parent="." index="13"]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 2.814343, 0.7904787, -4.989589)
@@ -871,6 +882,7 @@ no_depth_test = true
 texture = ExtResource("41_q0r6j")
 
 [node name="SpawnNoktalari" type="Node3D" parent="Market" index="10"]
+script = ExtResource("59_q606s")
 
 [node name="Marker3D" type="Marker3D" parent="Market/SpawnNoktalari" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9613943, -0.48753572, -0.99705887)

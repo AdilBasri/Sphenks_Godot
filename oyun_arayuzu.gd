@@ -2,15 +2,15 @@ extends CanvasLayer
 
 # --- BAĞLANTILAR ---
 @onready var panel = $ParsomenPanel
-@onready var ana_baslik = $ParsomenPanel/ArkaplanGorseli/ToplamPuanLabel
 @onready var quota_label = $ParsomenPanel/PuanTablosu/QuotaDeger
 @onready var score_label = $ParsomenPanel/PuanTablosu/TotalScoreDeger
 @onready var liste = $ParsomenPanel/PuanTablosu/Liste
 
-# --- YENİ BAĞLANTILAR (Editörde oluşturman gerek) ---
+# --- YENİ BAĞLANTILAR ---
 var katman_label = null
 var anim_player = null
 var progress_bar = null 
+var perde = null 
 
 # --- OYUN DEĞİŞKENLERİ ---
 var toplam_puan: int = 0
@@ -20,12 +20,9 @@ var panel_acik: bool = false
 func _ready() -> void:
 	add_to_group("Arayuz")
 	
-	# Güvenli Erişim: Varsa al, yoksa null
 	if has_node("KatmanLabel"):
 		katman_label = $KatmanLabel
 		katman_label.visible = false
-	else:
-		print("UYARI: KatmanLabel bulunamadı!")
 
 	if has_node("AnimationPlayer"):
 		anim_player = $AnimationPlayer
@@ -36,15 +33,33 @@ func _ready() -> void:
 	if panel:
 		panel.visible = false
 	
+	# PERDEYİ BAĞLA
+	if has_node("Perde"):
+		perde = $Perde
+		perde.color.a = 1.0 
+		perde_ac() 
+	else:
+		print("UYARI: 'Perde' bulunamadı!")
+
 	guncelle_ekran()
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_Q:
 		toggle_panel()
-	if event is InputEventKey and event.pressed and event.keycode == KEY_P:
-		puan_ekle(200, "Hile")
 
-# --- YENİ FONKSİYON: Katman Yazısı ---
+# --- PERDE SİSTEMİ ---
+func perde_ac():
+	if not perde: return
+	var tween = create_tween()
+	tween.tween_property(perde, "color:a", 0.0, 1.0) 
+
+func perde_kapat(sure: float = 1.0):
+	if not perde: return
+	var tween = create_tween()
+	tween.tween_property(perde, "color:a", 1.0, sure) 
+	await tween.finished 
+
+# --- KATMAN YAZISI ---
 func katman_yazisi_goster(kat_no: int):
 	if katman_label:
 		katman_label.text = "KATMAN " + str(kat_no)
@@ -53,55 +68,42 @@ func katman_yazisi_goster(kat_no: int):
 		if anim_player and anim_player.has_animation("katman_giris"):
 			anim_player.play("katman_giris")
 		else:
-			# Animasyon yoksa manuel yap (Çökmesin)
 			var tween = create_tween()
 			katman_label.modulate.a = 0
 			katman_label.scale = Vector2(2, 2)
-			
 			tween.tween_property(katman_label, "modulate:a", 1.0, 0.5)
 			tween.parallel().tween_property(katman_label, "scale", Vector2(1, 1), 0.5)
 			tween.tween_interval(2.0)
 			tween.tween_property(katman_label, "modulate:a", 0.0, 0.5)
 
+# --- DİĞER UI ---
 func toggle_panel() -> void:
 	panel_acik = !panel_acik
-	if panel:
-		panel.visible = panel_acik
+	if panel: panel.visible = panel_acik
 
 func bolum_kurulumu(yeni_hedef: int) -> void:
 	toplam_puan = 0
 	hedef_puan = yeni_hedef
-	
 	if liste:
-		for child in liste.get_children():
-			child.queue_free()
-			
+		for child in liste.get_children(): child.queue_free()
 	guncelle_ekran()
-	print("ARAYÜZ: Yeni hedef belirlendi -> ", hedef_puan)
 
 func puan_ekle(miktar: int, aciklama: String) -> void:
 	toplam_puan += miktar
-	
 	if liste:
 		var satir = Label.new()
 		satir.text = "+%d %s" % [miktar, aciklama]
 		satir.modulate = Color(0.1, 0.6, 0.1) 
 		liste.add_child(satir)
 		liste.move_child(satir, 0)
-		if liste.get_child_count() > 10:
-			liste.get_child(10).queue_free()
-
+		if liste.get_child_count() > 10: liste.get_child(10).queue_free()
 	guncelle_ekran()
 
 func guncelle_ekran() -> void:
 	if quota_label: quota_label.text = str(hedef_puan)
 	if score_label: 
 		score_label.text = str(toplam_puan)
-		if toplam_puan >= hedef_puan:
-			score_label.modulate = Color.GREEN
-		else:
-			score_label.modulate = Color(1, 1, 1)
-			
+		score_label.modulate = Color.GREEN if toplam_puan >= hedef_puan else Color.WHITE
 	if progress_bar:
 		progress_bar.max_value = hedef_puan
 		progress_bar.value = toplam_puan
