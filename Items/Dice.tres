@@ -4,6 +4,8 @@
 
 [resource]
 script = ExtResource("1_27k0r")
+etki_id = "dice"
+animasyon_tipi = "kirma"
 esya_adi = "Kaos Zarı"
 fiyat = 12
 metadata/_custom_type_script = "uid://drbl7e8h0wosy"

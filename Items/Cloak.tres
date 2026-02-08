@@ -5,9 +5,10 @@
 
 [resource]
 script = ExtResource("1_kd8ke")
+etki_id = "cloak"
+animasyon_tipi = ""
 esya_adi = "Pelerin"
 aciklama = "3 tur boyunca zar atma sekansını atlar."
 fiyat = 12
 ikon = ExtResource("1_jen6w")
-tur = 7
 metadata/_custom_type_script = "uid://drbl7e8h0wosy"

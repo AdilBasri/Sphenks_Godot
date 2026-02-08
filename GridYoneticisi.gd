@@ -28,11 +28,8 @@ signal puan_kazanildi(miktar: int)
 var grid_verisi: Dictionary = {} 
 var arayuz: CanvasLayer = null 
 
-# HEDEF GÖSTERGESİ (Kılıç/Fırça için)
+# HEDEF GÖSTERGESİ (Kılıç/Fırça/Asit için)
 var hedef_kare: MeshInstance3D = null
-
-func set_exclude_rids(_rids: Array[RID]) -> void: pass
-func clear_exclude_rids() -> void: pass
 
 func _ready() -> void:
 	_gridi_yenile()
@@ -40,12 +37,11 @@ func _ready() -> void:
 	_hedef_kare_olustur()
 
 func _hedef_kare_olustur():
-	# Kırmızı yarı saydam bir kare oluşturuyoruz
 	hedef_kare = MeshInstance3D.new()
 	hedef_kare.mesh = BoxMesh.new()
 	hedef_kare.mesh.size = Vector3(hucre_boyutu, 0.1, hucre_boyutu)
 	var mat = StandardMaterial3D.new()
-	mat.albedo_color = Color(1, 0, 0, 0.5) # Kırmızı
+	mat.albedo_color = Color(1, 0, 0, 0.5) 
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	hedef_kare.material_override = mat
@@ -146,25 +142,24 @@ func can_place(origin: Vector2i, footprint: Array[Vector2i]) -> bool:
 
 func tek_hucre_doldur(cell: Vector2i, item: Node3D) -> void:
 	grid_verisi[cell] = item
-	
-	# Blok yerleşti, renk bonusunu kontrol et (Mantar veya doğal uyum)
+	# Renk bonusunu kontrol et (Mantar veya doğal uyum)
 	_renk_bonusu_kontrol(cell, item)
 
+# --- İŞTE BU EKSİKTİ ---
 func release_owner(item: Node) -> void:
 	pass
 
 # --- 🔥 PUAN VE BONUS SİSTEMİ 🔥 ---
 
 func _renk_bonusu_kontrol(hucre: Vector2i, yeni_blok: Node3D):
-	# Blokta "boyali_renk" verisi var mı bak (Mantar etkisi)
-	# Yoksa kendi materyalinden rengi bulmaya çalış (Basitçe şimdilik meta verisine güveniyoruz)
 	var renk = null
+	# "boyali_renk" varsa (Joker/Boya) onu kullan, yoksa normal meta verisine bak
 	if yeni_blok.has_meta("boyali_renk"):
 		renk = yeni_blok.get_meta("boyali_renk")
 	elif yeni_blok.has_meta("renk"):
 		renk = yeni_blok.get_meta("renk")
 	
-	if renk == null: return # Renk verisi yoksa geç
+	if renk == null: return
 
 	var komsular = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 	var bonus_var = false
@@ -173,81 +168,104 @@ func _renk_bonusu_kontrol(hucre: Vector2i, yeni_blok: Node3D):
 		var bakilan = hucre + k
 		if grid_verisi.has(bakilan):
 			var komsu = grid_verisi[bakilan]
-			# Komşunun rengiyle karşılaştır
 			var komsu_renk = null
 			if komsu.has_meta("boyali_renk"): komsu_renk = komsu.get_meta("boyali_renk")
 			elif komsu.has_meta("renk"): komsu_renk = komsu.get_meta("renk")
 			
 			if komsu_renk != null and komsu_renk == renk:
 				bonus_var = true
-				break # Bir tane bile uysa yeter
+				break
 	
 	if bonus_var:
-		print("🌈 RENK UYUMU! x1.5 Puan Bonusu!")
-		# Normal puanı BlokSurukle hesaplıyor ama bonusu buradan ekleyebiliriz
-		emit_signal("puan_kazanildi", 50) # Ekstra puan
+		print("🌈 RENK UYUMU! Bonus Puan!")
+		emit_signal("puan_kazanildi", 50)
 
-# --- 🔥 ÖZEL EŞYA ETKİLERİ İÇİN FONKSİYONLAR 🔥 ---
+# --- 🔥 ÖZEL EŞYA ETKİLERİ 🔥 ---
 
 func hedef_goster(hucre: Vector2i, aktif: bool):
 	if hedef_kare:
 		hedef_kare.visible = aktif
 		if aktif:
 			hedef_kare.global_position = cell_center_world(hucre)
-			# Yüksekliği biraz artırıp z-fighting önle
 			hedef_kare.global_position.y += 0.05
 
-# 1. KILIÇ: Blok düşürme
-func blok_dusur(hucre: Vector2i):
+# 1. KILIÇ / DIG
+func blok_kir(hucre: Vector2i, odul_ver: bool = false):
 	if grid_verisi.has(hucre):
 		var blok = grid_verisi[hucre]
+		
+		if patlama_efekti_sahnesi and blok:
+			var efekt = patlama_efekti_sahnesi.instantiate()
+			add_child(efekt)
+			efekt.global_position = blok.global_position
+		
 		grid_verisi.erase(hucre)
+		blok.queue_free()
 		
-		# Fiziksel düşüş
-		var tween = create_tween()
-		tween.tween_property(blok, "position:y", -5.0, 0.5).set_trans(Tween.TRANS_BOUNCE)
-		tween.tween_callback(blok.queue_free)
+		if odul_ver: # DIG (+10 Altın)
+			GameManager.altin_ekle(10)
+			if arayuz: arayuz.bilgi_goster("+10 Altın!")
 
-# 2. FIRÇA: Bloğu boya (Joker yap)
-func bloku_boya(hucre: Vector2i, renk: Color):
+# 2. ASİT
+func sutunu_yok_et(hucre: Vector2i):
+	var silinecekler = []
+	for y in range(grid_boyutu.y):
+		var hedef = Vector2i(hucre.x, y)
+		if grid_verisi.has(hedef):
+			silinecekler.append(hedef)
+	if silinecekler.size() > 0:
+		_bloklari_yok_et(silinecekler)
+
+# 3. PAINT (Joker)
+func bloku_boya(hucre: Vector2i):
 	if grid_verisi.has(hucre):
 		var blok = grid_verisi[hucre]
-		blok.set_meta("boyali_renk", renk) # Joker rengi ata
+		blok.set_meta("boyali_renk", 99) # 99 = Joker ID
 		
-		# Görseli güncelle
 		var mesh = blok.find_child("MeshInstance3D", true, false)
 		if mesh:
 			var mat = StandardMaterial3D.new()
-			mat.albedo_color = renk
+			mat.albedo_color = Color(1, 1, 1) # Parlak Beyaz
+			mat.emission_enabled = true
+			mat.emission = Color(1, 1, 1)
+			mat.emission_energy_multiplier = 2.0
 			mesh.material_override = mat
 
-# 3. ASİT: Sütun silme
-func sutunu_yok_et(hucre: Vector2i):
-	var patlayacaklar = []
-	for y in range(grid_boyutu.y):
-		var h = Vector2i(hucre.x, y)
-		if grid_verisi.has(h):
-			patlayacaklar.append(h)
-	
-	if patlayacaklar.size() > 0:
-		_bloklari_yok_et(patlayacaklar)
+# 4. MAGNET (Yerçekimi)
+func miknatis_etkisi():
+	print("Mıknatıs çalıştı!")
+	for x in range(grid_boyutu.x):
+		for y in range(grid_boyutu.y):
+			var hucre = Vector2i(x, y)
+			if not grid_verisi.has(hucre):
+				for y_ust in range(y + 1, grid_boyutu.y):
+					var ust_hucre = Vector2i(x, y_ust)
+					if grid_verisi.has(ust_hucre):
+						var blok = grid_verisi[ust_hucre]
+						grid_verisi.erase(ust_hucre)
+						grid_verisi[hucre] = blok
+						
+						var hedef_pos = cell_center_world(hucre)
+						var tween = create_tween()
+						tween.tween_property(blok, "global_position", hedef_pos, 0.2)
+						break
 
-# --- STANDART PATLATMA SİSTEMİ ---
+# 5. MANTAR (Rastgele Renkler)
+func mantar_modu_aktif():
+	GameManager.mantar_modu = true
+	for pos in grid_verisi:
+		var blok = grid_verisi[pos]
+		var mesh = blok.find_child("MeshInstance3D", true, false)
+		if mesh:
+			var mat = StandardMaterial3D.new()
+			mat.albedo_color = Color(randf(), randf(), randf())
+			mesh.material_override = mat
+
+# --- PATLATMA SİSTEMİ ---
 func satirlari_kontrol_et() -> void:
 	var patlayacak_hucreler = []
 	var patlayan_satir_sayisi = 0
 	
-	for x in range(grid_boyutu.x):
-		var dolu_mu = true
-		for y in range(grid_boyutu.y):
-			if not grid_verisi.has(Vector2i(x, y)):
-				dolu_mu = false; break
-		if dolu_mu:
-			patlayan_satir_sayisi += 1
-			for y in range(grid_boyutu.y):
-				var h = Vector2i(x, y)
-				if not h in patlayacak_hucreler: patlayacak_hucreler.append(h)
-
 	for y in range(grid_boyutu.y):
 		var dolu_mu = true
 		for x in range(grid_boyutu.x):
@@ -256,6 +274,17 @@ func satirlari_kontrol_et() -> void:
 		if dolu_mu:
 			patlayan_satir_sayisi += 1
 			for x in range(grid_boyutu.x):
+				var h = Vector2i(x, y)
+				if not h in patlayacak_hucreler: patlayacak_hucreler.append(h)
+
+	for x in range(grid_boyutu.x):
+		var dolu_mu = true
+		for y in range(grid_boyutu.y):
+			if not grid_verisi.has(Vector2i(x, y)):
+				dolu_mu = false; break
+		if dolu_mu:
+			patlayan_satir_sayisi += 1
+			for y in range(grid_boyutu.y):
 				var h = Vector2i(x, y)
 				if not h in patlayacak_hucreler: patlayacak_hucreler.append(h)
 	
@@ -274,20 +303,21 @@ func _bloklari_yok_et(hucreler: Array) -> void:
 				efekt.global_position = blok.global_position
 				var mesh = blok.find_child("MeshInstance3D", true, false)
 				if mesh and mesh.get_active_material(0):
-					efekt.draw_pass_1.material.albedo_color = mesh.get_active_material(0).albedo_color
-
+					# efekt.draw_pass_1.material.albedo_color = mesh.get_active_material(0).albedo_color
+					pass
 			grid_verisi.erase(h)
 			if blok: blok.queue_free()
 
 func _puan_hesapla(satir_sayisi: int, blok_sayisi: int) -> void:
 	var bonus = 1
 	if satir_sayisi > 1: bonus = pow(2, satir_sayisi - 1)
-	var toplam_puan = (blok_sayisi * 10) * bonus
+	var carpan = GameManager.puan_carpani if GameManager else 1.0
+	var toplam_puan = (blok_sayisi * 10) * bonus * carpan
 	
-	get_tree().call_group("Arayuz", "puan_ekle", 100, "Sıra Temizlendi")
-	emit_signal("puan_kazanildi", toplam_puan)
+	emit_signal("puan_kazanildi", int(toplam_puan))
 	
 	if arayuz:
-		var mesaj = "%d Satır Temizlendi!" % satir_sayisi
-		if satir_sayisi > 1: mesaj += " (x%d KOMBO)" % bonus
-		arayuz.puan_ekle(toplam_puan, mesaj)
+		var mesaj = "%d Satır!" % satir_sayisi
+		if bonus > 1: mesaj += " (x%d)" % bonus
+		if carpan > 1.0: mesaj += " (İKSİR)"
+		arayuz.puan_ekle(int(toplam_puan), mesaj)

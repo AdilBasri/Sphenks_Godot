@@ -4,5 +4,7 @@
 
 [resource]
 script = ExtResource("1_td7t1")
+etki_id = "magnet"
+animasyon_tipi = ""
 esya_adi = "Mıknatıs"
 metadata/_custom_type_script = "uid://drbl7e8h0wosy"

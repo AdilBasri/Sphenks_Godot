@@ -5,9 +5,10 @@
 
 [resource]
 script = ExtResource("1_niy47")
+etki_id = "time"
+animasyon_tipi = ""
 esya_adi = "Kumsaati"
 aciklama = "Pyro modunda düşman hızını %50 azaltır."
 fiyat = 12
 ikon = ExtResource("1_3abkt")
-tur = 8
 metadata/_custom_type_script = "uid://drbl7e8h0wosy"

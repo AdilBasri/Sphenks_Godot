@@ -5,6 +5,7 @@
 
 [resource]
 script = ExtResource("1_a8soc")
+etki_id = "kedimamasi"
 esya_adi = "Kedi Maması"
 aciklama = "Oyunu kaydetmek için kediyi besle!"
 fiyat = 6

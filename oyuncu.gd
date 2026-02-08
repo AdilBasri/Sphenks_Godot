@@ -27,6 +27,9 @@ var active_tween: Tween = null
 @export var kamera: Camera3D 
 @export var ui_container: HBoxContainer 
 
+# Kamera Açısı Kontrolü
+var x_rotasyonu: float = 0.0
+
 var raycast: RayCast3D = null
 var etkilesim_label: Label = null
 var tutulan_nesne: RigidBody3D = null 
@@ -43,10 +46,11 @@ func _ready():
 		yeni_ray.name = "RayCast3D"
 		kamera.add_child(yeni_ray)
 		raycast = yeni_ray
+	
 	raycast.enabled = true
-	raycast.target_position = Vector3(0, 0, -4.0)
+	raycast.target_position = Vector3(0, 0, -6.0) 
 	raycast.collision_mask = 0xFFFFFFFF 
-	raycast.add_exception(self)
+	raycast.add_exception(self) 
 
 	if kamera.has_node("TutmaNoktasi"):
 		tutma_noktasi = kamera.get_node("TutmaNoktasi")
@@ -66,41 +70,26 @@ func _ready():
 		
 	ui_guncelle()
 
-# Kameranın o anki dikey açısını (x ekseni) tutacak değişken
-var x_rotasyonu: float = 0.0
-
 func _input(event):
-	if not kamera or oldu_mu: return
-	if yere_dustu_mu: return
+	if not kamera or oldu_mu: return 
+	if yere_dustu_mu: return 
 
-	# Hasar Testi (Z Tuşu)
 	if event is InputEventKey and event.pressed and event.keycode == KEY_Z:
 		hasar_al(1)
 
-	# Mouse Modu (Space Tuşu)
 	if event is InputEventKey and event.pressed and event.keycode == KEY_SPACE:
 		toggle_mouse_mode()
 
-	# --- KAMERA KONTROLÜ (DÜZELTİLEN KISIM) ---
+	# --- KAMERA ROTASYONU ---
 	if not mouse_serbest_modu and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		if event is InputEventMouseMotion:
-			# 1. Sağa/Sola Dönüş (Y Ekseni) - Karakterin tamamı döner
 			rotate_y(-event.relative.x * mouse_sensitivity)
-			
-			# 2. Yukarı/Aşağı Bakış (X Ekseni) - Sadece kamera döner
 			var dikey_hareket = -event.relative.y * mouse_sensitivity
-			
-			# Açıyı değişkene ekle
 			x_rotasyonu += dikey_hareket
-			
-			# Açıyı radyan cinsinden sınırla (-80 ile +80 derece arası)
-			# deg_to_rad(89) yaparsan tam tepeye bakar, 90 yaparsan kilitlenir. 80 güvenlidir.
 			x_rotasyonu = clamp(x_rotasyonu, deg_to_rad(-80), deg_to_rad(80))
-			
-			# Sınırlanmış açıyı kameraya uygula
 			kamera.rotation.x = x_rotasyonu
 	
-	# --- ETKİLEŞİM (Mouse Tıklama) ---
+	# --- TIKLAMA İŞLEMLERİ ---
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if eldeki_ozel_esya:
@@ -109,6 +98,7 @@ func _input(event):
 				birak_veya_firlat()
 			else:
 				etkilesime_gir()
+		
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			if eldeki_ozel_esya:
 				esya_birak()
@@ -140,7 +130,107 @@ func _physics_process(delta):
 	_hedef_gosterge_guncelle()
 	check_ui_text()
 
-# --- SİSTEMLER ---
+# --- 🔥 GÜNCELLENDİ: ARTIK "GridYoneticisi" ARANIYOR 🔥 ---
+func _hedef_gosterge_guncelle():
+	# İsim değişikliği burada yapıldı
+	var grid = get_tree().current_scene.find_child("GridYoneticisi", true, false)
+	if not grid: return
+
+	if not eldeki_ozel_esya or not ozel_esya_verisi:
+		grid.hedef_goster(Vector2i.ZERO, false)
+		return
+
+	var id = ozel_esya_verisi.etki_id
+	
+	if id in ["asit", "kilic", "dig", "paint"]:
+		if raycast.is_colliding():
+			var hit_pos = raycast.get_collision_point()
+			var cell = grid.world_to_cell(hit_pos)
+			
+			if cell != null:
+				grid.hedef_goster(cell, true)
+			else:
+				grid.hedef_goster(Vector2i.ZERO, false)
+		else:
+			grid.hedef_goster(Vector2i.ZERO, false)
+	else:
+		grid.hedef_goster(Vector2i.ZERO, false)
+
+func esya_kullan():
+	if not eldeki_ozel_esya: return
+	
+	if active_tween and active_tween.is_running(): return
+
+	var id = ozel_esya_verisi.etki_id
+	var anim_tip = ozel_esya_verisi.animasyon_tipi
+	# İsim değişikliği burada yapıldı
+	var grid = get_tree().current_scene.find_child("GridYoneticisi", true, false)
+	
+	var hedef_hucre = null
+	var baktigim_nesne = null
+	
+	if raycast.is_colliding():
+		baktigim_nesne = raycast.get_collider()
+		if grid:
+			hedef_hucre = grid.world_to_cell(raycast.get_collision_point())
+	
+	var basarili = false
+	
+	print("Eşya Kullanılıyor: ", id) 
+	
+	match id:
+		"asit":
+			if hedef_hucre != null:
+				grid.sutunu_yok_et(hedef_hucre)
+				basarili = true
+		"kilic":
+			if hedef_hucre != null:
+				grid.blok_kir(hedef_hucre, false)
+				basarili = true
+		"dig":
+			if hedef_hucre != null:
+				grid.blok_kir(hedef_hucre, true) 
+				basarili = true
+		"paint":
+			if hedef_hucre != null:
+				grid.bloku_boya(hedef_hucre)
+				basarili = true
+		"kedimamasi":
+			if baktigim_nesne and baktigim_nesne.name == "Kedi":
+				print("Kedi beslendi!")
+				basarili = true
+		"guc":
+			GameManager.puan_carpani = 1.3
+			basarili = true
+		"revive":
+			GameManager.revive_aktif = true
+			basarili = true
+		"cloak":
+			GameManager.zar_atlama_hakki = 3
+			basarili = true
+		"dice":
+			GameManager.zar_yok_sayma = true
+			basarili = true
+		"magnet":
+			if grid:
+				grid.miknatis_etkisi()
+				basarili = true
+		"mantar":
+			if grid:
+				grid.mantar_modu_aktif()
+				_ekran_bozma_efekti(true)
+				basarili = true
+		_:
+			print("Bilinmeyen Eşya ID, ama tüketiliyor.")
+			basarili = true
+
+	if basarili:
+		if grid: grid.hedef_goster(Vector2i.ZERO, false)
+		_ozel_animasyon_oynat(anim_tip)
+	else:
+		print("Geçersiz Hedef! (Bir bloğa bakmalısın)")
+
+# --- DİĞER FONKSİYONLAR ---
 
 func satin_al(urun_node):
 	var market = get_tree().current_scene.find_child("Market", true, false)
@@ -155,10 +245,7 @@ func satin_al(urun_node):
 			tween.tween_callback(urun_node.queue_free)
 
 func esyayi_ele_al(urun_node):
-	# Önceki animasyonları durdur
 	if active_tween: active_tween.kill()
-	
-	# Elimizde zaten bir şey varsa bırak
 	if eldeki_ozel_esya: esya_birak()
 	if tutulan_nesne: birak_veya_firlat()
 	
@@ -167,16 +254,11 @@ func esyayi_ele_al(urun_node):
 	
 	if eldeki_ozel_esya is RigidBody3D:
 		eldeki_ozel_esya.freeze = true
-		eldeki_ozel_esya.collision_layer = 0 # Çarpışmayı kapat ki içinden geçmesin
+		eldeki_ozel_esya.collision_layer = 0 
 	
-	# Ebeveyn değiştir (Sehpadan -> Oyuncuya)
 	eldeki_ozel_esya.reparent(tutma_noktasi)
-	
-	# --- KRİTİK DÜZELTME: Boyutu ve Açıyı Sıfırla ---
-	# Sehpadan gelirken ezilmişse burada düzeltiyoruz.
 	eldeki_ozel_esya.scale = Vector3.ONE 
 	
-	# Animasyon (Eline gelme)
 	active_tween = create_tween()
 	active_tween.tween_property(eldeki_ozel_esya, "position", Vector3(0.5, -0.5, 0.5), 0.3).set_trans(Tween.TRANS_BACK)
 	active_tween.tween_property(eldeki_ozel_esya, "rotation", Vector3(0, 0, 0), 0.3)
@@ -195,58 +277,13 @@ func esya_birak():
 	
 	eldeki_ozel_esya = null
 	ozel_esya_verisi = null
-	mouse_serbest_modu = false 
 	
-	var grid = get_tree().current_scene.find_child("GridMasa", true, false)
+	# İsim değişikliği burada yapıldı
+	var grid = get_tree().current_scene.find_child("GridYoneticisi", true, false)
 	if grid: grid.hedef_goster(Vector2i.ZERO, false)
-
-func esya_kullan():
-	if not eldeki_ozel_esya: return
-	
-	# --- YENİ DÜZELTME: Çift Tıklama Engeli ---
-	# Eğer eşya hala eline geliyorsa (animasyon sürüyorsa) kullanma.
-	if active_tween and active_tween.is_running(): return
-
-	var id = ozel_esya_verisi.etki_id
-	var anim_tip = ozel_esya_verisi.animasyon_tipi
-	var grid = get_tree().current_scene.find_child("GridMasa", true, false)
-	
-	var hedef_hucre = null
-	if raycast.is_colliding() and grid:
-		hedef_hucre = grid.world_to_cell(raycast.get_collision_point())
-	
-	var basarili = false
-	match id:
-		"mantar":
-			_ekran_bozma_efekti(true)
-			basarili = true
-		"kilic":
-			if hedef_hucre != null:
-				grid.blok_dusur(hedef_hucre)
-				basarili = true
-		"firca":
-			if hedef_hucre != null:
-				grid.bloku_boya(hedef_hucre, Color.PURPLE) 
-				basarili = true
-		"asit":
-			if hedef_hucre != null:
-				grid.sutunu_yok_et(hedef_hucre)
-				basarili = true
-		"canlan":
-			suanki_can_bari = min(suanki_can_bari + 1, max_can_bari)
-			if GameManager: GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
-			ui_guncelle()
-			basarili = true
-		_: 
-			basarili = true
-
-	if basarili:
-		if grid: grid.hedef_goster(Vector2i.ZERO, false)
-		_ozel_animasyon_oynat(anim_tip)
 
 func _ozel_animasyon_oynat(tip: String):
 	if active_tween: active_tween.kill()
-	mouse_serbest_modu = true 
 	active_tween = create_tween() 
 	var esya = eldeki_ozel_esya
 	var minik_scale = Vector3(0.01, 0.01, 0.01)
@@ -266,20 +303,8 @@ func _ozel_animasyon_oynat(tip: String):
 		if is_instance_valid(esya): esya.queue_free()
 		eldeki_ozel_esya = null
 		ozel_esya_verisi = null
-		mouse_serbest_modu = false
 		_ekran_bozma_efekti(false)
 	)
-
-func _hedef_gosterge_guncelle():
-	if not eldeki_ozel_esya: return
-	var id = ozel_esya_verisi.etki_id
-	if id == "kilic" or id == "firca" or id == "asit":
-		var grid = get_tree().current_scene.find_child("GridMasa", true, false)
-		if grid and raycast.is_colliding():
-			var hit = raycast.get_collision_point()
-			var cell = grid.world_to_cell(hit)
-			if cell != null: grid.hedef_goster(cell, true)
-			else: grid.hedef_goster(Vector2i.ZERO, false)
 
 func _ekran_bozma_efekti(aktif: bool):
 	if has_node("CanvasLayer/MantarEfekti"): $CanvasLayer/MantarEfekti.visible = aktif
@@ -340,8 +365,6 @@ func ui_guncelle():
 		else:
 			bar.value = 0
 			if carpi: carpi.visible = true 
-
-# --- YARDIMCI FONKSİYONLAR ---
 
 func nesne_tut(nesne: RigidBody3D):
 	tutulan_nesne = nesne
