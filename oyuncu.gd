@@ -66,23 +66,41 @@ func _ready():
 		
 	ui_guncelle()
 
-func _input(event):
-	if not kamera or oldu_mu: return 
-	if yere_dustu_mu: return 
+# Kameranın o anki dikey açısını (x ekseni) tutacak değişken
+var x_rotasyonu: float = 0.0
 
+func _input(event):
+	if not kamera or oldu_mu: return
+	if yere_dustu_mu: return
+
+	# Hasar Testi (Z Tuşu)
 	if event is InputEventKey and event.pressed and event.keycode == KEY_Z:
 		hasar_al(1)
 
+	# Mouse Modu (Space Tuşu)
 	if event is InputEventKey and event.pressed and event.keycode == KEY_SPACE:
 		toggle_mouse_mode()
 
-	if not mouse_serbest_modu:
-		if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+	# --- KAMERA KONTROLÜ (DÜZELTİLEN KISIM) ---
+	if not mouse_serbest_modu and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		if event is InputEventMouseMotion:
+			# 1. Sağa/Sola Dönüş (Y Ekseni) - Karakterin tamamı döner
 			rotate_y(-event.relative.x * mouse_sensitivity)
-			if not yere_dustu_mu:
-				kamera.rotate_x(-event.relative.y * mouse_sensitivity)
-				kamera.rotation.x = clamp(kamera.rotation.x, -1.2, 1.2)
+			
+			# 2. Yukarı/Aşağı Bakış (X Ekseni) - Sadece kamera döner
+			var dikey_hareket = -event.relative.y * mouse_sensitivity
+			
+			# Açıyı değişkene ekle
+			x_rotasyonu += dikey_hareket
+			
+			# Açıyı radyan cinsinden sınırla (-80 ile +80 derece arası)
+			# deg_to_rad(89) yaparsan tam tepeye bakar, 90 yaparsan kilitlenir. 80 güvenlidir.
+			x_rotasyonu = clamp(x_rotasyonu, deg_to_rad(-80), deg_to_rad(80))
+			
+			# Sınırlanmış açıyı kameraya uygula
+			kamera.rotation.x = x_rotasyonu
 	
+	# --- ETKİLEŞİM (Mouse Tıklama) ---
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			if eldeki_ozel_esya:

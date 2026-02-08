@@ -310,9 +310,10 @@ transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -0.48000813, -4.7683716e-0
 material_override = SubResource("StandardMaterial3D_1283l")
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="MezarOdasi" index="1"]
-transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, -0.15582418, 0.6819415, -1.359425)
+transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, -0.12506247, 0.6819415, -1.359425)
 material_override = SubResource("StandardMaterial3D_ush30")
 operation = 2
+size = Vector3(1.0076904, 1, 1)
 
 [node name="KoseAgi" type="MeshInstance3D" parent="MezarOdasi" index="2"]
 transform = Transform3D(2.696805, 0.36331403, -1.2630303, -0.5189622, 2.9431808, -0.26146722, 1.2074438, 0.45353034, 2.7085774, 2.9630356, 3.090576, -4.8754044)
@@ -579,6 +580,7 @@ scale = Vector2(1.7, 1.7)
 texture = ExtResource("25_q606s")
 
 [node name="Camera3D" type="Camera3D" parent="Oyuncu" index="3"]
+physics_interpolation_mode = 2
 transform = Transform3D(0.99888355, -0.024378376, -0.040465526, 0.01922809, 0.9922066, -0.12311137, 0.043151416, 0.12219585, 0.9915675, -0.045120563, 0.83062285, 0.014348984)
 current = true
 
