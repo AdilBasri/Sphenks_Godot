@@ -1,7 +1,6 @@
 extends Node
 
 # --- OYUN DURUMU ---
-# HATA ÇÖZÜMÜ: Bu değişken en tepede olmalı
 var suanki_katman: int = 1
 
 # --- KONUM REFERANSLARI ---
@@ -51,15 +50,49 @@ func bolum_verilerini_getir() -> Dictionary:
 			veri["blok_limiti"] = 12
 			veri["boss_resmi"] = "res://blob.png"
 		2:
-			# İsteğin üzerine 540 yapıldı
 			veri["hedef_puan"] = 540 
 			veri["blok_limiti"] = 15
 			veri["boss_resmi"] = "res://hammer.png"
 		_:
-			# 3. Seviye ve sonrası
+			# 3. Seviye ve sonrası (Formülize edilmiş zorluk)
 			veri["hedef_puan"] = 540 + ((suanki_katman - 2) * 200)
 			veri["blok_limiti"] = 15 + (suanki_katman - 2)
 			veri["boss_resmi"] = "res://hammer.png"
 	
 	veri["katman"] = suanki_katman
 	return veri
+
+# --- 🔥 YENİ EKLENEN: MERKEZİ HASAR SİSTEMİ 🔥 ---
+# Düşmanlar oyuncuya vurmak istediğinde DİREKT oyuncuya değil, BURAYA başvuracak.
+func oyuncuya_saldir(hasar_miktari: int):
+	print("Saldırı Geldi! Ham Hasar: ", hasar_miktari)
+
+	# 1. CLOAK (PELERİN) KONTROLÜ
+	if GameManager.zar_atlama_hakki > 0:
+		GameManager.zar_atlama_hakki -= 1 # Hakkı 1 düşür
+		
+		# Bilgi Göster
+		var arayuz = get_tree().get_first_node_in_group("Arayuz")
+		if arayuz: arayuz.bilgi_goster("Pelerin Korudu!")
+		print("👻 Pelerin sayesinde hasar engellendi!")
+		return # FONKSİYONDAN ÇIK (Hasar alma)
+
+	# 2. DICE (ZAR) KONTROLÜ
+	if GameManager.zar_yok_sayma:
+		hasar_miktari = int(hasar_miktari / 2.0) # Hasarı yarıya indir
+		# İstersen hasarı sıfırlayabilirsin veya rastgele azaltabilirsin
+		
+		GameManager.zar_yok_sayma = false # Tek kullanımlık
+		
+		var arayuz = get_tree().get_first_node_in_group("Arayuz")
+		if arayuz: arayuz.bilgi_goster("Zar Şansı: Az Hasar")
+		print("🎲 Zar atıldı, hasar düştü.")
+
+	# 3. HASARI OYUNCUYA UYGULA
+	if oyuncu_ref:
+		oyuncu_ref.hasar_al(hasar_miktari)
+	else:
+		# Yedek plan: Gruptan bul
+		var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+		if oyuncu:
+			oyuncu.hasar_al(hasar_miktari)
