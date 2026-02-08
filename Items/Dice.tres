@@ -1,11 +1,14 @@
-[gd_resource type="Resource" script_class="ItemData" load_steps=2 format=3 uid="uid://6efud2c2cn08"]
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://6efud2c2cn08"]
 
 [ext_resource type="Script" uid="uid://drbl7e8h0wosy" path="res://ItemData.gd" id="1_27k0r"]
+[ext_resource type="Texture2D" uid="uid://vakrrc360to2" path="res://Items/dice.png" id="1_queso"]
 
 [resource]
 script = ExtResource("1_27k0r")
 etki_id = "dice"
 animasyon_tipi = "kirma"
 esya_adi = "Kaos Zarı"
+aciklama = "Düşmanın attığı iki zardan random olarak bir tanesini yok sayar."
 fiyat = 12
+ikon = ExtResource("1_queso")
 metadata/_custom_type_script = "uid://drbl7e8h0wosy"
