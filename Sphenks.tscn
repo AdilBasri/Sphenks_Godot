@@ -119,15 +119,6 @@ emission_energy_multiplier = 5.0
 [sub_resource type="BoxShape3D" id="BoxShape3D_p4fw5"]
 size = Vector3(4.3583374, 2.0308838, 1)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_48she"]
-shader = ExtResource("10_h2n1q")
-shader_parameter/warp_amount = 0.150000007125
-shader_parameter/vignette_intensity = 0.4
-shader_parameter/vignette_opacity = 0.5
-shader_parameter/scanline_opacity = 0.2000000095
-shader_parameter/scanline_count = 600.0
-shader_parameter/clip_edges = true
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1eqvi"]
 shader = ExtResource("11_48she")
 shader_parameter/renk = Color(0.1, 0, 0, 0.8)
@@ -166,6 +157,11 @@ shadow_color = Color(0, 0, 0, 1)
 font = ExtResource("13_bpxfr")
 font_size = 24
 font_color = Color(1, 1, 0, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_48she"]
+shader = ExtResource("10_h2n1q")
+shader_parameter/strength = 0.02
+shader_parameter/speed = 5.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lxn88"]
 albedo_texture = ExtResource("7_lxn88")
@@ -383,20 +379,7 @@ masa_merkezi = NodePath("../TumMasaSistemi/Masa_Fizik")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="Boss" index="0"]
 
-[node name="ColorRect" type="ColorRect" parent="Boss/CanvasLayer" index="0"]
-material = SubResource("ShaderMaterial_48she")
-use_parent_material = true
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -160.0
-offset_top = -153.0
-offset_right = 103.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="DiyalogKatmani" type="CanvasLayer" parent="Boss/CanvasLayer" index="1"]
+[node name="DiyalogKatmani" type="CanvasLayer" parent="Boss/CanvasLayer" index="0"]
 script = ExtResource("11_1eqvi")
 ozel_font = ExtResource("13_bpxfr")
 
@@ -662,6 +645,20 @@ offset_right = 20.0
 offset_bottom = 23.0
 grow_horizontal = 2
 label_settings = SubResource("LabelSettings_krygw")
+
+[node name="MantarEfekti" type="ColorRect" parent="OyunArayuzu" index="4"]
+visible = false
+material = SubResource("ShaderMaterial_48she")
+use_parent_material = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -153.0
+offset_right = 103.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="Sprite3D" type="Sprite3D" parent="." index="13"]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 2.814343, 0.7904787, -4.989589)

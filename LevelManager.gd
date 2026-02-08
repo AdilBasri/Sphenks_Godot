@@ -25,14 +25,21 @@ func konumlari_kaydet(p1: Vector3, p2: Vector3, p3: Vector3, oyuncu: CharacterBo
 	if suanki_katman > 1 and oyuncu_ref:
 		oyuncu_ref.global_position = start_pos
 
+# LevelManager.gd Dosyası:
+
 # Bölüm bitti, her şey sıfırlanıp zorluk artacak
 func odaya_don_ve_level_atla():
 	suanki_katman += 1
 	print(">>> YENİ KATMAN YÜKLENİYOR: " + str(suanki_katman))
 	
+	# --- YENİ EKLENEN KISIM ---
+	# 1. Mantar modunu veritabanından kapat
+	GameManager.mantar_modu = false
+	
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
-	if arayuz and arayuz.has_method("perde_kapat"):
-		await arayuz.perde_kapat(1.0)
+	if arayuz and arayuz.has_method("mantar_efekti_yonet"):
+		arayuz.mantar_efekti_yonet(false) # ZORLA KAPAT
+	# --------------------------
 		
 	call_deferred("_sahne_yenile")
 

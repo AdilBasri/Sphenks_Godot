@@ -34,7 +34,8 @@ func _ready():
 	print("GameManager Başlatıldı.")
 	verileri_sifirla() # Başlangıçta her şeyi sıfırla
 
-# --- TAM SIFIRLAMA ---
+# GameManager.gd İÇİNE:
+
 func verileri_sifirla():
 	# 1. Canı Fulle
 	oyuncu_kalan_bar = 4
@@ -43,19 +44,21 @@ func verileri_sifirla():
 	# 2. Seviyeyi Başa Sar
 	suanki_seviye = 1
 	
-	# 3. Temizlik
+	# 3. BAŞLANGIÇ ALTINI (Burayı 10 yaptık)
+	toplam_altin = 10
+	
+	# 4. Temizlik
 	envanter.clear()
 	bolum_bufflarini_sifirla()
 	
-	# 4. Sinyalleri Çak (Arayüz güncellensin)
-	# Bir frame bekleyelim ki diğer scriptler yüklensin
+	# 5. Sinyalleri Çak
 	await get_tree().process_frame 
 	
 	emit_signal("saglik_guncellendi", oyuncu_kalan_bar, oyuncu_suanki_hp)
 	emit_signal("envanter_guncellendi")
-	emit_signal("altin_guncellendi", toplam_altin)
+	emit_signal("altin_guncellendi", toplam_altin) # Arayüzü güncelle
 	
-	print("GameManager: Oyun TAMAMEN sıfırlandı.")
+	print("GameManager: Oyun sıfırlandı. Altın: 10")
 
 func bolum_bufflarini_sifirla():
 	puan_carpani = 1.0

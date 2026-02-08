@@ -1,52 +1,26 @@
 shader_type canvas_item;
 
 // --- GODOT 4 DÜZELTMESİ ---
-// Bu satır, ekranın görüntüsünü shader'a tanıtır.
+// SCREEN_TEXTURE artık otomatik gelmiyor, biz tanımlıyoruz:
 uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, filter_linear_mipmap;
 
-// --- AYARLAR ---
-uniform float warp_amount : hint_range(0.0, 1.0) = 0.2;
-uniform float vignette_intensity : hint_range(0.0, 2.0) = 0.4;
-uniform float vignette_opacity : hint_range(0.0, 1.0) = 0.5;
-uniform float scanline_opacity : hint_range(0.0, 1.0) = 0.4;
-uniform float scanline_count : hint_range(100.0, 2000.0) = 600.0;
-uniform bool clip_edges = true;
+uniform float strength : hint_range(0.0, 1.0) = 0.0; // Varsayılan SIFIR olsun
+uniform float speed : hint_range(0.0, 10.0) = 5.0;   // Dalga hızı
 
-// --- MATEMATİK FONKSİYONLARI ---
-vec2 warp(vec2 uv) {
-	vec2 delta = uv - 0.5;
-	float delta2 = dot(delta.xy, delta.xy);
-	float delta4 = delta2 * delta2;
-	float delta_offset = delta4 * warp_amount;
-	return uv + delta * delta_offset;
-}
-
-float vignette(vec2 uv) {
-	uv *= 1.0 - uv.xy;
-	float frame = 1.0 - smoothstep(vignette_intensity, vignette_intensity - 0.1, uv.x * uv.y * 100.0);
-	return frame;
-}
-
-// --- ANA DÖNGÜ ---
 void fragment() {
-	vec2 uv = warp(SCREEN_UV);
-	
-	// Düzeltilen kısım burası (artık SCREEN_TEXTURE tanındığı için hata vermez)
-	vec4 text = texture(SCREEN_TEXTURE, uv);
+    vec2 uv = SCREEN_UV;
 
-	float s = sin(uv.y * scanline_count * PI * 2.0);
-	s = (s * 0.5 + 0.5) * 0.9 + 0.1;
-	vec4 scanlines = vec4(vec3(pow(s, scanline_opacity)), 1.0);
-	text *= scanlines;
+    // Dalgalanma Formülü
+    uv.x += sin(uv.y * 10.0 + TIME * speed) * strength;
+    uv.y += cos(uv.x * 10.0 + TIME * speed) * strength;
 
-	float vig = vignette(uv);
-	text.rgb *= mix(1.0, vig, vignette_opacity);
+    // texture() fonksiyonu artık tanımladğimiz SCREEN_TEXTURE'u kullanıyor
+    vec4 color = texture(SCREEN_TEXTURE, uv);
 
-	if (clip_edges) {
-		if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
-			text.rgb = vec3(0.0, 0.0, 0.0);
-		}
-	}
-	
-	COLOR = text;
+    // Renk Ayrışması (Kromatik Aberasyon - Kafa yapıcı etki)
+    float r = texture(SCREEN_TEXTURE, uv + vec2(strength * 0.5, 0.0)).r;
+    float g = texture(SCREEN_TEXTURE, uv).g;
+    float b = texture(SCREEN_TEXTURE, uv - vec2(strength * 0.5, 0.0)).b;
+
+    COLOR = vec4(r, g, b, 1.0);
 }

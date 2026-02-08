@@ -312,11 +312,21 @@ func _ozel_animasyon_oynat(tip: String):
 		
 		eldeki_ozel_esya = null
 		ozel_esya_verisi = null
-		_ekran_bozma_efekti(false)
+		
+		# NOT: Buradaki _ekran_bozma_efekti(false) satırı bilerek kaldırıldı.
+		# Mantar etkisi kalıcı olmalı, LevelManager bölüm bitince kapatacak.
 	)
 
 func _ekran_bozma_efekti(aktif: bool):
-	if has_node("CanvasLayer/MantarEfekti"): $CanvasLayer/MantarEfekti.visible = aktif
+	# Arayüz grubundaki ilk elemanı bul (OyunArayuzu)
+	var arayuz = get_tree().get_first_node_in_group("Arayuz")
+	
+	if arayuz and arayuz.has_method("mantar_efekti_yonet"):
+		arayuz.mantar_efekti_yonet(aktif)
+	else:
+		# Bu mesaj sadece debug için, oyun içinde görünmez.
+		# print("HATA: Arayüz bulunamadı veya mantar fonksiyonu yok!")
+		pass
 
 func hasar_al(miktar: int):
 	if yere_dustu_mu or oldu_mu: return 

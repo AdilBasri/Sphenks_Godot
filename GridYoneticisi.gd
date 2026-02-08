@@ -250,15 +250,30 @@ func miknatis_etkisi():
 						tween.tween_property(blok, "global_position", hedef_pos, 0.2)
 						break
 
-# 5. MANTAR (Rastgele Renkler)
+# GridYonetici.gd içine:
+
 func mantar_modu_aktif():
+	# 1. GameManager'a modu açtığımızı söyle
 	GameManager.mantar_modu = true
+	print("🍄 Grid: MANTAR MODU! Renkler çıldırıyor...")
+
+	# 2. Masadaki MEVCUT blokları tek tek gez ve rengini değiştir
 	for pos in grid_verisi:
 		var blok = grid_verisi[pos]
+		
+		# Bloğun içindeki Mesh'i (Görseli) bul
 		var mesh = blok.find_child("MeshInstance3D", true, false)
 		if mesh:
+			# Rastgele, parlak neon renkler oluştur
+			var yeni_renk = Color(randf(), randf(), randf())
+			
+			# Yeni bir materyal yaratıp boya
 			var mat = StandardMaterial3D.new()
-			mat.albedo_color = Color(randf(), randf(), randf())
+			mat.albedo_color = yeni_renk
+			mat.emission_enabled = true # Parlasın
+			mat.emission = yeni_renk
+			mat.emission_energy_multiplier = 1.0 # Parlaklık şiddeti
+			
 			mesh.material_override = mat
 
 # --- PATLATMA SİSTEMİ ---

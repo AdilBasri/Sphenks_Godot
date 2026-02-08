@@ -50,24 +50,26 @@ func _ready() -> void:
 		print("UYARI: 'Perde' bulunamadı!")
 
 	# --- YENİ SİSTEMLERİN KURULUMU (GAMEMANAGER) ---
+	# 1. Bilgi Label Gizle
+	if bilgi_label: bilgi_label.modulate.a = 0.0
+	
+	# 2. GameManager Bağlantıları
 	if GameManager:
-		# 1. Altın güncellemelerini dinle
 		if not GameManager.altin_guncellendi.is_connected(_on_altin_guncellendi):
 			GameManager.altin_guncellendi.connect(_on_altin_guncellendi)
-		
-		# 2. Envanter (Totem) güncellemelerini dinle
 		if not GameManager.envanter_guncellendi.is_connected(totem_sayacini_guncelle):
 			GameManager.envanter_guncellendi.connect(totem_sayacini_guncelle)
-
-		# Başlangıç değerlerini yazdır
+			
+		# Arayüz açılır açılmaz eldeki parayı ve totemi yaz
 		_on_altin_guncellendi(GameManager.toplam_altin)
 		totem_sayacini_guncelle()
-	
-	# Bilgi etiketini başlangıçta gizle
-	if bilgi_label:
-		bilgi_label.modulate.a = 0.0
 
 	guncelle_ekran()
+
+	# --- KRİTİK DÜZELTME: MANTAR EFEKTİNİ ZORLA KAPAT ---
+	# Bir kare bekle ki sahne tam yüklensin, sonra kapat
+	await get_tree().process_frame
+	mantar_efekti_yonet(false)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_Q:
@@ -76,7 +78,6 @@ func _input(event: InputEvent) -> void:
 # --- TOTEM SAYACI GÜNCELLEME (MARKET İÇİNDEKİ LABEL) ---
 func totem_sayacini_guncelle():
 	# SayacLabel, Market sahnesinin içinde olduğu için onu "Ara ve Bul" yöntemiyle çekiyoruz.
-	# "true, false" parametreleri: (recursive=true, owned=false) tüm ağacı tara demektir.
 	var sayac_label = get_tree().current_scene.find_child("SayacLabel", true, false)
 	
 	if sayac_label:
@@ -85,13 +86,11 @@ func totem_sayacini_guncelle():
 		
 		sayac_label.text = "TOTEM %d/%d" % [mevcut, maks]
 		
-		# Dolunca Kırmızı, boşken Beyaz yapalım
 		if mevcut >= maks:
 			sayac_label.modulate = Color(1, 0.5, 0.5) # Kırmızımsı
 		else:
 			sayac_label.modulate = Color.WHITE
 	else:
-		# Eğer market sahnede yoksa (henüz yüklenmediyse) sorun değil, pas geç.
 		pass
 
 # --- ALTIN GÜNCELLEME ---
@@ -108,20 +107,15 @@ func _on_altin_guncellendi(miktar: int):
 func bilgi_goster(mesaj: String):
 	if not bilgi_label: return
 	
-	# Önceki animasyon varsa durdur
 	if bilgi_tween: bilgi_tween.kill()
 	
 	bilgi_label.text = mesaj
-	bilgi_label.modulate.a = 1.0 # Görünür yap
-	bilgi_label.position.y = 100 # Başlangıç yüksekliği
+	bilgi_label.modulate.a = 1.0 
+	bilgi_label.position.y = 100 
 	
 	bilgi_tween = create_tween()
-	
-	# 1. Yukarı kayarak belirme
 	bilgi_tween.tween_property(bilgi_label, "position:y", 80.0, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	# 2. Bekleme
 	bilgi_tween.tween_interval(1.0)
-	# 3. Silinme
 	bilgi_tween.tween_property(bilgi_label, "modulate:a", 0.0, 0.5)
 
 # --- PERDE SİSTEMİ ---
@@ -168,7 +162,6 @@ func bolum_kurulumu(yeni_hedef: int) -> void:
 func puan_ekle(miktar: int, aciklama: String) -> void:
 	toplam_puan += miktar
 	
-	# 1. Listeye Ekle
 	if liste:
 		var satir = Label.new()
 		satir.text = "+%d %s" % [miktar, aciklama]
@@ -177,9 +170,7 @@ func puan_ekle(miktar: int, aciklama: String) -> void:
 		liste.move_child(satir, 0)
 		if liste.get_child_count() > 10: liste.get_child(10).queue_free()
 	
-	# 2. Ekrana Bilgi Mesajı Olarak Bas
 	bilgi_goster("+%d %s" % [miktar, aciklama])
-	
 	guncelle_ekran()
 
 func guncelle_ekran() -> void:
@@ -190,3 +181,27 @@ func guncelle_ekran() -> void:
 	if progress_bar:
 		progress_bar.max_value = hedef_puan
 		progress_bar.value = toplam_puan
+
+func mantar_efekti_yonet(aktif: bool):
+	var efekt_node = null
+	
+	# İhtimal 1: AnaKontrol altında
+	if has_node("AnaKontrol/MantarEfekti"):
+		efekt_node = $AnaKontrol/MantarEfekti
+	# İhtimal 2: Direkt altında
+	elif has_node("MantarEfekti"):
+		efekt_node = $MantarEfekti
+		
+	if efekt_node:
+		# 1. Görünürlüğü ayarla
+		efekt_node.visible = aktif
+		
+		# 2. Shader parametresini ZORLA ayarla
+		# (Visible kapalı olsa bile shader parametresini sıfırlayalım)
+		if efekt_node.material:
+			var guc = 0.02 if aktif else 0.0
+			efekt_node.material.set_shader_parameter("strength", guc)
+			
+		print("🍄 Mantar Efekti: ", "AÇIK" if aktif else "KAPALI", " (Node bulundu)")
+	else:
+		print("🔴 HATA: 'MantarEfekti' sahnede bulunamadı! Lütfen ColorRect ismini kontrol et.")

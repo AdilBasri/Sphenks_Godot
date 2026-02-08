@@ -1,29 +1,36 @@
 extends CanvasLayer
 
 func _ready():
-	# Oyun bittiği için Mouse'u görünür ve serbest yapıyoruz
+	# Oyun bittiği için Mouse'u görünür yapıyoruz
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
-	# --- BUTON BAĞLANTILARI (Senin verdiğin yollara göre) ---
+	# Buton Bağlantıları
+	if has_node("ColorRect/Label/VBoxContainer/TekrarButonu"):
+		$ColorRect/Label/VBoxContainer/TekrarButonu.pressed.connect(_on_tekrar_pressed)
 	
-	# Tekrar Dene Butonu
-	$ColorRect/Label/VBoxContainer/TekrarButonu.pressed.connect(_on_tekrar_pressed)
-	
-	# Ana Menü Butonu
-	$ColorRect/Label/VBoxContainer/MenuButonu.pressed.connect(_on_menu_pressed)
+	if has_node("ColorRect/Label/VBoxContainer/MenuButonu"):
+		$ColorRect/Label/VBoxContainer/MenuButonu.pressed.connect(_on_menu_pressed)
 
 func _on_tekrar_pressed():
-	# Oyun durdurulmuşsa (pause) devam ettir
+	print("🔄 Tekrar Deneniyor... Veriler sıfırlanıyor.")
 	get_tree().paused = false
 	
-	# Bölümü baştan yükle
+	# --- KRİTİK EKLEME ---
+	# Bunu yapmazsak can 0 kalır ve oyun başlar başlamaz tekrar ölürsün!
+	if GameManager:
+		GameManager.verileri_sifirla()
+	
+	# Sahneyi Yenile
 	get_tree().reload_current_scene()
 
 func _on_menu_pressed():
-	# Oyun durdurulmuşsa devam ettir
+	print("🏠 Menüye Dönülüyor...")
 	get_tree().paused = false
 	
-	# Ana Menüye dön
-	# DİKKAT: Eğer AnaMenu.tscn dosyan "Scenes" klasöründe değilse, 
-	# aşağıdaki yolu kendi dosya konumuna göre düzeltmelisin (Örn: "res://AnaMenu.tscn")
-	get_tree().change_scene_to_file("res://ana_menu.tscn")
+	# Menüye dönerken de sıfırlayalım
+	if GameManager:
+		GameManager.verileri_sifirla()
+	
+	# Ana Menü yolunu kontrol et (Dosya adın ana_manu.gd idi, sahne adı ne?)
+	# Genelde: res://Scenes/AnaMenu.tscn veya res://AnaMenu.tscn
+	get_tree().change_scene_to_file("res://Scenes/AnaMenu.tscn")
