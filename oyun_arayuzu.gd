@@ -75,10 +75,20 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_Q:
 		toggle_panel()
 
-# --- TOTEM SAYACI GÜNCELLEME (MARKET İÇİNDEKİ LABEL) ---
 func totem_sayacini_guncelle():
+	# 1. GÜVENLİK KONTROLÜ: Eğer bu node (Arayüz) sahnede değilse işlem yapma!
+	if not is_inside_tree(): return
+	
+	# 2. AĞAÇ KONTROLÜ: SceneTree var mı?
+	var tree = get_tree()
+	if not tree: return
+	
+	# 3. SAHNE KONTROLÜ: Geçerli sahne (Current Scene) yüklü mü?
+	if not tree.current_scene: return
+
+	# --- GÜVENLİ ALAN ---
 	# SayacLabel, Market sahnesinin içinde olduğu için onu "Ara ve Bul" yöntemiyle çekiyoruz.
-	var sayac_label = get_tree().current_scene.find_child("SayacLabel", true, false)
+	var sayac_label = tree.current_scene.find_child("SayacLabel", true, false)
 	
 	if sayac_label:
 		var mevcut = GameManager.envanter.size()
@@ -91,6 +101,7 @@ func totem_sayacini_guncelle():
 		else:
 			sayac_label.modulate = Color.WHITE
 	else:
+		# Market sahnede yoksa sorun değil, pas geç.
 		pass
 
 # --- ALTIN GÜNCELLEME ---

@@ -35,15 +35,20 @@ var orjinal_rotasyon_degrees: Vector3
 var anlik_footprint: Array[Vector2i] = [] 
 var anlik_y_rotasyon: float = 0.0            
 
-func _ready() -> void:
-	# --- YENİ EKLENEN KISIM: GRUP VE MANTAR KONTROLÜ ---
-	add_to_group("Blok") # Kendini listeye ekle
-	
-	# Eğer oyun o sırada Mantar Modundaysa, doğar doğmaz renklen!
-	if GameManager.mantar_modu:
-		rastgele_boya()
-	# ---------------------------------------------------
+# --- RENK SİSTEMİ ---
+var mevcut_renk = null 
 
+# SADECE İSTENEN RENKLER (SABİT PALET)
+var renk_paleti = [
+	Color.ORANGE, 
+	Color.YELLOW, 
+	Color.BLUE, 
+	Color.GREEN
+]
+
+func _ready() -> void:
+	add_to_group("Blok") 
+	
 	orjinal_parent = get_parent()
 	orjinal_scale = scale
 	orjinal_rotasyon_degrees = rotation_degrees
@@ -54,6 +59,12 @@ func _ready() -> void:
 	
 	if debug_modu_aktif:
 		_debug_footprint_ciz()
+
+	# Mantar Modu açıksa doğar doğmaz renklenmeye çalış
+	# "call_deferred" kullandığımız için bu işlem karenin en sonunda yapılır.
+	# Bu sırada biz çoktan META verisini işlemiş olacağız.
+	if GameManager.mantar_modu:
+		call_deferred("rastgele_boya")
 
 func _process(delta: float) -> void:
 	if tutuluyor and not kilitlendi:
@@ -183,10 +194,19 @@ func _birak() -> void:
 					yeni_blok.rotation_degrees = final_rot
 					yeni_blok.scale = orjinal_scale 
 					
-					# YENİ BLOK DA RENKLİ OLSUN
-					if GameManager.mantar_modu:
-						if yeni_blok.has_method("rastgele_boya"):
-							yeni_blok.rastgele_boya()
+					# --- RENK AKTARIMI (KRİTİK DÜZELTME) ---
+					if GameManager.mantar_modu and mevcut_renk != null:
+						# ÖNCE: Meta verisine rengi yazıyoruz.
+						yeni_blok.set_meta("boyali_renk", mevcut_renk)
+						
+						# SONRA: Görsel olarak boyuyoruz.
+						_recursive_boya(yeni_blok, mevcut_renk)
+						
+						# NOT: yeni_blok'un _ready fonksiyonu birazdan (deferred olarak)
+						# rastgele_boya() çağıracak. Ama aşağıda düzelttiğimiz
+						# rastgele_boya fonksiyonu, "boyali_renk" metasını görünce
+						# yeni renk üretmekten vazgeçecek!
+					# ----------------------------------------
 					
 					grid.tek_hucre_doldur(hedef_hucre, yeni_blok)
 			
@@ -232,27 +252,36 @@ func _debug_footprint_ciz() -> void:
 		add_child(mesh_inst)
 		mesh_inst.position = Vector3(nokta.x, 0.0, nokta.y)
 
-# --- 🔥 GÜNCELLENEN RASTGELE BOYA FONKSİYONU 🔥 ---
+# --- RENK SİSTEMİ (AKILLI HALE GETİRİLDİ) ---
 func rastgele_boya():
-	# Rastgele neon renk
-	var yeni_renk = Color.from_hsv(randf(), 1.0, 1.0) # Tam doygunluk, tam parlaklık
+	# 1. KONTROL: Eğer bana zaten dışarıdan bir renk atandıysa (Meta varsa)
+	# O zaman rastgele renk üretme, o rengi kullan!
+	if has_meta("boyali_renk"):
+		var atanan_renk = get_meta("boyali_renk")
+		# Hafızaya da alalım ki karışıklık olmasın
+		mevcut_renk = atanan_renk 
+		_recursive_boya(self, atanan_renk)
+		return # FONKSİYONDAN ÇIK, YENİ RENK ÜRETME
+
+	# 2. Eğer atanan renk yoksa (İlk doğuş), paletten seç
+	mevcut_renk = renk_paleti.pick_random()
 	
-	# Kendisi bir MeshInstance3D olamayacağı için (Hata buradan çıkıyordu)
-	# Sadece ÇOCUKLARINI (veya torunlarını) geziyoruz.
+	# Kendini boya
+	_recursive_boya(self, mevcut_renk)
+
+func _recursive_boya(node: Node, renk: Color):
+	# Eğer bu düğüm bir MeshInstance3D ise boya
+	if node is MeshInstance3D:
+		_materyal_uygula(node, renk)
 	
-	for child in get_children():
-		if child is MeshInstance3D:
-			_materyal_uygula(child, yeni_renk)
-		
-		# Eğer bloğun içinde başka node'ların içinde mesh varsa (torunlar)
-		for grand_child in child.get_children():
-			if grand_child is MeshInstance3D:
-				_materyal_uygula(grand_child, yeni_renk)
+	# Sonra bu düğümün çocuklarını gez
+	for child in node.get_children():
+		_recursive_boya(child, renk)
 
 func _materyal_uygula(mesh: MeshInstance3D, renk: Color):
 	var mat = StandardMaterial3D.new()
 	mat.albedo_color = renk
 	mat.emission_enabled = true
 	mat.emission = renk
-	mat.emission_energy_multiplier = 2.0 # Parlasın
+	mat.emission_energy_multiplier = 1.0 
 	mesh.material_override = mat
