@@ -1,12 +1,12 @@
 extends Node
 
-# --- SİNYALLER (HEPSİ BURADA) ---
+# --- SİNYALLER ---
 signal envanter_guncellendi 
-signal blok_yerlestirildi # BlokSurukle.gd arıyor
-signal satir_patladi      # GridYonetici.gd arıyor
-signal boss_oldu          # LevelManager veya Düşmanlar arıyor
-signal saglik_guncellendi(bar, hp) # Oyuncu.gd arıyor
-signal altin_guncellendi(miktar)   # Arayüz arıyor
+signal blok_yerlestirildi
+signal satir_patladi      
+signal boss_oldu          
+signal saglik_guncellendi(bar, hp) 
+signal altin_guncellendi(miktar)   
 
 # --- OYUNCU SAĞLIK VERİLERİ ---
 var oyuncu_max_bar: int = 4
@@ -18,9 +18,9 @@ var toplam_altin: int = 0
 
 # --- ENVANTER ---
 var envanter: Array[ItemData] = []
-var max_totem_sayisi = 5 # Senin ayarın (5 Slot)
+var max_totem_sayisi = 5 
 
-# --- BUFFLAR / PASİF ETKİLER ---
+# --- BUFFLAR ---
 var puan_carpani: float = 1.0
 var revive_aktif: bool = false
 var zar_atlama_hakki: int = 0
@@ -30,17 +30,26 @@ var yarasa_bonusu: bool = false
 var mantar_modu: bool = false
 
 func _ready():
-	# Başlangıçta test için biraz altın verelim
+	# Oyun ilk açıldığında
+	print("GameManager Başlatıldı.")
+	# Başlangıç altını (İstersen 0 yapabilirsin)
 	altin_ekle(50)
-	print("GameManager Hazır.")
 
-# --- SIFIRLAMA FONKSİYONLARI ---
+# --- KRİTİK: SIFIRLAMA FONKSİYONLARI ---
 func verileri_sifirla():
-	envanter.clear()
+	# 1. Canı Fulle
 	oyuncu_kalan_bar = 4
 	oyuncu_suanki_hp = 10
+	
+	# 2. Envanter ve Buffları Temizle
+	envanter.clear()
 	bolum_bufflarini_sifirla()
-	print("GameManager: Tüm veriler sıfırlandı.")
+	
+	# 3. Sinyalleri Gönder (Arayüz ve Oyuncu haberdar olsun)
+	emit_signal("saglik_guncellendi", oyuncu_kalan_bar, oyuncu_suanki_hp)
+	emit_signal("envanter_guncellendi")
+	
+	print("GameManager: Oyun sıfırlandı. Can Fullendi (4 Bar, 10 HP).")
 
 func bolum_bufflarini_sifirla():
 	puan_carpani = 1.0
@@ -52,7 +61,6 @@ func bolum_bufflarini_sifirla():
 	mantar_modu = false
 
 # --- ENVANTER YÖNETİMİ ---
-# Not: Senin kodunda 'totem_ekle' olarak geçiyor, onu koruduk.
 func totem_ekle(yeni_esya: ItemData) -> bool:
 	if envanter.size() >= max_totem_sayisi:
 		return false

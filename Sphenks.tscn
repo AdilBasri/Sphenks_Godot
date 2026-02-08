@@ -353,20 +353,21 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1821117, 2.0952778, -0.3598
 [node name="ZarKamerasi" type="Camera3D" parent="MezarOdasi" index="7"]
 transform = Transform3D(0.049750816, 0.82450163, -0.5636683, -0.07249083, 0.5658596, 0.82130873, 0.9961275, 7.4793585e-09, 0.08792079, 1.1608381, 2.189816, 0.2135151)
 
-[node name="Yeni_Kedi" type="Sprite3D" parent="." index="4" node_paths=PackedStringArray("diyalog_yoneticisi")]
+[node name="Kedi" type="Sprite3D" parent="." index="4" node_paths=PackedStringArray("grid_yoneticisi", "diyalog_yoneticisi")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.4053817, -0.19308585, 0.0020349026)
 billboard = 2
 alpha_cut = 1
 texture_filter = 0
 texture = ExtResource("6_1b6ct")
 script = ExtResource("7_ouiq0")
+grid_yoneticisi = NodePath("../TumMasaSistemi/GridYoneticisi")
 diyalog_yoneticisi = NodePath("../Boss/CanvasLayer/DiyalogKatmani")
 normal_hal = ExtResource("6_1b6ct")
 uzayan_hal = ExtResource("8_p4fw5")
 
-[node name="Kedi" type="Area3D" parent="Yeni_Kedi" index="0"]
+[node name="Y_Kedi" type="Area3D" parent="Kedi" index="0"]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Yeni_Kedi/Kedi" index="0"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Kedi/Y_Kedi" index="0"]
 transform = Transform3D(0.99999976, 0, 0, 0, 0.99999976, 0, 0, 0, 0.99999976, 0.033602238, -0.16142029, 0)
 shape = SubResource("BoxShape3D_p4fw5")
 
@@ -1042,7 +1043,7 @@ size = Vector3(1.5482178, 2.9299502, 0.6573989)
 [node name="CampfireOdasi" parent="." index="25" instance=ExtResource("33_1g7sh")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 5.427616, 0.8997017, -33.59956)
 
-[connection signal="input_event" from="Yeni_Kedi/Kedi" to="Yeni_Kedi" method="_on_area_3d_input_event"]
+[connection signal="input_event" from="Kedi/Y_Kedi" to="Kedi" method="_on_area_3d_input_event"]
 
 [editable path="Block_L"]
 [editable path="Block_L/Hayalet/Node3D"]

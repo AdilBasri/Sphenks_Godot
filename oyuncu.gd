@@ -40,6 +40,7 @@ func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if not kamera: return
 	
+	# Raycast Kurulumu
 	raycast = kamera.get_node_or_null("RayCast3D")
 	if raycast == null:
 		var yeni_ray = RayCast3D.new()
@@ -52,6 +53,7 @@ func _ready():
 	raycast.collision_mask = 0xFFFFFFFF 
 	raycast.add_exception(self) 
 
+	# Tutma Noktası
 	if kamera.has_node("TutmaNoktasi"):
 		tutma_noktasi = kamera.get_node("TutmaNoktasi")
 	else:
@@ -64,6 +66,7 @@ func _ready():
 	if has_node("CanvasLayer/EtkilesimYazisi"):
 		etkilesim_label = $CanvasLayer/EtkilesimYazisi
 	
+	# Can Senkronizasyonu (Ölümden dönünce canın full gelmesi için)
 	if GameManager:
 		suanki_can_bari = GameManager.oyuncu_kalan_bar
 		suanki_hp = GameManager.oyuncu_suanki_hp
@@ -130,9 +133,7 @@ func _physics_process(delta):
 	_hedef_gosterge_guncelle()
 	check_ui_text()
 
-# --- 🔥 GÜNCELLENDİ: ARTIK "GridYoneticisi" ARANIYOR 🔥 ---
 func _hedef_gosterge_guncelle():
-	# İsim değişikliği burada yapıldı
 	var grid = get_tree().current_scene.find_child("GridYoneticisi", true, false)
 	if not grid: return
 
@@ -156,14 +157,13 @@ func _hedef_gosterge_guncelle():
 	else:
 		grid.hedef_goster(Vector2i.ZERO, false)
 
+# --- ESYA KULLANIMI (DÜZELTİLMİŞ) ---
 func esya_kullan():
 	if not eldeki_ozel_esya: return
-	
 	if active_tween and active_tween.is_running(): return
 
 	var id = ozel_esya_verisi.etki_id
 	var anim_tip = ozel_esya_verisi.animasyon_tipi
-	# İsim değişikliği burada yapıldı
 	var grid = get_tree().current_scene.find_child("GridYoneticisi", true, false)
 	
 	var hedef_hucre = null
@@ -176,59 +176,55 @@ func esya_kullan():
 	
 	var basarili = false
 	
-	print("Eşya Kullanılıyor: ", id) 
+	# Debug mesajı
+	print("Kullanılan Eşya ID: ", id)
 	
 	match id:
-		"asit":
-			if hedef_hucre != null:
-				grid.sutunu_yok_et(hedef_hucre)
+		"canlan": 
+			if suanki_can_bari < max_can_bari:
+				suanki_can_bari += 1
+				suanki_hp = 10
+				GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
+				ui_guncelle()
+				print("Can İksiri içildi!")
 				basarili = true
-		"kilic":
-			if hedef_hucre != null:
-				grid.blok_kir(hedef_hucre, false)
-				basarili = true
-		"dig":
-			if hedef_hucre != null:
-				grid.blok_kir(hedef_hucre, true) 
-				basarili = true
-		"paint":
-			if hedef_hucre != null:
-				grid.bloku_boya(hedef_hucre)
-				basarili = true
-		"kedimamasi":
-			if baktigim_nesne and baktigim_nesne.name == "Kedi":
-				print("Kedi beslendi!")
-				basarili = true
+			else:
+				print("Canın zaten dolu!")
+				
 		"guc":
 			GameManager.puan_carpani = 1.3
+			print("Güç İksiri! Puanlar x1.3")
 			basarili = true
+			
 		"revive":
 			GameManager.revive_aktif = true
+			print("Revive aktif!")
 			basarili = true
-		"cloak":
-			GameManager.zar_atlama_hakki = 3
-			basarili = true
-		"dice":
-			GameManager.zar_yok_sayma = true
-			basarili = true
-		"magnet":
-			if grid:
-				grid.miknatis_etkisi()
+			
+		"kedimamasi":
+			# Kedi Grubu Kontrolü (Güvenli)
+			if baktigim_nesne and baktigim_nesne.is_in_group("kedi"):
+				print("Kedi beslendi!")
 				basarili = true
-		"mantar":
-			if grid:
-				grid.mantar_modu_aktif()
-				_ekran_bozma_efekti(true)
-				basarili = true
-		_:
-			print("Bilinmeyen Eşya ID, ama tüketiliyor.")
+			else:
+				print("Bu bir kedi değil!")
+
+		# Grid İşlemleri
+		"asit": if hedef_hucre != null: grid.sutunu_yok_et(hedef_hucre); basarili = true
+		"kilic": if hedef_hucre != null: grid.blok_kir(hedef_hucre, false); basarili = true
+		"dig": if hedef_hucre != null: grid.blok_kir(hedef_hucre, true); basarili = true
+		"paint": if hedef_hucre != null: grid.bloku_boya(hedef_hucre); basarili = true
+		"mantar": if grid: grid.mantar_modu_aktif(); _ekran_bozma_efekti(true); basarili = true
+		"magnet": if grid: grid.miknatis_etkisi(); basarili = true
+		_: 
+			print("İşlemsiz Eşya Tüketildi: ", id)
 			basarili = true
 
 	if basarili:
 		if grid: grid.hedef_goster(Vector2i.ZERO, false)
 		_ozel_animasyon_oynat(anim_tip)
 	else:
-		print("Geçersiz Hedef! (Bir bloğa bakmalısın)")
+		print("Geçersiz işlem.")
 
 # --- DİĞER FONKSİYONLAR ---
 
@@ -278,7 +274,6 @@ func esya_birak():
 	eldeki_ozel_esya = null
 	ozel_esya_verisi = null
 	
-	# İsim değişikliği burada yapıldı
 	var grid = get_tree().current_scene.find_child("GridYoneticisi", true, false)
 	if grid: grid.hedef_goster(Vector2i.ZERO, false)
 
@@ -288,6 +283,13 @@ func _ozel_animasyon_oynat(tip: String):
 	var esya = eldeki_ozel_esya
 	var minik_scale = Vector3(0.01, 0.01, 0.01)
 
+	var gorsel_nesne = null
+	if esya:
+		for child in esya.get_children():
+			if child is Sprite3D:
+				gorsel_nesne = child
+				break
+
 	match tip:
 		"icme":
 			active_tween.tween_property(esya, "position", Vector3(0, -0.1, 0.4), 0.3)
@@ -295,12 +297,19 @@ func _ozel_animasyon_oynat(tip: String):
 			active_tween.tween_property(esya, "scale", minik_scale, 0.2)
 		"kirma": 
 			active_tween.tween_property(esya, "position:z", -1.0, 0.1).set_trans(Tween.TRANS_EXPO)
-			active_tween.tween_property(esya, "modulate:a", 0.0, 0.1)
+			if gorsel_nesne:
+				active_tween.tween_property(gorsel_nesne, "modulate:a", 0.0, 0.1)
+			else:
+				active_tween.tween_property(esya, "scale", minik_scale, 0.1)
 		_: 
 			active_tween.tween_property(esya, "scale", minik_scale, 0.2)
 
 	active_tween.tween_callback(func():
+		if GameManager and ozel_esya_verisi:
+			GameManager.esya_sil(ozel_esya_verisi)
+
 		if is_instance_valid(esya): esya.queue_free()
+		
 		eldeki_ozel_esya = null
 		ozel_esya_verisi = null
 		_ekran_bozma_efekti(false)
@@ -376,6 +385,7 @@ func birak_veya_firlat():
 		tutulan_nesne.apply_central_impulse(-kamera.global_transform.basis.z * firlatma_gucu)
 		tutulan_nesne = null
 
+# --- HATANIN KAYNAĞI BURADAYDI VE DÜZELTİLDİ ---
 func check_ui_text():
 	if not etkilesim_label: return
 	etkilesim_label.text = ""
@@ -383,7 +393,9 @@ func check_ui_text():
 	if raycast and raycast.is_colliding():
 		var nesne = raycast.get_collider()
 		
-		# Veriyi güvenli oku (Script olmasa bile meta verisinden veya değişkenden)
+		# --- GÜVENLİK KONTROLÜ EKLENDİ ---
+		if not nesne: return 
+		
 		var veri = nesne.get("esya_verisi")
 		var market_modu = nesne.get("market_modu")
 		
@@ -393,14 +405,16 @@ func check_ui_text():
 			else:
 				etkilesim_label.text = "[SOL TIK] AL\n" + veri.esya_adi
 		
-		# Düz fiziksel nesne
 		elif nesne is RigidBody3D and not tutulan_nesne:
 			etkilesim_label.text = "TUT"
 
+# --- ETKİLEŞİME GİR (GÜVENLİ HALE GETİRİLDİ) ---
 func etkilesime_gir():
 	if not raycast or not raycast.is_colliding(): return
 	var nesne = raycast.get_collider()
 	
+	if not nesne: return # Güvenlik
+
 	var veri = nesne.get("esya_verisi")
 	var market_modu = nesne.get("market_modu")
 	

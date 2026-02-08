@@ -7,8 +7,7 @@ extends CanvasLayer
 @onready var liste = $ParsomenPanel/PuanTablosu/Liste
 
 # --- YENİ BAĞLANTILAR (Altın ve Bilgi Sistemi) ---
-# DİKKAT: Bu düğümleri sahnede oluşturduğunu varsayıyoruz.
-# Eğer "AnaKontrol" ismini farklı yaptıysan burayı düzeltmelisin.
+# Not: Bu düğümler OyunArayuzu sahnesinde olmalı
 @onready var altin_label = $AnaKontrol/MarginContainer/HBoxContainer/AltinSayisi
 @onready var bilgi_label = $AnaKontrol/BilgiLabel
 
@@ -52,12 +51,17 @@ func _ready() -> void:
 
 	# --- YENİ SİSTEMLERİN KURULUMU (GAMEMANAGER) ---
 	if GameManager:
-		# Altın güncellemelerini dinle
+		# 1. Altın güncellemelerini dinle
 		if not GameManager.altin_guncellendi.is_connected(_on_altin_guncellendi):
 			GameManager.altin_guncellendi.connect(_on_altin_guncellendi)
 		
-		# Başlangıç altınını yazdır
+		# 2. Envanter (Totem) güncellemelerini dinle
+		if not GameManager.envanter_guncellendi.is_connected(totem_sayacini_guncelle):
+			GameManager.envanter_guncellendi.connect(totem_sayacini_guncelle)
+
+		# Başlangıç değerlerini yazdır
 		_on_altin_guncellendi(GameManager.toplam_altin)
+		totem_sayacini_guncelle()
 	
 	# Bilgi etiketini başlangıçta gizle
 	if bilgi_label:
@@ -69,7 +73,28 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_Q:
 		toggle_panel()
 
-# --- ALTIN GÜNCELLEME (YENİ) ---
+# --- TOTEM SAYACI GÜNCELLEME (MARKET İÇİNDEKİ LABEL) ---
+func totem_sayacini_guncelle():
+	# SayacLabel, Market sahnesinin içinde olduğu için onu "Ara ve Bul" yöntemiyle çekiyoruz.
+	# "true, false" parametreleri: (recursive=true, owned=false) tüm ağacı tara demektir.
+	var sayac_label = get_tree().current_scene.find_child("SayacLabel", true, false)
+	
+	if sayac_label:
+		var mevcut = GameManager.envanter.size()
+		var maks = GameManager.max_totem_sayisi
+		
+		sayac_label.text = "TOTEM %d/%d" % [mevcut, maks]
+		
+		# Dolunca Kırmızı, boşken Beyaz yapalım
+		if mevcut >= maks:
+			sayac_label.modulate = Color(1, 0.5, 0.5) # Kırmızımsı
+		else:
+			sayac_label.modulate = Color.WHITE
+	else:
+		# Eğer market sahnede yoksa (henüz yüklenmediyse) sorun değil, pas geç.
+		pass
+
+# --- ALTIN GÜNCELLEME ---
 func _on_altin_guncellendi(miktar: int):
 	if altin_label:
 		altin_label.text = str(miktar)
@@ -79,7 +104,7 @@ func _on_altin_guncellendi(miktar: int):
 		tween.tween_property(altin_label, "scale", Vector2(1.5, 1.5), 0.1)
 		tween.tween_property(altin_label, "scale", Vector2(1.0, 1.0), 0.1)
 
-# --- BİLGİ / TOAST MESAJI (YENİ - Hata Çözümü) ---
+# --- BİLGİ / TOAST MESAJI ---
 func bilgi_goster(mesaj: String):
 	if not bilgi_label: return
 	
@@ -88,7 +113,7 @@ func bilgi_goster(mesaj: String):
 	
 	bilgi_label.text = mesaj
 	bilgi_label.modulate.a = 1.0 # Görünür yap
-	bilgi_label.position.y = 100 # Başlangıç yüksekliği (Ayarlayabilirsin)
+	bilgi_label.position.y = 100 # Başlangıç yüksekliği
 	
 	bilgi_tween = create_tween()
 	
@@ -143,7 +168,7 @@ func bolum_kurulumu(yeni_hedef: int) -> void:
 func puan_ekle(miktar: int, aciklama: String) -> void:
 	toplam_puan += miktar
 	
-	# 1. Listeye Ekle (Eski Sistem)
+	# 1. Listeye Ekle
 	if liste:
 		var satir = Label.new()
 		satir.text = "+%d %s" % [miktar, aciklama]
@@ -152,7 +177,7 @@ func puan_ekle(miktar: int, aciklama: String) -> void:
 		liste.move_child(satir, 0)
 		if liste.get_child_count() > 10: liste.get_child(10).queue_free()
 	
-	# 2. Ekrana Bilgi Mesajı Olarak Bas (Yeni Sistem)
+	# 2. Ekrana Bilgi Mesajı Olarak Bas
 	bilgi_goster("+%d %s" % [miktar, aciklama])
 	
 	guncelle_ekran()

@@ -28,23 +28,32 @@ func _ready():
 		if not giris_sensoru.body_exited.is_connected(_on_giris_sensoru_body_exited):
 			giris_sensoru.body_exited.connect(_on_giris_sensoru_body_exited)
 
-# --- SATIN ALMA SİSTEMİ (Oyuncu Çağırır) ---
-func satin_almaya_calis(fiyat: int, esya_data: ItemData) -> bool:
-	
-	# 1. Çanta Kontrolü
-	if GameManager.envanter.size() >= GameManager.max_totem_sayisi:
-		red_efekti_oynat()
+func satin_almaya_calis(fiyat: int, urun_verisi: ItemData) -> bool:
+	# 1. GameManager'a sor: "Yeterli para var mı?"
+	# altin_harca() fonksiyonu true dönerse, parayı zaten düşmüş demektir.
+	if GameManager.altin_harca(fiyat):
+		
+		# 2. Para düştü, şimdi eşyayı envantere eklemeye çalış
+		var envantere_sigdi = GameManager.totem_ekle(urun_verisi)
+		
+		if envantere_sigdi:
+			print("✅ Satın alma başarılı: " + urun_verisi.esya_adi)
+			# True döndürdüğümüzde Oyuncu.gd tezgahtaki nesneyi silecek
+			return true
+		else:
+			# Eğer envanter doluysa parayı iade et (Haksızlık olmasın)
+			GameManager.altin_ekle(fiyat)
+			print("❌ Envanter Dolu! Para iade edildi.")
+			return false
+			
+	else:
+		print("❌ Yetersiz Bakiye! Gereken: " + str(fiyat))
+		# Arayüz varsa "Yetersiz Bakiye" uyarısı gösterebiliriz
+		var arayuz = get_tree().get_first_node_in_group("Arayuz")
+		if arayuz and arayuz.has_method("bilgi_goster"):
+			arayuz.bilgi_goster("Yetersiz Bakiye!")
+			
 		return false
-	
-	# 2. İşlem Başarılı
-	GameManager.totem_ekle(esya_data)
-	odeme_yap(fiyat) 
-	
-	# UI Güncelle
-	if market_ui:
-		market_ui.guncelle(GameManager.envanter.size(), GameManager.max_totem_sayisi)
-	
-	return true
 
 func red_efekti_oynat():
 	print("Çanta Dolu!")
