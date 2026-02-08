@@ -33,9 +33,17 @@ var orjinal_rotasyon_degrees: Vector3
 
 # Dinamik Hesaplamalar
 var anlik_footprint: Array[Vector2i] = [] 
-var anlik_y_rotasyon: float = 0.0           
+var anlik_y_rotasyon: float = 0.0            
 
 func _ready() -> void:
+	# --- YENİ EKLENEN KISIM: GRUP VE MANTAR KONTROLÜ ---
+	add_to_group("Blok") # Kendini listeye ekle
+	
+	# Eğer oyun o sırada Mantar Modundaysa, doğar doğmaz renklen!
+	if GameManager.mantar_modu:
+		rastgele_boya()
+	# ---------------------------------------------------
+
 	orjinal_parent = get_parent()
 	orjinal_scale = scale
 	orjinal_rotasyon_degrees = rotation_degrees
@@ -174,19 +182,20 @@ func _birak() -> void:
 					var final_rot = grid_uzerindeki_aci + Vector3(0, y_deg, 0)
 					yeni_blok.rotation_degrees = final_rot
 					yeni_blok.scale = orjinal_scale 
+					
+					# YENİ BLOK DA RENKLİ OLSUN
+					if GameManager.mantar_modu:
+						if yeni_blok.has_method("rastgele_boya"):
+							yeni_blok.rastgele_boya()
+					
 					grid.tek_hucre_doldur(hedef_hucre, yeni_blok)
 			
 			if grid.has_method("satirlari_kontrol_et"):
 				grid.satirlari_kontrol_et()
 			if hayalet: hayalet.visible = false
 			
-			# MEVCUT SİNYAL (Spawner için)
 			emit_signal("blok_yerlesti")
-			
-			# 🔥 YENİ SİNYAL (Boss Saldırısı İçin)
-			# Bu sinyal sayesinde OyunOdasi, "Blok konuldu, saldır!" emrini alabilir.
 			GameManager.blok_yerlestirildi.emit()
-			
 			queue_free() 
 
 	if not basarili:
@@ -222,3 +231,28 @@ func _debug_footprint_ciz() -> void:
 		mesh_inst.name = "DebugKure"
 		add_child(mesh_inst)
 		mesh_inst.position = Vector3(nokta.x, 0.0, nokta.y)
+
+# --- 🔥 GÜNCELLENEN RASTGELE BOYA FONKSİYONU 🔥 ---
+func rastgele_boya():
+	# Rastgele neon renk
+	var yeni_renk = Color.from_hsv(randf(), 1.0, 1.0) # Tam doygunluk, tam parlaklık
+	
+	# Kendisi bir MeshInstance3D olamayacağı için (Hata buradan çıkıyordu)
+	# Sadece ÇOCUKLARINI (veya torunlarını) geziyoruz.
+	
+	for child in get_children():
+		if child is MeshInstance3D:
+			_materyal_uygula(child, yeni_renk)
+		
+		# Eğer bloğun içinde başka node'ların içinde mesh varsa (torunlar)
+		for grand_child in child.get_children():
+			if grand_child is MeshInstance3D:
+				_materyal_uygula(grand_child, yeni_renk)
+
+func _materyal_uygula(mesh: MeshInstance3D, renk: Color):
+	var mat = StandardMaterial3D.new()
+	mat.albedo_color = renk
+	mat.emission_enabled = true
+	mat.emission = renk
+	mat.emission_energy_multiplier = 2.0 # Parlasın
+	mesh.material_override = mat

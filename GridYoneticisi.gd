@@ -145,7 +145,6 @@ func tek_hucre_doldur(cell: Vector2i, item: Node3D) -> void:
 	# Renk bonusunu kontrol et (Mantar veya doğal uyum)
 	_renk_bonusu_kontrol(cell, item)
 
-# --- İŞTE BU EKSİKTİ ---
 func release_owner(item: Node) -> void:
 	pass
 
@@ -153,7 +152,6 @@ func release_owner(item: Node) -> void:
 
 func _renk_bonusu_kontrol(hucre: Vector2i, yeni_blok: Node3D):
 	var renk = null
-	# "boyali_renk" varsa (Joker/Boya) onu kullan, yoksa normal meta verisine bak
 	if yeni_blok.has_meta("boyali_renk"):
 		renk = yeni_blok.get_meta("boyali_renk")
 	elif yeni_blok.has_meta("renk"):
@@ -250,31 +248,15 @@ func miknatis_etkisi():
 						tween.tween_property(blok, "global_position", hedef_pos, 0.2)
 						break
 
-# GridYonetici.gd içine:
-
+# --- GÜNCELLENEN KISIM BURASI ---
 func mantar_modu_aktif():
-	# 1. GameManager'a modu açtığımızı söyle
+	# 1. Modu aç
 	GameManager.mantar_modu = true
-	print("🍄 Grid: MANTAR MODU! Renkler çıldırıyor...")
+	print("🍄 Grid: MANTAR MODU! Tüm bloklar renkleniyor...")
 
-	# 2. Masadaki MEVCUT blokları tek tek gez ve rengini değiştir
-	for pos in grid_verisi:
-		var blok = grid_verisi[pos]
-		
-		# Bloğun içindeki Mesh'i (Görseli) bul
-		var mesh = blok.find_child("MeshInstance3D", true, false)
-		if mesh:
-			# Rastgele, parlak neon renkler oluştur
-			var yeni_renk = Color(randf(), randf(), randf())
-			
-			# Yeni bir materyal yaratıp boya
-			var mat = StandardMaterial3D.new()
-			mat.albedo_color = yeni_renk
-			mat.emission_enabled = true # Parlasın
-			mat.emission = yeni_renk
-			mat.emission_energy_multiplier = 1.0 # Parlaklık şiddeti
-			
-			mesh.material_override = mat
+	# 2. SAHNEDEKİ TÜM BLOKLARA (Eldeki, Havadaki, Masadaki) EMİR VER
+	# "Blok" grubundaki herkesin "rastgele_boya" fonksiyonunu çalıştırır.
+	get_tree().call_group("Blok", "rastgele_boya")
 
 # --- PATLATMA SİSTEMİ ---
 func satirlari_kontrol_et() -> void:
