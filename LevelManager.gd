@@ -12,8 +12,6 @@ var oyuncu_ref: CharacterBody3D
 
 # --- REFERANSLAR ---
 var oyun_odasi_ref: Node = null 
-# --- REFERANSLAR ---
-var oyun_odasi_ref: Node = null 
 
 func oyunu_baslat():
 	suanki_katman = 1
