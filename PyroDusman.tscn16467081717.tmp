@@ -1,0 +1,72 @@
+[gd_scene load_steps=14 format=3 uid="uid://b4bhb1v1do7yg"]
+
+[ext_resource type="Texture2D" uid="uid://blgovnup5h2ku" path="res://Animations/kare0000.png" id="2_mnff4"]
+[ext_resource type="Texture2D" uid="uid://b8lp7o0a7jlu4" path="res://Animations/kare0001.png" id="3_g2chn"]
+[ext_resource type="Texture2D" uid="uid://cms3qfug0a48o" path="res://Animations/kare0002.png" id="4_qr75o"]
+[ext_resource type="Texture2D" uid="uid://v5m0q7r5vm45" path="res://Animations/kare0003.png" id="5_ng5j7"]
+[ext_resource type="Texture2D" uid="uid://n5cub5pen3ay" path="res://Animations/kare0004.png" id="6_qhhe8"]
+[ext_resource type="Texture2D" uid="uid://csjdox3jnyiwv" path="res://Animations/kare0005.png" id="7_3i7cp"]
+[ext_resource type="Texture2D" uid="uid://d3q4wr56sud0k" path="res://Animations/kare0006.png" id="8_nay30"]
+[ext_resource type="Texture2D" uid="uid://dvimetho6xwhj" path="res://Animations/kare0007.png" id="9_6a343"]
+[ext_resource type="Texture2D" uid="uid://brj2brmfbhe5q" path="res://Animations/kare0008.png" id="10_1qyob"]
+[ext_resource type="Texture2D" uid="uid://c4rlri17f44hr" path="res://Animations/kare0009.png" id="11_4i6y0"]
+[ext_resource type="Texture2D" uid="uid://d4mdch2vi250h" path="res://Animations/kare0010.png" id="12_2k3wv"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_u2phg"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_mnff4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_g2chn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_qr75o")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_ng5j7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_qhhe8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_3i7cp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_nay30")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_6a343")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_1qyob")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_4i6y0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_2k3wv")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_0fqhi"]
+radius = 3.5148807
+
+[node name="Yarasa" type="CharacterBody3D"]
+motion_mode = 1
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="."]
+sprite_frames = SubResource("SpriteFrames_u2phg")
+autoplay = "default"
+frame = 10
+frame_progress = 1.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AnimatedSprite3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3904003, 2.6266236, 0)
+shape = SubResource("SphereShape3D_0fqhi")
+
+[node name="VisibleOnScreenEnabler3D" type="VisibleOnScreenEnabler3D" parent="AnimatedSprite3D/CollisionShape3D"]

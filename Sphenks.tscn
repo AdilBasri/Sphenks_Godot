@@ -1,4 +1,4 @@
-[gd_scene load_steps=100 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=106 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
@@ -11,11 +11,13 @@
 [ext_resource type="Texture2D" uid="uid://exewje3jhncc" path="res://tile1.png" id="7_lxn88"]
 [ext_resource type="Script" uid="uid://cqqrxhofxtxw6" path="res://KediEtkilesim.gd" id="7_ouiq0"]
 [ext_resource type="PackedScene" uid="uid://5wga44lwetiq" path="res://oyun_sonu.tscn" id="8_5uvl0"]
-[ext_resource type="Texture2D" uid="uid://bcddf7y4a2g2y" path="res://KediTutulan.png" id="8_p4fw5"]
+[ext_resource type="Texture2D" uid="uid://b2nhri0gq2vpk" path="res://KediTutulan.png" id="8_p4fw5"]
+[ext_resource type="PackedScene" uid="uid://b4bhb1v1do7yg" path="res://PyroDusman.tscn" id="9_bjfsn"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Sphenks.gdshader" id="10_h2n1q"]
 [ext_resource type="Texture2D" uid="uid://b7j5ikchr6yce" path="res://blob.png" id="10_jl7q8"]
 [ext_resource type="Script" uid="uid://bmnvsawx0sym2" path="res://DiyalogYoneticisi.gd" id="11_1eqvi"]
 [ext_resource type="Shader" uid="uid://bdknl4my2yii6" path="res://Shader.gdshader" id="11_48she"]
+[ext_resource type="PackedScene" uid="uid://7eln5qfuv1pk" path="res://SilahSistemi.tscn" id="11_63q5f"]
 [ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://PressStart2P-Regular.ttf" id="13_bpxfr"]
 [ext_resource type="Script" uid="uid://pybg1e340qyg" path="res://GridYoneticisi.gd" id="14_qtiyh"]
 [ext_resource type="Script" uid="uid://y8xd6535ud3l" path="res://Dusman.gd" id="15_krygw"]
@@ -35,6 +37,7 @@
 [ext_resource type="Texture2D" uid="uid://crq17pk8urwv2" path="res://skull.png" id="25_yiyi8"]
 [ext_resource type="Texture2D" uid="uid://diw64yisqg55h" path="res://web.png" id="27_offaw"]
 [ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Kapi.tscn" id="29_kqumn"]
+[ext_resource type="Texture2D" uid="uid://b6qhtc7ov5oqy" path="res://crosshair.png" id="30_3fpuv"]
 [ext_resource type="PackedScene" uid="uid://cobgol1r61s8u" path="res://karanlik_koridor.tscn" id="30_1283l"]
 [ext_resource type="Texture2D" uid="uid://dts5ye3ydelp0" path="res://tabela_market.png" id="31_ewkc5"]
 [ext_resource type="Script" uid="uid://bgxx0sj7xnnh4" path="res://catal_odasi.gd" id="31_ojhqj"]
@@ -153,6 +156,14 @@ font_size = 38
 shadow_size = 5
 shadow_color = Color(0, 0, 0, 1)
 
+[sub_resource type="LabelSettings" id="LabelSettings_3fpuv"]
+font = ExtResource("13_bpxfr")
+font_color = Color(1, 1, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_bjfsn"]
+font = ExtResource("13_bpxfr")
+font_color = Color(1, 1, 0, 1)
+
 [sub_resource type="LabelSettings" id="LabelSettings_krygw"]
 font = ExtResource("13_bpxfr")
 font_size = 24
@@ -162,6 +173,11 @@ font_color = Color(1, 1, 0, 1)
 shader = ExtResource("10_h2n1q")
 shader_parameter/strength = 0.02
 shader_parameter/speed = 5.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_2531s"]
+font = ExtResource("13_bpxfr")
+font_size = 24
+font_color = Color(1, 1, 0, 1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lxn88"]
 albedo_texture = ExtResource("7_lxn88")
@@ -305,6 +321,7 @@ oyuncu_kamerasi = NodePath("../Oyuncu/Camera3D")
 oyuncu = NodePath("../Oyuncu")
 hasar_label = NodePath("../Oyuncu/CanvasLayer/HasarYazisi")
 olum_ekrani_sahnesi = ExtResource("8_5uvl0")
+pyro_dusman_sahnesi = ExtResource("9_bjfsn")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="MezarOdasi" index="0"]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -0.48000813, -4.7683716e-07, -1.8614635)
@@ -349,6 +366,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1821117, 2.0952778, -0.3598
 [node name="ZarKamerasi" type="Camera3D" parent="MezarOdasi" index="7"]
 transform = Transform3D(0.049750816, 0.82450163, -0.5636683, -0.07249083, 0.5658596, 0.82130873, 0.9961275, 7.4793585e-09, 0.08792079, 1.1608381, 2.189816, 0.2135151)
 
+[node name="SilahKatmani" parent="MezarOdasi" index="8" instance=ExtResource("11_63q5f")]
+
 [node name="Kedi" type="Sprite3D" parent="." index="4" node_paths=PackedStringArray("grid_yoneticisi", "diyalog_yoneticisi")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.4053817, -0.19308585, 0.0020349026)
 billboard = 2
@@ -374,6 +393,10 @@ alpha_cut = 1
 texture_filter = 0
 texture = ExtResource("10_jl7q8")
 script = ExtResource("15_krygw")
+genel_boyut = 0.7
+kisisel_alan = 5.0
+surtunme = 2.0
+merkeze_donus_hizi = 10.0
 
 [node name="CanvasLayer" type="CanvasLayer" parent="Boss" index="0"]
 
@@ -444,7 +467,7 @@ transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182,
 visible = false
 tekli_blok_sahnesi = ExtResource("20_mc62c")
 
-[node name="Oyuncu" type="CharacterBody3D" parent="." index="11" node_paths=PackedStringArray("kamera", "ui_container")]
+[node name="Oyuncu" type="CharacterBody3D" parent="." index="11" node_paths=PackedStringArray("kamera", "ui_container") groups=["Oyuncu"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.241353)
 script = ExtResource("23_4kj0i")
 kamera = NodePath("Camera3D")
@@ -575,7 +598,10 @@ current = true
 target_position = Vector3(0, 0, -2.5)
 collision_mask = 15
 
-[node name="OyunArayuzu" parent="." index="12" groups=["Arayuz"] instance=ExtResource("3_4kj0i")]
+[node name="OyunArayuzu" parent="." index="12" node_paths=PackedStringArray("mermi_label", "nisangah", "pyro_filtresi") groups=["Arayuz"] instance=ExtResource("3_4kj0i")]
+mermi_label = NodePath("Control/MermiLabel")
+nisangah = NodePath("Control/Nisangah")
+pyro_filtresi = NodePath("PyroFiltresi")
 
 [node name="KatmanLabel" type="Label" parent="OyunArayuzu" index="1"]
 anchors_preset = 8
@@ -593,6 +619,7 @@ text = "KATMAN 1"
 label_settings = SubResource("LabelSettings_5uvl0")
 
 [node name="Perde" type="ColorRect" parent="OyunArayuzu" index="2"]
+visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -628,10 +655,12 @@ alignment = 2
 [node name="AltinIkonu" type="Label" parent="OyunArayuzu/AnaKontrol/MarginContainer/HBoxContainer" index="0"]
 layout_mode = 2
 text = "GOLD"
+label_settings = SubResource("LabelSettings_3fpuv")
 
 [node name="AltinSayisi" type="Label" parent="OyunArayuzu/AnaKontrol/MarginContainer/HBoxContainer" index="1"]
 layout_mode = 2
 text = "000"
+label_settings = SubResource("LabelSettings_bjfsn")
 
 [node name="BilgiLabel" type="Label" parent="OyunArayuzu/AnaKontrol" index="1"]
 layout_mode = 1
@@ -657,6 +686,57 @@ offset_right = 103.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="Control" type="Control" parent="OyunArayuzu" index="5"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Nisangah" type="TextureRect" parent="OyunArayuzu/Control" index="0"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -491.0
+offset_top = -466.0
+offset_right = 1509.0
+offset_bottom = 1534.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.5, 0.5)
+mouse_filter = 2
+texture = ExtResource("30_3fpuv")
+
+[node name="MermiLabel" type="Label" parent="OyunArayuzu/Control" index="1"]
+layout_mode = 0
+offset_left = -553.0
+offset_top = -161.0
+offset_right = -364.0
+offset_bottom = -123.0
+text = "MERMİ:"
+label_settings = SubResource("LabelSettings_2531s")
+horizontal_alignment = 1
+
+[node name="PyroFiltresi" type="ColorRect" parent="OyunArayuzu" index="6"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 0, 0, 0.25882354)
 
 [node name="Sprite3D" type="Sprite3D" parent="." index="13"]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 2.814343, 0.7904787, -4.989589)
