@@ -3,7 +3,7 @@ extends Node3D
 # --- REFERANSLAR ---
 @onready var oyuncu_kolu = $OyuncuEli 
 @onready var giris_sensoru = $GirisSensoru
-@onready var altin_sahnesi = preload("res://Altin.tscn")
+@onready var altin_sahnesi = preload("res://altin.tscn")
 @export var market_kapisi: Node3D 
 @export var market_ui: Control 
 

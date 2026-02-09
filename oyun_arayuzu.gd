@@ -115,18 +115,23 @@ func _on_altin_guncellendi(miktar: int):
 		tween.tween_property(altin_label, "scale", Vector2(1.0, 1.0), 0.1)
 
 # --- BİLGİ / TOAST MESAJI ---
-func bilgi_goster(mesaj: String):
+func bilgi_goster(mesaj: String, sure: float = 2.0):
 	if not bilgi_label: return
 	
+	# Eğer hali hazırda bir animasyon varsa durdur
 	if bilgi_tween: bilgi_tween.kill()
 	
 	bilgi_label.text = mesaj
 	bilgi_label.modulate.a = 1.0 
 	bilgi_label.position.y = 100 
 	
+	# Animasyon
 	bilgi_tween = create_tween()
+	# Biraz yukarı kaydır
 	bilgi_tween.tween_property(bilgi_label, "position:y", 80.0, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	bilgi_tween.tween_interval(1.0)
+	# Belirtilen 'sure' kadar bekle (Önemli kısım burası)
+	bilgi_tween.tween_interval(sure) 
+	# Yavaşça yok ol
 	bilgi_tween.tween_property(bilgi_label, "modulate:a", 0.0, 0.5)
 
 # --- PERDE SİSTEMİ ---

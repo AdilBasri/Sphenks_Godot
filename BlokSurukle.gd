@@ -61,8 +61,6 @@ func _ready() -> void:
 		_debug_footprint_ciz()
 
 	# Mantar Modu açıksa doğar doğmaz renklenmeye çalış
-	# "call_deferred" kullandığımız için bu işlem karenin en sonunda yapılır.
-	# Bu sırada biz çoktan META verisini işlemiş olacağız.
 	if GameManager.mantar_modu:
 		call_deferred("rastgele_boya")
 
@@ -85,7 +83,10 @@ func _input(event: InputEvent) -> void:
 func _yakala(_tiklanan_dunya_pos: Vector3) -> void:
 	tutuluyor = true
 	son_hucre = null
-	if grid: grid.release_owner(self)
+	
+	# --- HATALI SATIR SİLİNDİ ---
+	# if grid: grid.release_owner(self) <--- BU YOK ARTIK
+	
 	if hayalet: hayalet.visible = true
 	var main_scene = get_tree().current_scene
 	if main_scene: reparent(main_scene, true)
@@ -194,19 +195,11 @@ func _birak() -> void:
 					yeni_blok.rotation_degrees = final_rot
 					yeni_blok.scale = orjinal_scale 
 					
-					# --- RENK AKTARIMI (KRİTİK DÜZELTME) ---
+					# --- RENK AKTARIMI ---
 					if GameManager.mantar_modu and mevcut_renk != null:
-						# ÖNCE: Meta verisine rengi yazıyoruz.
 						yeni_blok.set_meta("boyali_renk", mevcut_renk)
-						
-						# SONRA: Görsel olarak boyuyoruz.
 						_recursive_boya(yeni_blok, mevcut_renk)
-						
-						# NOT: yeni_blok'un _ready fonksiyonu birazdan (deferred olarak)
-						# rastgele_boya() çağıracak. Ama aşağıda düzelttiğimiz
-						# rastgele_boya fonksiyonu, "boyali_renk" metasını görünce
-						# yeni renk üretmekten vazgeçecek!
-					# ----------------------------------------
+					# ---------------------
 					
 					grid.tek_hucre_doldur(hedef_hucre, yeni_blok)
 			
@@ -252,29 +245,21 @@ func _debug_footprint_ciz() -> void:
 		add_child(mesh_inst)
 		mesh_inst.position = Vector3(nokta.x, 0.0, nokta.y)
 
-# --- RENK SİSTEMİ (AKILLI HALE GETİRİLDİ) ---
+# --- RENK SİSTEMİ ---
 func rastgele_boya():
-	# 1. KONTROL: Eğer bana zaten dışarıdan bir renk atandıysa (Meta varsa)
-	# O zaman rastgele renk üretme, o rengi kullan!
 	if has_meta("boyali_renk"):
 		var atanan_renk = get_meta("boyali_renk")
-		# Hafızaya da alalım ki karışıklık olmasın
 		mevcut_renk = atanan_renk 
 		_recursive_boya(self, atanan_renk)
-		return # FONKSİYONDAN ÇIK, YENİ RENK ÜRETME
+		return
 
-	# 2. Eğer atanan renk yoksa (İlk doğuş), paletten seç
 	mevcut_renk = renk_paleti.pick_random()
-	
-	# Kendini boya
 	_recursive_boya(self, mevcut_renk)
 
 func _recursive_boya(node: Node, renk: Color):
-	# Eğer bu düğüm bir MeshInstance3D ise boya
 	if node is MeshInstance3D:
 		_materyal_uygula(node, renk)
 	
-	# Sonra bu düğümün çocuklarını gez
 	for child in node.get_children():
 		_recursive_boya(child, renk)
 
