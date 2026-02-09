@@ -3,10 +3,11 @@ extends Node
 # --- SİNYALLER ---
 signal envanter_guncellendi 
 signal blok_yerlestirildi
-signal satir_patladi      
-signal boss_oldu          
+signal satir_patladi       
+signal boss_oldu           
 signal saglik_guncellendi(bar, hp) 
 signal altin_guncellendi(miktar)   
+signal mermi_degisti(yeni_sayi) # Pyro modu için
 
 # --- OYUNCU SAĞLIK VERİLERİ ---
 var oyuncu_max_bar: int = 4
@@ -14,8 +15,8 @@ var oyuncu_kalan_bar: int = 4
 var oyuncu_suanki_hp: int = 10
 
 # --- OYUN İLERLEMESİ ---
-var suanki_seviye: int = 1 # Hangi bölümdeyiz?
-var toplam_altin: int = 0 
+var suanki_seviye: int = 1 
+var toplam_altin: int = 10 
 
 # --- ENVANTER ---
 var envanter: Array[ItemData] = []
@@ -30,33 +31,39 @@ var pyro_yavaslatma: bool = false
 var yarasa_bonusu: bool = false
 var mantar_modu: bool = false
 
+# --- 🔥 PYRO MODU & SİLAH SİSTEMİ DEĞİŞKENLERİ 🔥 ---
+var pyro_aktif: bool = false
+var mermi_sayisi: int = 10
+var max_mermi: int = 40
+var silah_cekildi: bool = false # Silah elimizde mi? (Trafik Polisi)
+
 func _ready():
 	print("GameManager Başlatıldı.")
-	verileri_sifirla() # Başlangıçta her şeyi sıfırla
-
-# GameManager.gd İÇİNE:
+	verileri_sifirla()
 
 func verileri_sifirla():
-	# 1. Canı Fulle
+	# Temel Değerler
 	oyuncu_kalan_bar = 4
 	oyuncu_suanki_hp = 10
-	
-	# 2. Seviyeyi Başa Sar
 	suanki_seviye = 1
-	
-	# 3. BAŞLANGIÇ ALTINI (Burayı 10 yaptık)
 	toplam_altin = 10
 	
-	# 4. Temizlik
+	# Pyro ve Silah Sıfırlama
+	pyro_aktif = false
+	mermi_sayisi = 10
+	silah_cekildi = false # Başlangıçta silah gizli
+	
+	# Envanter ve Bufflar
 	envanter.clear()
 	bolum_bufflarini_sifirla()
 	
-	# 5. Sinyalleri Çak
+	# Arayüzü Güncelle
 	await get_tree().process_frame 
 	
 	emit_signal("saglik_guncellendi", oyuncu_kalan_bar, oyuncu_suanki_hp)
 	emit_signal("envanter_guncellendi")
-	emit_signal("altin_guncellendi", toplam_altin) # Arayüzü güncelle
+	emit_signal("altin_guncellendi", toplam_altin)
+	emit_signal("mermi_degisti", mermi_sayisi)
 	
 	print("GameManager: Oyun sıfırlandı. Altın: 10")
 
@@ -68,11 +75,8 @@ func bolum_bufflarini_sifirla():
 	pyro_yavaslatma = false
 	yarasa_bonusu = false
 	mantar_modu = false
-	
-	# Eğer mantar efekti açıksa kapatmak için Oyuncu'ya sinyal gönderebiliriz
-	# veya oyuncu her bölüm başında bunu kontrol edebilir.
 
-# --- DİĞER FONKSİYONLAR (Aynı) ---
+# --- ENVANTER VE ALTIN YÖNETİMİ ---
 func totem_ekle(yeni_esya: ItemData) -> bool:
 	if envanter.size() >= max_totem_sayisi: return false
 	envanter.append(yeni_esya); emit_signal("envanter_guncellendi"); return true
@@ -89,3 +93,19 @@ func altin_harca(miktar: int) -> bool:
 
 func saglik_guncelle(bar: int, hp: int):
 	oyuncu_kalan_bar = bar; oyuncu_suanki_hp = hp; emit_signal("saglik_guncellendi", bar, hp)
+
+# --- 🔥 MERMİ YÖNETİMİ 🔥 ---
+func mermi_ekle(miktar: int) -> bool:
+	if mermi_sayisi >= max_mermi:
+		return false # Zaten dolu, alınamaz
+	
+	mermi_sayisi = min(mermi_sayisi + miktar, max_mermi)
+	emit_signal("mermi_degisti", mermi_sayisi)
+	return true
+
+func mermi_harca() -> bool:
+	if mermi_sayisi > 0:
+		mermi_sayisi -= 1
+		emit_signal("mermi_degisti", mermi_sayisi)
+		return true
+	return false

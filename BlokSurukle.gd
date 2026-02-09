@@ -70,6 +70,10 @@ func _process(delta: float) -> void:
 		_hayalet_guncelle()
 
 func _on_area_3d_input_event(_camera, event, _position, _normal, _shape_idx) -> void:
+	# --- 🔥 KRİTİK KONTROL: SİLAH ÇEKİLDİYSE BLOKLARA DOKUNMA! 🔥 ---
+	if GameManager.silah_cekildi: return
+	# -------------------------------------------------------------
+	
 	if kilitlendi: return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed and not tutuluyor:
@@ -83,9 +87,6 @@ func _input(event: InputEvent) -> void:
 func _yakala(_tiklanan_dunya_pos: Vector3) -> void:
 	tutuluyor = true
 	son_hucre = null
-	
-	# --- HATALI SATIR SİLİNDİ ---
-	# if grid: grid.release_owner(self) <--- BU YOK ARTIK
 	
 	if hayalet: hayalet.visible = true
 	var main_scene = get_tree().current_scene

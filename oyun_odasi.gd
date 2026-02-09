@@ -16,6 +16,9 @@ extends Node3D
 @export var hasar_label: Label
 @export var olum_ekrani_sahnesi: PackedScene
 
+# --- 🔥 YENİ: PYRO DÜŞMAN REFERANSI 🔥 ---
+@export var pyro_dusman_sahnesi: PackedScene # Inspector'dan PyroDusman.tscn'yi buraya at!
+
 # --- DİĞER REFERANSLAR ---
 @onready var yan_sehpa = get_node_or_null("YanSehpa") 
 
@@ -24,16 +27,25 @@ var atilan_zarlar = []
 var toplam_sonuc = 0
 var duran_zar_sayisi = 0
 var boss_uyandi_mi : bool = false 
-var boss_tamamen_oldu : bool = false # <--- YENİ: Ölü kontrolü
+var boss_tamamen_oldu : bool = false 
 
 func _ready():
-	# 1. LEVEL MANAGER KAYDI
-	if LevelManager and oyuncu:
+	print("--- OYUN ODASI BAŞLATILIYOR ---")
+	
+	# 1. LEVEL MANAGER KAYDI VE ATMOSFER AYARI
+	if LevelManager:
+		# Konumları Kaydet
 		var p1 = market_spawn.global_position if market_spawn else Vector3.ZERO
 		var p2 = campfire_spawn.global_position if campfire_spawn else Vector3.ZERO
 		var p3 = start_spawn.global_position if start_spawn else Vector3.ZERO
-		
 		LevelManager.konumlari_kaydet(p1, p2, p3, oyuncu, self)
+		
+		# Atmosferi Ayarla
+		_atmosferi_guncelle()
+		
+		# --- 🔥 PYRO DÜŞMANLARI YARAT 🔥 ---
+		if GameManager.pyro_aktif:
+			_pyro_dusmanlarini_yarat()
 	
 	if yan_sehpa and yan_sehpa.has_method("sehpayi_guncelle"):
 		yan_sehpa.sehpayi_guncelle()
@@ -41,53 +53,111 @@ func _ready():
 	if zar_kamerasi: zar_kamerasi.current = false
 	if oyuncu_kamerasi: oyuncu_kamerasi.current = true
 
-	# --- 4. SİNYAL BAĞLANTILARI ---
+	# --- SİNYALLER ---
 	if GameManager:
 		if not GameManager.blok_yerlestirildi.is_connected(_on_blok_yerlestirildi):
 			GameManager.blok_yerlestirildi.connect(_on_blok_yerlestirildi)
-		
 		if not GameManager.boss_oldu.is_connected(_on_boss_oldu):
 			GameManager.boss_oldu.connect(_on_boss_oldu)
-			
 		if not GameManager.satir_patladi.is_connected(_on_satir_patladi):
 			GameManager.satir_patladi.connect(_on_satir_patladi)
 	
-	if oyuncu:
-		if not oyuncu.oyuncu_oldu.is_connected(_on_oyuncu_oldu):
-			oyuncu.oyuncu_oldu.connect(_on_oyuncu_oldu)
+	if oyuncu and not oyuncu.oyuncu_oldu.is_connected(_on_oyuncu_oldu):
+		oyuncu.oyuncu_oldu.connect(_on_oyuncu_oldu)
+
+# --- 🔥 GÜNCELLENMİŞ SPAWN FONKSİYONU 🔥 ---
+func _pyro_dusmanlarini_yarat():
+	if not pyro_dusman_sahnesi:
+		print("🔴 HATA: Pyro Dusman Sahnesi atanmamış!")
+		return
+		
+	var veri = LevelManager.bolum_verilerini_getir()
+	var adet = veri.get("dusman_sayisi", 5) 
+	
+	print("🦇 PYRO: ", adet, " adet düşman MERKEZE yaratılıyor...")
+	
+	for i in range(adet):
+		var dusman = pyro_dusman_sahnesi.instantiate()
+		add_child(dusman)
+		
+		# --- GARANTİ KONUM (MERKEZ KARE) ---
+		# Odanın merkezi 0,0 ise, -2 ile +2 arasına koyuyoruz.
+		# Duvarlardan kesinlikle uzakta olacaklar.
+		
+		var rx = randf_range(-2.0, 2.0) 
+		var rz = randf_range(-2.0, 2.0)
+		var ry = randf_range(1.2, 1.8) # Yerden biraz yüksek
+		
+		var pos = Vector3(rx, ry, rz)
+		
+		# Oyuncunun direkt kafasına doğmasın
+		if oyuncu and pos.distance_to(oyuncu.global_position) < 1.5:
+			pos.x += 2.0 
+			
+		dusman.global_position = pos
+		
+		# Animasyonu rastgele karede başlat
+		if dusman.has_node("AnimatedSprite3D"):
+			dusman.get_node("AnimatedSprite3D").frame = randi() % 4
+
+func _atmosferi_guncelle():
+	var veri = LevelManager.bolum_verilerini_getir()
+	var hedef_renk = veri.get("atmosfer_rengi", Color.WHITE)
+	
+	var env = null
+	var cam = get_viewport().get_camera_3d()
+	if cam and cam.environment:
+		env = cam.environment
+	else:
+		var world_env_node = get_parent().find_child("WorldEnvironment", true, false)
+		if world_env_node: env = world_env_node.environment
+	
+	if env:
+		if GameManager.pyro_aktif:
+			print("🔴 GÖRSEL: PYRO Atmosferi (KIRMIZI)")
+			env.background_mode = Environment.BG_COLOR
+			env.background_color = Color(0.2, 0.0, 0.0) 
+			env.volumetric_fog_enabled = true
+			env.volumetric_fog_albedo = Color(0.8, 0.1, 0.1) 
+			env.volumetric_fog_density = 0.03
+			env.adjustment_enabled = true
+			env.adjustment_saturation = 1.2
+		else:
+			print("⚪ GÖRSEL: Normal Atmosfer")
+			env.background_mode = Environment.BG_COLOR
+			env.background_color = Color(0.1, 0.1, 0.1) 
+			env.volumetric_fog_enabled = false
+			env.adjustment_enabled = false
+	else:
+		print("⚠️ UYARI: Environment bulunamadı.")
 
 # --- TETİKLEYİCİLER ---
-
 func _on_satir_patladi():
-	# EĞER BOSS ÖLDÜYSE HİÇBİR ŞEY YAPMA!
 	if boss_tamamen_oldu: return
-
-	# Eğer Boss yaşıyorsa ama uyuyorsa uyandır
-	if not boss_uyandi_mi:
+	if not boss_uyandi_mi and not GameManager.pyro_aktif:
 		boss_uyandi_mi = true
-		print("⚠️ İLK SATIR PATLADI! BOSS UYANDI! (Gelecek tur saldıracak)")
+		print("⚠️ BOSS UYANDI!")
 		var arayuz = get_tree().get_first_node_in_group("Arayuz")
 		if arayuz: arayuz.bilgi_goster("BOSS UYANDI!", 3.0)
 
 func _on_blok_yerlestirildi():
-	# ÖLDÜYSE VEYA UYUYORSA SALDIRMASIN
 	if boss_tamamen_oldu: return
+	if GameManager.pyro_aktif: return # Pyro'da boss saldırmaz
+	
 	if not boss_uyandi_mi:
 		print("💤 Boss uyuyor, saldırı yok.")
 		return
 
 	print("🧱 Blok yerleşti. Boss saldırısı bekleniyor...")
-	
 	await get_tree().create_timer(1.0).timeout
 	
-	# Boss ölmediyse saldırı başlat
 	if LevelManager and not boss_tamamen_oldu:
 		LevelManager.boss_saldirisi_baslat()
 
 func _on_boss_oldu():
-	print("☠️ OYUN ODASI: Boss öldü sinyali alındı. Tehdit bitti.")
+	print("☠️ OYUN ODASI: Boss öldü.")
 	boss_uyandi_mi = false
-	boss_tamamen_oldu = true # <--- ARTIK SONSUZA DEK ÖLÜ
+	boss_tamamen_oldu = true
 
 func _on_oyuncu_oldu():
 	print("💀 Oyun Odası: Oyuncu öldü.")
@@ -97,11 +167,9 @@ func _on_oyuncu_oldu():
 		add_child(ekran)
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
-# --- LEVEL MANAGER FONKSİYONLARI ---
-
+# --- ZAR SİSTEMİ ---
 func zar_at():
 	print("🎲 OYUN ODASI: Zar Atma Animasyonu Başlatıldı...")
-	
 	if zar_kamerasi and oyuncu_kamerasi:
 		oyuncu_kamerasi.current = false 
 		zar_kamerasi.current = true       
@@ -119,16 +187,12 @@ func zar_at():
 
 func _tek_zar_olustur():
 	if not zar_sahnesi or not zar_atik_noktasi: return
-
 	var yeni_zar = zar_sahnesi.instantiate()
 	add_child(yeni_zar)
-	
 	yeni_zar.global_position = zar_atik_noktasi.global_position
 	yeni_zar.global_position.x += randf_range(-0.5, 0.5)
-	
 	var firlatma_gucu = Vector3(0, -5, 0)
 	var donme = Vector3(randf()*10, randf()*10, randf()*10)
-	
 	if yeni_zar.has_method("firlat"):
 		yeni_zar.firlat(firlatma_gucu, donme)
 		if not yeni_zar.zar_durdu.is_connected(_on_zar_durdu):
@@ -138,13 +202,10 @@ func _tek_zar_olustur():
 func _on_zar_durdu(gelen_sayi):
 	toplam_sonuc += gelen_sayi
 	duran_zar_sayisi += 1
-	
 	if duran_zar_sayisi >= 2:
 		print("✅ Zarlar Durdu. Toplam: ", toplam_sonuc)
-		
 		await get_tree().create_timer(1.5).timeout
 		oyunu_devam_ettir()
-		
 		for zar in atilan_zarlar:
 			if is_instance_valid(zar): zar.queue_free()
 		atilan_zarlar.clear()
@@ -158,14 +219,11 @@ func _on_zar_durdu(gelen_sayi):
 		
 		await get_tree().create_timer(0.5).timeout
 		
-		if LevelManager:
-			LevelManager.oyuncuya_saldir(toplam_sonuc)
-		elif oyuncu:
-			oyuncu.hasar_al(toplam_sonuc)
+		if LevelManager: LevelManager.oyuncuya_saldir(toplam_sonuc)
+		elif oyuncu: oyuncu.hasar_al(toplam_sonuc)
 
 		await get_tree().create_timer(2.0).timeout
-		if hasar_label:
-			hasar_label.visible = false
+		if hasar_label: hasar_label.visible = false
 			
 		if LevelManager and LevelManager.has_method("_on_boss_isi_bitti"):
 			LevelManager._on_boss_isi_bitti()
