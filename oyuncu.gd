@@ -215,6 +215,12 @@ func esya_kullan():
 				var arayuz = get_tree().get_first_node_in_group("Arayuz")
 				if arayuz: arayuz.bilgi_goster("Pelerin Aktif: 3 Tur Koruma!")
 				basarili = true
+		"dice":
+			if GameManager:
+				GameManager.tek_zar_modu = true
+				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				if arayuz: arayuz.bilgi_goster("Zar Kırıcı: Düşman Tek Zar Atacak!")
+				basarili = true
 
 		# Grid İşlemleri
 		"asit": if hedef_hucre != null: grid.sutunu_yok_et(hedef_hucre); basarili = true

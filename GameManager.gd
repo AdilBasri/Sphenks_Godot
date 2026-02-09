@@ -29,6 +29,7 @@ var zar_yok_sayma: bool = false
 var pyro_yavaslatma: bool = false
 var yarasa_bonusu: bool = false
 var mantar_modu: bool = false
+var tek_zar_modu: bool = false
 
 func _ready():
 	print("GameManager Başlatıldı.")
@@ -59,7 +60,7 @@ func bolum_bufflarini_sifirla():
 	yarasa_bonusu = false
 	mantar_modu = false
 	zar_atlama_hakki = 0
-	
+	tek_zar_modu = false
 
 # --- ENVANTER SİSTEMİ ---
 func totem_ekle(yeni_esya: ItemData) -> bool:

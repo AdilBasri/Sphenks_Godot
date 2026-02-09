@@ -26,6 +26,7 @@ var toplam_sonuc = 0
 var duran_zar_sayisi = 0
 var boss_uyandi_mi : bool = false 
 var boss_tamamen_oldu : bool = false 
+var beklenen_zar_sayisi: int = 2
 
 func _ready():
 	# 1. LEVEL MANAGER KAYDI
@@ -98,9 +99,10 @@ func _on_oyuncu_oldu():
 
 func zar_at():
 	if zar_firlatiliyor_mu: return
-	zar_firlatiliyor_mu = true # KİLİT BURADA AKTİF OLUYOR
-	print("🎲 OYUN ODASI: Zar Atma Animasyonu Başlatıldı...")
+	zar_firlatiliyor_mu = true
+	print("🎲 OYUN ODASI: Zar Atma Sekansı Başladı...")
 	
+	# Kamera Geçişi
 	if zar_kamerasi and oyuncu_kamerasi:
 		oyuncu_kamerasi.current = false 
 		zar_kamerasi.current = true       
@@ -108,13 +110,29 @@ func zar_at():
 	toplam_sonuc = 0
 	duran_zar_sayisi = 0
 	
+	# Eski zarları temizle
 	for z in atilan_zarlar:
 		if is_instance_valid(z): z.queue_free()
 	atilan_zarlar.clear()
 	
+	# --- KRİTİK KONTROL ---
+	# GameManager'daki değişkeni kontrol ediyoruz
+	if GameManager and GameManager.tek_zar_modu == true:
+		beklenen_zar_sayisi = 1
+		print("🔹 MOD AKTİF: Sadece 1 zar atılacak.")
+	else:
+		beklenen_zar_sayisi = 2
+		print("🔸 NORMAL MOD: 2 zar atılacak.")
+	
+	# 1. ZAR (Her zaman atılır)
 	_tek_zar_olustur()
-	await get_tree().create_timer(0.2).timeout
-	_tek_zar_olustur()
+	
+	# 2. ZAR (SADECE beklenen sayı 1'den büyükse atılır)
+	if beklenen_zar_sayisi > 1:
+		await get_tree().create_timer(0.2).timeout
+		_tek_zar_olustur()
+	else:
+		print("🚫 İkinci zar iptal edildi (Tek Zar Modu).")
 
 func _tek_zar_olustur():
 	if not zar_sahnesi or not zar_atik_noktasi: return
@@ -138,20 +156,24 @@ func _on_zar_durdu(gelen_sayi):
 	toplam_sonuc += gelen_sayi
 	duran_zar_sayisi += 1
 	
-	if duran_zar_sayisi >= 2:
-		print("✅ Zarlar Durdu. Toplam: ", toplam_sonuc)
+	print("Zar durdu. Gelen: ", gelen_sayi, " | Toplam Durdu: ", duran_zar_sayisi, "/", beklenen_zar_sayisi)
+	
+	# Eğer beklenen sayıya ulaştıysak (1 veya 2)
+	if duran_zar_sayisi >= beklenen_zar_sayisi:
+		print("✅ Tura ait tüm zarlar durdu. Toplam Sonuç: ", toplam_sonuc)
 		
-		# --- BURASI DÜZELTİLDİ: KİLİDİ AÇIYORUZ ---
+		# Kilit Açılıyor
 		zar_firlatiliyor_mu = false 
-		# ------------------------------------------
 		
 		await get_tree().create_timer(1.5).timeout
 		oyunu_devam_ettir()
 		
+		# Zarları temizle
 		for zar in atilan_zarlar:
 			if is_instance_valid(zar): zar.queue_free()
 		atilan_zarlar.clear()
 		
+		# Ekrana Hasarı Yazdır
 		if hasar_label:
 			hasar_label.text = "HASAR: " + str(toplam_sonuc)
 			hasar_label.visible = true
@@ -161,6 +183,7 @@ func _on_zar_durdu(gelen_sayi):
 		
 		await get_tree().create_timer(0.5).timeout
 		
+		# Hasarı Gönder
 		if LevelManager:
 			LevelManager.oyuncuya_saldir(toplam_sonuc)
 		elif oyuncu:
@@ -170,6 +193,7 @@ func _on_zar_durdu(gelen_sayi):
 		if hasar_label:
 			hasar_label.visible = false
 			
+		# Boss Sırasını Bitir (Bunu unutursan oyun donar)
 		if LevelManager and LevelManager.has_method("_on_boss_isi_bitti"):
 			LevelManager._on_boss_isi_bitti()
 
