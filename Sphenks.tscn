@@ -672,6 +672,7 @@ offset_right = 20.0
 offset_bottom = 23.0
 grow_horizontal = 2
 label_settings = SubResource("LabelSettings_krygw")
+horizontal_alignment = 1
 
 [node name="MantarEfekti" type="ColorRect" parent="OyunArayuzu" index="4"]
 visible = false
@@ -783,7 +784,7 @@ spot_angle = 60.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.018025577, 0, -0.025204837)
 script = ExtResource("14_qtiyh")
 patlama_efekti_sahnesi = ExtResource("16_hwr7g")
-engel_yuksekligi = -5.0
+engel_yuksekligi = -0.05
 hucre_boyutu = 0.253
 
 [node name="Masa_Fizik" type="StaticBody3D" parent="TumMasaSistemi" index="1"]
