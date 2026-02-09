@@ -9,28 +9,40 @@ func baslat(yeni_yon: Vector3):
 	look_at(global_position + yon) 
 
 func _physics_process(delta):
-	# Fizik döngüsünde hareket (Jitter'ı önler)
+	# Fizik döngüsünde hareket
 	global_position += yon * hiz * delta
 	
 	omur -= delta
 	if omur <= 0: queue_free()
 
 func _on_body_entered(body):
-	# 1. Duvar veya Zemin
+	# Konsola neye çarptığını yazdır
+	print("💥 MERMI ÇARPTI: ", body.name, " | Gruplar: ", body.get_groups())
+	
+	# 1. Duvar
 	if body is StaticBody3D or body is CSGShape3D:
-		# İstersen buraya kıvılcım efekti instance edebilirsin
 		queue_free()
 	
-	# 2. Düşman (Boss veya Yarasa)
+	# 2. Düşman
 	if body.is_in_group("Dusman"):
-		# Boss için (Sadece Efekt, Ölmez)
-		if body.has_method("hasar_al"):
-			body.hasar_al(0) # 0 hasar gönderiyoruz ki sadece kızarsın
-			# Buraya istersen puan ekleme kodu koyabilirsin:
-			# if GameManager: GameManager.altin_ekle(1)
+		print("   -> DÜŞMAN TESPİT EDİLDİ!")
 		
-		# Yarasa/Pyro Düşmanı için (Ölür)
 		if body.has_method("hasar_al_efekt"):
+			print("   -> Hasar fonksiyonu çağrılıyor...")
 			body.hasar_al_efekt()
+		else:
+			print("   -> HATA: Düşmanda 'hasar_al_efekt' fonksiyonu yok!")
 			
+		queue_free()
+
+
+# --- MERMİ AREA (HITBOX) TESPİTİ ---
+func _on_area_entered(area):
+	# Çarptığımız şey yarasanın "Hitbox"ı mı?
+	# Hitbox'ın babası (parent) Yarasa scriptine sahip mi?
+	var dusman = area.get_parent()
+	
+	if dusman and dusman.has_method("hasar_al_efekt"):
+		print("🎯 MERMİ YARASA HITBOX'INA VURDU!")
+		dusman.hasar_al_efekt()
 		queue_free()

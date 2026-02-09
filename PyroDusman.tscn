@@ -1,5 +1,6 @@
-[gd_scene load_steps=14 format=3 uid="uid://b4bhb1v1do7yg"]
+[gd_scene load_steps=16 format=3 uid="uid://b4bhb1v1do7yg"]
 
+[ext_resource type="Script" uid="uid://2nxi7ua8bxqa" path="res://PyroDusman.gd" id="1_jysm5"]
 [ext_resource type="Texture2D" uid="uid://blgovnup5h2ku" path="res://Animations/kare0000.png" id="2_mnff4"]
 [ext_resource type="Texture2D" uid="uid://b8lp7o0a7jlu4" path="res://Animations/kare0001.png" id="3_g2chn"]
 [ext_resource type="Texture2D" uid="uid://cms3qfug0a48o" path="res://Animations/kare0002.png" id="4_qr75o"]
@@ -54,21 +55,35 @@ animations = [{
 }]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_0fqhi"]
-radius = 3.5148807
+radius = 1.2636787
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_mnff4"]
+radius = 1.2591847
 
 [node name="Yarasa" type="CharacterBody3D"]
-transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+collision_layer = 15
+collision_mask = 15
 motion_mode = 1
+script = ExtResource("1_jysm5")
 
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="."]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
 billboard = 2
 sprite_frames = SubResource("SpriteFrames_u2phg")
 autoplay = "default"
 frame = 10
 frame_progress = 1.0
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="AnimatedSprite3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3904003, 2.6266236, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28432497, 0.5590278, 0.04713404)
 shape = SubResource("SphereShape3D_0fqhi")
 
-[node name="VisibleOnScreenNotifier3D" type="VisibleOnScreenNotifier3D" parent="AnimatedSprite3D/CollisionShape3D"]
+[node name="VisibleOnScreenNotifier3D" type="VisibleOnScreenNotifier3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3904004, 2.6266239, 0)
+aabb = AABB(-3.5456522, -2.6389697, -1, 7.0913043, 5.2779393, 2)
+
+[node name="Hitbox" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hitbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.31917948, 0.608799, 0)
+shape = SubResource("SphereShape3D_mnff4")

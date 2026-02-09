@@ -67,40 +67,46 @@ func _ready():
 	if oyuncu and not oyuncu.oyuncu_oldu.is_connected(_on_oyuncu_oldu):
 		oyuncu.oyuncu_oldu.connect(_on_oyuncu_oldu)
 
-# --- 🔥 GÜNCELLENMİŞ SPAWN FONKSİYONU 🔥 ---
 func _pyro_dusmanlarini_yarat():
-	if not pyro_dusman_sahnesi:
-		print("🔴 HATA: Pyro Dusman Sahnesi atanmamış!")
-		return
+	if not pyro_dusman_sahnesi: return
 		
 	var veri = LevelManager.bolum_verilerini_getir()
-	var adet = veri.get("dusman_sayisi", 5) 
+	var adet = veri.get("dusman_sayisi", 5)
 	
-	print("🦇 PYRO: ", adet, " adet düşman MERKEZE yaratılıyor...")
+	print("🦇 PYRO: ", adet, " düşman GÜVENLİ KÖŞELERE yaratılıyor.")
+	
+	# --- GÜVENLİ KÖŞELER (Daraltılmış) ---
+	# Odan -8 ise, biz -5 kullanıyoruz ki duvarın içine girmesin.
+	var koseler = [
+		Vector3(-5.0, 1.5, -5.0), # Sol Arka
+		Vector3( 5.0, 1.5, -5.0), # Sağ Arka
+		Vector3(-5.0, 1.5,  5.0), # Sol Ön
+		Vector3( 5.0, 1.5,  5.0)  # Sağ Ön
+	]
 	
 	for i in range(adet):
 		var dusman = pyro_dusman_sahnesi.instantiate()
 		add_child(dusman)
 		
-		# --- GARANTİ KONUM (MERKEZ KARE) ---
-		# Odanın merkezi 0,0 ise, -2 ile +2 arasına koyuyoruz.
-		# Duvarlardan kesinlikle uzakta olacaklar.
+		var secilen_pos = Vector3.ZERO
 		
-		var rx = randf_range(-2.0, 2.0) 
-		var rz = randf_range(-2.0, 2.0)
-		var ry = randf_range(1.2, 1.8) # Yerden biraz yüksek
+		# Oyuncuya en uzak köşeyi seç
+		if oyuncu:
+			var en_uzak_mesafe = 0.0
+			for kose in koseler:
+				var mesafe = oyuncu.global_position.distance_to(kose)
+				if mesafe > en_uzak_mesafe:
+					en_uzak_mesafe = mesafe
+					secilen_pos = kose
+		else:
+			secilen_pos = koseler.pick_random()
 		
-		var pos = Vector3(rx, ry, rz)
+		# Hafif dağınıklık (Çok az)
+		secilen_pos.x += randf_range(-1.0, 1.0)
+		secilen_pos.z += randf_range(-1.0, 1.0)
 		
-		# Oyuncunun direkt kafasına doğmasın
-		if oyuncu and pos.distance_to(oyuncu.global_position) < 1.5:
-			pos.x += 2.0 
-			
-		dusman.global_position = pos
-		
-		# Animasyonu rastgele karede başlat
-		if dusman.has_node("AnimatedSprite3D"):
-			dusman.get_node("AnimatedSprite3D").frame = randi() % 4
+		dusman.global_position = secilen_pos
+		print("🦇 YARASA KONUMU: ", secilen_pos) # Konsola bak, nerede doğmuşlar?
 
 func _atmosferi_guncelle():
 	var veri = LevelManager.bolum_verilerini_getir()
