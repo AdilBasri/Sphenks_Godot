@@ -58,8 +58,8 @@ func bolum_bufflarini_sifirla():
 	pyro_yavaslatma = false
 	yarasa_bonusu = false
 	mantar_modu = false
-	# NOT: Pelerin hakkını burada sıfırlamıyoruz, çünkü pelerin kalıcı olabilir.
-	# Eğer her bölüm pelerin silinsin istiyorsan buraya 'zar_atlama_hakki = 0' ekle.
+	zar_atlama_hakki = 0
+	
 
 # --- ENVANTER SİSTEMİ ---
 func totem_ekle(yeni_esya: ItemData) -> bool:

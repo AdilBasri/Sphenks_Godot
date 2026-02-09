@@ -30,10 +30,18 @@ func konumlari_kaydet(p1: Vector3, p2: Vector3, p3: Vector3, oyuncu: CharacterBo
 func odaya_don_ve_level_atla():
 	suanki_katman += 1
 	print(">>> YENİ KATMAN YÜKLENİYOR: " + str(suanki_katman))
-	if GameManager: GameManager.mantar_modu = false
-	var arayuz = get_tree().get_first_node_in_group("Arayuz")
-	if arayuz and arayuz.has_method("mantar_efekti_yonet"):
-		arayuz.mantar_efekti_yonet(false)
+	
+	# --- DEĞİŞEN KISIM ---
+	# Eskiden sadece mantarı kapatıyorduk, şimdi toplu temizlik yapıyoruz.
+	if GameManager:
+		GameManager.bolum_bufflarini_sifirla()
+		
+		# Arayüzdeki mantar efektini de garanti olsun diye kapatıyoruz
+		var arayuz = get_tree().get_first_node_in_group("Arayuz")
+		if arayuz and arayuz.has_method("mantar_efekti_yonet"):
+			arayuz.mantar_efekti_yonet(false) 
+	# ---------------------
+	
 	call_deferred("_sahne_yenile")
 
 func _sahne_yenile():
@@ -122,7 +130,7 @@ func zar_at_animasyonunu_baslat():
 		oyuncuya_saldir(hasar)
 		_on_boss_isi_bitti()
 		
-	# Flag'i resetle (Oyun odası işini bitirince yapacak ama garanti olsun)
+	# Flag'i sle (Oyun odası işini bitirince yapacak ama garanti olsun)
 	await get_tree().create_timer(1.0).timeout
 	isleme_alindi_mi = false
 
