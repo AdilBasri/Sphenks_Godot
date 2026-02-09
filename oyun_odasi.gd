@@ -20,11 +20,12 @@ extends Node3D
 @onready var yan_sehpa = get_node_or_null("YanSehpa") 
 
 # --- DEĞİŞKENLER ---
+var zar_firlatiliyor_mu : bool = false
 var atilan_zarlar = []
 var toplam_sonuc = 0
 var duran_zar_sayisi = 0
 var boss_uyandi_mi : bool = false 
-var boss_tamamen_oldu : bool = false # <--- YENİ: Ölü kontrolü
+var boss_tamamen_oldu : bool = false 
 
 func _ready():
 	# 1. LEVEL MANAGER KAYDI
@@ -59,10 +60,8 @@ func _ready():
 # --- TETİKLEYİCİLER ---
 
 func _on_satir_patladi():
-	# EĞER BOSS ÖLDÜYSE HİÇBİR ŞEY YAPMA!
 	if boss_tamamen_oldu: return
 
-	# Eğer Boss yaşıyorsa ama uyuyorsa uyandır
 	if not boss_uyandi_mi:
 		boss_uyandi_mi = true
 		print("⚠️ İLK SATIR PATLADI! BOSS UYANDI! (Gelecek tur saldıracak)")
@@ -70,7 +69,6 @@ func _on_satir_patladi():
 		if arayuz: arayuz.bilgi_goster("BOSS UYANDI!", 3.0)
 
 func _on_blok_yerlestirildi():
-	# ÖLDÜYSE VEYA UYUYORSA SALDIRMASIN
 	if boss_tamamen_oldu: return
 	if not boss_uyandi_mi:
 		print("💤 Boss uyuyor, saldırı yok.")
@@ -80,14 +78,13 @@ func _on_blok_yerlestirildi():
 	
 	await get_tree().create_timer(1.0).timeout
 	
-	# Boss ölmediyse saldırı başlat
 	if LevelManager and not boss_tamamen_oldu:
 		LevelManager.boss_saldirisi_baslat()
 
 func _on_boss_oldu():
 	print("☠️ OYUN ODASI: Boss öldü sinyali alındı. Tehdit bitti.")
 	boss_uyandi_mi = false
-	boss_tamamen_oldu = true # <--- ARTIK SONSUZA DEK ÖLÜ
+	boss_tamamen_oldu = true 
 
 func _on_oyuncu_oldu():
 	print("💀 Oyun Odası: Oyuncu öldü.")
@@ -100,6 +97,8 @@ func _on_oyuncu_oldu():
 # --- LEVEL MANAGER FONKSİYONLARI ---
 
 func zar_at():
+	if zar_firlatiliyor_mu: return
+	zar_firlatiliyor_mu = true # KİLİT BURADA AKTİF OLUYOR
 	print("🎲 OYUN ODASI: Zar Atma Animasyonu Başlatıldı...")
 	
 	if zar_kamerasi and oyuncu_kamerasi:
@@ -141,6 +140,10 @@ func _on_zar_durdu(gelen_sayi):
 	
 	if duran_zar_sayisi >= 2:
 		print("✅ Zarlar Durdu. Toplam: ", toplam_sonuc)
+		
+		# --- BURASI DÜZELTİLDİ: KİLİDİ AÇIYORUZ ---
+		zar_firlatiliyor_mu = false 
+		# ------------------------------------------
 		
 		await get_tree().create_timer(1.5).timeout
 		oyunu_devam_ettir()

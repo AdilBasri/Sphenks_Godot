@@ -209,6 +209,13 @@ func esya_kullan():
 			else:
 				print("Bu bir kedi değil!")
 
+		"cloak": 
+			if GameManager:
+				GameManager.pelerin_aktif_et()
+				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				if arayuz: arayuz.bilgi_goster("Pelerin Aktif: 3 Tur Koruma!")
+				basarili = true
+
 		# Grid İşlemleri
 		"asit": if hedef_hucre != null: grid.sutunu_yok_et(hedef_hucre); basarili = true
 		"kilic": if hedef_hucre != null: grid.blok_kir(hedef_hucre, false); basarili = true
