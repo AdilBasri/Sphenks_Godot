@@ -19,6 +19,7 @@ var orjinal_boyut = Vector3.ONE
 var tutulma_boyutu = Vector3(0.2, 0.2, 0.2) 
 
 func _ready():
+	add_to_group("Kedi")
 	if normal_hal: texture = normal_hal
 	orjinal_boyut = scale
 	orjinal_konum = global_position

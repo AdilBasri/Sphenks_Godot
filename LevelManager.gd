@@ -31,17 +31,17 @@ func odaya_don_ve_level_atla():
 	suanki_katman += 1
 	print(">>> YENİ KATMAN YÜKLENİYOR: " + str(suanki_katman))
 	
-	# --- DEĞİŞEN KISIM ---
-	# Eskiden sadece mantarı kapatıyorduk, şimdi toplu temizlik yapıyoruz.
+	# --- EKLENEN KISIM: GameManager ile Eşitleme ---
 	if GameManager:
-		GameManager.bolum_bufflarini_sifirla()
-		
-		# Arayüzdeki mantar efektini de garanti olsun diye kapatıyoruz
-		var arayuz = get_tree().get_first_node_in_group("Arayuz")
-		if arayuz and arayuz.has_method("mantar_efekti_yonet"):
-			arayuz.mantar_efekti_yonet(false) 
-	# ---------------------
+		GameManager.suanki_seviye = suanki_katman
+		# Bölüm geçtiğimiz için mantar modunu vs. kapatıyoruz
+		GameManager.mantar_modu = false
+	# -----------------------------------------------
 	
+	var arayuz = get_tree().get_first_node_in_group("Arayuz")
+	if arayuz and arayuz.has_method("mantar_efekti_yonet"):
+		arayuz.mantar_efekti_yonet(false) 
+		
 	call_deferred("_sahne_yenile")
 
 func _sahne_yenile():

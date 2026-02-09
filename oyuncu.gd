@@ -168,46 +168,30 @@ func esya_kullan():
 	
 	var hedef_hucre = null
 	var baktigim_nesne = null
+	var kedi_bulundu = false # <--- YENİ KONTROL
 	
 	if raycast.is_colliding():
 		baktigim_nesne = raycast.get_collider()
-		if grid:
-			hedef_hucre = grid.world_to_cell(raycast.get_collision_point())
+		if grid: hedef_hucre = grid.world_to_cell(raycast.get_collision_point())
+		
+		# --- YENİ: HEM NESNEYE HEM BABASINA BAK ---
+		if baktigim_nesne:
+			if baktigim_nesne.is_in_group("Kedi"):
+				kedi_bulundu = true
+			elif baktigim_nesne.get_parent() and baktigim_nesne.get_parent().is_in_group("Kedi"):
+				kedi_bulundu = true
+		# ------------------------------------------
 	
 	var basarili = false
-	
-	# Debug mesajı
 	print("Kullanılan Eşya ID: ", id)
 	
 	match id:
-		"canlan": 
-			if suanki_can_bari < max_can_bari:
-				suanki_can_bari += 1
-				suanki_hp = 10
-				GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
-				ui_guncelle()
-				print("Can İksiri içildi!")
+		"dice": 
+			if GameManager:
+				GameManager.tek_zar_modu = true
+				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				if arayuz: arayuz.bilgi_goster("Zar Kırıcı: Düşman Tek Zar Atacak!")
 				basarili = true
-			else:
-				print("Canın zaten dolu!")
-				
-		"guc":
-			GameManager.puan_carpani = 1.3
-			print("Güç İksiri! Puanlar x1.3")
-			basarili = true
-			
-		"revive":
-			GameManager.revive_aktif = true
-			print("Revive aktif!")
-			basarili = true
-			
-		"kedimamasi":
-			# Kedi Grubu Kontrolü (Güvenli)
-			if baktigim_nesne and baktigim_nesne.is_in_group("kedi"):
-				print("Kedi beslendi!")
-				basarili = true
-			else:
-				print("Bu bir kedi değil!")
 
 		"cloak": 
 			if GameManager:
@@ -215,31 +199,42 @@ func esya_kullan():
 				var arayuz = get_tree().get_first_node_in_group("Arayuz")
 				if arayuz: arayuz.bilgi_goster("Pelerin Aktif: 3 Tur Koruma!")
 				basarili = true
-		"dice":
-			if GameManager:
-				GameManager.tek_zar_modu = true
-				var arayuz = get_tree().get_first_node_in_group("Arayuz")
-				if arayuz: arayuz.bilgi_goster("Zar Kırıcı: Düşman Tek Zar Atacak!")
-				basarili = true
 
-		# Grid İşlemleri
+		"kedimamasi":
+			# --- GÜNCELLENMİŞ KEDİ KONTROLÜ ---
+			if kedi_bulundu:
+				if GameManager:
+					GameManager.oyunu_kaydet()
+					var arayuz = get_tree().get_first_node_in_group("Arayuz")
+					if arayuz: arayuz.bilgi_goster("Kedi Beslendi! Oyun Kaydedildi.")
+					print("😺 Kedi beslendi ve oyun kaydedildi!")
+					basarili = true
+			else:
+				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				if arayuz: arayuz.bilgi_goster("Bunu sadece Kedi yiyebilir!")
+				print("❌ Bu bir kedi değil!")
+
+		"canlan": 
+			if suanki_can_bari < max_can_bari:
+				suanki_can_bari += 1
+				suanki_hp = 10
+				GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
+				ui_guncelle()
+				basarili = true
+		"guc": GameManager.puan_carpani = 1.3; basarili = true
+		"revive": GameManager.revive_aktif = true; basarili = true
+
 		"asit": if hedef_hucre != null: grid.sutunu_yok_et(hedef_hucre); basarili = true
 		"kilic": if hedef_hucre != null: grid.blok_kir(hedef_hucre, false); basarili = true
 		"dig": if hedef_hucre != null: grid.blok_kir(hedef_hucre, true); basarili = true
 		"paint": if hedef_hucre != null: grid.bloku_boya(hedef_hucre); basarili = true
 		"mantar": if grid: grid.mantar_modu_aktif(); _ekran_bozma_efekti(true); basarili = true
 		"magnet": if grid: grid.miknatis_etkisi(); basarili = true
-		_: 
-			print("İşlemsiz Eşya Tüketildi: ", id)
-			basarili = true
+		_: print("Tanımsız Eşya: ", id); basarili = true
 
 	if basarili:
 		if grid: grid.hedef_goster(Vector2i.ZERO, false)
 		_ozel_animasyon_oynat(anim_tip)
-	else:
-		print("Geçersiz işlem.")
-
-# --- DİĞER FONKSİYONLAR ---
 
 func satin_al(urun_node):
 	var market = get_tree().current_scene.find_child("Market", true, false)

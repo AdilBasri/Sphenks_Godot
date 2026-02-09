@@ -1,4 +1,4 @@
-[gd_scene load_steps=106 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=107 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
@@ -121,6 +121,9 @@ emission_energy_multiplier = 5.0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_p4fw5"]
 size = Vector3(4.3583374, 2.0308838, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bjfsn"]
+size = Vector3(4.262207, 2.2539673, 4.15094)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1eqvi"]
 shader = ExtResource("11_48she")
@@ -385,6 +388,13 @@ uzayan_hal = ExtResource("8_p4fw5")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Kedi/Y_Kedi" index="0"]
 transform = Transform3D(0.99999976, 0, 0, 0, 0.99999976, 0, 0, 0, 0.99999976, 0.033602238, -0.16142029, 0)
 shape = SubResource("BoxShape3D_p4fw5")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Kedi" index="1"]
+collision_layer = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Kedi/StaticBody3D" index="0"]
+transform = Transform3D(0.99999976, 0, 0, 0, 0.99999976, 0, 0, 0, 0.99999976, 0.09008789, -0.0155335665, -0.053863466)
+shape = SubResource("BoxShape3D_bjfsn")
 
 [node name="Boss" type="Sprite3D" parent="." index="5" groups=["Dusman"]]
 transform = Transform3D(0.7, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0.4112321, -1.3106129)
@@ -672,6 +682,7 @@ offset_right = 20.0
 offset_bottom = 23.0
 grow_horizontal = 2
 label_settings = SubResource("LabelSettings_krygw")
+horizontal_alignment = 1
 
 [node name="MantarEfekti" type="ColorRect" parent="OyunArayuzu" index="4"]
 visible = false
@@ -783,7 +794,7 @@ spot_angle = 60.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.018025577, 0, -0.025204837)
 script = ExtResource("14_qtiyh")
 patlama_efekti_sahnesi = ExtResource("16_hwr7g")
-engel_yuksekligi = -5.0
+engel_yuksekligi = -0.05
 hucre_boyutu = 0.253
 
 [node name="Masa_Fizik" type="StaticBody3D" parent="TumMasaSistemi" index="1"]

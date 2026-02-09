@@ -147,6 +147,7 @@ func tek_hucre_doldur(cell: Vector2i, item: Node3D) -> void:
 
 # --- 🔥 GÜNCELLENEN KISIM: ZEMİN YÜKSEKLİĞİ 🔥 ---
 func hucreyi_kilitle(hedef: Vector2i, tip: String = "TAS"):
+	# 1. Doluluk Kontrolü (Aynı kalıyor)
 	if grid_verisi.has(hedef) or kilitli_hucreler.has(hedef):
 		if tip == "ASIT" and grid_verisi.has(hedef):
 			var blok = grid_verisi[hedef]
@@ -161,37 +162,52 @@ func hucreyi_kilitle(hedef: Vector2i, tip: String = "TAS"):
 			return 
 		return 
 
-	# Engel Oluştur
+	# 2. Engel Nesnesini Oluştur
 	var engel = MeshInstance3D.new()
 	var mat = StandardMaterial3D.new()
 	mat.roughness = 1.0
 	
+	var yukseklik_ofseti = 0.0 
+	
 	if tip == "TAS":
 		engel.mesh = BoxMesh.new()
-		engel.mesh.size = Vector3(hucre_boyutu * 0.8, hucre_boyutu * 0.8, hucre_boyutu * 0.8)
-		mat.albedo_color = Color(0.3, 0.3, 0.3) 
+		var s = hucre_boyutu * 0.8
+		engel.mesh.size = Vector3(s, s, s)
+		mat.albedo_color = Color(0.3, 0.3, 0.3)
+		yukseklik_ofseti = s / 2.0
+		
 	elif tip == "ASIT":
 		engel.mesh = SphereMesh.new()
-		engel.mesh.radius = hucre_boyutu * 0.4
-		engel.mesh.height = hucre_boyutu * 0.5
-		mat.albedo_color = Color(0.1, 0.8, 0.1) 
+		var r = hucre_boyutu * 0.4
+		var h = hucre_boyutu * 0.5 
+		engel.mesh.radius = r
+		engel.mesh.height = h
+		mat.albedo_color = Color(0.1, 0.8, 0.1)
 		mat.emission_enabled = true
 		mat.emission = Color(0.1, 0.8, 0.1)
+		yukseklik_ofseti = h / 2.0
 	
 	engel.material_override = mat
+	
+	# --- BURASI KRİTİK DEĞİŞİKLİK ---
 	add_child(engel)
 	
-	# POZİSYONLAMA
-	engel.global_position = cell_center_world(hedef)
+	# 1. Grid'in Scale/Rotation ayarlarından etkilenmemesi için bağımsız yapıyoruz:
+	engel.set_as_top_level(true) 
 	
-	# --- YÜKSEKLİK AYARI (MANUEL MÜDAHALE) ---
-	# Grid'in hesapladığı yükseklik yerine, senin elle girdiğin ayarı kullanıyoruz.
-	# Eğer Inspector'dan -1 yazarsan, taş -1'de doğar.
-	engel.global_position.y = grid_verisi.get(hedef, global_position).y + engel_yuksekligi
+	# 2. Boyutunun bozulmadığından emin oluyoruz:
+	engel.scale = Vector3.ONE 
 	
-	# Eğer global_position kullandıysak, GridYonetici'nin kendi yüksekliğini baz alalım:
-	engel.global_position.y = global_position.y + engel_yuksekligi
-	# ----------------------------------------
+	# 3. Pozisyonlama
+	var merkez = cell_center_world(hedef)
+	
+	# Inspector'dan "engel_yuksekligi" ayarını kontrol et! (0.0 olmalı)
+	var final_y = global_position.y + yukseklik_ofseti + engel_yuksekligi
+	
+	engel.global_position = Vector3(merkez.x, final_y, merkez.z)
+	
+	# Debug Baskısı (Konsola bak: Taşın nerede oluştuğunu yazar)
+	print("🪨 Engel oluştu! Konum: ", engel.global_position, " | Tip: ", tip)
 	
 	kilitli_hucreler[hedef] = engel
 	
