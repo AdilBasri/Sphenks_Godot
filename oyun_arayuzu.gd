@@ -192,7 +192,8 @@ func guncelle_ekran() -> void:
 	if progress_bar:
 		progress_bar.max_value = hedef_puan
 		progress_bar.value = toplam_puan
-
+		
+		
 func mantar_efekti_yonet(aktif: bool):
 	var efekt_node = null
 	if has_node("AnaKontrol/MantarEfekti"): efekt_node = $AnaKontrol/MantarEfekti
