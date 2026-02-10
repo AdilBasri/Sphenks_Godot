@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://ixiogokciwpp"]
+
+[ext_resource type="PackedScene" uid="uid://dp3mt40o74jx5" path="res://bus_man/scene.gltf" id="1_xm0wp"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_xm0wp"]
+radius = 0.6479492
+height = 2.9108887
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_xm0wp")]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." index="1"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.015664816, -0.20682567, 0.288432)
+shape = SubResource("CapsuleShape3D_xm0wp")

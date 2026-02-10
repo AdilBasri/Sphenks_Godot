@@ -1,0 +1,11 @@
+Model Information:
+* title:	man sitting
+* source:	https://sketchfab.com/3d-models/man-sitting-b46bceb164b74346897c7a62691a1d5c
+* author:	Ace-of_spades (https://sketchfab.com/Ace-of_spades)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "man sitting" (https://sketchfab.com/3d-models/man-sitting-b46bceb164b74346897c7a62691a1d5c) by Ace-of_spades (https://sketchfab.com/Ace-of_spades) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

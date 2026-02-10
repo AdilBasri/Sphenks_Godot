@@ -1,0 +1,263 @@
+[gd_scene load_steps=21 format=3 uid="uid://bwlb4n3psprhm"]
+
+[ext_resource type="Script" uid="uid://d4i1xiuveyk2l" path="res://intro_sahnesi.gd" id="1_n11a3"]
+[ext_resource type="PackedScene" uid="uid://bmgaov6t5xyr7" path="res://Otobus.tscn" id="2_qpq5m"]
+[ext_resource type="Script" uid="uid://l3tf3bxqbcvw" path="res://OyuncuBus.gd" id="3_54byg"]
+[ext_resource type="PackedScene" uid="uid://ixiogokciwpp" path="res://Yolcu.tscn" id="4_xpw4b"]
+[ext_resource type="Script" uid="uid://dxwg6i1uepjta" path="res://yolcu.gd" id="5_a43l8"]
+[ext_resource type="PackedScene" uid="uid://c6a8vxyswqisc" path="res://Yolcu_Oturan.tscn" id="6_m6r2i"]
+[ext_resource type="PackedScene" uid="uid://fcie2v4srp7u" path="res://free_018_kana_sitting.glb" id="7_5lqdn"]
+[ext_resource type="PackedScene" uid="uid://drr1tmjsq60ch" path="res://Bus_Kadın.tscn" id="8_xw5yj"]
+[ext_resource type="PackedScene" uid="uid://cwu0vxlfw8wsp" path="res://Sofor.tscn" id="9_pb53o"]
+[ext_resource type="Script" uid="uid://b5t3hh3nuxgki" path="res://Yol.gd" id="10_ejsfs"]
+[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://PressStart2P-Regular.ttf" id="11_jxv2l"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uodxh"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_k0y4j"]
+size = Vector2(2, 2)
+
+[sub_resource type="Shader" id="Shader_vh38o"]
+code = "shader_type spatial;
+render_mode unshaded, cull_disabled;
+
+// Godot'un kendi derinlik ve ekran dokularını alıyoruz
+uniform sampler2D depth_texture : hint_depth_texture, filter_linear_mipmap;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+
+// Ayarlar (Inspector'dan değiştirebilirsin)
+uniform float cizgi_kalinligi : hint_range(0.0, 5.0) = 1.0;
+uniform float hassasiyet : hint_range(0.0, 10.0) = 2.0; // Eşik değeri
+uniform vec4 cizgi_rengi : source_color = vec4(0.0, 0.0, 0.0, 1.0); // Siyah
+uniform vec4 kagit_rengi : source_color = vec4(0.95, 0.95, 0.95, 1.0); // Beyaz Kağıt
+
+void vertex() {
+	// Filtreyi kameranın gözüne yapıştır
+	POSITION = vec4(VERTEX.xy, 1.0, 1.0);
+}
+
+// Derinliği \"Metre\" cinsinden düzgün okumak için matematik fonksiyonu
+float get_depth(vec2 screen_uv, mat4 inv_proj_mat) {
+	float depth = texture(depth_texture, screen_uv).r;
+	vec3 ndc = vec3(screen_uv * 2.0 - 1.0, depth);
+	vec4 view = inv_proj_mat * vec4(ndc, 1.0);
+	view.xyz /= view.w;
+	return -view.z; // Kameradan uzaklık (metre cinsinden)
+}
+
+void fragment() {
+	// 1. Piksel boyutunu al
+	vec2 e = vec2(1.0 / VIEWPORT_SIZE.xy) * cizgi_kalinligi;
+	
+	// 2. Etraftaki 4 noktanın derinliğini ölç (Metre cinsinden)
+	float d_merkez = get_depth(SCREEN_UV, INV_PROJECTION_MATRIX);
+	float d_ust    = get_depth(SCREEN_UV + vec2(0.0, e.y), INV_PROJECTION_MATRIX);
+	float d_alt    = get_depth(SCREEN_UV - vec2(0.0, e.y), INV_PROJECTION_MATRIX);
+	float d_sag    = get_depth(SCREEN_UV + vec2(e.x, 0.0), INV_PROJECTION_MATRIX);
+	float d_sol    = get_depth(SCREEN_UV - vec2(e.x, 0.0), INV_PROJECTION_MATRIX);
+	
+	// 3. Farkları hesapla (Sobel Benzeri)
+	// Eğer yanındaki piksel senden çok daha uzaktaysa orada bir kenar vardır.
+	float fark = abs(d_ust - d_alt) + abs(d_sag - d_sol);
+	
+	// 4. Eşik değerine göre boya
+	// Eğer fark \"hassasiyet\"ten büyükse Siyah, değilse Kağıt Rengi
+	if (fark > hassasiyet * 0.1) { // 0.1 çarpanı ince ayar içindir
+		ALBEDO = cizgi_rengi.rgb;
+	} else {
+		ALBEDO = kagit_rengi.rgb;
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wvusv"]
+render_priority = 0
+shader = SubResource("Shader_vh38o")
+shader_parameter/cizgi_kalinligi = 5.0
+shader_parameter/hassasiyet = 1.0000000475
+shader_parameter/cizgi_rengi = Color(0, 0, 0, 1)
+shader_parameter/kagit_rengi = Color(0.9490196, 0.9490196, 0.6784314, 1)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_n11a3"]
+radius = 23.5625
+height = 115.95361
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_7ko3x"]
+top_radius = 20.0
+bottom_radius = 20.0
+height = 10.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_kflk2"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wbf1j"]
+cull_mode = 1
+shading_mode = 0
+albedo_texture = SubResource("NoiseTexture2D_kflk2")
+
+[sub_resource type="LabelSettings" id="LabelSettings_fsmao"]
+font = ExtResource("11_jxv2l")
+font_color = Color(0, 0, 0, 1)
+outline_size = 5
+
+[node name="IntroSahnesi" type="Node3D"]
+script = ExtResource("1_n11a3")
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("2_qpq5m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03838885, 0, -0.424788)
+
+[node name="Oyuncu" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.021933496, 0.14067078, 0)
+script = ExtResource("3_54byg")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Oyuncu"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.30522037, 0)
+shape = SubResource("CapsuleShape3D_uodxh")
+
+[node name="Camera3D" type="Camera3D" parent="Oyuncu"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.16, 0)
+fov = 80.0
+near = 0.001
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Oyuncu/Camera3D"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, -0.01)
+mesh = SubResource("QuadMesh_k0y4j")
+surface_material_override/0 = SubResource("ShaderMaterial_wvusv")
+
+[node name="RayCast3D" type="RayCast3D" parent="Oyuncu/Camera3D"]
+target_position = Vector3(0, 0, -3.5)
+
+[node name="Sketchfab_Scene2" parent="." instance=ExtResource("4_xpw4b")]
+transform = Transform3D(0.4997027, -0.0038964294, -0.016794357, 0, 0.48706308, -0.11300266, 0.017240437, 0.11293546, 0.48677346, -0.9157098, -0.22161795, -1.7560123)
+
+[node name="StaticBody3D" parent="Sketchfab_Scene2" index="1"]
+script = ExtResource("5_a43l8")
+
+[node name="Sketchfab_Scene7" parent="." instance=ExtResource("4_xpw4b")]
+transform = Transform3D(0.47578916, -0.034737743, -0.14972633, -2.4210328e-11, 0.48706308, -0.113002665, 0.15370321, 0.107530884, 0.46347865, -0.94415337, 0.04794176, 3.6496558)
+
+[node name="StaticBody3D" parent="Sketchfab_Scene7" index="1"]
+script = ExtResource("5_a43l8")
+
+[node name="Sketchfab_Scene3" parent="." instance=ExtResource("6_m6r2i")]
+transform = Transform3D(0.499216, -0.0027448768, -0.02785425, 0, 0.4975898, -0.04903462, 0.02798917, 0.048957735, 0.49680957, -0.9144033, -0.7126191, -3.9362862)
+
+[node name="StaticBody3D" parent="Sketchfab_Scene3" index="2"]
+script = ExtResource("5_a43l8")
+
+[node name="Sketchfab_Scene4" parent="." instance=ExtResource("6_m6r2i")]
+transform = Transform3D(-0.5, 0, -4.371139e-08, 0, 0.5, 0, 4.371139e-08, 0, -0.5, 0.7053809, -0.6936061, -4.93525)
+
+[node name="StaticBody3D" parent="Sketchfab_Scene4" index="2"]
+script = ExtResource("5_a43l8")
+
+[node name="Sketchfab_Scene5" parent="." instance=ExtResource("7_5lqdn")]
+transform = Transform3D(0.006553217, -5.901819e-11, -0.004588612, 0.0011333051, 0.007752162, 0.0016185275, 0.004446457, -0.0019758567, 0.006350198, 0.5704739, -0.7827728, -0.6097709)
+
+[node name="Skeleton3D" parent="Sketchfab_Scene5/Sketchfab_model/0d0b4477b5c547c88dea7cea63bc4cfd_fbx/Object_2/RootNode/Object_4" index="0"]
+bones/1/position = Vector3(-0.19360352, 49.253944, -1.0545087)
+bones/1/rotation = Quaternion(-0.20746757, 0.09831062, 0.008980313, 0.97324795)
+bones/2/rotation = Quaternion(0.03218131, -0.020109111, 0.00058230985, 0.9992796)
+bones/3/rotation = Quaternion(0.073480524, -0.0463637, 0.005732425, 0.9962019)
+bones/4/rotation = Quaternion(0.073480465, -0.04636367, 0.00573241, 0.9962019)
+bones/5/rotation = Quaternion(0.049524825, -0.013297165, 0.053287413, 0.9972617)
+bones/6/rotation = Quaternion(0.021517225, 0.019970784, 0.036961667, 0.9988854)
+bones/8/rotation = Quaternion(0.64921254, 0.3512388, -0.47183236, 0.48221216)
+bones/9/position = Vector3(0, 11, 0)
+bones/9/rotation = Quaternion(0.47415745, 0.052599844, 0.030061578, 0.87835324)
+bones/10/rotation = Quaternion(-0.1987983, 0.2309654, 0.5721413, 0.7614385)
+bones/11/rotation = Quaternion(-0.23463258, -0.022160102, 0.029224409, 0.9713921)
+bones/12/rotation = Quaternion(0.045798693, 0.14704227, 0.029060448, 0.98764193)
+bones/13/rotation = Quaternion(-0.03712137, 0.017933963, -0.2830245, 0.9582263)
+bones/14/rotation = Quaternion(-0.009905548, 0.00022384737, 0.15604052, 0.98770106)
+bones/16/rotation = Quaternion(-0.23327464, 0.007076242, -0.16788258, 0.95778304)
+bones/17/rotation = Quaternion(0.16602524, 0.013398722, 0.0003487461, 0.98603046)
+bones/18/rotation = Quaternion(-0.19728154, 0.026509512, 0.05465462, 0.9784632)
+bones/20/rotation = Quaternion(-0.2301521, 0.0013791211, -0.14570412, 0.96218425)
+bones/21/rotation = Quaternion(0.24686569, 0.037057195, -0.0028051417, 0.96833694)
+bones/22/rotation = Quaternion(-0.074577995, 0.046135407, 0.025818741, 0.9958128)
+bones/24/rotation = Quaternion(-0.06620247, 0.0038934369, -0.09168365, 0.99357754)
+bones/25/rotation = Quaternion(0.30218855, 0.04998681, -0.015069237, 0.9518174)
+bones/26/rotation = Quaternion(-0.17353347, 0.04306176, 0.041336227, 0.98301744)
+bones/28/rotation = Quaternion(-0.030269947, 0.053102326, -0.17014523, 0.98352146)
+bones/29/rotation = Quaternion(0.2932376, 0.0708609, -0.027785176, 0.953005)
+bones/30/rotation = Quaternion(-0.15491197, 0.08999067, 0.007408562, 0.98379326)
+bones/32/rotation = Quaternion(0.62741894, -0.3705259, 0.5110445, 0.45594922)
+bones/33/rotation = Quaternion(0.42132857, -0.16304888, -0.1865898, 0.8723999)
+bones/34/rotation = Quaternion(-0.35249573, -0.4697224, -0.56900334, 0.5756239)
+bones/35/rotation = Quaternion(-0.09417333, -0.031132245, 0.010091489, 0.9950178)
+bones/36/rotation = Quaternion(-0.015361066, 0.013945447, -0.12202894, 0.9923097)
+bones/37/rotation = Quaternion(0.18246354, -0.06844471, 0.10425451, 0.975271)
+bones/38/rotation = Quaternion(0.036863245, 0.04020487, -0.21106596, 0.9759487)
+bones/40/rotation = Quaternion(0.42735457, -0.00842409, -0.06550426, 0.90166867)
+bones/41/rotation = Quaternion(0.28944713, -0.015178261, 0.01059633, 0.9570151)
+bones/42/rotation = Quaternion(-0.13842739, -0.027826047, -0.05669132, 0.9883571)
+bones/44/rotation = Quaternion(0.286873, 0.029426415, -0.020438032, 0.9572984)
+bones/45/rotation = Quaternion(0.3691044, -0.039294932, 0.013922187, 0.9284526)
+bones/46/rotation = Quaternion(-0.072517395, -0.044536382, -0.07088932, 0.9938473)
+bones/48/rotation = Quaternion(0.20923506, 0.0032769623, 0.028323207, 0.9774496)
+bones/49/rotation = Quaternion(0.17006946, -0.04804771, -0.0044421214, 0.98425)
+bones/50/rotation = Quaternion(-0.064590886, -0.043941863, -0.08346534, 0.99344385)
+bones/52/rotation = Quaternion(0.093927324, -0.008974071, 0.00913941, 0.9954967)
+bones/53/rotation = Quaternion(0.021973964, -0.06939983, -0.009589894, 0.99730086)
+bones/54/rotation = Quaternion(-0.08961999, -0.091687225, -0.039828893, 0.99094677)
+bones/56/rotation = Quaternion(-0.07169526, 0.5244605, 0.8214863, 0.21204095)
+bones/57/rotation = Quaternion(-0.62686706, -0.1724844, 0.17519325, 0.7393201)
+bones/58/rotation = Quaternion(0.40778422, 0.025972398, 0.046320196, 0.9115328)
+bones/59/rotation = Quaternion(0.29190093, 0.028904213, -0.008825768, 0.95597094)
+bones/61/rotation = Quaternion(-0.098554716, 0.65024143, 0.74631536, -0.10240329)
+bones/62/rotation = Quaternion(-0.5778543, 0.22192079, -0.16909468, 0.7669698)
+bones/63/rotation = Quaternion(0.21346217, -0.012069951, -0.03685782, 0.97618127)
+bones/64/rotation = Quaternion(0.2967972, -0.028389363, 0.008795885, 0.9544779)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Sketchfab_Scene5"]
+script = ExtResource("5_a43l8")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Sketchfab_Scene5/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, -2.9802322e-08, 0, 1, 1.3929443, 48.432198, 19.770401)
+shape = SubResource("CapsuleShape3D_n11a3")
+
+[node name="Sketchfab_Scene6" parent="." instance=ExtResource("8_xw5yj")]
+transform = Transform3D(-0.44473633, -0.012701593, 0.06744069, 1.2576075e-08, 0.44222525, 0.08328757, -0.06862636, 0.08231335, -0.43705255, -1.0104896, -0.7302921, 1.7334174)
+
+[node name="StaticBody3D" parent="Sketchfab_Scene6" index="2"]
+script = ExtResource("5_a43l8")
+
+[node name="CollisionShape3D" parent="Sketchfab_Scene6/StaticBody3D" index="0"]
+transform = Transform3D(0.9999997, 6.1281025e-07, -2.577901e-06, -1.3038516e-08, 0.9999862, -2.026558e-06, -1.7881393e-07, 4.4703484e-06, 0.9999797, 0.28812373, 1.2661848, -0.043692112)
+
+[node name="Sketchfab_Scene8" parent="." instance=ExtResource("9_pb53o")]
+transform = Transform3D(-0.5, 0, -4.371139e-08, 0, 0.5, 0, 4.371139e-08, 0, -0.5, -0.60106635, -0.8580215, -5.745475)
+
+[node name="StaticBody3D" parent="Sketchfab_Scene8" index="2"]
+script = ExtResource("5_a43l8")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("CylinderMesh_7ko3x")
+surface_material_override/0 = SubResource("StandardMaterial3D_wbf1j")
+script = ExtResource("10_ejsfs")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="UI"]
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.93100005
+anchor_right = 0.5
+anchor_bottom = 0.93100005
+offset_left = -20.0
+offset_top = -18.288025
+offset_right = 20.0
+offset_bottom = 18.711975
+grow_horizontal = 2
+grow_vertical = 0
+label_settings = SubResource("LabelSettings_fsmao")
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[editable path="Sketchfab_Scene2"]
+[editable path="Sketchfab_Scene7"]
+[editable path="Sketchfab_Scene3"]
+[editable path="Sketchfab_Scene4"]
+[editable path="Sketchfab_Scene5"]
+[editable path="Sketchfab_Scene6"]
+[editable path="Sketchfab_Scene8"]

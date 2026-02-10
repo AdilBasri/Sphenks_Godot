@@ -1,0 +1,11 @@
+Model Information:
+* title:	City Bus - rigged | РоАЗ-5236
+* source:	https://sketchfab.com/3d-models/city-bus-rigged-5236-36646fcf41da498ca24a02f4b6fb1d95
+* author:	Yo.Ri (https://sketchfab.com/grox777)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "City Bus - rigged | РоАЗ-5236" (https://sketchfab.com/3d-models/city-bus-rigged-5236-36646fcf41da498ca24a02f4b6fb1d95) by Yo.Ri (https://sketchfab.com/grox777) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
