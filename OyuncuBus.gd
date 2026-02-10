@@ -6,8 +6,10 @@ var yer_cekimi = 9.8
 var fare_hassasiyeti = 0.003
 var titreme_gucu = 0.005 
 
+# YENİ EKLENEN SATIR: Editörden açıp kapatabileceğin bir kutucuk
+@export var titreme_aktif : bool = false 
+
 @onready var kamera = $Camera3D
-# Az önce eklediğin RayCast'i buluyoruz
 @onready var raycast = $Camera3D/RayCast3D 
 
 func _ready():
@@ -23,16 +25,20 @@ func _input(event):
 	if Input.is_action_just_pressed("ui_cancel"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
-	# --- TIKLAMA (ETKİLEŞİM) SİSTEMİ ---
-	# Mouse tıklandığında (veya 'etkilesim' tuşuna basıldığında)
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		kontrol_et_ve_tikla()
 
 func _physics_process(delta):
-	# Sarsıntı Efekti
+	# --- TİTREŞİM KONTROLÜ (GÜNCELLENDİ) ---
 	if kamera:
-		kamera.h_offset = randf_range(-titreme_gucu, titreme_gucu)
-		kamera.v_offset = randf_range(-titreme_gucu, titreme_gucu)
+		if titreme_aktif:
+			# Eğer kutucuk işaretliyse salla
+			kamera.h_offset = randf_range(-titreme_gucu, titreme_gucu)
+			kamera.v_offset = randf_range(-titreme_gucu, titreme_gucu)
+		else:
+			# Değilse kamerayı sabit tut (Sıfırla)
+			kamera.h_offset = 0
+			kamera.v_offset = 0
 
 	# Yerçekimi
 	if not is_on_floor():
@@ -51,13 +57,8 @@ func _physics_process(delta):
 
 	move_and_slide()
 
-# --- YENİ FONKSİYON: BAKTIĞIM ŞEYE DOKUN ---
 func kontrol_et_ve_tikla():
-	# RayCast bir şeye çarpıyor mu?
 	if raycast.is_colliding():
 		var carpan_nesne = raycast.get_collider()
-		
-		# Çarptığımız şeyin içinde "etkilesim_baslat" diye bir kod var mı?
 		if carpan_nesne.has_method("etkilesim_baslat"):
-			print("Yolcuya dokundum!")
 			carpan_nesne.etkilesim_baslat()

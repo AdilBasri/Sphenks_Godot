@@ -73,14 +73,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.51120883, -0.38754272, -0.9
 shape = SubResource("BoxShape3D_xjc1b")
 
 [node name="StaticBody3D5" type="StaticBody3D" parent="." index="10"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.51442057, 0.015337199, 3.447451)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6493719, 0.015337199, 3.447451)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D5" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.51120883, -0.38754272, -0.9065242)
 shape = SubResource("BoxShape3D_xjc1b")
 
 [node name="StaticBody3D6" type="StaticBody3D" parent="." index="11"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5346756, 0.015337199, 3.447451)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6858737, 0.015337199, 3.447451)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D6" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.51120883, -0.38754272, -0.9065242)

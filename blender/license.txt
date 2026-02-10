@@ -1,0 +1,8 @@
+Model Information:
+* title:	Blender
+* source:	https://sketchfab.com/3d-models/blender-f731dbfce6ea486095a39a0750e656ec
+* author:	assetfactory (https://sketchfab.com/assetfactory)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

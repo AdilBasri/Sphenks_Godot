@@ -1,0 +1,11 @@
+Model Information:
+* title:	Russian Passport
+* source:	https://sketchfab.com/3d-models/russian-passport-57d1d93996f14be68c0d2393ad2cf18f
+* author:	tmsultanov (https://sketchfab.com/tmsultanov)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Russian Passport" (https://sketchfab.com/3d-models/russian-passport-57d1d93996f14be68c0d2393ad2cf18f) by tmsultanov (https://sketchfab.com/tmsultanov) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

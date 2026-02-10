@@ -1,0 +1,307 @@
+[gd_scene load_steps=18 format=3 uid="uid://bt1hdlkvdh1dq"]
+
+[ext_resource type="PackedScene" uid="uid://cqukpojxiic2a" path="res://the_serving_room/scene.gltf" id="1_j03r5"]
+[ext_resource type="Script" uid="uid://l3tf3bxqbcvw" path="res://OyuncuBus.gd" id="2_2vqy4"]
+[ext_resource type="Script" uid="uid://c51w52lnmwjcl" path="res://sahne_2_ev.gd" id="2_7c0w5"]
+[ext_resource type="Script" uid="uid://bnnrbprirdc5v" path="res://EtkilesimNesnesi.gd" id="4_sh0wk"]
+[ext_resource type="PackedScene" uid="uid://blbr78aw2rq8l" path="res://blender/scene.gltf" id="5_tvibb"]
+[ext_resource type="PackedScene" uid="uid://bibdj518ie2ia" path="res://russian_passport/scene.gltf" id="6_o2t55"]
+[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://PressStart2P-Regular.ttf" id="7_6cp0h"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_7c0w5"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_sh0wk"]
+size = Vector2(2, 2)
+
+[sub_resource type="Shader" id="Shader_vh38o"]
+code = "shader_type spatial;
+render_mode unshaded, cull_disabled;
+
+// Godot'un kendi derinlik ve ekran dokularını alıyoruz
+uniform sampler2D depth_texture : hint_depth_texture, filter_linear_mipmap;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+
+// Ayarlar (Inspector'dan değiştirebilirsin)
+uniform float cizgi_kalinligi : hint_range(0.0, 5.0) = 1.0;
+uniform float hassasiyet : hint_range(0.0, 10.0) = 2.0; // Eşik değeri
+uniform vec4 cizgi_rengi : source_color = vec4(0.0, 0.0, 0.0, 1.0); // Siyah
+uniform vec4 kagit_rengi : source_color = vec4(0.95, 0.95, 0.95, 1.0); // Beyaz Kağıt
+
+void vertex() {
+	// Filtreyi kameranın gözüne yapıştır
+	POSITION = vec4(VERTEX.xy, 1.0, 1.0);
+}
+
+// Derinliği \"Metre\" cinsinden düzgün okumak için matematik fonksiyonu
+float get_depth(vec2 screen_uv, mat4 inv_proj_mat) {
+	float depth = texture(depth_texture, screen_uv).r;
+	vec3 ndc = vec3(screen_uv * 2.0 - 1.0, depth);
+	vec4 view = inv_proj_mat * vec4(ndc, 1.0);
+	view.xyz /= view.w;
+	return -view.z; // Kameradan uzaklık (metre cinsinden)
+}
+
+void fragment() {
+	// 1. Piksel boyutunu al
+	vec2 e = vec2(1.0 / VIEWPORT_SIZE.xy) * cizgi_kalinligi;
+	
+	// 2. Etraftaki 4 noktanın derinliğini ölç (Metre cinsinden)
+	float d_merkez = get_depth(SCREEN_UV, INV_PROJECTION_MATRIX);
+	float d_ust    = get_depth(SCREEN_UV + vec2(0.0, e.y), INV_PROJECTION_MATRIX);
+	float d_alt    = get_depth(SCREEN_UV - vec2(0.0, e.y), INV_PROJECTION_MATRIX);
+	float d_sag    = get_depth(SCREEN_UV + vec2(e.x, 0.0), INV_PROJECTION_MATRIX);
+	float d_sol    = get_depth(SCREEN_UV - vec2(e.x, 0.0), INV_PROJECTION_MATRIX);
+	
+	// 3. Farkları hesapla (Sobel Benzeri)
+	// Eğer yanındaki piksel senden çok daha uzaktaysa orada bir kenar vardır.
+	float fark = abs(d_ust - d_alt) + abs(d_sag - d_sol);
+	
+	// 4. Eşik değerine göre boya
+	// Eğer fark \"hassasiyet\"ten büyükse Siyah, değilse Kağıt Rengi
+	if (fark > hassasiyet * 0.1) { // 0.1 çarpanı ince ayar içindir
+		ALBEDO = cizgi_rengi.rgb;
+	} else {
+		ALBEDO = kagit_rengi.rgb;
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tvibb"]
+render_priority = 0
+shader = SubResource("Shader_vh38o")
+shader_parameter/cizgi_kalinligi = 5.0
+shader_parameter/hassasiyet = 1.0000000475
+shader_parameter/cizgi_rengi = Color(0, 0, 0, 1)
+shader_parameter/kagit_rengi = Color(0.9490196, 0.9490196, 0.6784314, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2vqy4"]
+size = Vector3(7.7961426, 0.32861328, 12.382065)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_sh0wk"]
+radius = 0.049804688
+height = 0.20355225
+
+[sub_resource type="TubeTrailMesh" id="TubeTrailMesh_sh0wk"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tvibb"]
+size = Vector3(26.741516, 53.047897, 26.551134)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_o2t55"]
+size = Vector3(2.3744507, 0.1953125, 1.2609863)
+
+[sub_resource type="LabelSettings" id="LabelSettings_l7nfj"]
+font = ExtResource("7_6cp0h")
+font_color = Color(0, 0, 0, 1)
+outline_size = 5
+shadow_size = 5
+shadow_color = Color(1, 1, 1, 1)
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_j03r5")]
+script = ExtResource("2_7c0w5")
+
+[node name="Oyuncu" type="CharacterBody3D" parent="." index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.021933496, 0.15141833, -1.352917)
+script = ExtResource("2_2vqy4")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Oyuncu" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.30522037, 0)
+shape = SubResource("CapsuleShape3D_7c0w5")
+
+[node name="Camera3D" type="Camera3D" parent="Oyuncu" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6047709, 0)
+fov = 80.0
+near = 0.001
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Oyuncu/Camera3D" index="0"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, -0.01)
+mesh = SubResource("QuadMesh_sh0wk")
+surface_material_override/0 = SubResource("ShaderMaterial_tvibb")
+
+[node name="RayCast3D" type="RayCast3D" parent="Oyuncu/Camera3D" index="1"]
+target_position = Vector3(0, 0, -5)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35058856, -0.2539444)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33698368, -0.33569336, -2.2596054)
+shape = SubResource("BoxShape3D_2vqy4")
+
+[node name="StaticBody3D2" type="StaticBody3D" parent="." index="3"]
+transform = Transform3D(1.9106855e-15, 4.371139e-08, 1, 1, -4.371139e-08, 0, 4.371139e-08, 1, -4.371139e-08, 1.2923048, 0.22052896, -0.15775514)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33698368, -0.33569336, -2.2596054)
+shape = SubResource("BoxShape3D_2vqy4")
+
+[node name="StaticBody3D3" type="StaticBody3D" parent="." index="4"]
+transform = Transform3D(1.9106855e-15, 4.371139e-08, 1, 1, -4.371139e-08, 0, 4.371139e-08, 1, -4.371139e-08, 1.2923048, 0.22052896, -6.0362844)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D3" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33698368, -0.33569336, -2.2596054)
+shape = SubResource("BoxShape3D_2vqy4")
+
+[node name="StaticBody3D4" type="StaticBody3D" parent="." index="5"]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0.90968204, 0.22052896, 3.4606829)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D4" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33698368, -0.33569336, -2.2596054)
+shape = SubResource("BoxShape3D_2vqy4")
+
+[node name="StaticBody3D6" type="StaticBody3D" parent="." index="6"]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 2.0349617, 0.22052896, -8.959807)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D6" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33698368, -0.33569336, -2.2596054)
+shape = SubResource("BoxShape3D_2vqy4")
+
+[node name="StaticBody3D7" type="StaticBody3D" parent="." index="7"]
+transform = Transform3D(1.9106855e-15, 4.371139e-08, 1, 1, -4.371139e-08, 0, 4.371139e-08, 1, -4.371139e-08, 9.639416, 0.22052896, -4.396258)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D7" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33698368, -0.33569336, -2.2596054)
+shape = SubResource("BoxShape3D_2vqy4")
+
+[node name="StaticBody3D5" type="StaticBody3D" parent="." index="8"]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -1.6032832, 0.22052896, -0.8292742)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D5" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33698368, -0.33569336, -2.2596054)
+shape = SubResource("BoxShape3D_2vqy4")
+
+[node name="Musluk_1" type="StaticBody3D" parent="." index="9"]
+transform = Transform3D(0.9250176, 0, 0.37992442, 0, 1, 0, -0.37992442, 0, 0.9250176, 0.6463031, 0.2245242, 0.35722435)
+script = ExtResource("4_sh0wk")
+nesne_turu = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Musluk_1" index="0"]
+transform = Transform3D(1, 0, 8.940697e-08, 0, 1, 0, -8.940697e-08, 0, 1, 0.6653239, 0.27759802, -0.16927946)
+shape = SubResource("CapsuleShape3D_sh0wk")
+
+[node name="SuPartikulleri" type="CPUParticles3D" parent="Musluk_1" index="1"]
+transform = Transform3D(0.9250175, 0, -0.37992436, 0, 1, 0, 0.37992436, 0, 0.9250175, 0.6480749, 0.20931911, -0.2069071)
+emitting = false
+amount = 100
+mesh = SubResource("TubeTrailMesh_sh0wk")
+color = Color(0.45028847, 0.7993286, 1, 1)
+
+[node name="Musluk_2" type="StaticBody3D" parent="." index="10"]
+transform = Transform3D(0.9250176, 0, 0.37992442, 0, 1, 0, -0.37992442, 0, 0.9250176, 0.6463031, 0.2245242, 0.35722435)
+script = ExtResource("4_sh0wk")
+nesne_turu = 0
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Musluk_2" index="0"]
+transform = Transform3D(1, 0, 8.940697e-08, 0, 1, 0, -8.940697e-08, 0, 1, 0.44223362, 0.27759802, -0.22883987)
+shape = SubResource("CapsuleShape3D_sh0wk")
+
+[node name="SuPartikulleri" type="CPUParticles3D" parent="Musluk_2" index="1"]
+transform = Transform3D(0.9250175, 0, -0.37992433, 0, 1, 0, 0.37992433, 0, 0.9250175, 0.42067873, 0.19590986, -0.21121427)
+emitting = false
+amount = 100
+mesh = SubResource("TubeTrailMesh_sh0wk")
+color = Color(0.45028847, 0.7993286, 1, 1)
+
+[node name="Musluk_3" type="StaticBody3D" parent="." index="11"]
+transform = Transform3D(0.9250176, 0, 0.37992442, 0, 1, 0, -0.37992442, 0, 0.9250176, 0.6463031, 0.2245242, 0.35722435)
+script = ExtResource("4_sh0wk")
+nesne_turu = 0
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Musluk_3" index="0"]
+transform = Transform3D(1, 0, 8.940697e-08, 0, 1, 0, -8.940697e-08, 0, 1, 0.20978236, 0.27759802, -0.20197678)
+shape = SubResource("CapsuleShape3D_sh0wk")
+
+[node name="SuPartikulleri" type="CPUParticles3D" parent="Musluk_3" index="1"]
+transform = Transform3D(0.9250175, 0, -0.37992433, 0, 1, 0, 0.37992433, 0, 0.9250175, 0.20437336, 0.18633178, -0.23676562)
+emitting = false
+amount = 100
+mesh = SubResource("TubeTrailMesh_sh0wk")
+color = Color(0.45028847, 0.7993286, 1, 1)
+
+[node name="Musluk_4" type="StaticBody3D" parent="." index="12"]
+transform = Transform3D(0.9250176, 0, 0.37992442, 0, 1, 0, -0.37992442, 0, 0.9250176, 1.5476731, 0.24862123, -0.28973085)
+script = ExtResource("4_sh0wk")
+nesne_turu = 0
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Musluk_4" index="0"]
+transform = Transform3D(1, 0, 8.940697e-08, 0, 1, 0, -8.940697e-08, 0, 1, 0.20978236, 0.27759802, -0.20197678)
+shape = SubResource("CapsuleShape3D_sh0wk")
+
+[node name="SuPartikulleri" type="CPUParticles3D" parent="Musluk_4" index="1"]
+transform = Transform3D(0.9250175, 0, -0.37992433, 0, 1, 0, 0.37992433, 0, 0.9250175, 0.20437336, 0.18633178, -0.23676562)
+emitting = false
+amount = 100
+mesh = SubResource("TubeTrailMesh_sh0wk")
+color = Color(0.45028847, 0.7993286, 1, 1)
+
+[node name="Musluk_5" type="StaticBody3D" parent="." index="13"]
+transform = Transform3D(0.9250176, 0, 0.37992442, 0, 1, 0, -0.37992442, 0, 0.9250176, -1.0846205, 0.22773391, 0.11120327)
+script = ExtResource("4_sh0wk")
+nesne_turu = 0
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Musluk_5" index="0"]
+transform = Transform3D(1, 0, 8.940697e-08, 0, 1, 0, -8.940697e-08, 0, 1, 0.20978236, 0.27759802, -0.20197678)
+shape = SubResource("CapsuleShape3D_sh0wk")
+
+[node name="SuPartikulleri" type="CPUParticles3D" parent="Musluk_5" index="1"]
+transform = Transform3D(0.9250175, 0, -0.37992433, 0, 1, 0, 0.37992433, 0, 0.9250175, 0.20437336, 0.18633178, -0.23676562)
+emitting = false
+amount = 100
+mesh = SubResource("TubeTrailMesh_sh0wk")
+color = Color(0.45028847, 0.7993286, 1, 1)
+
+[node name="Musluk_6" type="StaticBody3D" parent="." index="14"]
+transform = Transform3D(0.9250176, 0, 0.37992442, 0, 1, 0, -0.37992442, 0, 0.9250176, -1.0881565, 0.22773391, 0.21627147)
+script = ExtResource("4_sh0wk")
+nesne_turu = 0
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Musluk_6" index="0"]
+transform = Transform3D(1, 0, 8.940697e-08, 0, 1, 0, -8.940697e-08, 0, 1, 0.20978236, 0.27759802, -0.20197678)
+shape = SubResource("CapsuleShape3D_sh0wk")
+
+[node name="SuPartikulleri" type="CPUParticles3D" parent="Musluk_6" index="1"]
+transform = Transform3D(0.9250175, 0, -0.37992433, 0, 1, 0, 0.37992433, 0, 0.9250175, 0.20437336, 0.18633178, -0.23676562)
+emitting = false
+amount = 100
+mesh = SubResource("TubeTrailMesh_sh0wk")
+color = Color(0.45028847, 0.7993286, 1, 1)
+
+[node name="Blender" parent="." index="15" instance=ExtResource("5_tvibb")]
+transform = Transform3D(-2.1855694e-10, 0, 0.005, 0, 0.005, 0, -0.005, 0, -2.1855694e-10, -0.7327518, 0.247148, -3.1410043)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Blender" index="1"]
+script = ExtResource("4_sh0wk")
+nesne_turu = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Blender/StaticBody3D" index="0"]
+transform = Transform3D(1, 0, 3.5527137e-15, 0, 1, 0, -3.5527137e-15, 0, 1, 0.54919434, 25.085842, 0.60713196)
+shape = SubResource("BoxShape3D_tvibb")
+
+[node name="Marker3D" type="Marker3D" parent="Blender" index="2"]
+transform = Transform3D(1, 0, 3.5527137e-15, 0, 1, 0, -3.5527137e-15, 0, 1, 499.24518, -138.90215, 523.78894)
+
+[node name="Sketchfab_Scene2" parent="." index="16" instance=ExtResource("6_o2t55")]
+transform = Transform3D(-0.09999999, 0, -8.742278e-09, 0, 0.09999999, 0, 8.742278e-09, 0, -0.09999999, 1.9302797, -0.44575992, -5.6362286)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Sketchfab_Scene2" index="1"]
+script = ExtResource("4_sh0wk")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Sketchfab_Scene2/StaticBody3D" index="0"]
+transform = Transform3D(0.9999998, 0, -3.893774e-12, 0, 0.9999998, 0, 3.893774e-12, 0, 0.9999998, -0.11586189, -0.06890535, -0.030498505)
+shape = SubResource("BoxShape3D_o2t55")
+
+[node name="UI" type="CanvasLayer" parent="." index="17"]
+
+[node name="Label" type="Label" parent="UI" index="0"]
+anchors_preset = -1
+anchor_left = 0.50100005
+anchor_top = 0.95900005
+anchor_right = 0.50100005
+anchor_bottom = 0.95900005
+offset_left = -25.152039
+offset_top = -11.432007
+offset_right = 24.847961
+offset_bottom = 11.567993
+grow_horizontal = 2
+grow_vertical = 0
+label_settings = SubResource("LabelSettings_l7nfj")
+horizontal_alignment = 1
+vertical_alignment = 2

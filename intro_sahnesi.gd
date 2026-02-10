@@ -1,13 +1,18 @@
 extends Node3D
 
 # --- AYARLAR ---
-@onready var kamera = $Oyuncu/Camera3D # Oyuncu kamerana giden yol (Doğru olduğundan emin ol)
+@onready var kamera = $Oyuncu/Camera3D
 @onready var altyazi_label = $UI/Label
+# Az önce eklediğin Siyah Perdeye ulaşıyoruz
+@onready var gecis_materyali = $UI/GecisEkrani.material 
 
-var etkilesim_aktif = true # Oyuncu şu an tıklayabilir mi?
+var etkilesim_aktif = true 
 var varsayilan_fov = 90.0
 
-# SENİN HİKAYE METİNLERİN (Sırayla veya Rastgele gösterilecek)
+# YOLCU TAKİBİ
+var toplam_yolcu_sayisi = 0
+var yok_edilen_yolcu_sayisi = 0
+
 var diyaloglar = [
 	"Bu biçimsiz insan kalabalığından sıkıldım artık...",
 	"Hepsi aynı tornadan çıkmış et yığınları.",
@@ -22,47 +27,71 @@ var diyaloglar = [
 func _ready():
 	if kamera: varsayilan_fov = kamera.fov
 	altyazi_label.text = ""
+	
+	# Sahnede kaç tane "StaticBody3D" (Yolcu) var otomatik sayalım
+	# (Yolcuların hepsini bir "Yolcular" düğümü altına topladıysan daha kolay olur
+	# ama dağınık olsa bile 'get_children' veya gruplarla bulabiliriz.
+	# Şimdilik manuel sayıp buraya yazabilirsin veya otomatik buldurabiliriz)
+	
+	# BASİT YÖNTEM: Sahneye kaç yolcu koyduysan buraya o sayıyı yaz.
+	# Örneğin 5 yolcu varsa 5 yaz.
+	toplam_yolcu_sayisi = 7 # <-- BURAYI SAHNEDEKİ YOLCU SAYINA GÖRE GÜNCELLE!
+	
+	# Geçiş ekranını tamamen şeffaf yap (Shader factor 0)
+	gecis_materyali.set_shader_parameter("factor", 0.0)
 
-# --- GLITCH VE ALTYAZI TETİKLEYİCİSİ ---
+# --- YOLCU TETİKLEYİCİSİ ---
 func yolcuya_tiklandi(yolcu_node, yok_olacak_mi):
-	# Eğer bekleme süresindeysek veya başka efekt varsa İPTAL ET
 	if not etkilesim_aktif: return 
 	
-	etkilesim_aktif = false # Kilitle
+	etkilesim_aktif = false 
 	
 	# 1. METİN GÖSTER
-	var secilen_soz = diyaloglar.pick_random() # İstersen sırayla da yapabiliriz
-	altyazi_label.text = secilen_soz
+	altyazi_label.text = diyaloglar.pick_random()
 	
-	# 2. GLITCH EFEKTİ (KAMERA VE FOV PATLAMASI)
-	var tween = create_tween()
-	
-	# Kamerayı anlık olarak boz (Zoom in/out ve yamulma)
-	tween.tween_property(kamera, "fov", 110.0, 0.05).set_trans(Tween.TRANS_BOUNCE)
-	tween.parallel().tween_property(kamera, "h_offset", 0.1, 0.05) # Sağa kay
-	
-	tween.tween_property(kamera, "fov", 60.0, 0.05) # Ani Zoom
-	tween.parallel().tween_property(kamera, "h_offset", -0.1, 0.05) # Sola kay
-	
-	tween.tween_property(kamera, "fov", varsayilan_fov, 0.1) # Normale dön
-	tween.parallel().tween_property(kamera, "h_offset", 0.0, 0.1)
+	# 2. GLITCH EFEKTİ
+	if kamera:
+		var tween = create_tween()
+		tween.tween_property(kamera, "fov", 110.0, 0.05).set_trans(Tween.TRANS_BOUNCE)
+		tween.parallel().tween_property(kamera, "h_offset", 0.05, 0.05)
+		tween.tween_property(kamera, "fov", 60.0, 0.05)
+		tween.parallel().tween_property(kamera, "h_offset", -0.05, 0.05)
+		tween.tween_property(kamera, "fov", varsayilan_fov, 0.1)
+		tween.parallel().tween_property(kamera, "h_offset", 0.0, 0.1)
 
-	# 3. YOLCUYU TİTRET veya YOK ET
+	# 3. YOLCU İŞLEMİ
 	if yok_olacak_mi:
-		# İkinci tıklayış: Yok et
 		yolcu_node.visible = false
-		# Opsiyonel: Yok olma sesi çalabilirsin
+		yok_edilen_yolcu_sayisi += 1 # Sayacı artır
+		
+		# HERKES BİTTİ Mİ KONTROLÜ
+		if yok_edilen_yolcu_sayisi >= toplam_yolcu_sayisi:
+			bolum_sonu_gecisi_yap()
+			return # Fonksiyondan çık, alttaki timer çalışmasın
+			
 	else:
-		# İlk tıklayış: Yolcuyu olduğu yerde titret
+		# Titretme
 		var y_tween = create_tween()
 		var org_pos = yolcu_node.position
-		y_tween.tween_property(yolcu_node, "position", org_pos + Vector3(0.1, 0.1, 0), 0.05)
-		y_tween.tween_property(yolcu_node, "position", org_pos - Vector3(0.1, 0.0, 0), 0.05)
+		y_tween.tween_property(yolcu_node, "position", org_pos + Vector3(0.05, 0.05, 0), 0.05)
 		y_tween.tween_property(yolcu_node, "position", org_pos, 0.05)
 
-	# 4. BEKLEME SÜRESİ (2.5 Saniye)
+	# 4. BEKLEME SÜRESİ
 	await get_tree().create_timer(2.5).timeout
 	
-	# Temizle ve Aç
 	altyazi_label.text = ""
 	etkilesim_aktif = true
+
+func bolum_sonu_gecisi_yap():
+	print("Tüm yolcular yok oldu. Sahne kararıyor...")
+	altyazi_label.text = "" 
+	
+	# YENİ SATIR: Oyuncunun titremesini durdur
+	# (Sahne kararırken sarsıntı dursun, huzurlu bir bayılma hissi versin)
+	$Oyuncu.titreme_aktif = false 
+	
+	var tween = create_tween()
+	tween.tween_property(gecis_materyali, "shader_parameter/factor", 1.0, 3.0)
+	
+	await tween.finished
+	get_tree().change_scene_to_file("res://Sahne2_Ev.tscn")
