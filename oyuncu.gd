@@ -233,7 +233,16 @@ func esya_kullan():
 				
 				print("💪 Güç İksiri Aktif: Çarpan 1.3 oldu.")
 				basarili = true
-		"revive": GameManager.revive_aktif = true; basarili = true
+		"revive":
+			if GameManager:
+				GameManager.revive_aktif = true
+				
+				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				if arayuz: 
+					arayuz.bilgi_goster("😇 REVIVE AKTİF! (Ölürsen Canlanırsın)", 3.0)
+					
+				print("😇 Revive İksiri İçildi: Ölümden koruyacak.")
+				basarili = true
 
 		"asit": if hedef_hucre != null: grid.sutunu_yok_et(hedef_hucre); basarili = true
 		"kilic": if hedef_hucre != null: grid.blok_kir(hedef_hucre, false); basarili = true
@@ -359,12 +368,27 @@ func hasar_al(miktar: int):
 func bar_kirildi():
 	yere_dustu_mu = true
 	tutulan_nesne = null 
+	
+	# Yere Düşme Animasyonu
 	var tween = create_tween()
 	tween.parallel().tween_property(kamera, "rotation:z", deg_to_rad(80.0), 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 	tween.parallel().tween_property(kamera, "position:y", -0.5, 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	
+	# Yerde biraz bekle (Dramatik an)
 	tween.tween_interval(2.0)
-	if suanki_can_bari <= 1: tween.tween_callback(game_over)
-	else: tween.tween_callback(kalkis_baslat)
+	
+	# --- KRİTİK REVIVE KONTROLÜ ---
+	if suanki_can_bari <= 1:
+		# Son can barı kırıldı, normalde ölürüz. AMA:
+		if GameManager and GameManager.revive_aktif:
+			# Revive varsa ölümü iptal et ve kaldır
+			tween.tween_callback(_revive_ile_kalkis)
+		else:
+			# Revive yoksa oyun biter
+			tween.tween_callback(game_over)
+	else:
+		# Daha can barımız varsa normal kalkış
+		tween.tween_callback(kalkis_baslat)
 
 func kalkis_baslat():
 	var tween = create_tween()
@@ -461,3 +485,34 @@ func toggle_mouse_mode():
 	if oldu_mu: return
 	mouse_serbest_modu = !mouse_serbest_modu
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if mouse_serbest_modu else Input.MOUSE_MODE_CAPTURED
+func _revive_ile_kalkis():
+	print("😇 REVIVE DEVREYE GİRDİ! Oyuncu kurtarıldı.")
+	
+	# 1. Hakkı Tüket
+	GameManager.revive_aktif = false
+	
+	# 2. Mesaj Ver
+	var arayuz = get_tree().get_first_node_in_group("Arayuz")
+	if arayuz: arayuz.bilgi_goster("😇 ÖLÜMDEN DÖNDÜN! (Revive Kullanıldı)", 3.0)
+	
+	# 3. ÖZEL KALKIŞ ANİMASYONU (Standart kalkis_baslat'ı kullanmıyoruz!)
+	# Çünkü o fonksiyon otomatik olarak 1 can daha düşürüyor. Biz elle yapacağız.
+	var tween = create_tween()
+	tween.parallel().tween_property(kamera, "rotation:z", 0.0, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(kamera, "position:y", 0.6, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	tween.parallel().tween_property(kamera, "rotation:x", 0.0, 1.0) 
+	
+	# 4. Animasyon bitince değerleri ZORLA eşitle
+	tween.tween_callback(func():
+		yere_dustu_mu = false
+		
+		# --- BURASI DÜZELTİLDİ ---
+		# Normalde can düşüyordu, burada direkt 1'e sabitliyoruz.
+		suanki_can_bari = 1  
+		suanki_hp = 10       
+		# -------------------------
+		
+		GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
+		ui_guncelle()
+		print("✅ Revive tamamlandı. Can: 1 Bar (10 HP)")
+	)
