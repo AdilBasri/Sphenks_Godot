@@ -272,9 +272,27 @@ func _bloklari_yok_et(hucreler: Array) -> void:
 			grid_verisi.erase(h); if blok: blok.queue_free()
 
 func _gelismis_puan_hesapla(satir, bloklar):
-	var p = bloklar.size() * 10 * kombo_carpani
+	# 1. Kombo Çarpanı
+	var final_carpan = float(kombo_carpani)
+	
+	# 2. GÜÇ İKSİRİ ETKİSİ (YENİ)
+	# Eğer GameManager'da çarpan 1'den büyükse (iksir içildiyse) çarpıyoruz.
+	if GameManager and GameManager.puan_carpani > 1.0:
+		final_carpan *= GameManager.puan_carpani
+		print("💪 Güç İksiri Devrede! Çarpan: ", final_carpan)
+	
+	# 3. Puan Hesabı
+	var p = bloklar.size() * 10 * final_carpan
+	
+	# Sinyal Gönder
 	emit_signal("puan_kazanildi", int(p))
-	if arayuz: arayuz.puan_ekle(int(p), "KOMBO x" + str(kombo_carpani))
+	
+	# Arayüzde Gösterim
+	var mesaj = "KOMBO x" + str(kombo_carpani)
+	if GameManager.puan_carpani > 1.0:
+		mesaj += " (GÜÇ x1.3)" # Oyuncu iksirin çalıştığını görsün
+		
+	if arayuz: arayuz.puan_ekle(int(p), mesaj)
 
 func mantar_modu_aktif(): GameManager.mantar_modu = true; get_tree().call_group("Blok", "rastgele_boya")
 func hedef_goster(hucre: Vector2i, aktif: bool):

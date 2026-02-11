@@ -8,6 +8,6 @@ script = ExtResource("1_2qn2s")
 etki_id = "guc"
 esya_adi = "Altın Şerbet"
 aciklama = "Bölümde kazanılan puanları 1.3x çarpar."
-fiyat = 12
+fiyat = 1
 ikon = ExtResource("1_snd7x")
 metadata/_custom_type_script = "uid://drbl7e8h0wosy"

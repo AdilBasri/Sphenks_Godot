@@ -221,7 +221,18 @@ func esya_kullan():
 				GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
 				ui_guncelle()
 				basarili = true
-		"guc": GameManager.puan_carpani = 1.3; basarili = true
+		"guc":
+			if GameManager:
+				GameManager.puan_carpani = 1.3
+				
+				# --- BURASI DEĞİŞTİ: Daha havalı bilgilendirme ---
+				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				if arayuz: 
+					# Ekranda 3 saniye kalacak net bir mesaj
+					arayuz.bilgi_goster("🧪 GÜÇ İKSİRİ İÇİLDİ! (Puanlar x1.3)", 3.0)
+				
+				print("💪 Güç İksiri Aktif: Çarpan 1.3 oldu.")
+				basarili = true
 		"revive": GameManager.revive_aktif = true; basarili = true
 
 		"asit": if hedef_hucre != null: grid.sutunu_yok_et(hedef_hucre); basarili = true

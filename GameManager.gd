@@ -93,75 +93,55 @@ func bolum_bufflarini_sifirla():
 func oyunu_kaydet():
 	var config = ConfigFile.new()
 	
-	# 1. TEMEL VERİLER
+	# ... (Diğer kayıtlar: Seviye, Altın vs. aynen kalsın) ...
 	config.set_value("Oyun", "KayitliSeviye", suanki_seviye)
 	config.set_value("Oyun", "Altin", toplam_altin)
-	config.set_value("Oyun", "IntroTamamlandi", intro_tamamlandi)
-	
-	# 2. SAĞLIK DURUMU
 	config.set_value("Oyuncu", "KalanBar", oyuncu_kalan_bar)
 	config.set_value("Oyuncu", "SuankiHP", oyuncu_suanki_hp)
-	
-	# 3. SİLAH VE MERMİ DURUMU
 	config.set_value("Oyuncu", "MermiSayisi", mermi_sayisi)
 	config.set_value("Oyuncu", "PyroAktif", pyro_aktif)
 	
-	# 4. ENVANTERİ KAYDETME (Dosya Yolu Olarak)
-	# Eşyalar birer "Resource" olduğu için direkt kaydedilemez.
-	# Onların bilgisayardaki adreslerini (path) kaydediyoruz.
+	# --- YENİ: BUFF DURUMUNU KAYDET ---
+	config.set_value("Bufflar", "PuanCarpani", puan_carpani)
+	# ----------------------------------
+	
+	# Envanter kaydı...
 	var esya_yollari = []
 	for esya in envanter:
-		if esya != null:
-			esya_yollari.append(esya.resource_path)
-	
+		if esya != null: esya_yollari.append(esya.resource_path)
 	config.set_value("Oyun", "Envanter", esya_yollari)
 	
-	# Dosyayı yaz
-	var hata = config.save("user://savegame.cfg")
-	
-	if hata == OK:
-		kayitli_seviye = suanki_seviye
-		print("💾 DETAYLI KAYIT BAŞARILI!")
-		print("   Seviye:", suanki_seviye, " Altın:", toplam_altin, " Can:", oyuncu_kalan_bar, " Mermi:", mermi_sayisi)
-		
-		var arayuz = get_tree().get_first_node_in_group("Arayuz")
-		if arayuz: arayuz.bilgi_goster("Oyun Kaydedildi! (Seviye " + str(kayitli_seviye) + ")")
-	else:
-		print("❌ HATA: Oyun kaydedilemedi!")
+	config.save("user://savegame.cfg")
+	# ... (Bildirim kodları aynen kalsın)
 
 func oyunu_yukle():
 	var config = ConfigFile.new()
 	var hata = config.load("user://savegame.cfg")
 	
 	if hata == OK:
-		# 1. TEMEL VERİLERİ ÇEK
+		# ... (Diğer yüklemeler aynen kalsın) ...
 		kayitli_seviye = config.get_value("Oyun", "KayitliSeviye", 1)
 		toplam_altin = config.get_value("Oyun", "Altin", 10)
-		intro_tamamlandi = config.get_value("Oyun", "IntroTamamlandi", false)
-		
-		# 2. SAĞLIK VERİLERİNİ ÇEK
 		oyuncu_kalan_bar = config.get_value("Oyuncu", "KalanBar", 4)
 		oyuncu_suanki_hp = config.get_value("Oyuncu", "SuankiHP", 10)
-		
-		# 3. MERMİ VERİSİNİ ÇEK
 		mermi_sayisi = config.get_value("Oyuncu", "MermiSayisi", 10)
 		pyro_aktif = config.get_value("Oyuncu", "PyroAktif", false)
 		
-		# 4. ENVANTERİ GERİ YÜKLE
+		# --- YENİ: BUFF DURUMUNU GERİ YÜKLE ---
+		puan_carpani = config.get_value("Bufflar", "PuanCarpani", 1.0)
+		# --------------------------------------
+		
+		# Envanter yükleme...
 		envanter.clear()
 		var esya_yollari = config.get_value("Oyun", "Envanter", [])
-		
 		for yol in esya_yollari:
 			if ResourceLoader.exists(yol):
-				var esya = load(yol)
-				envanter.append(esya)
-		
-		print("📂 Kayıt Yüklendi. Intro Durumu: ", intro_tamamlandi)
+				envanter.append(load(yol))
+				
+		print("📂 Kayıt Yüklendi. Seviye:", kayitli_seviye, " Puan Çarpanı:", puan_carpani)
 	else:
-		intro_tamamlandi = false # Kayıt yoksa intro oynanmamıştır
-		print("📂 Kayıt bulunamadı, sıfırdan başlanıyor.")
-		
-		# --- GELİŞTİRİCİ ARKA KAPISI (GameManager içine ekle) ---
+		kayitli_seviye = 1
+
 func dev_sifirla_ve_basa_don():
 	intro_tamamlandi = false
 	suanki_seviye = 1
