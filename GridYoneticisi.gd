@@ -300,4 +300,75 @@ func hedef_goster(hucre: Vector2i, aktif: bool):
 func blok_kir(hucre: Vector2i, odul: bool = false): if grid_verisi.has(hucre): grid_verisi[hucre].queue_free(); grid_verisi.erase(hucre)
 func sutunu_yok_et(hucre: Vector2i): pass 
 func bloku_boya(hucre: Vector2i): pass
-func miknatis_etkisi(): pass
+func miknatis_etkisi():
+	print("🧲 Mıknatıs Çalıştı: Bloklar aşağı çekiliyor...")
+	
+	# YÖN: (0, 1) yani Z ekseninde pozitif (Bize doğru/Aşağı)
+	var yon = Vector2i(0, 1)
+	var hareket_var_mi = false
+	
+	# SIRALAMA ÖNEMLİ:
+	# Aşağı çekeceğimiz için, en aşağıdan (y=7) en yukarıya (y=0) doğru taramalıyız.
+	# Böylece alttakiler önce kaçar, üsttekilere yer açılır.
+	
+	# Griddeki dolu hücreleri al
+	var dolu_hucreler = grid_verisi.keys()
+	
+	# Bunları Y koordinatına göre BÜYÜKTEN KÜÇÜĞE (7 -> 0) sırala
+	dolu_hucreler.sort_custom(func(a, b): return a.y > b.y)
+	
+	for hucre in dolu_hucreler:
+		var suanki_konum = hucre
+		var blok_node = grid_verisi[hucre]
+		
+		# Bloğu gidebildiği kadar aşağı itelim
+		var hedef_konum = suanki_konum
+		
+		while true:
+			var sonraki_adim = hedef_konum + yon
+			
+			# 1. Grid dışına çıktı mı?
+			if sonraki_adim.x < 0 or sonraki_adim.x >= grid_boyutu.x or sonraki_adim.y < 0 or sonraki_adim.y >= grid_boyutu.y:
+				break
+			
+			# 2. Orada başka bir blok var mı? (Kendi eski yeri hariç)
+			# Not: grid_verisi'ni anlık güncellemediğimiz için "hedef_konum" kontrolü yapıyoruz
+			if grid_verisi.has(sonraki_adim) and sonraki_adim != suanki_konum:
+				break
+				
+			# 3. Orada TAŞ (Engel) var mı?
+			if kilitli_hucreler.has(sonraki_adim):
+				break
+			
+			# Yol temiz, bir adım daha ilerle
+			hedef_konum = sonraki_adim
+		
+		# Eğer blok yer değiştirdiyse
+		if hedef_konum != suanki_konum:
+			# 1. Sözlüğü Güncelle (Eskiyi sil, yeniyi ekle)
+			grid_verisi.erase(suanki_konum)
+			grid_verisi[hedef_konum] = blok_node
+			
+			# 2. Görsel Animasyon
+			_blok_kaydir_animasyonu(blok_node, hedef_konum)
+			
+			hareket_var_mi = true
+	
+	# Hepsi bittikten sonra patlama kontrolü yap
+	if hareket_var_mi:
+		if kamera_sarsinti_scripti: kamera_sarsinti_scripti.shake(0.1) # Hafif sarsıntı
+		
+		# Animasyonların bitmesi için biraz bekle, sonra patlat
+		await get_tree().create_timer(0.35).timeout
+		satirlari_kontrol_et()
+	else:
+		print("🧲 Mıknatıs çekti ama hiçbir blok kıpırdayamadı.")
+
+func _blok_kaydir_animasyonu(blok: Node3D, hedef_hucre: Vector2i):
+	var hedef_pos = cell_center_world(hedef_hucre)
+	# Yüksekliği koru (Blok havadaysa inmesin, olduğu yerde kaysın diye)
+	# Ama grid sisteminde genelde y=0'dır. İstersen blok.position.y kullanabilirsin.
+	
+	var tween = create_tween()
+	tween.tween_property(blok, "global_position:x", hedef_pos.x, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(blok, "global_position:z", hedef_pos.z, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
