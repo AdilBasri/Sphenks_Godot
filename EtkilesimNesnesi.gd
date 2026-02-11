@@ -1,39 +1,41 @@
 extends StaticBody3D
 
-# YENİ TÜR: BILET EKLENDİ
 enum Tur {MUSLUK, BLENDER, ESYA, BILET}
 @export var nesne_turu : Tur = Tur.ESYA
 @export var esya_ismi : String = "Eşya"
 
-# Ana sahneye erişim
 @onready var main_script = get_tree().current_scene
+# Güvenli Erişim: Sadece Musluksa ara
+@onready var benim_suyum = get_node_or_null("SuPartikulleri")
 
-# Musluklar için kendi içindeki suyu bul
-@onready var benim_suyum = $SuPartikulleri if has_node("SuPartikulleri") else null
 var su_acik = false
 
 func etkilesim_baslat():
+	print("Tıklanan Nesne: ", name, " | Türü: ", nesne_turu) # DEBUG SATIRI
+	
 	match nesne_turu:
 		Tur.MUSLUK:
-			# ANA SAHNEYE GİTMEDEN KENDİ İŞİMİ HALLEDİYORUM
 			if benim_suyum:
 				su_acik = !su_acik
 				benim_suyum.emitting = su_acik
-				# İstersen ses de çaldırabilirsin
+				print("-> Su durumu değişti: ", su_acik)
 			else:
-				print("HATA: Bu musluğun içinde 'SuPartikulleri' yok!")
+				print("-> HATA: 'SuPartikulleri' düğümü bulunamadı! İçimdeki düğümler:")
+				print_tree_pretty() # Ağacı yazdırır, hatayı görürüz.
 
 		Tur.BLENDER:
+			print("-> Blender'a sinyal gönderiliyor...")
 			if main_script.has_method("blenderi_calistir"):
 				main_script.blenderi_calistir()
 
 		Tur.ESYA:
+			print("-> Eşya toplandı: ", esya_ismi)
 			if main_script.has_method("malzeme_topla"):
 				main_script.malzeme_topla(esya_ismi)
-				queue_free() # Eşyayı yok et
+				queue_free()
 
 		Tur.BILET:
-			# Bilet yerden alındığında final başlar
+			# Ana sahnedeki fonksiyona 'self' (kendimi) gönderiyorum
 			if main_script.has_method("bilet_alindi_final"):
-				main_script.bilet_alindi_final()
-				queue_free() # Bileti yok et (Cebe attı)
+				main_script.bilet_alindi_final(self) # <-- 'self' ekledik
+				# queue_free() SİLDİK! Çünkü nesneyi yok etmiyoruz, eline alıyor.

@@ -1,16 +1,14 @@
 extends Node3D
 
-# --- AYARLAR ---
-@onready var kamera = $Oyuncu/Camera3D
-@onready var altyazi_label = $UI/Label
-# Az önce eklediğin Siyah Perdeye ulaşıyoruz
-@onready var gecis_materyali = $UI/GecisEkrani.material 
+# --- DEĞİŞKENLER ---
+var kamera = null
+var altyazi_label = null
+var gecis_perdesi = null
+var oyuncu = null
 
 var etkilesim_aktif = true 
 var varsayilan_fov = 90.0
-
-# YOLCU TAKİBİ
-var toplam_yolcu_sayisi = 0
+var toplam_yolcu_sayisi = 7 # <-- Yolcu sayın
 var yok_edilen_yolcu_sayisi = 0
 
 var diyaloglar = [
@@ -25,20 +23,29 @@ var diyaloglar = [
 ]
 
 func _ready():
-	if kamera: varsayilan_fov = kamera.fov
-	altyazi_label.text = ""
+	# --- 1. OYUNCUYU VE KAMERAYI BUL (DEDEKTİF YÖNTEMİ) ---
+	# Sahne içindeki ismi "Oyuncu" olan düğümü ara (Recursive: True)
+	oyuncu = find_child("Oyuncu", true, false)
 	
-	# Sahnede kaç tane "StaticBody3D" (Yolcu) var otomatik sayalım
-	# (Yolcuların hepsini bir "Yolcular" düğümü altına topladıysan daha kolay olur
-	# ama dağınık olsa bile 'get_children' veya gruplarla bulabiliriz.
-	# Şimdilik manuel sayıp buraya yazabilirsin veya otomatik buldurabiliriz)
+	if oyuncu:
+		# Oyuncunun içindeki Kamerayı ara
+		kamera = oyuncu.find_child("Camera3D", true, false)
+		if kamera:
+			varsayilan_fov = kamera.fov
 	
-	# BASİT YÖNTEM: Sahneye kaç yolcu koyduysan buraya o sayıyı yaz.
-	# Örneğin 5 yolcu varsa 5 yaz.
-	toplam_yolcu_sayisi = 7 # <-- BURAYI SAHNEDEKİ YOLCU SAYINA GÖRE GÜNCELLE!
+	# --- 2. UI ELEMANLARINI BUL ---
+	# İsmi tam olarak "Label" olanı bul
+	altyazi_label = find_child("Label", true, false)
+	if altyazi_label: altyazi_label.text = "" 
+
+	# İsmi "GecisEkrani" olanı bul
+	gecis_perdesi = find_child("GecisEkrani", true, false)
 	
-	# Geçiş ekranını tamamen şeffaf yap (Shader factor 0)
-	gecis_materyali.set_shader_parameter("factor", 0.0)
+	if gecis_perdesi:
+		if gecis_perdesi.material:
+			gecis_perdesi.material.set_shader_parameter("factor", 0.0)
+	else:
+		print("⚠️ 'GecisEkrani' bulunamadı! (İsmini kontrol et veya sahneyi kaydet)")
 
 # --- YOLCU TETİKLEYİCİSİ ---
 func yolcuya_tiklandi(yolcu_node, yok_olacak_mi):
@@ -46,10 +53,9 @@ func yolcuya_tiklandi(yolcu_node, yok_olacak_mi):
 	
 	etkilesim_aktif = false 
 	
-	# 1. METİN GÖSTER
-	altyazi_label.text = diyaloglar.pick_random()
+	if altyazi_label:
+		altyazi_label.text = diyaloglar.pick_random()
 	
-	# 2. GLITCH EFEKTİ
 	if kamera:
 		var tween = create_tween()
 		tween.tween_property(kamera, "fov", 110.0, 0.05).set_trans(Tween.TRANS_BOUNCE)
@@ -59,39 +65,37 @@ func yolcuya_tiklandi(yolcu_node, yok_olacak_mi):
 		tween.tween_property(kamera, "fov", varsayilan_fov, 0.1)
 		tween.parallel().tween_property(kamera, "h_offset", 0.0, 0.1)
 
-	# 3. YOLCU İŞLEMİ
 	if yok_olacak_mi:
 		yolcu_node.visible = false
-		yok_edilen_yolcu_sayisi += 1 # Sayacı artır
+		yok_edilen_yolcu_sayisi += 1 
 		
-		# HERKES BİTTİ Mİ KONTROLÜ
 		if yok_edilen_yolcu_sayisi >= toplam_yolcu_sayisi:
 			bolum_sonu_gecisi_yap()
-			return # Fonksiyondan çık, alttaki timer çalışmasın
-			
+			return 
 	else:
-		# Titretme
 		var y_tween = create_tween()
 		var org_pos = yolcu_node.position
 		y_tween.tween_property(yolcu_node, "position", org_pos + Vector3(0.05, 0.05, 0), 0.05)
 		y_tween.tween_property(yolcu_node, "position", org_pos, 0.05)
 
-	# 4. BEKLEME SÜRESİ
 	await get_tree().create_timer(2.5).timeout
 	
-	altyazi_label.text = ""
+	if altyazi_label:
+		altyazi_label.text = ""
 	etkilesim_aktif = true
 
 func bolum_sonu_gecisi_yap():
-	print("Tüm yolcular yok oldu. Sahne kararıyor...")
-	altyazi_label.text = "" 
+	print("Sahne kararıyor...")
+	if altyazi_label: altyazi_label.text = "" 
 	
-	# YENİ SATIR: Oyuncunun titremesini durdur
-	# (Sahne kararırken sarsıntı dursun, huzurlu bir bayılma hissi versin)
-	$Oyuncu.titreme_aktif = false 
+	if oyuncu and "titreme_aktif" in oyuncu:
+		oyuncu.titreme_aktif = false 
 	
-	var tween = create_tween()
-	tween.tween_property(gecis_materyali, "shader_parameter/factor", 1.0, 3.0)
-	
-	await tween.finished
+	if gecis_perdesi and gecis_perdesi.material:
+		var tween = create_tween()
+		tween.tween_property(gecis_perdesi.material, "shader_parameter/factor", 1.0, 3.0)
+		await tween.finished
+	else:
+		await get_tree().create_timer(3.0).timeout
+
 	get_tree().change_scene_to_file("res://Sahne2_Ev.tscn")

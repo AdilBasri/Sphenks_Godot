@@ -1,4 +1,4 @@
-extends StaticBody3D
+extends Node3D
 
 var tiklanma_sayisi = 0
 @onready var main_script = get_tree().current_scene

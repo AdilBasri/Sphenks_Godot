@@ -6,18 +6,22 @@ extends CanvasLayer
 @onready var score_label = $ParsomenPanel/PuanTablosu/TotalScoreDeger
 @onready var liste = $ParsomenPanel/PuanTablosu/Liste
 
-# --- 🔥 YENİ: PYRO MODU İÇİN UI 🔥 ---
+# --- 🔥 PYRO MODU İÇİN UI 🔥 ---
 # Bunları Inspector'dan atamayı unutma!
 @export var mermi_label: Label 
 @export var nisangah: Control
 @export var pyro_filtresi: ColorRect
 
 # --- DİĞER UI BAĞLANTILARI ---
+# Eğer hiyerarşin farklıysa buradaki yolları kontrol et!
 @onready var altin_label = $AnaKontrol/MarginContainer/HBoxContainer/AltinSayisi
 @onready var bilgi_label = $AnaKontrol/BilgiLabel
 
+# Eğer sahnende 'KatmanLabel' diye bir düğüm varsa onu bulur
+@onready var katman_label = get_node_or_null("KatmanLabel") 
+# Veya AnaKontrol içindeyse: $AnaKontrol/KatmanLabel (Sahne yapına göre ayarla)
+
 # --- DEĞİŞKENLER ---
-var katman_label = null
 var anim_player = null
 var progress_bar = null 
 var perde = null 
@@ -31,10 +35,6 @@ func _ready() -> void:
 	add_to_group("Arayuz")
 	
 	# --- MEVCUT SİSTEMLERİN KURULUMU ---
-	if has_node("KatmanLabel"):
-		katman_label = $KatmanLabel
-		katman_label.visible = false
-
 	if has_node("AnimationPlayer"):
 		anim_player = $AnimationPlayer
 
@@ -69,26 +69,30 @@ func _ready() -> void:
 	await get_tree().process_frame
 	mantar_efekti_yonet(false)
 
+	# --- 🛠️ EKLENEN KISIM: AÇILIŞTA KATMANI GÜNCELLE 🛠️ ---
+	if LevelManager:
+		katman_yazisi_goster(LevelManager.suanki_katman)
+
 func _process(delta):
-	# --- 🔥 UI GÖRÜNÜRLÜK KONTROLÜ (GÜNCELLENDİ) 🔥 ---
-	# 1. PYRO Modu Açık MI? ve Silah Çekili Mİ?
+	# Sürekli sahne ağacında arama yapmasın, değişkenler üzerinden baksın
+	if not GameManager: return
+
 	var nisangah_aktif = GameManager.pyro_aktif and GameManager.silah_cekildi
 	
-	if nisangah: 
+	# Sadece durum değiştiğinde görünürlük ayarla (Her karede yapma)
+	if nisangah and nisangah.visible != nisangah_aktif:
 		nisangah.visible = nisangah_aktif
 	
-	# Mermi sayısı da sadece silah çekiliyken görünsün
-	if mermi_label:
+	if mermi_label and mermi_label.visible != nisangah_aktif:
 		mermi_label.visible = nisangah_aktif
 
-	# Kırmızı filtre her zaman Pyro modunda kalsın
-	if pyro_filtresi:
+	# Kırmızı filtre kontrolü
+	if pyro_filtresi and pyro_filtresi.visible != GameManager.pyro_aktif:
 		pyro_filtresi.visible = GameManager.pyro_aktif
-		if GameManager.pyro_aktif:
-			pyro_filtresi.color = Color(1, 0, 0, 0.15)
 
 func _on_mermi_degisti(sayi):
 	if mermi_label:
+		# Sadece güncelle, görünürlüğü _process yönetiyor
 		mermi_label.text = "MERMİ: %d / %d" % [sayi, GameManager.max_mermi]
 		
 		if sayi == 0:
@@ -107,7 +111,10 @@ func totem_sayacini_guncelle():
 	var tree = get_tree()
 	if not tree or not tree.current_scene: return
 
+	# Sahne içinde SayacLabel'ı bulmaya çalışıyoruz
+	# Eğer Arayuz sahnesindeyse direkt $SayacLabel diyebilirsin
 	var sayac_label = tree.current_scene.find_child("SayacLabel", true, false)
+	
 	if sayac_label:
 		var mevcut = GameManager.envanter.size()
 		var maks = GameManager.max_totem_sayisi
@@ -146,12 +153,22 @@ func perde_kapat(sure: float = 1.0):
 	await tween.finished 
 
 func katman_yazisi_goster(kat_no: int):
+	# Eğer katman_label değişkeni boşsa, bulmaya çalış
+	if not katman_label:
+		katman_label = get_node_or_null("KatmanLabel")
+		if not katman_label: 
+			# Belki AnaKontrol altındadır?
+			katman_label = get_node_or_null("OyunArayuzu/KatmanLabel")
+	
 	if katman_label:
 		katman_label.text = "KATMAN " + str(kat_no)
 		katman_label.visible = true
+		
+		# Animasyon varsa oynat, yoksa manuel parlat
 		if anim_player and anim_player.has_animation("katman_giris"):
 			anim_player.play("katman_giris")
 		else:
+			# Manuel Tween Animasyonu
 			var tween = create_tween()
 			katman_label.modulate.a = 0
 			katman_label.scale = Vector2(2, 2)
@@ -159,6 +176,8 @@ func katman_yazisi_goster(kat_no: int):
 			tween.parallel().tween_property(katman_label, "scale", Vector2(1, 1), 0.5)
 			tween.tween_interval(2.0)
 			tween.tween_property(katman_label, "modulate:a", 0.0, 0.5)
+	else:
+		print("UYARI: 'KatmanLabel' bulunamadı! Katman yazısı gösterilemiyor.")
 
 func toggle_panel() -> void:
 	panel_acik = !panel_acik
@@ -192,7 +211,6 @@ func guncelle_ekran() -> void:
 	if progress_bar:
 		progress_bar.max_value = hedef_puan
 		progress_bar.value = toplam_puan
-		
 		
 func mantar_efekti_yonet(aktif: bool):
 	var efekt_node = null

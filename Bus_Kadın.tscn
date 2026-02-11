@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://drr1tmjsq60ch"]
+[gd_scene load_steps=4 format=3 uid="uid://drr1tmjsq60ch"]
 
 [ext_resource type="PackedScene" uid="uid://d20g7d1qpsk3h" path="res://sitting_talking/scene.gltf" id="1_ej3m6"]
+[ext_resource type="Script" uid="uid://dxwg6i1uepjta" path="res://Yolcu.gd" id="2_2njal"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ej3m6"]
 radius = 1.6357422
@@ -64,6 +65,7 @@ bones/63/rotation = Quaternion(0.229343, 0.0032626064, 0.0048280987, 0.97332823)
 bones/64/rotation = Quaternion(-0.005600898, -1.2265102e-07, 1.1012185e-07, 0.9999843)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." index="2"]
+script = ExtResource("2_2njal")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5973111, 0)

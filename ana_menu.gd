@@ -1,27 +1,110 @@
 extends Control
 
-# DÜZELTME: Dosya yolunu tırnak içine aldık.
-# Sphenks.tscn dosyasının tam olarak nerede olduğuna dikkat et (res:// veya res://Scenes/ altında mı?)
-# Eğer direkt ana klasördeyse bu çalışır:
-var oyun_sahnesi_yolu = "res://Sphenks.tscn" 
+# --- DOSYA YOLLARI ---
+# DİKKAT: Dosyalarının gerçek yollarını buraya yaz (Büyük/Küçük harfe dikkat et)
+var oyun_sahnesi_yolu = "res://sphenks.tscn"  # Tutorial / Oyun Başlangıcı
+var intro_sahnesi_yolu = "res://intro_sahnesi.tscn" # Otobüs Sahnesi
 
 func _ready():
-	# Butonları kodla bağlıyoruz.
-	# Eğer senin sahne ağacında butonların yeri farklıysa (örneğin VBoxContainer yoksa)
-	# $VBoxContainer kısmını silip direkt $OynaButonu yazabilirsin.
+	print("Ana Menü Açıldı.")
 	
+	# 1. ADIM: Oyun açılır açılmaz hafızayı tazele (Save dosyasını oku)
+	GameManager.oyunu_yukle()
+	print("Menü Yüklendi. Kayıtlı Seviye: ", GameManager.kayitli_seviye, " | Intro Bitti mi: ", GameManager.intro_tamamlandi)
+
+	# --- BUTON BAĞLANTILARI (Defansif Kodlama) ---
+	
+	# OYNA BUTONU
 	if has_node("VBoxContainer/OynaButonu"):
 		$VBoxContainer/OynaButonu.pressed.connect(_on_oyna_pressed)
+	else:
+		print("UYARI: 'OynaButonu' bulunamadı!")
 	
+	# ÇIKIŞ BUTONU
 	if has_node("VBoxContainer/CikisButonu"):
 		$VBoxContainer/CikisButonu.pressed.connect(_on_cikis_pressed)
 
+	# 🔥 SIFIRLA (HARD RESET) BUTONU 🔥
+	# Sahne ağacına 'SifirlaButonu' adında bir buton eklediğinden emin ol!
+	if has_node("VBoxContainer/SifirlaButonu"):
+		$VBoxContainer/SifirlaButonu.pressed.connect(_on_sifirla_pressed)
+
 func _on_oyna_pressed():
-	print("Oyun Başlıyor...")
+	# --- KARAR MEKANİZMASI ---
 	
-	# Sahne değiştirme kodu (Değişkene atadığımız yolu kullanıyoruz)
-	get_tree().change_scene_to_file(oyun_sahnesi_yolu)
+	# DURUM A: Oyuncu daha önce introyu bitirmiş (DEVAM ETMEK İSTİYOR)
+	if GameManager.intro_tamamlandi:
+		print("✅ Oyuncu eski toprak. Kaldığı yerden devam ediyor.")
+		
+		# KRİTİK NOKTA: Burada 'verileri_sifirla()' ASLA çağırmıyoruz!
+		# Çünkü oyuncu 3. seviyedeyse, o veriyi koruyarak sahneye girmeli.
+		
+		# GameManager'daki kayıtlı seviyeyi garantiye al
+		if GameManager.kayitli_seviye > 0:
+			GameManager.suanki_seviye = GameManager.kayitli_seviye
+		else:
+			GameManager.suanki_seviye = 1
+			
+		get_tree().change_scene_to_file(oyun_sahnesi_yolu)
+
+	# DURUM B: Yeni Oyuncu (veya save silinmiş) (SIFIRDAN BAŞLIYOR)
+	else:
+		print("🆕 Yeni Oyuncu. Hikaye Modu (Otobüs) Başlıyor...")
+		
+		# KRİTİK NOKTA: Yeni oyun olduğu için eski kalıntıları temizle!
+		GameManager.intro_tamamlandi = false
+		GameManager.kayitli_seviye = 1 # Seviyeyi 1'e çek
+		GameManager.verileri_sifirla() # Can, altın, envanter hepsini sıfırla
+		
+		get_tree().change_scene_to_file(intro_sahnesi_yolu)
 
 func _on_cikis_pressed():
 	print("Çıkılıyor...")
 	get_tree().quit()
+
+func _on_sifirla_pressed():
+	print("🗑️ Sıfırlama işlemi başlatılıyor...")
+	
+	# 1. GameManager sadece işini yapsın
+	GameManager.dosyalari_tamamen_sil()
+	
+	# 2. Görsel bildirim ver
+	if has_node("VBoxContainer/SifirlaButonu"):
+		var btn = $VBoxContainer/SifirlaButonu
+		btn.text = "SİLİNDİ!"
+		btn.disabled = true # Çift tıklamayı engelle
+		btn.modulate = Color.RED
+
+	# 3. KRİTİK KORUMA: 
+	# Eğer GameManager bir şekilde sahneyi değiştirdiyse burada dur.
+	if not is_inside_tree(): 
+		return
+
+	# 4. Sahne ağacı üzerinden değil, SceneTreeTimer üzerinden bekle
+	# Bu yöntem get_tree() hatasını büyük oranda engeller.
+	await get_tree().create_timer(1.0).timeout
+	
+	# 5. Sahne hâlâ buradaysa yenile
+	if is_inside_tree():
+		print("🔄 Menü yenileniyor...")
+		get_tree().reload_current_scene()
+		
+func _input(event):
+	if event is InputEventKey and event.pressed:
+		
+		# F1: SIFIRLA (Menüdeki butonla aynı işi yapar)
+		if event.keycode == KEY_F1:
+			if GameManager.has_method("dev_sifirla_ve_basa_don"):
+				GameManager.dev_sifirla_ve_basa_don()
+			else:
+				_on_sifirla_pressed()
+			
+		# F2: Direkt PİRAMİT BÖLÜMÜNE ATLA (Test için)
+		if event.keycode == KEY_F2:
+			print("🛠️ Dev: Piramit Sahnesine atlanıyor...")
+			get_tree().change_scene_to_file("res://Sahne3_Misir.tscn")
+			
+		# F3: Direkt OYUN İÇİNE ATLA (Test için)
+		if event.keycode == KEY_F3:
+			print("🛠️ Dev: Oyun Sahnesine atlanıyor...")
+			get_tree().change_scene_to_file(oyun_sahnesi_yolu)

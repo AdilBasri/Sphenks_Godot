@@ -14,7 +14,22 @@ var oyuncu_ref: CharacterBody3D
 var oyun_odasi_ref: Node = null 
 
 func oyunu_baslat():
-	suanki_katman = 1
+	# ESKİSİ: suanki_katman = 1 şeklindeydi, bunu siliyoruz.
+	
+	# YENİSİ: GameManager'a soruyoruz, kayıtlı bir ilerleme var mı?
+	if GameManager.kayitli_seviye > 1:
+		suanki_katman = GameManager.kayitli_seviye
+		print("💾 Kayıtlı seviyeden devam ediliyor: Katman " + str(suanki_katman))
+	else:
+		suanki_katman = 1
+		print("🆕 Yeni oyun başlatılıyor: Katman 1")
+
+	# Eğer oyun 3. seviyeden (Pyro seviyesinden) başlıyorsa modu hemen aktif etmeliyiz
+	if suanki_katman % 3 == 0:
+		GameManager.pyro_aktif = true
+	else:
+		GameManager.pyro_aktif = false
+
 	get_tree().change_scene_to_file("res://Scenes/OyunOdasi.tscn")
 
 func konumlari_kaydet(p1: Vector3, p2: Vector3, p3: Vector3, oyuncu: CharacterBody3D, oda_ref: Node):

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Kitchen Knife
+* source:	https://sketchfab.com/3d-models/kitchen-knife-4c75aae7dfa74b919b61a321242de7f4
+* author:	TheSpacePunk (https://sketchfab.com/TheSpacePunk)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Kitchen Knife" (https://sketchfab.com/3d-models/kitchen-knife-4c75aae7dfa74b919b61a321242de7f4) by TheSpacePunk (https://sketchfab.com/TheSpacePunk) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

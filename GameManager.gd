@@ -18,6 +18,7 @@ var oyuncu_suanki_hp: int = 10
 var suanki_seviye: int = 1 
 var kayitli_seviye: int = 1 # <--- YENİ: Kayıt sistemimiz için eklendi
 var toplam_altin: int = 10 
+var intro_tamamlandi: bool = false # <--- YENİ EKLENECEK: Intro bitti mi kontrolü
 
 # --- ENVANTER ---
 var envanter: Array[ItemData] = []
@@ -41,8 +42,9 @@ var silah_cekildi: bool = false # Silah elimizde mi?
 
 func _ready():
 	print("GameManager Başlatıldı.")
-	oyunu_yukle() # <--- YENİ: Oyun açılınca önce kaydı yüklüyoruz
-	verileri_sifirla()
+	oyunu_yukle()
+	# verileri_sifirla() # <--- DİKKAT: Bunu buradaki _ready'den silebilirsin.
+	# Çünkü sıfırlama işlemini "Ana Menü"den "Başla" dediğimizde yapacağız.
 
 func verileri_sifirla():
 	# EĞER KAYITLI SEVİYE 1'DEN BÜYÜKSE, DEMEK Kİ DEVAM EDİYORUZ.
@@ -94,6 +96,7 @@ func oyunu_kaydet():
 	# 1. TEMEL VERİLER
 	config.set_value("Oyun", "KayitliSeviye", suanki_seviye)
 	config.set_value("Oyun", "Altin", toplam_altin)
+	config.set_value("Oyun", "IntroTamamlandi", intro_tamamlandi)
 	
 	# 2. SAĞLIK DURUMU
 	config.set_value("Oyuncu", "KalanBar", oyuncu_kalan_bar)
@@ -134,6 +137,7 @@ func oyunu_yukle():
 		# 1. TEMEL VERİLERİ ÇEK
 		kayitli_seviye = config.get_value("Oyun", "KayitliSeviye", 1)
 		toplam_altin = config.get_value("Oyun", "Altin", 10)
+		intro_tamamlandi = config.get_value("Oyun", "IntroTamamlandi", false)
 		
 		# 2. SAĞLIK VERİLERİNİ ÇEK
 		oyuncu_kalan_bar = config.get_value("Oyuncu", "KalanBar", 4)
@@ -152,10 +156,21 @@ func oyunu_yukle():
 				var esya = load(yol)
 				envanter.append(esya)
 		
-		print("📂 Kayıt Yüklendi. Seviye:", kayitli_seviye, " Altın:", toplam_altin, " Envanter:", envanter.size())
+		print("📂 Kayıt Yüklendi. Intro Durumu: ", intro_tamamlandi)
 	else:
-		kayitli_seviye = 1
+		intro_tamamlandi = false # Kayıt yoksa intro oynanmamıştır
 		print("📂 Kayıt bulunamadı, sıfırdan başlanıyor.")
+		
+		# --- GELİŞTİRİCİ ARKA KAPISI (GameManager içine ekle) ---
+func dev_sifirla_ve_basa_don():
+	intro_tamamlandi = false
+	suanki_seviye = 1
+	kayitli_seviye = 1
+	toplam_altin = 10
+	oyunu_kaydet() # Temizlenmiş halini kaydet
+	print("⚠️ DEVELOPER RESET: Tüm ilerleme ve Intro silindi!")
+	get_tree().change_scene_to_file("res://ana_menu.tscn") # Menüye at
+		
 
 # --- ENVANTER SİSTEMİ ---
 func totem_ekle(yeni_esya: ItemData) -> bool:
@@ -205,3 +220,20 @@ func pelerin_hak_dus():
 	if zar_atlama_hakki > 0:
 		zar_atlama_hakki -= 1
 		print("🛡️ Pelerin hasarı engelledi. Kalan hak: ", zar_atlama_hakki)
+		
+func dosyalari_tamamen_sil():
+	# 1. Kayıt dosyasını fiziksel olarak sil
+	var dir = DirAccess.open("user://")
+	if dir.file_exists("savegame.cfg"):
+		dir.remove("savegame.cfg")
+		print("🗑️ Kayıt dosyası diskten silindi.")
+	
+	# 2. Hafızadaki verileri sıfırla
+	intro_tamamlandi = false
+	kayitli_seviye = 1
+	suanki_seviye = 1
+	toplam_altin = 10
+	
+	# 3. ÖNEMLİ: oyunu_kaydet() fonksiyonunu burada ÇAĞIRMA. 
+	# Çünkü o fonksiyon içinde UI'a erişmeye çalışan kodlar (bilgi_goster gibi) hata verebilir.
+	print("⚙️ Hafıza sıfırlandı.")

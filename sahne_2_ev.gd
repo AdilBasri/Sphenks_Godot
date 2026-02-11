@@ -1,33 +1,44 @@
 extends Node3D
 
 # --- BAĞLANTILAR ---
-# Kapının önündeki Marker3D (Biletin doğacağı yer)
 @onready var kapi_marker = $KapiMarker3D 
-# UI (Label)
 @onready var alt_yazi = $UI/Label 
-# Geçiş efekti (IntroSahnesi'ndeki ColorRect'i kopyalayıp buraya da koymalısın)
 @onready var gecis_perdesi = $UI/GecisEkrani
+@onready var oyuncu = $Oyuncu # Oyuncuya erişmemiz lazım
+@onready var oyuncu_eli = $Oyuncu/Camera3D/El_Konumu # Az önce oluşturduğun el noktası
+
+# Bilet Sahnesini Yükle
+var bilet_sahnesi = preload("res://Bilet.tscn") 
 
 # --- DEĞİŞKENLER ---
 var toplanan_malzemeler = 0
 var gerekli_malzeme = 3
 var bilet_spawnlandi_mi = false
+var bilet_inceleme_modu = false # Şu an bileti inceliyor muyuz?
+var tutulan_bilet_nesnesi = null # Elimizdeki biletin referansı
 
-# --- HİKAYE METNİ (Sırayla Akacak) ---
 var final_diyaloglari = [
 	"Mısır hep ilgimi çekmiştir...",
 	"Bu ziyaret aklımda bazı şeyleri toplamama yardım edebilir.",
-	"Buralardan bir süreliğine uzaklaşmak... Bunu değerlendirebilirim, evet.",
+	"Buralardan bir süreliğine uzaklaşmak...",
+	"Bunu değerlendirebilirim, evet.",
 	"Ve gidersem, eminim kimse benim yokluğumu fark etmeyecektir bile.",
 	"İki gün sonra öğlen kalkıyor uçak.",
 	"Öyleyse... Mısır'a gidiyoruz demek."
 ]
 
 func _ready():
-	# Başlangıç temizliği
 	if alt_yazi: alt_yazi.text = ""
-	# Geçiş perdesi varsa tamamen şeffaf yap
 	if gecis_perdesi: gecis_perdesi.material.set_shader_parameter("factor", 0.0)
+
+# --- GİRİŞ KONTROLÜ (MOUSE İLE ÇEVİRME) ---
+func _input(event):
+	# Eğer bilet inceleme modundaysak, mouse hareketi KAMERAYI DEĞİL, BİLETİ çevirmeli
+	if bilet_inceleme_modu and tutulan_bilet_nesnesi:
+		if event is InputEventMouseMotion:
+			# Bileti sağa sola ve yukarı aşağı çevir
+			tutulan_bilet_nesnesi.rotate_y(event.relative.x * 0.01)
+			tutulan_bilet_nesnesi.rotate_x(event.relative.y * 0.01)
 
 # --- OYUN MANTIĞI ---
 
@@ -39,85 +50,89 @@ func malzeme_topla(isim):
 		alt_yazi.text = ""
 
 func blenderi_calistir():
-	if bilet_spawnlandi_mi: 
-		if alt_yazi: alt_yazi.text = "Kapının altına bak..."
-		return
+	if bilet_spawnlandi_mi: return
 
 	if toplanan_malzemeler < gerekli_malzeme:
-		if alt_yazi: alt_yazi.text = "Ritüel için daha fazla eşya (3 tane) gerekiyor."
+		if alt_yazi: alt_yazi.text = "Ritüel için daha fazla eşya gerekiyor."
 		return
 
-	# --- RİTÜEL TAMAMLANDI ---
+	# --- RİTÜEL ---
 	bilet_spawnlandi_mi = true
-	
 	if alt_yazi: alt_yazi.text = "GEÇMİŞ ÖĞÜTÜLDÜ..."
 	
-	# Blender sesi, ekran titremesi vs. buraya eklenebilir.
+	# Blender sesi vs buraya...
 	await get_tree().create_timer(2.0).timeout
 	
-	# Kapıdan bilet geldi mesajı
 	if alt_yazi: alt_yazi.text = "Kapının altından bir şey atıldı..."
-	
-	# Bileti Oluştur
 	bilet_yarat()
 
 func bilet_yarat():
 	if not kapi_marker:
-		print("HATA: Sahneye 'KapiMarker3D' eklememişsin!")
+		print("HATA: KapiMarker3D yok!")
 		return
 
-	# Bileti fiziksel bir nesne olarak yaratıyoruz
-	var bilet_govde = StaticBody3D.new()
+	# Bileti sahneye koy
+	var yeni_bilet = bilet_sahnesi.instantiate()
+	add_child(yeni_bilet)
+	yeni_bilet.global_position = kapi_marker.global_position
 	
-	# 1. Çarpışma Şekli
-	var shape = CollisionShape3D.new()
-	var box = BoxShape3D.new()
-	box.size = Vector3(0.5, 0.05, 0.3) # İnce bir kağıt gibi
-	shape.shape = box
-	bilet_govde.add_child(shape)
+	# Kırmızı ok dışarı bakıyorsa, içeri girmek için EKSİ X (-1.5) kullanıyoruz.
+	# (X, Y, Z) sıralamasına dikkat: X en baştaki sayıdır.
+	var hedef_pos = kapi_marker.global_position + Vector3(-1.5, 0, 0) 
 	
-	# 2. Görüntüsü (Mesh)
-	var mesh_ins = MeshInstance3D.new()
-	mesh_ins.mesh = BoxMesh.new()
-	mesh_ins.mesh.size = Vector3(0.5, 0.05, 0.3)
-	var mat = StandardMaterial3D.new()
-	mat.albedo_color = Color(1, 0.84, 0.0) # Altın Sarısı
-	mesh_ins.mesh.surface_set_material(0, mat)
-	bilet_govde.add_child(mesh_ins)
-	
-	# 3. Scripti Bağla ve Ayarla
-	# 'etkilesim_nesnesi.gd' dosyasını yükle
-	var script = load("res://etkilesim_nesnesi.gd") 
-	bilet_govde.set_script(script)
-	bilet_govde.nesne_turu = 3 # Enumda 3. sıra BILET (0:Musluk, 1:Blender, 2:Esya, 3:Bilet)
-	bilet_govde.esya_ismi = "Mısır Bileti"
-	
-	# Sahneye Ekle
-	add_child(bilet_govde)
-	bilet_govde.global_position = kapi_marker.global_position
+	# Kayma efektini başlat
+	var tween = create_tween()
+	tween.tween_property(yeni_bilet, "global_position", hedef_pos, 2.0)
 
-# --- FİNAL SEQUENCE (ALTYAZI VE BİTİŞ) ---
-func bilet_alindi_final():
-	print("Bilet alındı, final başlıyor...")
+# --- FİNAL SEQUENCE (BİLETİ ELİNE ALINCA) ---
+func bilet_alindi_final(bilet_nesnesi): # Parametre olarak bileti alıyoruz
+	print("Bilet alındı, inceleme modu başlıyor...")
+	
+	# 1. BİLETİ ELE GEÇİRME
+	# Bileti sahneden koparıp oyuncunun eline yapıştıracağız ama önce yerini tutalım
+	tutulan_bilet_nesnesi = bilet_nesnesi
+	
+	# Fiziğini kapat ki elindeyken sağa sola çarpmasın
+	if tutulan_bilet_nesnesi.has_node("CollisionShape3D"):
+		tutulan_bilet_nesnesi.get_node("CollisionShape3D").disabled = true
+	
+	# Ebeveyn değiştir (Sahneden al, Ele tak)
+	tutulan_bilet_nesnesi.get_parent().remove_child(tutulan_bilet_nesnesi)
+	oyuncu_eli.add_child(tutulan_bilet_nesnesi)
+	
+	# Pozisyonunu sıfırla (Elin tam ortasına gelsin)
+	tutulan_bilet_nesnesi.position = Vector3.ZERO
+	tutulan_bilet_nesnesi.rotation = Vector3(0, deg_to_rad(90), deg_to_rad(45)) # Güzel bir açıyla tutsun
+	
+	# 2. OYUNCU KONTROLÜNÜ KİLİTLE
+	bilet_inceleme_modu = true
+	# Oyuncu scriptindeki mouse hareketini durdurmak için bir değişken set etmeliyiz
+	# (Bunu aşağıda Oyuncu scriptinde ayarlayacağız)
+	if oyuncu:
+		oyuncu.inceleme_modu_aktif = true 
+	
 	if alt_yazi: alt_yazi.text = ""
 	
-	# Monolog döngüsü
+	# 3. MONOLOG
 	for satir in final_diyaloglari:
 		if alt_yazi: alt_yazi.text = satir
-		# Okuma süresi (Metin uzunluğuna göre beklenebilir ama sabit 3sn iyidir)
 		await get_tree().create_timer(3.5).timeout 
 		if alt_yazi: alt_yazi.text = ""
-		await get_tree().create_timer(0.5).timeout # İki cümle arası boşluk
+		await get_tree().create_timer(0.5).timeout
 	
-	# Ekranı Karart ve Bitir
 	sahne_gecisi()
 
 func sahne_gecisi():
+	# 1. Ekranı Karart
 	if gecis_perdesi:
 		var tween = create_tween()
+		# Perdeyi 3 saniyede simsiyah yap (Factor 1.0)
 		tween.tween_property(gecis_perdesi.material, "shader_parameter/factor", 1.0, 3.0)
 		await tween.finished
 	
-	# OYUN SONU veya SONRAKİ BÖLÜM
-	print("Bölüm Bitti.")
-	# get_tree().change_scene_to_file("res://Sahne3_Misir.tscn")
+	print("Bölüm Bitti. Mısır'a gidiliyor...")
+	
+	# 2. SAHNEYİ DEĞİŞTİR (Zincirin son halkası burası!)
+	# Dosya isminin "Sahne3_Misir.tscn" olduğundan emin ol. 
+	# Eğer dosya adın farklıysa (örn: sphenks.tscn) burayı düzelt.
+	get_tree().change_scene_to_file("res://Sahne3_Misir.tscn")
