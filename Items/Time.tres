@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("1_niy47")
-etki_id = "time"
+etki_id = "kumsaati"
 animasyon_tipi = ""
 esya_adi = "Kumsaati"
 aciklama = "Pyro modunda düşman hızını %50 azaltır."

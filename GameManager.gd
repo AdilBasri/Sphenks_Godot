@@ -33,6 +33,7 @@ var pyro_yavaslatma: bool = false
 var yarasa_bonusu: bool = false
 var mantar_modu: bool = false
 var tek_zar_modu: bool = false
+var fener_aktif: bool = false
 
 # --- 🔥 PYRO MODU & SİLAH SİSTEMİ DEĞİŞKENLERİ 🔥 ---
 var pyro_aktif: bool = false
@@ -88,6 +89,7 @@ func bolum_bufflarini_sifirla():
 	mantar_modu = false
 	zar_atlama_hakki = 0
 	tek_zar_modu = false
+	fener_aktif = false
 
 # --- KAYDETME VE YÜKLEME SİSTEMİ (YENİ EKLENDİ) ---
 func oyunu_kaydet():
@@ -101,8 +103,12 @@ func oyunu_kaydet():
 	config.set_value("Oyuncu", "MermiSayisi", mermi_sayisi)
 	config.set_value("Oyuncu", "PyroAktif", pyro_aktif)
 	
+	
 	# --- YENİ: BUFF DURUMUNU KAYDET ---
 	config.set_value("Bufflar", "PuanCarpani", puan_carpani)
+	config.set_value("Bufflar", "ReviveAktif", revive_aktif)
+	config.set_value("Bufflar", "FenerAktif", fener_aktif)
+	config.set_value("Bufflar", "ZamanYavas", pyro_yavaslatma)
 	# ----------------------------------
 	
 	# Envanter kaydı...
@@ -129,6 +135,9 @@ func oyunu_yukle():
 		
 		# --- YENİ: BUFF DURUMUNU GERİ YÜKLE ---
 		puan_carpani = config.get_value("Bufflar", "PuanCarpani", 1.0)
+		revive_aktif = config.get_value("Bufflar", "ReviveAktif", false)
+		fener_aktif = config.get_value("Bufflar", "FenerAktif", false)
+		pyro_yavaslatma = config.get_value("Bufflar", "ZamanYavas", false)
 		# --------------------------------------
 		
 		# Envanter yükleme...

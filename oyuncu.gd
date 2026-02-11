@@ -243,7 +243,26 @@ func esya_kullan():
 					
 				print("😇 Revive İksiri İçildi: Ölümden koruyacak.")
 				basarili = true
-
+		"fener":
+			if GameManager:
+				GameManager.fener_aktif = true
+				
+				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				if arayuz: 
+					arayuz.bilgi_goster("🔦 FENER AÇILDI! (Yarasalar Dondu)", 3.0)
+					
+				print("🔦 Fener Aktif: Düşmanlar sabitlendi.")
+				basarili = true
+		"kumsaati":
+			if GameManager:
+				GameManager.pyro_yavaslatma = true
+				
+				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				if arayuz: 
+					arayuz.bilgi_goster("⏳ ZAMAN YAVAŞLADI! (Düşmanlar %50 Yavaş)", 3.0)
+					
+				print("⏳ Zaman Bükülmesi Aktif: Düşmanlar yavaşladı.")
+				basarili = true
 		"asit": if hedef_hucre != null: grid.sutunu_yok_et(hedef_hucre); basarili = true
 		"kilic": if hedef_hucre != null: grid.blok_kir(hedef_hucre, false); basarili = true
 		"dig": if hedef_hucre != null: grid.blok_kir(hedef_hucre, true); basarili = true
