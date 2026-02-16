@@ -536,7 +536,6 @@ func sit_on_stool(stool_node):
 	
 	is_sitting = true
 	current_stool = stool_node
-	table_angle_index = 0 # Reset to front view
 	
 	# Mouse'u serbest bırak ki gridle etkileşime girsin
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -546,6 +545,21 @@ func sit_on_stool(stool_node):
 	original_camera_transform = kamera.global_transform
 	
 	_update_orbit_camera()
+	
+	# UI GÜNCELLEME: [E] Kalk (Üstte, Küçük)
+	if etkilesim_label:
+		etkilesim_label.text = "[E] Kalk"
+		# Anchor Top-Center
+		etkilesim_label.anchor_top = 0.05
+		etkilesim_label.anchor_bottom = 0.05
+		# Font küçültme (Scale ile hile yapıyoruz veya settings varsa oradan)
+		etkilesim_label.scale = Vector2(0.7, 0.7)
+	
+	# Blok Dağıtıcısını Bul ve Göster
+	var spawner = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
+	if spawner and spawner.has_method("bloklari_goster"):
+		spawner.bloklari_goster()
+
 	print("🪑 Tabureye oturuldu.")
 
 func move_table_camera(direction: float):
@@ -647,11 +661,48 @@ func _update_orbit_camera():
 	var final_cam_global = dest_trans * marker_local
 	
 	tween.tween_property(kamera, "global_transform", final_cam_global, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	
+	# 3. BLOK DAĞITICISINI DÖNDÜR (EŞYALAR SAĞDA KALSIN)
+	var spawner = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
+	if spawner:
+		# Taburenin baktığı yön (target_rot.y)
+		# Blokların "Sağda" olması için Tabure açısından -90 derece (veya +270) olması lazım.
+		# Deneme: Tabure (0, 90, 0) bakarken Spawner (0, 0, 0) olursa -> Spawner Taburenin sağında kalır (X+ vs Z+)
+		# Basit mantık: Tabure dönüşü + Offset
+		
+		# Tabure rotasyonu: 
+		# 0 (Ön): 90 deg
+		# 1 (Sağ): 0 deg (Bu düzeltilmisti) -> Yanlış, hatırlayalım:
+		# Ön (Index 0): +X'de duruyor, Merkeze (-X) bakıyor -> Rot Y = 90
+		# Sağ (Index 1): +Z'de duruyor, Merkeze (-Z) bakıyor -> Rot Y = 0 (Godot'ta -Z forward ise 0 derecedir)
+		
+		# Spawner masanın ortasında (0,0,0) duruyor. Blok spawn noktaları onun çocukları.
+		# Eğer Spawner'ı taburenin açısına çevirirsek, spawn noktaları da döner.
+		# Kullanıcı "Sağ tarafında belirsin" dedi.
+		# Yani Tabure 90'a bakarken, Spawner 0'a bakmalı (90 - 90 = 0).
+		
+		var spawner_target_rot_y = target_rot.y - deg_to_rad(90)
+		
+		tween.tween_property(spawner, "rotation:y", spawner_target_rot_y, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func stand_up():
 	if not is_sitting: return
 	
 	# Kalkma işlemi
+	
+	# UI GÜNCELLEME: Varsayılan (Altta)
+	if etkilesim_label:
+		etkilesim_label.text = ""
+		# Anchor Bottom-Center (Sphenks.tscn'deki default değerlere dönüyoruz)
+		etkilesim_label.anchor_top = 0.85
+		etkilesim_label.anchor_bottom = 0.85
+		etkilesim_label.scale = Vector2(1, 1)
+
+	# Blokları Gizle
+	var spawner = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
+	if spawner and spawner.has_method("bloklari_gizle"):
+		spawner.bloklari_gizle()
+	
 	is_sitting = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	mouse_serbest_modu = false

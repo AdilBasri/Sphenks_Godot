@@ -5,7 +5,7 @@
 [ext_resource type="Material" uid="uid://d2gy67gtklkkk" path="res://Hayalet_Mat.tres" id="3_5fq7k"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_0rorx"]
-size = Vector3(2.0688477, 2.8617554, 1)
+size = Vector3(2.0688477, 1.9775848, 1.5372314)
 
 [node name="BlokTek" type="Node3D" node_paths=PackedStringArray("hayalet")]
 transform = Transform3D(0.209, 0, 0, 0, 0.209, 0, 0, 0, 0.209, 0, 0, 0)
@@ -17,7 +17,7 @@ tekli_blok_sahnesi = ExtResource("2_a7e7m")
 transform = Transform3D(1, 0, 0, 0, 0.9999998, -1.1920929e-07, 0, 1.1920929e-07, 0.9999998, -0.36811852, -0.26202726, -0.12780666)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
-transform = Transform3D(1, 0, 0, 0, 0.9999997, -1.4901161e-07, 0, 1.4901161e-07, 0.9999997, 0.46710467, 0.2900188, 0.22966051)
+transform = Transform3D(1, 0, 0, 0, 0.9999997, -1.4901161e-07, 0, 1.4901161e-07, 0.9999997, 0.46710467, 0.38313568, 0.17991693)
 shape = SubResource("BoxShape3D_0rorx")
 
 [node name="Gorsel" type="Node3D" parent="."]
