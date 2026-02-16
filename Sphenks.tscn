@@ -53,7 +53,7 @@
 [ext_resource type="Resource" uid="uid://c63kqruteqes4" path="res://Items/Asit.tres" id="38_sroql"]
 [ext_resource type="Texture2D" uid="uid://doh1kv2f0quxr" path="res://own.png" id="39_fknsn"]
 [ext_resource type="Resource" uid="uid://6efud2c2cn08" path="res://Items/Dice.tres" id="39_k4rhs"]
-[ext_resource type="PackedScene" path="res://Tabure.tscn" id="40_2531s"]
+[ext_resource type="PackedScene" uid="uid://glivtlhgy6dm" path="res://Tabure.tscn" id="40_2531s"]
 [ext_resource type="Resource" uid="uid://bao7tm1eas554" path="res://Items/Time.tres" id="40_uxn7w"]
 [ext_resource type="Texture2D" uid="uid://bpltnjm6hg5a3" path="res://kese.png" id="41_q0r6j"]
 [ext_resource type="Resource" uid="uid://cv7k5gixcsrnu" path="res://Items/Cloak.tres" id="41_q606s"]
@@ -490,15 +490,15 @@ shape = SubResource("CapsuleShape3D_lxn88")
 [node name="CanvasLayer" type="CanvasLayer" parent="Oyuncu" index="1"]
 
 [node name="EtkilesimYazisi" type="Label" parent="Oyuncu/CanvasLayer" index="0"]
-anchors_preset = 8
+anchors_preset = -1
 anchor_left = 0.5
-anchor_top = 0.5
+anchor_top = 0.85
 anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -11.5
-offset_right = 20.0
-offset_bottom = 11.5
+anchor_bottom = 0.85
+offset_left = -150.0
+offset_top = -20.0
+offset_right = 150.0
+offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 label_settings = SubResource("LabelSettings_q0r6j")

@@ -1,55 +1,52 @@
-[gd_scene load_steps=3 format=3 uid="uid://djbqcqufmjka1"]
+[gd_scene load_steps=4 format=3 uid="uid://glivtlhgy6dm"]
 
-[ext_resource type="Script" path="res://Tabure.gd" id="1_script"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i2lye"]
-albedo_color = Color(2.3464565, 2.3464565, 0, 1)
+[ext_resource type="Script" uid="uid://wm65bah2jjgx" path="res://Tabure.gd" id="1_script"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_root"]
 height = 0.6
 radius = 0.35
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i2lye"]
+albedo_color = Color(2.3464565, 2.3464565, 0, 1)
 
 [node name="Tabure" type="StaticBody3D"]
 collision_layer = 3
 script = ExtResource("1_script")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0.33713853)
 shape = SubResource("CylinderShape3D_root")
 
 [node name="CameraPos" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 5, 2)
+transform = Transform3D(0.99999994, 0, 0, 0, 0.7071064, 0.7071064, 0, -0.7071064, 0.7071064, 0, 2.9146118, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraPos"]
 
 [node name="ExitPos" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0, 0)
 
 [node name="Ayak" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0, -0.25)
-use_collision = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0, 0.08713853)
 size = Vector3(0.1, 0.5, 0.1)
 material = SubResource("StandardMaterial3D_i2lye")
 
 [node name="Ayak2" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, -0.25)
-use_collision = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, 0.08713853)
 size = Vector3(0.1, 0.5, 0.1)
 material = SubResource("StandardMaterial3D_i2lye")
 
 [node name="Ayak3" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, 0.25)
-use_collision = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, 0.58713853)
 size = Vector3(0.1, 0.5, 0.1)
 material = SubResource("StandardMaterial3D_i2lye")
 
 [node name="Ayak4" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0, 0.25)
-use_collision = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0, 0.58713853)
 size = Vector3(0.1, 0.5, 0.1)
 material = SubResource("StandardMaterial3D_i2lye")
 
 [node name="CSGCylinder3D" type="CSGCylinder3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.28677982, 0)
-use_collision = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.28677982, 0.33713853)
 height = 0.091
 sides = 15
 material = SubResource("StandardMaterial3D_i2lye")

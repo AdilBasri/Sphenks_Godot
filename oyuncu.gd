@@ -529,26 +529,124 @@ func etkilesime_gir():
 	if nesne is RigidBody3D:
 		nesne_tut(nesne)
 
+var table_angle_index: int = 0 # 0=Front, 1=Right, 2=Back, 3=Left
+
 func sit_on_stool(stool_node):
 	if is_sitting: return
 	
 	is_sitting = true
 	current_stool = stool_node
+	table_angle_index = 0 # Reset to front view
 	
 	# Mouse'u serbest bırak ki gridle etkileşime girsin
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	mouse_serbest_modu = true
 	
-	# Kamera Pozisyonunu Kaydet ve Sandalyeye Geç
+	# Kamera Pozisyonunu Kaydet
 	original_camera_transform = kamera.global_transform
 	
-	var target_transform = stool_node.camera_position_marker.global_transform
+	_update_orbit_camera()
+	print("🪑 Tabureye oturuldu.")
+
+func move_table_camera(direction: float):
+	if not is_sitting or not current_stool: return
 	
+	# Yön -1 ise Sola (index artar), 1 ise Sağa (index azalır) 
+	# Veya tam tersi, kullanıcı A'ya basınca (Sola) kamera sola gitsin
+	# A -> direction -1 -> Sola gitmek için index azalmalı (veya artmalı, bakış açısına göre değişir)
+	# Deneme: D (+1) -> Sağa dön -> Index artar
+	
+	if direction > 0:
+		table_angle_index -= 1 # D tuşu: Sağa dön (Saat yönünün tersi gibi)
+	else:
+		table_angle_index += 1 # A tuşu: Sola dön
+		
+	# 0-3 arası wrap
+	table_angle_index = wrapi(table_angle_index, 0, 4)
+	
+	_update_orbit_camera()
+
+func _update_orbit_camera():
+	if not current_stool: return
+	
+	# Masa Merkezi (Grid'in olduğu yer)
+	var pivot = Vector3(0, 0, 0)
+	
+	# Taburenin masaya olan uzaklığı (Radius)
+	# İlk oturduğumuzdaki mesafeyi baz alabiliriz veya sabit bir değer verebiliriz.
+	# Sabit değer daha güvenli: 1.7 birim (mevcut sahneye göre)
+	var radius = 1.7
+	
+	# Açıyı hesapla (her index 90 derece)
+	# 0 = Ön (Z ekseni pozitiften negatife bakıyor) -> 0 derece
+	var angle_deg = table_angle_index * 90.0
+	var angle_rad = deg_to_rad(angle_deg)
+	
+	# Yeni Pozisyon Hesabı (Çember üzerinde nokta)
+	# Sin/Cos ile X ve Z koordinatlarını buluyoruz
+	# Index 0 (Ön): x=0, z=r
+	# Index 1 (Sağ): x=r, z=0
+	# Index 2 (Arka): x=0, z=-r
+	# Index 3 (Sol): x=-r, z=0
+	
+	# Sahnede Masa Z ekseninde uzanıyor olabilir, deneyelim:
+	# Sphenks.tscn'de Tabure: (1.7, -0.38, -0.06) -> X ekseninde duruyor aslında!
+	# O zaman 0 noktası (Front) X=1.7, Z=0 olmalı.
+	
+	var target_pos = Vector3.ZERO
+	var target_rot = Vector3.ZERO
+	
+	match table_angle_index:
+		0: # Ön (Default) - X Pozitif -> Merkeze (-X) bakmalı
+			target_pos = Vector3(radius, -0.38, 0)
+			target_rot = Vector3(0, deg_to_rad(90), 0)
+		1: # Sağ - Z Pozitif -> Merkeze (-Z) bakmalı
+			target_pos = Vector3(0, -0.38, radius)
+			target_rot = Vector3(0, deg_to_rad(0), 0) # DÜZELTİLDİ: 0 derece (Eskisi 180 idi)
+		2: # Arka - X Negatif -> Merkeze (+X) bakmalı
+			target_pos = Vector3(-radius, -0.38, 0)
+			target_rot = Vector3(0, deg_to_rad(-90), 0)
+		3: # Sol - Z Negatif -> Merkeze (+Z) bakmalı
+			target_pos = Vector3(0, -0.38, -radius)
+			target_rot = Vector3(0, deg_to_rad(180), 0) # DÜZELTİLDİ: 180 derece (Eskisi 0 idi)
+
+	# 1. TABUREYİ TAŞI
 	var tween = create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(kamera, "global_transform", target_transform, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(current_stool, "global_position", target_pos, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(current_stool, "global_rotation", target_rot, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
-	print("🪑 Tabureye oturuldu.")
+	# 2. KAMERAYI TABURENİN YENİ KONUMUNA TAŞI (Tabureye bağlıymış gibi)
+	# Tabure hareket ederken kamera da onun 'CameraPos' marker'ına gitmeli
+	# Ancak Tween sırasında marker da hareket edeceği için, kamerayı sürekli marker'a eşitlemek lazım.
+	# Bunu _process içinde yapabiliriz AMA basit olması için:
+	# Tweener ile kamerayı da hedef transform'a götürelim.
+	# Hedef transform: Tabure hedef noktaya vardığında CameraPos nerede olacak?
+	
+	# Basit çözüm: Kamerayı Tabure'ye "reparent" yapalım geçici olarak? Hayır karmaşık olur.
+	# Manuel hesaplama:
+	# Tabure hedef rotasyondayken, CameraPos'un local offsetini ekleyelim.
+	
+	var cam_pos_local = current_stool.camera_position_marker.position
+	# Marker'ın local rotasyonunu (varsa) da hesaba katmak lazım ama şimdilik sadece offset
+	# En temizi: Kameranın global transformunu, Tabure'nin hedef transformuna göre hesaplamak.
+	
+	# Hileli Yöntem: Tween callback ile her frame güncellemek yerine
+	# Kamerayı Tabure'nin CameraMarker'ına 'RemoteTransform3D' ile bağlasak? 
+	# Veya daha basiti: Kamera zaten Tween ile gidiyor, ama hedef nokta değişiyor.
+	# Şimdilik kamerayı "takip etme" moduna alalım veya tween bitince senkronize edelim.
+	
+	# EN İYİSİ: Hareket bitene kadar kamerayı tweenleme, process'te takip ettir.
+	# Ama şu anlık basit tween deneyelim, eğer kayma olursa düzeltiriz.
+	
+	# Hedef Tabure Transformunu oluştur
+	var dest_trans = Transform3D(Basis.from_euler(target_rot), target_pos)
+	# Marker'ın local transformu
+	var marker_local = current_stool.camera_position_marker.transform
+	# Hedef Kamera Global Transformu
+	var final_cam_global = dest_trans * marker_local
+	
+	tween.tween_property(kamera, "global_transform", final_cam_global, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func stand_up():
 	if not is_sitting: return
@@ -559,7 +657,6 @@ func stand_up():
 	mouse_serbest_modu = false
 	
 	# Kamerayı eski yerine (veya çıkış noktasına) taşı
-	# Eğer sandalyenin çıkış noktası varsa oraya ışınlanalım
 	if current_stool and current_stool.exit_position_marker:
 		global_position = current_stool.exit_position_marker.global_position
 		# Kameranın local transformunu resetle (kafa hizası)
@@ -567,28 +664,11 @@ func stand_up():
 		kamera.rotation = Vector3.ZERO
 		x_rotasyonu = 0.0
 	else:
-		# Yedek plan: Eski kamera transformuna dön
 		var tween = create_tween()
 		tween.tween_property(kamera, "global_transform", original_camera_transform, 1.0)
 	
 	current_stool = null
 	print("🚶 Tabureden kalkıldı.")
-
-func move_table_camera(direction: float):
-	if not is_sitting or not current_stool: return
-	
-	# Kamerayı sağa sola kaydır (Grid üzerinde gezinmek için)
-	# Orijinal sandalye kamera pozisyonunu baz al
-	var base_transform = current_stool.camera_position_marker.global_transform
-	
-	table_camera_offset += direction * 0.5
-	table_camera_offset = clamp(table_camera_offset, -2.0, 2.0)
-	
-	var right_vector = base_transform.basis.x
-	var new_pos = base_transform.origin + (right_vector * table_camera_offset)
-	
-	var tween = create_tween()
-	tween.tween_property(kamera, "global_position", new_pos, 0.2).set_trans(Tween.TRANS_SINE)
 
 func toggle_mouse_mode():
 	if oldu_mu: return
