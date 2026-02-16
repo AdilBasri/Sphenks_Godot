@@ -13,7 +13,7 @@ signal blok_yerlesti
 # --- AYARLAR ---
 @export_group("Ayarlar")
 @export var footprint: Array[Vector2i] = [Vector2i(0,0)]
-@export var hover_y_offset: float = 0.7 # 0.5 yetersizdi, 0.7 yaptım
+@export var hover_y_offset: float = 0.5 
 @export var kilitlenince_tuket: bool = true
 @export var debug_modu_aktif: bool = false 
 
@@ -60,37 +60,9 @@ func _ready() -> void:
 	if debug_modu_aktif:
 		_debug_footprint_ciz()
 
-	# HAYALET MATERYALİNİ BUL VE KOPYALA (RENK DEĞİŞİMİ İÇİN)
-	if hayalet and not hayalet_mat:
-		var mesh_instance = _find_first_mesh(hayalet)
-		if mesh_instance:
-			var mat = mesh_instance.get_surface_override_material(0)
-			if not mat: mat = mesh_instance.mesh.surface_get_material(0)
-			if not mat: mat = mesh_instance.material_override
-			
-			if mat:
-				hayalet_mat = mat.duplicate() # Benzersiz yap
-				_apply_material_to_all(hayalet, hayalet_mat)
-	
 	# Mantar Modu açıksa doğar doğmaz renklenmeye çalış
 	if GameManager.mantar_modu:
 		call_deferred("rastgele_boya")
-
-func _find_first_mesh(node: Node) -> MeshInstance3D:
-	if node is MeshInstance3D: return node
-	for child in node.get_children():
-		var res = _find_first_mesh(child)
-		if res: return res
-	return null
-
-func _apply_material_to_all(node: Node, mat: Material):
-	if node is MeshInstance3D:
-		# Override varsa onu değiştir, yoksa override ekle
-		node.material_override = mat # En garantisi bu
-		# Bazı durumlarda surface override gerekebilir ama material_override hepsini ezer.
-	
-	for child in node.get_children():
-		_apply_material_to_all(child, mat)
 
 func _process(delta: float) -> void:
 	if tutuluyor and not kilitlendi:
@@ -119,29 +91,7 @@ func _yakala(_tiklanan_dunya_pos: Vector3) -> void:
 	if hayalet: hayalet.visible = true
 	var main_scene = get_tree().current_scene
 	if main_scene: reparent(main_scene, true)
-	
-	# ROTASYON HİZALAMA (Kamera Açısına Göre)
-	# Kullanıcı isteği: "Taburedeyken kameranın baktığı yönde 35 derece eğimle"
-	# Kameranın Y rotasyonunu al, buna X ekseninde eğim ekle.
-	
-	var cam = get_viewport().get_camera_3d()
-	if cam:
-		# 1. Kameranın sadece Y rotasyonunu al (Dönme açısı)
-		var cam_y_rot = cam.global_rotation.y
-		
-		# 2. Hedef Rotasyon: Y ekseninde Kamerayla aynı, X ekseninde hafif eğik (-35 derece gibi)
-		# Bloklar genelde -90 X ile yatık duruyor.
-		# Kullanıcı "karşıdan bakınca düzgün" dedi.
-		# Kameraya dik olması için:
-		
-		var target_basis = Basis.from_euler(Vector3(deg_to_rad(-45), cam_y_rot, 0))
-		global_transform.basis = target_basis.scaled(orjinal_scale)
-		
-		# Orijinal (dik) rotasyonu güncelle, böylece bırakınca saçmalamaz (gerçi bırakınca gride göre hizalanıyor)
-		dik_rotasyon = target_basis.get_rotation_quaternion()
-	else:
-		global_transform.basis = Basis(dik_rotasyon).scaled(orjinal_scale)
-
+	global_transform.basis = Basis(dik_rotasyon).scaled(orjinal_scale)
 	tutma_offseti = Vector3.ZERO
 
 func _gorsel_mouse_takip(delta: float) -> void:
@@ -156,22 +106,8 @@ func _gorsel_mouse_takip(delta: float) -> void:
 	var dir = cam.project_ray_normal(fare_pos)
 	var kesisim = hareket_duzlemi.intersects_ray(from, dir)
 	
-
 	if kesisim:
 		var hedef_pos = kesisim + tutma_offseti
-		
-		# --- SOL EL / ORTALAMA DÜZELTMESİ ---
-		# Bloklar kameraya göre biraz sağda dursun ki "Soldan tutuyor" hissi gitsin.
-		if cam:
-			# Kameranın sağ yönüne (Right Vector) doğru hafif kaydır
-			var cam_right = cam.global_transform.basis.x
-			hedef_pos += cam_right * 0.3 # 0.3 birim sağa
-			
-		# Yükseklik Düzeltmesi (Z bloğu girmesin diye)
-		# hover_y_offset'e ek olarak burada da müdahale edebiliriz veya yukarıda tanımlı değeri artırırız.
-		# Şimdilik hover_y_offset'i variable olarak artırmak daha temiz olabilir ama burada manuel ekleyelim.
-		hedef_pos.y += 0.2
-		
 		global_position = global_position.lerp(hedef_pos, 25.0 * delta)
 
 func _hayalet_guncelle() -> void:
@@ -231,20 +167,8 @@ func _footprint_dondur(orj_fp: Array[Vector2i], tur_sayisi: int) -> Array[Vector
 
 func _set_hayalet_color(ok: bool) -> void:
 	if not hayalet_mat: return
-	
-	# Canlı Renkler ve Emission (Parlaklık)
-	if ok:
-		# YEŞİL (Geçerli)
-		hayalet_mat.albedo_color = Color(0, 1, 0, 0.6)
-		hayalet_mat.emission_enabled = true
-		hayalet_mat.emission = Color(0, 1, 0)
-		hayalet_mat.emission_energy_multiplier = 0.5
-	else:
-		# KIRMIZI (Geçersiz)
-		hayalet_mat.albedo_color = Color(1, 0, 0, 0.6)
-		hayalet_mat.emission_enabled = true
-		hayalet_mat.emission = Color(1, 0, 0)
-		hayalet_mat.emission_energy_multiplier = 0.5
+	if ok: hayalet_mat.albedo_color = Color(0, 1, 0, 0.5)
+	else: hayalet_mat.albedo_color = Color(1, 0, 0, 0.5)
 
 func _birak() -> void:
 	tutuluyor = false

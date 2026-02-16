@@ -81,27 +81,10 @@ func yeni_bolumu_baslat():
 
 	# 4. Grid Temizle
 	if grid: grid._gridi_yenile()
-	
-	# SPAWN NOKTALARINI GIZLE (Silindirleri kapat)
-	_spawn_noktalarini_guncelle(false)
 
 	emit_signal("stok_guncellendi", kalan_stok)
-	# OTO SPAWN İPTAL (Kullanıcı İsteği)
-	# await get_tree().create_timer(1.0).timeout
-	# _stoktan_yeni_parti_ver()
-
-func baslat_spawn_dongusu() -> void:
-	# Oyun başladığında (Tabureye oturunca) çağrılacak
-	_spawn_noktalarini_guncelle(true)
-	await get_tree().create_timer(0.5).timeout
+	await get_tree().create_timer(1.0).timeout
 	_stoktan_yeni_parti_ver()
-
-func _spawn_noktalarini_guncelle(aktif: bool) -> void:
-	for nokta in spawn_noktalari:
-		# Noktanın altındaki görsel objeleri (CSGCylinder vb.) bul ve gizle/aç
-		for child in nokta.get_children():
-			if child is CSGShape3D or child is MeshInstance3D:
-				child.visible = aktif
 
 # ... (Geri kalan fonksiyonlar _stoktan_yeni_parti_ver, _on_blok_yerlesti vb. AYNEN KALSIN) ...
 # Sadece bu üst kısmı (yeni_bolumu_baslat) güncellemen yeterli.
@@ -228,36 +211,9 @@ func _blok_yarat_ve_firlat(target_marker: Marker3D) -> void:
 	var hedef_scale = yeni_blok.scale 
 	yeni_blok.scale = Vector3(0.01, 0.01, 0.01) 
 	yeni_blok.position = Vector3(0, -2, 0) 
-	
-	# ROTASYON DÜZELTME:
-	# Kullanıcı "sanki soldan bakıyormuşum gibi duruyor" dedi.
-	# Şu an (0, 180, 0) veriyoruz.
-	# Spawner -90 derece dönük (Sağda).
-	# Bloklar Spawner'ın çocuğu (Child).
-	# Spawner Z- ekseni (yani sağı) oyuncuya bakıyor.
-	# Eğer Blok rotasyonu (0,0,0) olursa, Blok da Z- yönüne (oyuncuya) bakar.
-	# Ama kullanıcıya "yan" duruyor olabilir.
-	# Kullanıcının "Gridle aramda blok var" hissi için blokların ön yüzü oyuncuya bakmalı.
-	# Deneme: (0, 90, 0) veya (0, -90, 0) ile 90 derece çevirelim.
-	# Spawner'ın -90 olduğu yerde, Blok +90 olursa World Space'de 0 olur (Masa hizası).
-	# Spawner'a göre hizalayalım.
-	
-	# Eski ayar: (0, 180, 0) -> Tam tersi (arkası dönük belki?)
-	# Yeni ayar: 90 derece ofset verelim.
-	var hedef_rotasyon = Vector3(0, deg_to_rad(90), 0) 
-	
-	yeni_blok.rotation_degrees = Vector3(0, 180, 0) # Başlangıç (Tween öncesi önemsiz ama animasyon için)
-	
-	# EVE DÖN ROTASYONUNU GÜNCELLE
-	# BlokSurukle scripti _ready'de o anki açıyı (180) "orjinal" olarak kaydediyor.
-	# Ama biz onu tween ile 90'a götüreceğiz. Bırakınca 90'a (hedefe) dönsün, 180'e değil.
-	if yeni_blok is BlokSurukle:
-		yeni_blok.orjinal_rotasyon_degrees = Vector3(0, 90, 0)
-	
+	yeni_blok.rotation_degrees = Vector3(0, 180, 0)
 	var tween = create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(yeni_blok, "position", Vector3.ZERO, 0.5).set_trans(Tween.TRANS_BACK)
 	tween.tween_property(yeni_blok, "scale", hedef_scale, 0.5)
-	
-	# Rotasyonu Tweenle
-	tween.tween_property(yeni_blok, "rotation", hedef_rotasyon, 0.5)
+	tween.tween_property(yeni_blok, "rotation", Vector3.ZERO, 0.5)

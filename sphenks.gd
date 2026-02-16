@@ -27,10 +27,10 @@ func _ready() -> void:
 	if oyuncu:
 		oyuncu.set_physics_process(true)
 
-#func _input(event: InputEvent) -> void:
-#	# SPACE tuşuna basınca mod değiştir
-#	if event.is_action_pressed("ui_accept"): 
-#		state_degistir()
+func _input(event: InputEvent) -> void:
+	# SPACE tuşuna basınca mod değiştir
+	if event.is_action_pressed("ui_accept"): 
+		state_degistir()
 
 func state_degistir() -> void:
 	# Güvenlik: Eğer gerekli parçalar yoksa modu değiştirme
