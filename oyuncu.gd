@@ -552,7 +552,7 @@ func sit_on_stool(stool_node):
 	
 	print("🪑 Başlangıç Indexi Bulundu: ", table_angle_index)
 	
-	# Mouse'u serbest bırak ki gridle etkileşime girsin.
+	# Mouse'u serbest bırak ki gridle etkileşime girsin
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	mouse_serbest_modu = true
 	
