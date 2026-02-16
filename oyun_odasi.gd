@@ -188,6 +188,18 @@ func _on_boss_oldu():
 		var arayuz = get_tree().get_first_node_in_group("Arayuz")
 		if arayuz: arayuz.bilgi_goster("TEBRİKLER! BOSS YENİLDİ.", 5.0)
 
+	# --- KAPIYI AÇ ---
+	_kapiyi_ac()
+
+func _kapiyi_ac():
+	# KapiSistemi arayalım (MezarOdasi'nin komşusu)
+	var kapi = get_parent().find_child("KapiSistemi", true, false)
+	if kapi and kapi.has_method("kapiyi_ac"):
+		kapi.kapiyi_ac()
+		print("🚪 OYUN SONU: Kapı açıldı.")
+	else:
+		print("⚠️ UYARI: KapıSistemi bulunamadı veya açma metodu yok!")
+
 func _on_oyuncu_oldu():
 	print("💀 Oyun Odası: Oyuncu öldü.")
 	await get_tree().create_timer(2.0).timeout

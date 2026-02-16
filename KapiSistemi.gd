@@ -20,6 +20,9 @@ func _ready():
 		kilitle()
 
 # --- AKSİYONLAR ---
+func interact(_oyuncu):
+	etkilesim()
+
 func etkilesim():
 	kapiyi_ac()
 
