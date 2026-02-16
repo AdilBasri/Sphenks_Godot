@@ -1,4 +1,4 @@
-[gd_scene load_steps=107 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=108 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
@@ -53,6 +53,7 @@
 [ext_resource type="Resource" uid="uid://c63kqruteqes4" path="res://Items/Asit.tres" id="38_sroql"]
 [ext_resource type="Texture2D" uid="uid://doh1kv2f0quxr" path="res://own.png" id="39_fknsn"]
 [ext_resource type="Resource" uid="uid://6efud2c2cn08" path="res://Items/Dice.tres" id="39_k4rhs"]
+[ext_resource type="PackedScene" path="res://Tabure.tscn" id="40_2531s"]
 [ext_resource type="Resource" uid="uid://bao7tm1eas554" path="res://Items/Time.tres" id="40_uxn7w"]
 [ext_resource type="Texture2D" uid="uid://bpltnjm6hg5a3" path="res://kese.png" id="41_q0r6j"]
 [ext_resource type="Resource" uid="uid://cv7k5gixcsrnu" path="res://Items/Cloak.tres" id="41_q606s"]
@@ -789,6 +790,7 @@ distance_fade_enabled = true
 spot_angle = 60.0
 
 [node name="TumMasaSistemi" type="Node3D" parent="." index="19"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.1451937)
 
 [node name="GridYoneticisi" type="Node3D" parent="TumMasaSistemi" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.018025577, 0, -0.025204837)
@@ -808,7 +810,10 @@ shape = SubResource("ConvexPolygonShape3D_qtiyh")
 [node name="CSGBox3D3" type="CSGBox3D" parent="TumMasaSistemi" index="2"]
 transform = Transform3D(0.5, 0, 0, 0, 2, 0, 0, 0, 0.5, 0, -1.0288582, 0)
 
-[node name="BlokDagiticisi" type="Node3D" parent="TumMasaSistemi" index="3" node_paths=PackedStringArray("grid", "spawn_noktalari", "boss_objesi", "masa_objesi", "kapi_sistemi")]
+[node name="Tabure" parent="TumMasaSistemi" index="3" instance=ExtResource("40_2531s")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 2.011474, -0.37500736, -0.1451937)
+
+[node name="BlokDagiticisi" type="Node3D" parent="TumMasaSistemi" index="4" node_paths=PackedStringArray("grid", "spawn_noktalari", "boss_objesi", "masa_objesi", "kapi_sistemi")]
 script = ExtResource("23_fi7dh")
 grid = NodePath("../GridYoneticisi")
 spawn_noktalari = [NodePath("Pos1"), NodePath("Pos2"), NodePath("Pos3")]

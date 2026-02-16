@@ -36,6 +36,11 @@ var tutulan_nesne: RigidBody3D = null
 var tutma_noktasi: Node3D = null 
 var mouse_serbest_modu: bool = false 
 
+var is_sitting: bool = false
+var current_stool: Node3D = null
+var original_camera_transform: Transform3D
+var table_camera_offset: float = 0.0
+
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if not kamera: return
@@ -80,8 +85,21 @@ func _input(event):
 	if event is InputEventKey and event.pressed and event.keycode == KEY_Z:
 		hasar_al(1)
 
-	if event is InputEventKey and event.pressed and event.keycode == KEY_SPACE:
-		toggle_mouse_mode()
+	# SPACE TUŞU İPTAL EDİLDİ - ARTIK TABURE SİSTEMİ VAR
+	if event is InputEventKey and event.pressed and event.keycode == KEY_E:
+		if is_sitting:
+			stand_up()
+		else:
+			etkilesime_gir()
+	
+	if is_sitting:
+		if event is InputEventKey:
+			if event.pressed:
+				if event.keycode == KEY_A:
+					move_table_camera(-1.0)
+				elif event.keycode == KEY_D:
+					move_table_camera(1.0)
+		return # Otururken diğer inputları (mouse look vs) engelle
 
 	# --- KAMERA ROTASYONU ---
 	if not mouse_serbest_modu and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -108,6 +126,8 @@ func _input(event):
 
 func _physics_process(delta):
 	if yere_dustu_mu or oldu_mu: return
+	
+	if is_sitting: return # Otururken hareket etme
 
 	if not is_on_floor(): velocity.y -= gravity * delta
 
@@ -468,6 +488,8 @@ func check_ui_text():
 		# --- GÜVENLİK KONTROLÜ EKLENDİ ---
 		if not nesne: return 
 		
+		# print("Bakılan Nesne: ", nesne.name) # DEBUG
+		
 		var veri = nesne.get("esya_verisi")
 		var market_modu = nesne.get("market_modu")
 		
@@ -477,8 +499,11 @@ func check_ui_text():
 			else:
 				etkilesim_label.text = "[SOL TIK] AL\n" + veri.esya_adi
 		
+		elif nesne.has_method("interact"):
+			etkilesim_label.text = "[E] Oynamak için Otur"
+		
 		elif nesne is RigidBody3D and not tutulan_nesne:
-			etkilesim_label.text = "TUT"
+			etkilesim_label.text = "[SOL TIK] TUT"
 
 # --- ETKİLEŞİME GİR (GÜVENLİ HALE GETİRİLDİ) ---
 func etkilesime_gir():
@@ -497,8 +522,73 @@ func etkilesime_gir():
 			esyayi_ele_al(nesne)
 		return
 
+	if nesne.has_method("interact"):
+		nesne.interact(self)
+		return
+
 	if nesne is RigidBody3D:
 		nesne_tut(nesne)
+
+func sit_on_stool(stool_node):
+	if is_sitting: return
+	
+	is_sitting = true
+	current_stool = stool_node
+	
+	# Mouse'u serbest bırak ki gridle etkileşime girsin
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	mouse_serbest_modu = true
+	
+	# Kamera Pozisyonunu Kaydet ve Sandalyeye Geç
+	original_camera_transform = kamera.global_transform
+	
+	var target_transform = stool_node.camera_position_marker.global_transform
+	
+	var tween = create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(kamera, "global_transform", target_transform, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	
+	print("🪑 Tabureye oturuldu.")
+
+func stand_up():
+	if not is_sitting: return
+	
+	# Kalkma işlemi
+	is_sitting = false
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	mouse_serbest_modu = false
+	
+	# Kamerayı eski yerine (veya çıkış noktasına) taşı
+	# Eğer sandalyenin çıkış noktası varsa oraya ışınlanalım
+	if current_stool and current_stool.exit_position_marker:
+		global_position = current_stool.exit_position_marker.global_position
+		# Kameranın local transformunu resetle (kafa hizası)
+		kamera.position = Vector3(0, 0.6, 0)
+		kamera.rotation = Vector3.ZERO
+		x_rotasyonu = 0.0
+	else:
+		# Yedek plan: Eski kamera transformuna dön
+		var tween = create_tween()
+		tween.tween_property(kamera, "global_transform", original_camera_transform, 1.0)
+	
+	current_stool = null
+	print("🚶 Tabureden kalkıldı.")
+
+func move_table_camera(direction: float):
+	if not is_sitting or not current_stool: return
+	
+	# Kamerayı sağa sola kaydır (Grid üzerinde gezinmek için)
+	# Orijinal sandalye kamera pozisyonunu baz al
+	var base_transform = current_stool.camera_position_marker.global_transform
+	
+	table_camera_offset += direction * 0.5
+	table_camera_offset = clamp(table_camera_offset, -2.0, 2.0)
+	
+	var right_vector = base_transform.basis.x
+	var new_pos = base_transform.origin + (right_vector * table_camera_offset)
+	
+	var tween = create_tween()
+	tween.tween_property(kamera, "global_position", new_pos, 0.2).set_trans(Tween.TRANS_SINE)
 
 func toggle_mouse_mode():
 	if oldu_mu: return
