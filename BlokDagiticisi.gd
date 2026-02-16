@@ -248,6 +248,12 @@ func _blok_yarat_ve_firlat(target_marker: Marker3D) -> void:
 	
 	yeni_blok.rotation_degrees = Vector3(0, 180, 0) # Başlangıç (Tween öncesi önemsiz ama animasyon için)
 	
+	# EVE DÖN ROTASYONUNU GÜNCELLE
+	# BlokSurukle scripti _ready'de o anki açıyı (180) "orjinal" olarak kaydediyor.
+	# Ama biz onu tween ile 90'a götüreceğiz. Bırakınca 90'a (hedefe) dönsün, 180'e değil.
+	if yeni_blok is BlokSurukle:
+		yeni_blok.orjinal_rotasyon_degrees = Vector3(0, 90, 0)
+	
 	var tween = create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(yeni_blok, "position", Vector3.ZERO, 0.5).set_trans(Tween.TRANS_BACK)
