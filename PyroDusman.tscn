@@ -1,8 +1,9 @@
-[gd_scene load_steps=14 format=3 uid="uid://b4bhb1v1do7yg"]
+[gd_scene load_steps=15 format=3 uid="uid://b4bhb1v1do7yg"]
 
 [ext_resource type="Script" uid="uid://2nxi7ua8bxqa" path="res://PyroDusman.gd" id="1_jysm5"]
 [ext_resource type="PackedScene" uid="uid://bdkldchgef32r" path="res://Animations/Zombie Run.fbx" id="2_86xrn"]
 [ext_resource type="PackedScene" uid="uid://iawfvtay0cq" path="res://KopanUzuv.tscn" id="2_gjjfq"]
+[ext_resource type="PackedScene" uid="uid://dpdgmgogxjv7i" path="res://KanSpreyi.tscn" id="3_0h1uj"]
 [ext_resource type="Animation" uid="uid://5vh0o33csdr6" path="res://Attack.res" id="3_2bmcb"]
 [ext_resource type="Animation" uid="uid://kcb0f6kdls1h" path="res://Dodge.res" id="4_gjjfq"]
 
@@ -413,12 +414,13 @@ radius = 0.30908203
 height = 1.6875
 
 [node name="PyroDusman" type="CharacterBody3D"]
+collision_layer = 2
 platform_wall_layers = 5
 script = ExtResource("1_jysm5")
 kopan_kol_sahnesi = ExtResource("2_gjjfq")
 kopan_bacak_sahnesi = ExtResource("2_gjjfq")
 kopan_kafa_sahnesi = ExtResource("2_gjjfq")
-kan_spreyi_sahnesi = ExtResource("2_gjjfq")
+kan_spreyi_sahnesi = ExtResource("3_0h1uj")
 
 [node name="Zombie Run" parent="." instance=ExtResource("2_86xrn")]
 
