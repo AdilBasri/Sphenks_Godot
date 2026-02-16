@@ -166,6 +166,23 @@ func _on_boss_oldu():
 	print("☠️ OYUN ODASI: Boss öldü.")
 	boss_uyandi_mi = false
 	boss_tamamen_oldu = true
+	
+	# --- MASA SİSTEMİNİ KÜÇÜLT VE YOK ET ---
+	var masa_sistemi = get_parent().find_child("TumMasaSistemi", true, false)
+	if masa_sistemi:
+		var tween = create_tween()
+		tween.tween_property(masa_sistemi, "scale", Vector3.ZERO, 1.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+		tween.tween_callback(masa_sistemi.queue_free)
+	
+	# --- OYUNCUYU AYAĞA KALDIR ---
+	if oyuncu and oyuncu.has_method("stand_up"):
+		# Biraz bekle sonra kaldır (Dramatik etki)
+		await get_tree().create_timer(1.0).timeout
+		oyuncu.stand_up()
+		
+		# Arayüze mesaj gönder
+		var arayuz = get_tree().get_first_node_in_group("Arayuz")
+		if arayuz: arayuz.bilgi_goster("TEBRİKLER! BOSS YENİLDİ.", 5.0)
 
 func _on_oyuncu_oldu():
 	print("💀 Oyun Odası: Oyuncu öldü.")
