@@ -13,7 +13,7 @@ signal blok_yerlesti
 # --- AYARLAR ---
 @export_group("Ayarlar")
 @export var footprint: Array[Vector2i] = [Vector2i(0,0)]
-@export var hover_y_offset: float = 0.5 
+@export var hover_y_offset: float = 0.7 # 0.5 yetersizdi, 0.7 yaptım
 @export var kilitlenince_tuket: bool = true
 @export var debug_modu_aktif: bool = false 
 
@@ -91,7 +91,29 @@ func _yakala(_tiklanan_dunya_pos: Vector3) -> void:
 	if hayalet: hayalet.visible = true
 	var main_scene = get_tree().current_scene
 	if main_scene: reparent(main_scene, true)
-	global_transform.basis = Basis(dik_rotasyon).scaled(orjinal_scale)
+	
+	# ROTASYON HİZALAMA (Kamera Açısına Göre)
+	# Kullanıcı isteği: "Taburedeyken kameranın baktığı yönde 35 derece eğimle"
+	# Kameranın Y rotasyonunu al, buna X ekseninde eğim ekle.
+	
+	var cam = get_viewport().get_camera_3d()
+	if cam:
+		# 1. Kameranın sadece Y rotasyonunu al (Dönme açısı)
+		var cam_y_rot = cam.global_rotation.y
+		
+		# 2. Hedef Rotasyon: Y ekseninde Kamerayla aynı, X ekseninde hafif eğik (-35 derece gibi)
+		# Bloklar genelde -90 X ile yatık duruyor.
+		# Kullanıcı "karşıdan bakınca düzgün" dedi.
+		# Kameraya dik olması için:
+		
+		var target_basis = Basis.from_euler(Vector3(deg_to_rad(-45), cam_y_rot, 0))
+		global_transform.basis = target_basis.scaled(orjinal_scale)
+		
+		# Orijinal (dik) rotasyonu güncelle, böylece bırakınca saçmalamaz (gerçi bırakınca gride göre hizalanıyor)
+		dik_rotasyon = target_basis.get_rotation_quaternion()
+	else:
+		global_transform.basis = Basis(dik_rotasyon).scaled(orjinal_scale)
+
 	tutma_offseti = Vector3.ZERO
 
 func _gorsel_mouse_takip(delta: float) -> void:
@@ -106,8 +128,22 @@ func _gorsel_mouse_takip(delta: float) -> void:
 	var dir = cam.project_ray_normal(fare_pos)
 	var kesisim = hareket_duzlemi.intersects_ray(from, dir)
 	
+
 	if kesisim:
 		var hedef_pos = kesisim + tutma_offseti
+		
+		# --- SOL EL / ORTALAMA DÜZELTMESİ ---
+		# Bloklar kameraya göre biraz sağda dursun ki "Soldan tutuyor" hissi gitsin.
+		if cam:
+			# Kameranın sağ yönüne (Right Vector) doğru hafif kaydır
+			var cam_right = cam.global_transform.basis.x
+			hedef_pos += cam_right * 0.3 # 0.3 birim sağa
+			
+		# Yükseklik Düzeltmesi (Z bloğu girmesin diye)
+		# hover_y_offset'e ek olarak burada da müdahale edebiliriz veya yukarıda tanımlı değeri artırırız.
+		# Şimdilik hover_y_offset'i variable olarak artırmak daha temiz olabilir ama burada manuel ekleyelim.
+		hedef_pos.y += 0.2
+		
 		global_position = global_position.lerp(hedef_pos, 25.0 * delta)
 
 func _hayalet_guncelle() -> void:
