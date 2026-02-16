@@ -44,9 +44,10 @@ shape = SubResource("ConvexPolygonShape3D_qtiyh")
 transform = Transform3D(0.5, 0, 0, 0, 2, 0, 0, 0, 0.5, 0, -1.0288582, 0)
 
 [node name="Tabure" parent="." instance=ExtResource("3_g47xu")]
-transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 2.011474, -0.37500736, -0.1451937)
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -0.010217428, -0.37500736, 1.7521545)
 
 [node name="BlokDagiticisi" type="Node3D" parent="." node_paths=PackedStringArray("grid", "spawn_noktalari", "masa_objesi")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 0)
 script = ExtResource("4_h44hb")
 grid = NodePath("../GridYoneticisi")
 spawn_noktalari = [NodePath("Pos1"), NodePath("Pos2"), NodePath("Pos3")]

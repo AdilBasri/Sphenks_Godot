@@ -23,7 +23,7 @@ transform = Transform3D(0.99999994, 0, 0, 0, 0.7071064, 0.7071064, 0, -0.7071064
 [node name="Camera3D" type="Camera3D" parent="CameraPos"]
 
 [node name="ExitPos" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.018749654, 0, 1.2347265)
 
 [node name="Ayak" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0, 0.08713853)
