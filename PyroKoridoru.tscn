@@ -378,16 +378,16 @@ color = Color(1, 0, 0, 0.25882354)
 [node name="SpawnNoktalari" type="Node3D" parent="."]
 
 [node name="Marker3D" type="Marker3D" parent="SpawnNoktalari"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.60235256, -8.777374)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, -8.777)
 
 [node name="Marker3D2" type="Marker3D" parent="SpawnNoktalari"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9302709, -0.6970664, -8.777374)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.93, -1, -8.777)
 
 [node name="Marker3D3" type="Marker3D" parent="SpawnNoktalari"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.81394637, -0.74501127, -8.777374)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.814, -1, -8.777)
 
 [node name="Marker3D4" type="Marker3D" parent="SpawnNoktalari"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5596914, -0.85343266, -10.363354)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.56, -1, -10.363)
 
 [node name="KapiSistemi" parent="." instance=ExtResource("11_2f6ik")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7176584, 0, -14.182446)
