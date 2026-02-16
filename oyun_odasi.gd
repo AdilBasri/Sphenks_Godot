@@ -52,6 +52,10 @@ func _ready():
 	if yan_sehpa and yan_sehpa.has_method("sehpayi_guncelle"):
 		yan_sehpa.sehpayi_guncelle()
 
+	# --- OTOMATİK REFERANS BULMA (YENİ) ---
+	# Eğer editörden atanmamışsa (null ise), sahnede ismen arayıp bulalım.
+	_zar_sistemini_bagla()
+
 	if zar_kamerasi: zar_kamerasi.current = false
 	if oyuncu_kamerasi: oyuncu_kamerasi.current = true
 
@@ -287,5 +291,29 @@ func _on_zar_durdu(gelen_sayi):
 
 func oyunu_devam_ettir():
 	if oyuncu_kamerasi:
-		zar_kamerasi.current = false
+		if zar_kamerasi: zar_kamerasi.current = false
 		oyuncu_kamerasi.current = true
+
+# --- DOĞRUDAN BAĞLAMA FONKSİYONU ---
+func _zar_sistemini_bagla():
+	# 1. ZAR KAMERASI KONTROLÜ
+	if not zar_kamerasi:
+		print("⚠️ UYARI: Zar Kamerası editörden atanmamış! Otomatik aranıyor...")
+		# Sahne hiyerarşisinde 'ZarKamerasi' ismini arayalım (ZarOdasi içinde olabilir)
+		var bulunan = get_tree().current_scene.find_child("ZarKamerasi", true, false)
+		if bulunan:
+			zar_kamerasi = bulunan
+			print("✅ Zar Kamerası BULUNDU: ", zar_kamerasi.get_path())
+		else:
+			print("❌ HATA: Zar Kamerası sahnede bulunamadı!")
+
+	# 2. ZAR ATIŞ NOKTASI KONTROLÜ
+	if not zar_atik_noktasi:
+		print("⚠️ UYARI: Zar Atış Noktası editörden atanmamış! Otomatik aranıyor...")
+		# Sahne hiyerarşisinde 'ZarAtisNoktasi' ismini arayalım
+		var bulunan = get_tree().current_scene.find_child("ZarAtisNoktasi", true, false)
+		if bulunan:
+			zar_atik_noktasi = bulunan
+			print("✅ Zar Atış Noktası BULUNDU: ", zar_atik_noktasi.get_path())
+		else:
+			print("❌ HATA: Zar Atış Noktası sahnede bulunamadı!")
