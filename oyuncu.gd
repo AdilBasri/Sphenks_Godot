@@ -624,66 +624,55 @@ func _update_orbit_camera():
 			target_pos = Vector3(0, -0.38, -radius)
 			target_rot = Vector3(0, deg_to_rad(180), 0) # DÜZELTİLDİ: 180 derece (Eskisi 0 idi)
 
-	# 1. TABUREYİ TAŞI
+	# 1. TABUREYİ TAŞI (EN KISA YOLDAN DÖN)
+	var current_stool_rot_y = current_stool.global_rotation.y
+	var diff_stool = wrapf(target_rot.y - current_stool_rot_y, -PI, PI)
+	var final_stool_rot_y = current_stool_rot_y + diff_stool
+	var final_stool_rot = Vector3(0, final_stool_rot_y, 0)
+	
 	var tween = create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(current_stool, "global_position", target_pos, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.tween_property(current_stool, "global_rotation", target_rot, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(current_stool, "global_rotation", final_stool_rot, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
-	# 2. KAMERAYI TABURENİN YENİ KONUMUNA TAŞI (Tabureye bağlıymış gibi)
-	# Tabure hareket ederken kamera da onun 'CameraPos' marker'ına gitmeli
-	# Ancak Tween sırasında marker da hareket edeceği için, kamerayı sürekli marker'a eşitlemek lazım.
-	# Bunu _process içinde yapabiliriz AMA basit olması için:
-	# Tweener ile kamerayı da hedef transform'a götürelim.
-	# Hedef transform: Tabure hedef noktaya vardığında CameraPos nerede olacak?
-	
-	# Basit çözüm: Kamerayı Tabure'ye "reparent" yapalım geçici olarak? Hayır karmaşık olur.
-	# Manuel hesaplama:
-	# Tabure hedef rotasyondayken, CameraPos'un local offsetini ekleyelim.
-	
-	var cam_pos_local = current_stool.camera_position_marker.position
-	# Marker'ın local rotasyonunu (varsa) da hesaba katmak lazım ama şimdilik sadece offset
-	# En temizi: Kameranın global transformunu, Tabure'nin hedef transformuna göre hesaplamak.
-	
-	# Hileli Yöntem: Tween callback ile her frame güncellemek yerine
-	# Kamerayı Tabure'nin CameraMarker'ına 'RemoteTransform3D' ile bağlasak? 
-	# Veya daha basiti: Kamera zaten Tween ile gidiyor, ama hedef nokta değişiyor.
-	# Şimdilik kamerayı "takip etme" moduna alalım veya tween bitince senkronize edelim.
-	
-	# EN İYİSİ: Hareket bitene kadar kamerayı tweenleme, process'te takip ettir.
-	# Ama şu anlık basit tween deneyelim, eğer kayma olursa düzeltiriz.
-	
-	# Hedef Tabure Transformunu oluştur
-	var dest_trans = Transform3D(Basis.from_euler(target_rot), target_pos)
-	# Marker'ın local transformu
+	# 2. KAMERAYI MANTIKSAL OLARAK HESAPLA
+	# Tabure'nin varacağı son transform (düzeltilmiş rotasyon ile)
+	var dest_trans = Transform3D(Basis.from_euler(final_stool_rot), target_pos)
 	var marker_local = current_stool.camera_position_marker.transform
-	# Hedef Kamera Global Transformu
 	var final_cam_global = dest_trans * marker_local
 	
 	tween.tween_property(kamera, "global_transform", final_cam_global, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
-	# 3. BLOK DAĞITICISINI DÖNDÜR (EŞYALAR SAĞDA KALSIN)
+	# 3. BLOK DAĞITICISINI DÖNDÜR (EN KISA YOL + SİMETRİ HİZALAMA)
 	var spawner = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
 	if spawner:
-		# Taburenin baktığı yön (target_rot.y)
-		# Blokların "Sağda" olması için Tabure açısından -90 derece (veya +270) olması lazım.
-		# Deneme: Tabure (0, 90, 0) bakarken Spawner (0, 0, 0) olursa -> Spawner Taburenin sağında kalır (X+ vs Z+)
-		# Basit mantık: Tabure dönüşü + Offset
+		# Hedef: Taburenin baktığı yönün 90 derece sağı (veya duruma göre)
+		# Tabure Merkeze bakıyor. 
+		# Kullanıcı blokları "Bakış açışına göre dursun" istedi.
+		# Eğer biz masanın etrafında dönüyorsak, bloklar da (eğer world space'de sabitlerse) bizle dönmüyor demektir.
+		# Ama "BlokDağıtıcısı" bizim elimiz (Hand) gibi davranıyor.
+		# Biz döndükçe, elimiz de bizimle dönmeli VE bize bakmalı.
 		
-		# Tabure rotasyonu: 
-		# 0 (Ön): 90 deg
-		# 1 (Sağ): 0 deg (Bu düzeltilmisti) -> Yanlış, hatırlayalım:
-		# Ön (Index 0): +X'de duruyor, Merkeze (-X) bakıyor -> Rot Y = 90
-		# Sağ (Index 1): +Z'de duruyor, Merkeze (-Z) bakıyor -> Rot Y = 0 (Godot'ta -Z forward ise 0 derecedir)
+		# Tabure Y ekseninde `final_stool_rot_y` açısında olacak.
+		# Bu açı "Taburenin baktığı yön".
+		# BlokDağıtıcısı 0 rotasyonundayken +Z'ye (veya +X'e) hizalıdır.
+		# Deneme-Yanılma ile önceden "-90" yapmıştık ve "Sağda" durmuştu.
+		# Kullanıcı "Benim baktığım açıya göre dursun" dedi. 
+		# Bu, "Kamera nereye bakıyorsa, bloklar da oraya baksın (Billboard)" demek olabilir.
 		
-		# Spawner masanın ortasında (0,0,0) duruyor. Blok spawn noktaları onun çocukları.
-		# Eğer Spawner'ı taburenin açısına çevirirsek, spawn noktaları da döner.
-		# Kullanıcı "Sağ tarafında belirsin" dedi.
-		# Yani Tabure 90'a bakarken, Spawner 0'a bakmalı (90 - 90 = 0).
+		# Eğer Tabure'nin rotasyonunu (final_stool_rot_y) aynen verirsek:
+		# Spawner da Tabure ile aynı yöne bakar.
+		# Daha önce -90 vermiştik.
+		# Şimdilik "En kısa yol" sorununu çözelim, hizalamayı aynı koruyalım (-90).
 		
-		var spawner_target_rot_y = target_rot.y - deg_to_rad(90)
+		var target_spawner_rot_y = final_stool_rot_y - deg_to_rad(90)
 		
-		tween.tween_property(spawner, "rotation:y", spawner_target_rot_y, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		# Spawner için de shortest path hesabı
+		var current_spawner_rot_y = spawner.rotation.y
+		var diff_spawner = wrapf(target_spawner_rot_y - current_spawner_rot_y, -PI, PI)
+		var final_spawner_rot_y = current_spawner_rot_y + diff_spawner
+		
+		tween.tween_property(spawner, "rotation:y", final_spawner_rot_y, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 func stand_up():
 	if not is_sitting: return

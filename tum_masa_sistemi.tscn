@@ -46,14 +46,12 @@ transform = Transform3D(0.5, 0, 0, 0, 2, 0, 0, 0, 0.5, 0, -1.0288582, 0)
 [node name="Tabure" parent="." instance=ExtResource("3_g47xu")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 2.011474, -0.37500736, -0.1451937)
 
-[node name="BlokDagiticisi" type="Node3D" parent="." node_paths=PackedStringArray("grid", "spawn_noktalari", "boss_objesi", "masa_objesi", "kapi_sistemi")]
+[node name="BlokDagiticisi" type="Node3D" parent="." node_paths=PackedStringArray("grid", "spawn_noktalari", "masa_objesi")]
 script = ExtResource("4_h44hb")
 grid = NodePath("../GridYoneticisi")
 spawn_noktalari = [NodePath("Pos1"), NodePath("Pos2"), NodePath("Pos3")]
 blok_sahneleri = Array[PackedScene]([ExtResource("5_binpf"), ExtResource("6_uqaje"), ExtResource("7_lwamr"), ExtResource("8_brhnk"), ExtResource("9_mlo4q"), ExtResource("10_l6jow")])
-boss_objesi = NodePath("")
 masa_objesi = NodePath("..")
-kapi_sistemi = NodePath("")
 
 [node name="Pos1" type="Marker3D" parent="BlokDagiticisi"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7479579, 0, 1.1636108)
