@@ -60,9 +60,37 @@ func _ready() -> void:
 	if debug_modu_aktif:
 		_debug_footprint_ciz()
 
+	# HAYALET MATERYALİNİ BUL VE KOPYALA (RENK DEĞİŞİMİ İÇİN)
+	if hayalet and not hayalet_mat:
+		var mesh_instance = _find_first_mesh(hayalet)
+		if mesh_instance:
+			var mat = mesh_instance.get_surface_override_material(0)
+			if not mat: mat = mesh_instance.mesh.surface_get_material(0)
+			if not mat: mat = mesh_instance.material_override
+			
+			if mat:
+				hayalet_mat = mat.duplicate() # Benzersiz yap
+				_apply_material_to_all(hayalet, hayalet_mat)
+	
 	# Mantar Modu açıksa doğar doğmaz renklenmeye çalış
 	if GameManager.mantar_modu:
 		call_deferred("rastgele_boya")
+
+func _find_first_mesh(node: Node) -> MeshInstance3D:
+	if node is MeshInstance3D: return node
+	for child in node.get_children():
+		var res = _find_first_mesh(child)
+		if res: return res
+	return null
+
+func _apply_material_to_all(node: Node, mat: Material):
+	if node is MeshInstance3D:
+		# Override varsa onu değiştir, yoksa override ekle
+		node.material_override = mat # En garantisi bu
+		# Bazı durumlarda surface override gerekebilir ama material_override hepsini ezer.
+	
+	for child in node.get_children():
+		_apply_material_to_all(child, mat)
 
 func _process(delta: float) -> void:
 	if tutuluyor and not kilitlendi:
@@ -203,8 +231,20 @@ func _footprint_dondur(orj_fp: Array[Vector2i], tur_sayisi: int) -> Array[Vector
 
 func _set_hayalet_color(ok: bool) -> void:
 	if not hayalet_mat: return
-	if ok: hayalet_mat.albedo_color = Color(0, 1, 0, 0.5)
-	else: hayalet_mat.albedo_color = Color(1, 0, 0, 0.5)
+	
+	# Canlı Renkler ve Emission (Parlaklık)
+	if ok:
+		# YEŞİL (Geçerli)
+		hayalet_mat.albedo_color = Color(0, 1, 0, 0.6)
+		hayalet_mat.emission_enabled = true
+		hayalet_mat.emission = Color(0, 1, 0)
+		hayalet_mat.emission_energy_multiplier = 0.5
+	else:
+		# KIRMIZI (Geçersiz)
+		hayalet_mat.albedo_color = Color(1, 0, 0, 0.6)
+		hayalet_mat.emission_enabled = true
+		hayalet_mat.emission = Color(1, 0, 0)
+		hayalet_mat.emission_energy_multiplier = 0.5
 
 func _birak() -> void:
 	tutuluyor = false

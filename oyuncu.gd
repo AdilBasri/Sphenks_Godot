@@ -563,13 +563,22 @@ func sit_on_stool(stool_node):
 	_update_orbit_camera()
 	
 	# UI GÜNCELLEME: [E] Kalk (Üstte, Küçük)
+	# UI GÜNCELLEME: [E] Kalk (Üstte, Ortada)
 	if etkilesim_label:
 		etkilesim_label.text = "[E] Kalk"
 		# Anchor Top-Center
 		etkilesim_label.anchor_top = 0.05
 		etkilesim_label.anchor_bottom = 0.05
+		etkilesim_label.anchor_left = 0.5
+		etkilesim_label.anchor_right = 0.5
+		etkilesim_label.horizontal_alignment = 1 # CENTER
+		
 		# Font küçültme (Scale ile hile yapıyoruz veya settings varsa oradan)
 		etkilesim_label.scale = Vector2(0.7, 0.7)
+		# Scale kullandığımız için pivotu da ortalamamız gerekebilir ama Label center align ise genelde sorun olmaz.
+		# Garanti olması için offsetleri sıfırlayalım ki anchor center'dan taşmasın.
+		etkilesim_label.offset_left = -50 # Tahmini genişlik yarısı
+		etkilesim_label.offset_right = 50
 	
 	# Blok Dağıtıcısını Başlat (Eğer başlamadıysa)
 	var spawner = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
