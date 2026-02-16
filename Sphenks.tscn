@@ -298,13 +298,11 @@ collision_mask = 2
 [node name="CollisionShape3D" parent="Block_L/Area3D" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, -1.1920932e-07, 0, 1.1920932e-07, 1, 0.46710467, 0.99362993, 0.4181919)
 
-[node name="MezarOdasi" type="CSGCombiner3D" parent="." index="3" node_paths=PackedStringArray("zar_atik_noktasi", "zar_kamerasi", "oyuncu_kamerasi", "oyuncu", "hasar_label")]
+[node name="MezarOdasi" type="CSGCombiner3D" parent="." index="3" node_paths=PackedStringArray("oyuncu_kamerasi", "oyuncu", "hasar_label")]
 material_override = SubResource("StandardMaterial3D_5u6ys")
 use_collision = true
 script = ExtResource("6_16a52")
 zar_sahnesi = ExtResource("62_q606s")
-zar_atik_noktasi = NodePath("")
-zar_kamerasi = NodePath("")
 oyuncu_kamerasi = NodePath("../Oyuncu/Camera3D")
 oyuncu = NodePath("../Oyuncu")
 hasar_label = NodePath("../Oyuncu/CanvasLayer/HasarYazisi")

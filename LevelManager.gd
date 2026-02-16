@@ -12,20 +12,31 @@ var oyuncu_ref: CharacterBody3D
 var oyun_odasi_ref: Node = null 
 
 func oyunu_baslat():
+	# GameManager'dan kayıtlı seviyeyi kontrol et
 	if GameManager.kayitli_seviye > 1:
 		suanki_katman = GameManager.kayitli_seviye
+		print("💾 Kayıtlı seviyeden devam ediliyor: Katman " + str(suanki_katman))
 	else:
 		suanki_katman = 1
+		print("🆕 Yeni oyun başlatılıyor: Katman 1")
 
 	_sahne_yukle_ve_kontrol_et()
 
 func _sahne_yukle_ve_kontrol_et():
+	# Katman 3, 6, 9... ise Pyro Koridoru'na git
 	if suanki_katman % 3 == 0:
 		GameManager.pyro_aktif = true
+		GameManager.silah_cekildi = true # Silah otomatik çekilsin
+		print("🔥🔥🔥 PYRO MODU AKTİF! (Katman: " + str(suanki_katman) + ") 🔥🔥🔥")
+		# Dosya yolunu Mac hassasiyetine göre kontrol et
 		get_tree().change_scene_to_file("res://PyroKoridoru.tscn")
 	else:
+		# Normal katmanlarda Sphenks (MezarOdasi) sahnesine git
 		GameManager.pyro_aktif = false
-		get_tree().change_scene_to_file("res://Scenes/OyunOdasi.tscn")
+		GameManager.silah_cekildi = false
+		print("🌲 Normal Bölge (Katman: " + str(suanki_katman) + ")")
+		# Asıl ana oyun sahnenin yolu
+		get_tree().change_scene_to_file("res://Sphenks.tscn")
 
 func konumlari_kaydet(p1: Vector3, p2: Vector3, p3: Vector3, oyuncu: CharacterBody3D, oda_ref: Node):
 	market_pos = p1
@@ -33,14 +44,18 @@ func konumlari_kaydet(p1: Vector3, p2: Vector3, p3: Vector3, oyuncu: CharacterBo
 	start_pos = p3
 	oyuncu_ref = oyuncu
 	oyun_odasi_ref = oda_ref
+	
+	# Bölüm yüklendiğinde oyuncuyu spawn noktasına ışınla
 	if suanki_katman > 1 and oyuncu_ref:
 		oyuncu_ref.global_position = start_pos
 
 func odaya_don_ve_level_atla():
+	# Katmanı bir artır ve ilerlemeyi kaydet
 	suanki_katman += 1
 	if GameManager:
 		GameManager.suanki_seviye = suanki_katman
 		GameManager.mantar_modu = false
+		GameManager.oyunu_kaydet() # Her katman geçişinde otomatik save
 	
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
 	if arayuz and arayuz.has_method("mantar_efekti_yonet"):
@@ -49,7 +64,6 @@ func odaya_don_ve_level_atla():
 	call_deferred("_sahne_yenile")
 
 func _sahne_yenile():
-	# KRİTİK: Katman kontrolüne göre sahne seçimi
 	_sahne_yukle_ve_kontrol_et()
 
 func bolum_verilerini_getir() -> Dictionary:
@@ -95,8 +109,10 @@ func boss_saldirisi_baslat():
 
 func _on_boss_isi_bitti():
 	if oyun_odasi_ref:
-		if oyun_odasi_ref.has_method("tur_sonrasi_islemler"): oyun_odasi_ref.tur_sonrasi_islemler()
-		elif oyun_odasi_ref.has_method("oyunu_devam_ettir"): oyun_odasi_ref.oyunu_devam_ettir()
+		if oyun_odasi_ref.has_method("tur_sonrasi_islemler"): 
+			oyun_odasi_ref.tur_sonrasi_islemler()
+		elif oyun_odasi_ref.has_method("oyunu_devam_ettir"): 
+			oyun_odasi_ref.oyunu_devam_ettir()
 
 func zar_at_animasyonunu_baslat():
 	if isleme_alindi_mi: return 

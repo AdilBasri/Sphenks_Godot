@@ -101,40 +101,55 @@ func _saldiri_animasyonunu_baslat():
 		if suanki_durum != 99:
 			suanki_durum = 0 
 
-# --- 4. DÜZGÜN ÖLÜM VE GÖMÜLME (AYAKTA GÖMÜLMEYİ ENGELLER) ---
 func olum_efekti():
 	if suanki_durum == 99: return
 	suanki_durum = 99 # Durum anında ölüye çekildi
 	
-	# Tüm fiziksel etkileşimi kes
-	velocity = Vector3.ZERO
-	collision_layer = 0 
-	collision_mask = 1 
-	collision_shape.set_deferred("disabled", true)
+	# 1. Hareketi Durdur ama Yerçekimi Kalsın
+	velocity.x = 0
+	velocity.z = 0
 	
-	# Hitboxları anında sil (Ölüyken hasar vermemesi için)
+	# 2. Fiziksel Etkileşimi Düzenle
+	collision_layer = 0 # Kimse ona çarpamaz
+	collision_mask = 1  # O sadece yere çarpar (Dünya katmanı)
+	
+	# 3. Hitboxları (Area3D) Anında Sil
 	for child in iskelet.get_children():
 		if child is BoneAttachment3D:
 			child.queue_free()
 
+	# 4. Ölüm Animasyonunu Zorla Başlat
 	if anim_player:
-		anim_player.stop() # Koşma veya Saldırı animasyonunu anında kes
+		anim_player.stop() # Koşma veya Saldırı ne varsa kes
 		if anim_player.has_animation("Death"):
 			anim_player.play("Death")
-			# KRİTİK: Ölüm animasyonu bitene kadar burada BEKLE
+			# Animasyonun bitmesini (karakterin yere yatmasını) bekle
 			await anim_player.animation_finished
 		else:
-			# Animasyon yoksa karakteri yana yatır (Ayakta durmasın)
-			var tween_fall = create_tween()
-			tween_fall.tween_property(self, "rotation:x", deg_to_rad(-90), 0.5)
-			await tween_fall.finished
+			# Eğer animasyon yoksa karakteri en azından yana devir (Düz batmasın)
+			var fall_tween = create_tween()
+			fall_tween.tween_property(self, "rotation:x", deg_to_rad(-90), 0.6)
+			await fall_tween.finished
 
-	# Karakter artık yerde! 2 saniye boyunca ölü bedenini göster
-	await get_tree().create_timer(2.0).timeout
+	# 5. KRİTİK: Karakterin Yerçekimiyle Tam Zemine Oturmasını Sağla
+	# Animasyon havada bitmiş olabilir, yere değene kadar bekle
+	var timeout = 0.0
+	while not is_on_floor() and timeout < 1.5:
+		velocity.y -= 9.8 * 0.1
+		move_and_slide()
+		await get_tree().create_timer(0.05).timeout
+		timeout += 0.05
+
+	# 6. Yerde Bekleme Süresi (2.5 saniye ceset yerde kalsın)
+	await get_tree().create_timer(2.5).timeout
 	
-	# Şimdi yavaşça gömülme başlasın
+	# 7. Gömülme Başlıyor
+	# Artık takılmaması için CollisionShape'i tamamen kapatıyoruz
+	collision_shape.set_deferred("disabled", true)
+	
 	var tween_sink = create_tween()
-	tween_sink.tween_property(self, "position:y", position.y - 2.0, 4.0).set_trans(Tween.TRANS_SINE)
+	# Karakterin yattığı yerden aşağı doğru batış
+	tween_sink.tween_property(self, "global_position:y", global_position.y - 2.0, 4.0).set_trans(Tween.TRANS_SINE)
 	tween_sink.tween_callback(queue_free)
 
 # --- DİĞER FONKSİYONLAR (HASAR VE UZUV) ---
@@ -167,10 +182,17 @@ func uzuv_firlat(kemik_adi: String, sahne: PackedScene):
 	if not sahne: return
 	var parca = sahne.instantiate()
 	get_tree().current_scene.add_child(parca)
+	
 	parca.global_position = global_position + Vector3(0, 1.2, 0)
+	
 	if parca is RigidBody3D:
-		var yon = Vector3(randf()-0.5, 1.0, randf()-0.5).normalized()
-		parca.linear_velocity = yon * 3.5
+		# Parça karakterin kendi fiziğine takılmasın
+		parca.add_collision_exception_with(self) 
+		
+		# Rastgele ve daha gerçekçi savrulma
+		var yon = Vector3(randf_range(-1.0, 1.0), 1.0, randf_range(-1.0, 1.0)).normalized()
+		parca.apply_central_impulse(yon * 4.0)
+		parca.angular_velocity = Vector3(randf()*5, randf()*5, randf()*5)
 
 func _kan_fiskirt(bolge_adi: String):
 	if not kan_spreyi_sahnesi: return

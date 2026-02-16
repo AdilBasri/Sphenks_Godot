@@ -30,9 +30,8 @@ func _ready():
 
 func satin_almaya_calis(fiyat: int, urun_verisi: ItemData) -> bool:
 	# 1. GameManager'a sor: "Yeterli para var mı?"
-	# altin_harca() fonksiyonu true dönerse, parayı zaten düşmüş demektir.
+	# sdw hatası temizlendi, if bloğu düzeltildi
 	if GameManager.altin_harca(fiyat):
-		
 		# 2. Para düştü, şimdi eşyayı envantere eklemeye çalış
 		var envantere_sigdi = GameManager.totem_ekle(urun_verisi)
 		
@@ -45,14 +44,12 @@ func satin_almaya_calis(fiyat: int, urun_verisi: ItemData) -> bool:
 			GameManager.altin_ekle(fiyat)
 			print("❌ Envanter Dolu! Para iade edildi.")
 			return false
-			
 	else:
 		print("❌ Yetersiz Bakiye! Gereken: " + str(fiyat))
 		# Arayüz varsa "Yetersiz Bakiye" uyarısı gösterebiliriz
 		var arayuz = get_tree().get_first_node_in_group("Arayuz")
 		if arayuz and arayuz.has_method("bilgi_goster"):
 			arayuz.bilgi_goster("Yetersiz Bakiye!")
-			
 		return false
 
 func red_efekti_oynat():

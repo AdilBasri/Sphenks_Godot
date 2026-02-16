@@ -143,6 +143,13 @@ func saglik_guncelle(bar: int, hp: int):
 	oyuncu_kalan_bar = bar; oyuncu_suanki_hp = hp;
 	emit_signal("saglik_guncellendi", bar, hp)
 
+func altin_harca(miktar: int) -> bool:
+	if toplam_altin >= miktar: 
+		toplam_altin -= miktar
+		emit_signal("altin_guncellendi", toplam_altin)
+		return true
+	return false
+
 func pelerin_korumasi_var_mi() -> bool:
 	return zar_atlama_hakki > 0
 

@@ -27,10 +27,10 @@ func _on_area_entered(area):
 	
 	if area.has_meta("Bolge"): 
 		var dusman = _dusman_scriptini_bul(area)
-		if dusman:
+		if dusman and dusman.suanki_durum != 99: # Sadece hayattaki düşmana çarp
 			carpti_mi = true
-			# --- KRİTİK: Çift kopmayı engelleyen satır ---
-			set_deferred("monitoring", false) 
+			set_deferred("monitoring", false)
+			set_deferred("monitorable", false) # Mermiyi tamamen etkisizleştir
 			dusman.hasar_al_bolgesel(area.get_meta("Bolge"))
 			queue_free()
 

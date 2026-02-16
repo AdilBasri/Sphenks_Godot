@@ -17,6 +17,7 @@ height = 1.012085
 [node name="KopanUzuv" type="RigidBody3D"]
 collision_layer = 13
 collision_mask = 3
+continuous_cd = true
 script = ExtResource("1_6646l")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
