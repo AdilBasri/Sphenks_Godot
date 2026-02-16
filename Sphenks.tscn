@@ -317,7 +317,7 @@ material_override = SubResource("StandardMaterial3D_1283l")
 size = Vector3(1, 1, 1.2)
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="MezarOdasi" index="1"]
-transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, -0.10026312, 0.63343596, -0.87754965)
+transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, -0.10026312, 0.63343596, -0.62441945)
 material_override = SubResource("StandardMaterial3D_ush30")
 operation = 2
 size = Vector3(1.008, 1, 1.2)
@@ -347,7 +347,7 @@ operation = 2
 size = Vector3(1.5, 3, 2.2)
 
 [node name="YanSehpa" parent="MezarOdasi" index="5" instance=ExtResource("7_kn6rn")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.8263676, -0.6611836, 0)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.6271365, -0.6611836, 0)
 
 [node name="ZarAtisNoktasi" type="Marker3D" parent="MezarOdasi" index="6"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1821117, 2.0952778, -0.35988355)

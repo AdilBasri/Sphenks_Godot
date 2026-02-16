@@ -14,11 +14,11 @@ collision_layer = 3
 script = ExtResource("1_script")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0.33713853)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0.7635106)
 shape = SubResource("CylinderShape3D_root")
 
 [node name="CameraPos" type="Marker3D" parent="."]
-transform = Transform3D(0.99999994, 0, 0, 0, 0.7071064, 0.7071064, 0, -0.7071064, 0.7071064, 0, 2.9146118, 0)
+transform = Transform3D(0.99999994, 0, 0, 0, 0.6427873, 0.766044, 0, -0.766044, 0.6427873, 0, 2.9146118, 0)
 
 [node name="Camera3D" type="Camera3D" parent="CameraPos"]
 
@@ -26,27 +26,27 @@ transform = Transform3D(0.99999994, 0, 0, 0, 0.7071064, 0.7071064, 0, -0.7071064
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.018749654, 0, 1.2347265)
 
 [node name="Ayak" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0, 0.08713853)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0, 0.5135106)
 size = Vector3(0.1, 0.5, 0.1)
 material = SubResource("StandardMaterial3D_i2lye")
 
 [node name="Ayak2" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, 0.08713853)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, 0.5135106)
 size = Vector3(0.1, 0.5, 0.1)
 material = SubResource("StandardMaterial3D_i2lye")
 
 [node name="Ayak3" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, 0.58713853)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, 1.0135106)
 size = Vector3(0.1, 0.5, 0.1)
 material = SubResource("StandardMaterial3D_i2lye")
 
 [node name="Ayak4" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0, 0.58713853)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, 0, 1.0135106)
 size = Vector3(0.1, 0.5, 0.1)
 material = SubResource("StandardMaterial3D_i2lye")
 
 [node name="CSGCylinder3D" type="CSGCylinder3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.28677982, 0.33713853)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.28677982, 0.7635106)
 height = 0.091
 sides = 15
 material = SubResource("StandardMaterial3D_i2lye")
