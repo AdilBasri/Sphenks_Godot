@@ -23,7 +23,7 @@ func _ready() -> void:
 	if spawner and spawner.has_method("bloklari_gizle"):
 		spawner.bloklari_gizle()
 	
-	# Oyuncu yürüyebilsin
+	# Oyuncu yürüyebilsinn
 	if oyuncu:
 		oyuncu.set_physics_process(true)
 
