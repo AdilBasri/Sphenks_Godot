@@ -477,19 +477,16 @@ func birak_veya_firlat():
 		tutulan_nesne.apply_central_impulse(-kamera.global_transform.basis.z * firlatma_gucu)
 		tutulan_nesne = null
 
-# --- HATANIN KAYNAĞI BURADAYDI VE DÜZELTİLDİ ---
+# --- OYUNCU.GD GÜNCEL ETKİLEŞİM SİSTEMİ (DÜZELTİLMİŞ) ---
 func check_ui_text():
 	if not etkilesim_label: return
 	etkilesim_label.text = ""
 	
 	if raycast and raycast.is_colliding():
 		var nesne = raycast.get_collider()
-		
-		# --- GÜVENLİK KONTROLÜ EKLENDİ ---
 		if not nesne: return 
 		
-		# print("Bakılan Nesne: ", nesne.name) # DEBUG
-		
+		# 1. MARKET EŞYASI KONTROLÜ
 		var veri = nesne.get("esya_verisi")
 		var market_modu = nesne.get("market_modu")
 		
@@ -498,19 +495,29 @@ func check_ui_text():
 				etkilesim_label.text = "[SOL TIK] SATIN AL\n" + veri.esya_adi + " (" + str(veri.fiyat) + " Altın)"
 			else:
 				etkilesim_label.text = "[SOL TIK] AL\n" + veri.esya_adi
+			return
+
+		# 2. INTERACT METODU KONTROLÜ (Gelişmiş Arama)
+		var bulunan_etkilesim = _bul_etkilesim_nesnesi(nesne)
 		
-		elif nesne.has_method("interact"):
-			etkilesim_label.text = "[E] Oynamak için Otur"
+		if bulunan_etkilesim:
+			# KAPI İSE FARKLI YAZI
+			if "Kapi" in bulunan_etkilesim.name or "Door" in bulunan_etkilesim.name or bulunan_etkilesim.has_method("kapiyi_ac"):
+				etkilesim_label.text = "[E] Kapıyı Aç"
+			# TABURE VEYA DİĞERLERİ
+			else:
+				etkilesim_label.text = "[E] Oynamak için Otur"
+			return
 		
-		elif nesne is RigidBody3D and not tutulan_nesne:
+		# 3. FİZİKSEL NESNE TUTMA
+		if nesne is RigidBody3D and not tutulan_nesne:
 			etkilesim_label.text = "[SOL TIK] TUT"
 
-# --- ETKİLEŞİME GİR (GÜVENLİ HALE GETİRİLDİ) ---
+# --- ETKİLEŞİME GİR ---
 func etkilesime_gir():
 	if not raycast or not raycast.is_colliding(): return
 	var nesne = raycast.get_collider()
-	
-	if not nesne: return # Güvenlik
+	if not nesne: return
 
 	var veri = nesne.get("esya_verisi")
 	var market_modu = nesne.get("market_modu")
@@ -522,12 +529,28 @@ func etkilesime_gir():
 			esyayi_ele_al(nesne)
 		return
 
-	if nesne.has_method("interact"):
-		nesne.interact(self)
+	# Gelişmiş Arama ile Bul
+	var bulunan_etkilesim = _bul_etkilesim_nesnesi(nesne)
+	
+	if bulunan_etkilesim:
+		bulunan_etkilesim.interact(self)
 		return
 
 	if nesne is RigidBody3D:
 		nesne_tut(nesne)
+
+# --- YARDIMCI: ETKİLEŞİME GİRİLECEK NESNEYİ BUL ---
+# Raycast collider'ı bazen child (StaticBody) olabilir.
+# Script ise parent (KapiSistemi) üzerinde olabilir.
+# Bu fonksiyon yukarı doğru 3 basamak arar.
+func _bul_etkilesim_nesnesi(baslangic_node):
+	var suanki = baslangic_node
+	for i in range(4): # Kendisi + 3 üst ebeveyn
+		if not suanki: break
+		if suanki.has_method("interact"):
+			return suanki
+		suanki = suanki.get_parent()
+	return null
 
 var table_angle_index: int = 0 # 0=Front, 1=Right, 2=Back, 3=Left
 

@@ -52,6 +52,10 @@ func _ready():
 	if yan_sehpa and yan_sehpa.has_method("sehpayi_guncelle"):
 		yan_sehpa.sehpayi_guncelle()
 
+	# --- OTOMATİK REFERANS BULMA (YENİ) ---
+	# Eğer editörden atanmamışsa (null ise), sahnede ismen arayıp bulalım.
+	_zar_sistemini_bagla()
+
 	if zar_kamerasi: zar_kamerasi.current = false
 	if oyuncu_kamerasi: oyuncu_kamerasi.current = true
 
@@ -166,6 +170,35 @@ func _on_boss_oldu():
 	print("☠️ OYUN ODASI: Boss öldü.")
 	boss_uyandi_mi = false
 	boss_tamamen_oldu = true
+	
+	# --- MASA SİSTEMİNİ KÜÇÜLT VE YOK ET ---
+	var masa_sistemi = get_parent().find_child("TumMasaSistemi", true, false)
+	if masa_sistemi:
+		var tween = create_tween()
+		tween.tween_property(masa_sistemi, "scale", Vector3.ZERO, 1.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+		tween.tween_callback(masa_sistemi.queue_free)
+	
+	# --- OYUNCUYU AYAĞA KALDIR ---
+	if oyuncu and oyuncu.has_method("stand_up"):
+		# Biraz bekle sonra kaldır (Dramatik etki)
+		await get_tree().create_timer(1.0).timeout
+		oyuncu.stand_up()
+		
+		# Arayüze mesaj gönder
+		var arayuz = get_tree().get_first_node_in_group("Arayuz")
+		if arayuz: arayuz.bilgi_goster("TEBRİKLER! BOSS YENİLDİ.", 5.0)
+
+	# --- KAPIYI AÇ ---
+	_kapiyi_ac()
+
+func _kapiyi_ac():
+	# KapiSistemi arayalım (MezarOdasi'nin komşusu)
+	var kapi = get_parent().find_child("KapiSistemi", true, false)
+	if kapi and kapi.has_method("kapiyi_ac"):
+		kapi.kapiyi_ac()
+		print("🚪 OYUN SONU: Kapı açıldı.")
+	else:
+		print("⚠️ UYARI: KapıSistemi bulunamadı veya açma metodu yok!")
 
 func _on_oyuncu_oldu():
 	print("💀 Oyun Odası: Oyuncu öldü.")
@@ -270,5 +303,29 @@ func _on_zar_durdu(gelen_sayi):
 
 func oyunu_devam_ettir():
 	if oyuncu_kamerasi:
-		zar_kamerasi.current = false
+		if zar_kamerasi: zar_kamerasi.current = false
 		oyuncu_kamerasi.current = true
+
+# --- DOĞRUDAN BAĞLAMA FONKSİYONU ---
+func _zar_sistemini_bagla():
+	# 1. ZAR KAMERASI KONTROLÜ
+	if not zar_kamerasi:
+		print("⚠️ UYARI: Zar Kamerası editörden atanmamış! Otomatik aranıyor...")
+		# Sahne hiyerarşisinde 'ZarKamerasi' ismini arayalım (ZarOdasi içinde olabilir)
+		var bulunan = get_tree().current_scene.find_child("ZarKamerasi", true, false)
+		if bulunan:
+			zar_kamerasi = bulunan
+			print("✅ Zar Kamerası BULUNDU: ", zar_kamerasi.get_path())
+		else:
+			print("❌ HATA: Zar Kamerası sahnede bulunamadı!")
+
+	# 2. ZAR ATIŞ NOKTASI KONTROLÜ
+	if not zar_atik_noktasi:
+		print("⚠️ UYARI: Zar Atış Noktası editörden atanmamış! Otomatik aranıyor...")
+		# Sahne hiyerarşisinde 'ZarAtisNoktasi' ismini arayalım
+		var bulunan = get_tree().current_scene.find_child("ZarAtisNoktasi", true, false)
+		if bulunan:
+			zar_atik_noktasi = bulunan
+			print("✅ Zar Atış Noktası BULUNDU: ", zar_atik_noktasi.get_path())
+		else:
+			print("❌ HATA: Zar Atış Noktası sahnede bulunamadı!")

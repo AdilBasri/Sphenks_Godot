@@ -303,8 +303,8 @@ material_override = SubResource("StandardMaterial3D_5u6ys")
 use_collision = true
 script = ExtResource("6_16a52")
 zar_sahnesi = ExtResource("62_q606s")
-zar_atik_noktasi = NodePath("ZarAtisNoktasi")
-zar_kamerasi = NodePath("ZarKamerasi")
+zar_atik_noktasi = NodePath("")
+zar_kamerasi = NodePath("")
 oyuncu_kamerasi = NodePath("../Oyuncu/Camera3D")
 oyuncu = NodePath("../Oyuncu")
 hasar_label = NodePath("../Oyuncu/CanvasLayer/HasarYazisi")
@@ -349,13 +349,7 @@ size = Vector3(1.5, 3, 2.2)
 [node name="YanSehpa" parent="MezarOdasi" index="5" instance=ExtResource("7_kn6rn")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.6271365, -0.6611836, 0)
 
-[node name="ZarAtisNoktasi" type="Marker3D" parent="MezarOdasi" index="6"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1821117, 2.0952778, -0.35988355)
-
-[node name="ZarKamerasi" type="Camera3D" parent="MezarOdasi" index="7"]
-transform = Transform3D(0.049750816, 0.82450163, -0.5636683, -0.07249083, 0.5658596, 0.82130873, 0.9961275, 7.4793585e-09, 0.08792079, 1.1608381, 2.189816, 0.2135151)
-
-[node name="SilahKatmani" parent="MezarOdasi" index="8" instance=ExtResource("11_63q5f")]
+[node name="SilahKatmani" parent="MezarOdasi" index="6" instance=ExtResource("11_63q5f")]
 
 [node name="Kedi" type="Sprite3D" parent="." index="4" node_paths=PackedStringArray("diyalog_yoneticisi")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.4053817, -0.19308585, 0.0020349026)
@@ -1063,6 +1057,27 @@ size = Vector3(1.5482178, 2.9299502, 0.6573989)
 
 [node name="CampfireOdasi" parent="." index="25" instance=ExtResource("33_1g7sh")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 5.427616, 0.8997017, -33.59956)
+
+[node name="ZarOdasi" type="CSGBox3D" parent="." index="26"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.913664, 0.5922892, 0)
+size = Vector3(4, 4, 4)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="ZarOdasi" index="0"]
+operation = 2
+size = Vector3(3.5, 3.5, 3.5)
+
+[node name="OmniLight3D6" type="OmniLight3D" parent="ZarOdasi/CSGBox3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.012934685, -0.4990176, -0.01415503)
+light_color = Color(0.35047063, 0.24055037, 0.9999998, 1)
+omni_range = 1.75
+omni_attenuation = -1.849
+
+[node name="ZarAtisNoktasi" type="Marker3D" parent="ZarOdasi" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.18612671, 1.242451, -0.06695452)
+
+[node name="ZarKamerasi" type="Camera3D" parent="ZarOdasi" index="2"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -0.0932312, 1.3956807, 0.2135151)
+fov = 85.4
 
 [connection signal="input_event" from="Kedi/Y_Kedi" to="Kedi" method="_on_area_3d_input_event"]
 
