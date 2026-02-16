@@ -5,10 +5,10 @@
 [ext_resource type="Material" uid="uid://d2gy67gtklkkk" path="res://Hayalet_Mat.tres" id="3_3lier"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_0rorx"]
-size = Vector3(2.0688477, 2.8617554, 1)
+size = Vector3(2.0688477, 4.2475815, 1.3813477)
 
 [node name="BlokCubuk" type="Node3D" node_paths=PackedStringArray("hayalet")]
-transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -0.706, 0.521, 1.524)
+transform = Transform3D(0.209, 0, 0, 0, 0.18941833, 0.08832722, 0, -0.08832722, 0.18941833, -0.706, 0.521, 1.524)
 script = ExtResource("1_vkgmt")
 hayalet = NodePath("Hayalet")
 tekli_blok_sahnesi = ExtResource("2_tjfbl")
@@ -18,7 +18,7 @@ footprint = Array[Vector2i]([Vector2i(0, -3), Vector2i(0, -2), Vector2i(0, -1), 
 transform = Transform3D(1, 0, 0, 0, 0.9999998, -7.4505806e-08, 0, 7.4505806e-08, 0.9999998, -0.36811852, 0.75250566, -0.21533251)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
-transform = Transform3D(1, 0, 0, 0, 0.9999998, -1.1920929e-07, 0, 1.1920929e-07, 0.9999998, 0.46710467, 0.99362993, 0.4181919)
+transform = Transform3D(1, 0, 0, 0, 0.99999166, -1.2218952e-06, 0, 1.2218952e-06, 0.99999166, 0.46710467, 0.78475535, 0.22751856)
 shape = SubResource("BoxShape3D_0rorx")
 
 [node name="Gorsel" type="Node3D" parent="."]
