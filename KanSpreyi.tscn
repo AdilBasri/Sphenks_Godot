@@ -1,4 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://dpdgmgogxjv7i"]
+[gd_scene load_steps=4 format=3 uid="uid://dpdgmgogxjv7i"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bbkf8"]
+albedo_color = Color(1, 0, 0, 1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wsshb"]
 albedo_color = Color(1, 0, 0, 1)
@@ -8,6 +11,8 @@ material = SubResource("StandardMaterial3D_wsshb")
 size = Vector3(0.1, 0.1, 0.1)
 
 [node name="KanSpreyi" type="CPUParticles3D"]
+layers = 3
+material_override = SubResource("StandardMaterial3D_bbkf8")
 emitting = false
 amount = 100
 one_shot = true
