@@ -36,6 +36,20 @@ var tutulan_nesne: RigidBody3D = null
 var tutma_noktasi: Node3D = null 
 var mouse_serbest_modu: bool = false 
 
+# --- YEME MEKANİĞİ ---
+var is_eating: bool = false
+var eating_timer: float = 0.0
+var eating_duration: float = 3.0
+var eating_tween: Tween = null
+var camera_shake_intensity: float = 0.004
+var kan_spreyi_sahne = preload("res://KanSpreyi.tscn")
+var aktif_kan_spreyi: Node = null
+# TODO: Ses dosyaları eklenince yorumları kaldır
+# var ses_et_kopma = preload("res://Flesh_Tear.ogg")
+# var ses_cignemek = preload("res://Crunch.ogg")
+# var ses_yutmak = preload("res://Swallow.ogg")
+# var ses_sivi = preload("res://Liquid_Squish.ogg")
+
 var is_sitting: bool = false
 var current_stool: Node3D = null
 var original_camera_transform: Transform3D
@@ -82,6 +96,20 @@ func _input(event):
 	if not kamera or oldu_mu: return 
 	if yere_dustu_mu: return 
 
+	# --- YEME INPUT ---
+	if event is InputEventKey and event.keycode == KEY_R:
+		if event.pressed and not event.is_echo():
+			if not is_eating and tutulan_nesne and tutulan_nesne.is_in_group("KopanUzuv"):
+				yeme_baslat()
+				return
+		elif not event.pressed:
+			if is_eating:
+				yeme_iptal()
+				return
+	
+	# Yeme sırasında tüm diğer inputları engelle
+	if is_eating: return
+
 	if event is InputEventKey and event.pressed and event.keycode == KEY_Z:
 		hasar_al(1)
 
@@ -126,6 +154,23 @@ func _input(event):
 
 func _physics_process(delta):
 	if yere_dustu_mu or oldu_mu: return
+	
+	# --- YEME SIRASINDA HAREKET KİLİTLE ---
+	if is_eating:
+		velocity = Vector3.ZERO
+		move_and_slide()
+		_kamera_sarsintisi(delta)
+		eating_timer += delta
+		if eating_timer >= eating_duration:
+			yeme_tamamlandi()
+		# Tutma noktası fizik güncellemesi (limb pozisyonu)
+		if tutulan_nesne and tutma_noktasi:
+			var hedef_pos = tutma_noktasi.global_position
+			var nesne_pos = tutulan_nesne.global_position
+			var yon = (hedef_pos - nesne_pos) * 15.0
+			tutulan_nesne.linear_velocity = yon
+			tutulan_nesne.angular_velocity = Vector3.ZERO
+		return
 	
 	if is_sitting: return # Otururken hareket etme
 
@@ -829,3 +874,183 @@ func _revive_ile_kalkis():
 		ui_guncelle()
 		print("✅ Revive tamamlandı. Can: 1 Bar (10 HP)")
 	)
+
+# ============================================================
+# --- UZUV YEME MEKANİĞİ (Gore Consumption) ---
+# ============================================================
+
+func yeme_baslat():
+	"""R tuşuna basılınca ve KopanUzuv tutuluyorsa çağrılır.
+	Oyuncuyu kilitler, ritüel başlar."""
+	if is_eating: return
+	if not tutulan_nesne or not tutulan_nesne.is_in_group("KopanUzuv"): return
+	
+	print("🩸 UZUV YEME BAŞLADI!")
+	is_eating = true
+	eating_timer = 0.0
+	velocity = Vector3.ZERO
+	
+	# Vignette Shader Aç
+	_gore_vignette_kontrol(true)
+	
+	# Uzvu küçültmeye başla (non-uniform squish)
+	if tutulan_nesne.has_method("yenmeye_basla"):
+		tutulan_nesne.yenmeye_basla(eating_duration)
+	
+	# Kan partikülleri (Ağız/Kamera yakınına)
+	if kan_spreyi_sahne and kamera:
+		aktif_kan_spreyi = kan_spreyi_sahne.instantiate()
+		kamera.add_child(aktif_kan_spreyi)
+		aktif_kan_spreyi.position = Vector3(0, -0.1, -0.5) # Kamera önünde, biraz aşağıda
+		aktif_kan_spreyi.emitting = true
+	
+	# TODO: Ses çal
+	# var ses = AudioStreamPlayer.new()
+	# ses.stream = ses_et_kopma
+	# add_child(ses)
+	# ses.play()
+	
+	# UI bilgi
+	var arayuz = get_tree().get_first_node_in_group("Arayuz")
+	if arayuz and arayuz.has_method("bilgi_goster"):
+		arayuz.bilgi_goster("🩸 Yiyor... [R] bırak = İptal", eating_duration)
+
+func yeme_iptal():
+	"""R tuşu bırakıldığında veya hasar alındığında çağrılır.
+	Her şeyi temiz şekilde eski haline döndürür."""
+	if not is_eating: return
+	
+	print("❌ Yeme iptal edildi!")
+	is_eating = false
+	eating_timer = 0.0
+	
+	# Vignette Shader Kapat
+	_gore_vignette_kontrol(false)
+	
+	# Kamera shake sıfırla
+	if kamera:
+		kamera.h_offset = 0.0
+		kamera.v_offset = 0.0
+	
+	# Uzuv skalasını geri al
+	if tutulan_nesne and is_instance_valid(tutulan_nesne) and tutulan_nesne.has_method("yenme_iptal"):
+		tutulan_nesne.yenme_iptal()
+	
+	# Kan partiküllerini temizle
+	if aktif_kan_spreyi and is_instance_valid(aktif_kan_spreyi):
+		aktif_kan_spreyi.emitting = false
+		# Biraz bekleyip sil (partiküller sönsün)
+		var timer = get_tree().create_timer(1.0)
+		var spreyi_ref = aktif_kan_spreyi
+		timer.timeout.connect(func():
+			if is_instance_valid(spreyi_ref):
+				spreyi_ref.queue_free()
+		)
+		aktif_kan_spreyi = null
+
+func yeme_tamamlandi():
+	"""Yeme süresi dolduğunda çağrılır.
+	Uzuv yok edilir, oyuncu iyileşir."""
+	if not is_eating: return
+	
+	print("✅ UZUV YENDİ! İyileşme uygulanıyor...")
+	is_eating = false
+	eating_timer = 0.0
+	
+	# Vignette kapat
+	_gore_vignette_kontrol(false)
+	
+	# Kamera shake sıfırla
+	if kamera:
+		kamera.h_offset = 0.0
+		kamera.v_offset = 0.0
+	
+	# Kan partiküllerini temizle
+	if aktif_kan_spreyi and is_instance_valid(aktif_kan_spreyi):
+		aktif_kan_spreyi.emitting = false
+		var spreyi_ref = aktif_kan_spreyi
+		var timer = get_tree().create_timer(1.0)
+		timer.timeout.connect(func():
+			if is_instance_valid(spreyi_ref):
+				spreyi_ref.queue_free()
+		)
+		aktif_kan_spreyi = null
+	
+	# --- İYİLEŞME ---
+	# Aktif barın HP'sini doldur (+25 HP eşdeğeri olarak tüm barı doldur)
+	# Eğer aktif bar zaten dolu ise bir üst barı aç
+	if suanki_hp < 10:
+		suanki_hp = 10 # Aktif barı fulleştir
+	elif suanki_can_bari < max_can_bari:
+		suanki_can_bari += 1
+		suanki_hp = 10
+	# else: zaten full can — yine de uzuv tüketilsin
+	
+	if GameManager:
+		GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
+	ui_guncelle()
+	
+	# Uzvu yok et
+	if tutulan_nesne and is_instance_valid(tutulan_nesne):
+		tutulan_nesne.queue_free()
+	tutulan_nesne = null
+	
+	# UI mesajı
+	var arayuz = get_tree().get_first_node_in_group("Arayuz")
+	if arayuz and arayuz.has_method("bilgi_goster"):
+		arayuz.bilgi_goster("🩸 İyileştin! Uzuv tüketildi.", 2.0)
+	
+	print("💚 Can güncellendi: Bar=%d HP=%d" % [suanki_can_bari, suanki_hp])
+
+func _kamera_sarsintisi(delta):
+	"""Yeme sırasında ritmik kamera sarsıntısı (çiğneme simülasyonu)."""
+	if not kamera or not is_eating: return
+	
+	# Ritmik sarsıntı — sin/cos ile çiğneme hissi
+	var zaman = Time.get_ticks_msec() / 1000.0
+	var frekans = 8.0 # Çiğneme hızı
+	
+	kamera.h_offset = sin(zaman * frekans) * camera_shake_intensity
+	kamera.v_offset = cos(zaman * frekans * 1.3) * camera_shake_intensity * 0.7
+
+func _gore_vignette_kontrol(aktif: bool):
+	"""GoreVignette ColorRect'ini aç/kapat (tween ile)."""
+	var arayuz = get_tree().get_first_node_in_group("Arayuz")
+	if not arayuz: return
+	
+	var vignette = arayuz.get_node_or_null("GoreVignette")
+	if not vignette: 
+		print("⚠️ GoreVignette düğümü bulunamadı! OyunArayuzu altına ekleyin.")
+		return
+	
+	if eating_tween and eating_tween.is_valid():
+		eating_tween.kill()
+	
+	eating_tween = create_tween()
+	
+	if aktif:
+		vignette.visible = true
+		# Shader intensity'yi tween et
+		if vignette.material:
+			vignette.material.set_shader_parameter("intensity", 0.0)
+			eating_tween.tween_method(func(val):
+				if is_instance_valid(vignette) and vignette.material:
+					vignette.material.set_shader_parameter("intensity", val)
+			, 0.0, 1.0, 0.5)
+		else:
+			# Shader yoksa sadece modulate ile fallback
+			vignette.modulate.a = 0.0
+			eating_tween.tween_property(vignette, "modulate:a", 0.8, 0.5)
+	else:
+		if vignette.material:
+			eating_tween.tween_method(func(val):
+				if is_instance_valid(vignette) and vignette.material:
+					vignette.material.set_shader_parameter("intensity", val)
+			, 1.0, 0.0, 0.3)
+		else:
+			eating_tween.tween_property(vignette, "modulate:a", 0.0, 0.3)
+		eating_tween.tween_callback(func():
+			if is_instance_valid(vignette):
+				vignette.visible = false
+		)
+
