@@ -50,8 +50,9 @@ func _process(delta):
 		global_position.x = anlik_x
 		global_position.z = anlik_z
 		
-		# Her zaman masanın ortasına bak
-		look_at(masa_merkezi.global_position, Vector3.UP)
+		# Her zaman masanın ortasına bak (Scale sıfırsa look_at çağırma — det == 0 fix)
+		if not scale.is_zero_approx():
+			look_at(masa_merkezi.global_position, Vector3.UP)
 
 	# --- 2. GÖRSEL EFEKTLER ---
 	

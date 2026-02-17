@@ -8,9 +8,9 @@ var intro_sahnesi_yolu = "res://intro_sahnesi.tscn" # Otobüs Sahnesi
 func _ready():
 	print("Ana Menü Açıldı.")
 	
-	# 1. ADIM: Oyun açılır açılmaz hafızayı tazele (Save dosyasını oku)
-	GameManager.oyunu_yukle()
-	print("Menü Yüklendi. Kayıtlı Seviye: ", GameManager.kayitli_seviye, " | Intro Bitti mi: ", GameManager.intro_tamamlandi)
+	# 1. ADIM: Sadece intro durumunu kontrol et (oyun state'i her açılışta sıfır)
+	GameManager._intro_durumu_yukle()
+	print("Menü Yüklendi. Intro Bitti mi: ", GameManager.intro_tamamlandi)
 
 	# --- BUTON BAĞLANTILARI (Defansif Kodlama) ---
 	

@@ -155,7 +155,12 @@ func _on_satir_patladi():
 func _on_blok_yerlestirildi():
 	if boss_tamamen_oldu: return
 	if GameManager.pyro_aktif: return # Pyro'da boss saldırmaz
-	
+
+	# Race condition fix: Boss zaten aksiyondaysa blok yerleştirmeyi yoksay
+	if LevelManager and LevelManager.is_boss_acting:
+		print("🔒 Boss aksiyonda, blok komutu yoksayıldı.")
+		return
+
 	if not boss_uyandi_mi:
 		print("💤 Boss uyuyor, saldırı yok.")
 		return
@@ -175,7 +180,7 @@ func _on_boss_oldu():
 	var masa_sistemi = get_parent().find_child("TumMasaSistemi", true, false)
 	if masa_sistemi:
 		var tween = create_tween()
-		tween.tween_property(masa_sistemi, "scale", Vector3.ZERO, 1.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+		tween.tween_property(masa_sistemi, "scale", Vector3(0.01, 0.01, 0.01), 1.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
 		tween.tween_callback(masa_sistemi.queue_free)
 	
 	# --- OYUNCUYU AYAĞA KALDIR ---
@@ -311,7 +316,6 @@ func _zar_sistemini_bagla():
 	# 1. ZAR KAMERASI KONTROLÜ
 	if not zar_kamerasi:
 		print("⚠️ UYARI: Zar Kamerası editörden atanmamış! Otomatik aranıyor...")
-		# Sahne hiyerarşisinde 'ZarKamerasi' ismini arayalım (ZarOdasi içinde olabilir)
 		var bulunan = get_tree().current_scene.find_child("ZarKamerasi", true, false)
 		if bulunan:
 			zar_kamerasi = bulunan
@@ -322,10 +326,25 @@ func _zar_sistemini_bagla():
 	# 2. ZAR ATIŞ NOKTASI KONTROLÜ
 	if not zar_atik_noktasi:
 		print("⚠️ UYARI: Zar Atış Noktası editörden atanmamış! Otomatik aranıyor...")
-		# Sahne hiyerarşisinde 'ZarAtisNoktasi' ismini arayalım
 		var bulunan = get_tree().current_scene.find_child("ZarAtisNoktasi", true, false)
 		if bulunan:
 			zar_atik_noktasi = bulunan
 			print("✅ Zar Atış Noktası BULUNDU: ", zar_atik_noktasi.get_path())
 		else:
 			print("❌ HATA: Zar Atış Noktası sahnede bulunamadı!")
+
+
+# ==========================================
+# TUR SONRASI İŞLEMLER (LevelManager tarafından çağrılır)
+# ==========================================
+
+func tur_sonrasi_islemler():
+	"""Boss saldırısı bittikten sonra çalışır. Gerekli temizlik işlemleri."""
+	print("✅ Tur sonrası işlemler çalıştı.")
+	# Boss'un UYUKLAMA durumunda olduğunu onaylamak için:
+	var boss = get_tree().get_first_node_in_group("Dusman")
+	if boss and is_instance_valid(boss) and boss.has_method("boss_durumu_sifirla"):
+		# Eğer durum UYUKLAMA değilse, sıfırla
+		if boss.suanki_durum != "UYUKLAMA" and boss.suanki_durum != str(boss.DURUM_OLDU):
+			print("⚠️ Boss UYUKLAMA değil, sıfırlanıyor...")
+			boss.boss_durumu_sifirla()

@@ -373,7 +373,8 @@ func _ozel_animasyon_oynat(tip: String):
 
 	active_tween.tween_callback(func():
 		if GameManager and ozel_esya_verisi:
-			GameManager.esya_sil(ozel_esya_verisi)
+			GameManager.envanter.erase(ozel_esya_verisi)
+			GameManager.envanter_guncellendi.emit()
 
 		if is_instance_valid(esya): esya.queue_free()
 		
@@ -468,12 +469,26 @@ func ui_guncelle():
 			if carpi: carpi.visible = true 
 
 func nesne_tut(nesne: RigidBody3D):
+	# Donmuş nesneyi çöz (KopanUzuv yere düşünce freeze oluyor)
+	if nesne.freeze:
+		nesne.freeze = false
+	
+	# Özel tutuldu metodu varsa çağır (KopanUzuv vb.)
+	if nesne.has_method("tutuldu"):
+		nesne.tutuldu()
+	else:
+		nesne.gravity_scale = 0.0
+	
 	tutulan_nesne = nesne
-	tutulan_nesne.gravity_scale = 0.0 
 
 func birak_veya_firlat():
 	if tutulan_nesne:
-		tutulan_nesne.gravity_scale = 1.0 
+		# Özel bırakıldı metodu varsa çağır
+		if tutulan_nesne.has_method("birakildi"):
+			tutulan_nesne.birakildi()
+		else:
+			tutulan_nesne.gravity_scale = 1.0
+		
 		tutulan_nesne.apply_central_impulse(-kamera.global_transform.basis.z * firlatma_gucu)
 		tutulan_nesne = null
 

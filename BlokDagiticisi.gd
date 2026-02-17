@@ -55,8 +55,7 @@ func yeni_bolumu_baslat():
 	# 3. BOSS GÜNCELLEME (Görünürlük Fix)
 	if boss_objesi:
 		boss_objesi.visible = true # Zorla görünür yap
-		boss_objesi.scale = Vector3.ONE # Boyutu düzelt
-		boss_objesi.modulate = Color.WHITE # Rengi düzelt (Kırmızı kaldıysa)
+		boss_objesi.scale = Vector3(1.5, 1.5, 1.5) # Orijinal boyut (Sphenks.tscn'de 1.5)
 		
 		# Resmi Yükle
 		if boss_yolu != "":
@@ -151,8 +150,7 @@ func _boss_olum_animasyonu() -> void:
 			tween.tween_property(boss_objesi, "position:x", 0.1, 0.03).as_relative()
 			tween.tween_property(boss_objesi, "position:x", -0.1, 0.03).as_relative()
 		
-		if "modulate" in boss_objesi:
-			tween.tween_property(boss_objesi, "modulate", Color.RED, 0.5)
+		# Node3D'de modulate yok, görsel efekt için scale sarsma yeterli
 			
 		tween.tween_property(boss_objesi, "scale", Vector3.ZERO, 0.8).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_IN)
 		

@@ -116,9 +116,10 @@ func _fizik_hareket(delta):
 	global_position.x = clamp(global_position.x, merkez_x - masa_siniri, merkez_x + masa_siniri)
 	global_position.z = clamp(global_position.z, merkez_z - masa_siniri, merkez_z + masa_siniri)
 	
-	# 7. YÜZÜNÜ OYUNCUYA DÖN
-	var bakis_hedefi = Vector3(oyuncu_pos.x, global_position.y, oyuncu_pos.z)
-	look_at(bakis_hedefi, Vector3.UP)
+	# 7. YÜZÜNÜ OYUNCUYA DÖN (Scale sıfırsa look_at çağırma — det == 0 fix)
+	if not scale.is_zero_approx():
+		var bakis_hedefi = Vector3(oyuncu_pos.x, global_position.y, oyuncu_pos.z)
+		look_at(bakis_hedefi, Vector3.UP)
 
 
 # ==========================================
@@ -203,7 +204,7 @@ func _manuel_firlat(tip: String):
 func _on_boss_oldu_sinyali():
 	oldu_mu = true
 	var tween = create_tween()
-	tween.tween_property(self, "scale", Vector3.ZERO, 1.0)
+	tween.tween_property(self, "scale", Vector3(0.01, 0.01, 0.01), 1.0)
 	tween.tween_callback(queue_free)
 
 func hasar_al(miktar: int):

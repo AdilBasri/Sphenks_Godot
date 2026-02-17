@@ -43,18 +43,15 @@ var silah_cekildi: bool = false
 
 func _ready():
 	print("GameManager Başlatıldı.")
-	oyunu_yukle()
+	# Sadece intro durumunu yükle — oyun state'i her açılışta sıfır başlar
+	_intro_durumu_yukle()
 
 func verileri_sifirla():
-	if kayitli_seviye > 1:
-		suanki_seviye = kayitli_seviye
-		if LevelManager: LevelManager.suanki_katman = suanki_seviye
-		_arayuz_guncelle()
-		return
-
+	"""Tüm oyun verilerini başlangıç değerlerine sıfırlar."""
 	oyuncu_kalan_bar = 4
 	oyuncu_suanki_hp = 10
 	suanki_seviye = 1
+	kayitli_seviye = 1
 	toplam_altin = 10
 	mermi_sayisi = 10
 	pyro_aktif = false
@@ -100,9 +97,13 @@ func oyunu_kaydet():
 	for esya in envanter:
 		if esya != null: esya_yollari.append(esya.resource_path)
 	config.set_value("Oyun", "Envanter", esya_yollari)
+	config.set_value("Oyun", "IntroTamamlandi", intro_tamamlandi)
 	config.save("user://savegame.cfg")
+	print("💾 Oyun kaydedildi.")
 
 func oyunu_yukle():
+	"""Kedi maması verildiğinde kaydedilen TÜM verileri yükler.
+	Sadece ana_menu 'Devam Et' mantığında çağrılır."""
 	var config = ConfigFile.new()
 	var hata = config.load("user://savegame.cfg")
 	if hata == OK:
@@ -123,8 +124,29 @@ func oyunu_yukle():
 		for yol in esya_yollari:
 			if ResourceLoader.exists(yol):
 				envanter.append(load(yol))
+
+		intro_tamamlandi = config.get_value("Oyun", "IntroTamamlandi", false)
+
+		# Corrupt save fix: HP sıfırsa tam sağlığa döndür
+		if oyuncu_kalan_bar <= 0 or oyuncu_suanki_hp <= 0:
+			print("⚠️ Yükleme: Corrupt HP tespit edildi, tam sağlığa sıfırlanıyor.")
+			oyuncu_kalan_bar = oyuncu_max_bar
+			oyuncu_suanki_hp = 10
 	else:
 		kayitli_seviye = 1
+
+
+func _intro_durumu_yukle():
+	"""Sadece intro tamamlandı mı bilgisini yükler.
+	Oyun state'i (HP, altın, envanter vb.) YÜKLENMİYOR — her açılışta sıfır."""
+	var config = ConfigFile.new()
+	var hata = config.load("user://savegame.cfg")
+	if hata == OK:
+		intro_tamamlandi = config.get_value("Oyun", "IntroTamamlandi", false)
+		print("📂 Intro durumu yüklendi: ", intro_tamamlandi)
+	else:
+		intro_tamamlandi = false
+		print("📂 Save dosyası bulunamadı, intro sıfır.")
 
 func mermi_ekle(miktar: int) -> bool:
 	if mermi_sayisi >= max_mermi: return false

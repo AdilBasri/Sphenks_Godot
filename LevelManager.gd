@@ -3,6 +3,7 @@ extends Node
 # --- OYUN DURUMU ---
 var suanki_katman: int = 1
 var isleme_alindi_mi: bool = false
+var is_boss_acting: bool = false  # Turn-lock: true iken oyuncu blok koyamaz
 
 # --- KONUM REFERANSLARI ---
 var market_pos: Vector3
@@ -50,7 +51,7 @@ func odaya_don_ve_level_atla():
 	if GameManager:
 		GameManager.suanki_seviye = suanki_katman
 		GameManager.mantar_modu = false
-		GameManager.oyunu_kaydet() # Her katman geçişinde otomatik save
+		# Auto-save KALDIRILDI — save sadece kedi maması verildiğinde olur
 	
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
 	if arayuz and arayuz.has_method("mantar_efekti_yonet"):
@@ -92,8 +93,17 @@ func boss_saldirisi_baslat():
 	# Sadece Pyro olmayan seviyelerde çalışır
 	if GameManager.pyro_aktif: return
 
+	# Zaten sıra Boss'taysa tekrar çağırma (Race condition fix)
+	if is_boss_acting:
+		print("🔒 Boss zaten aksiyonda, çift saldırı engellendi.")
+		return
+
 	var boss = get_tree().get_first_node_in_group("Dusman")
 	if boss:
+		# KİLİTLE — oyuncu blok koyamaz
+		is_boss_acting = true
+		print("🔒 Boss sırası KİLİTLENDİ.")
+
 		if not boss.saldiri_tamamlandi.is_connected(_on_boss_isi_bitti):
 			boss.saldiri_tamamlandi.connect(_on_boss_isi_bitti)
 		
@@ -103,6 +113,10 @@ func boss_saldirisi_baslat():
 		_on_boss_isi_bitti()
 
 func _on_boss_isi_bitti():
+	# KİLİDİ AÇ — oyuncu tekrar blok koyabilir
+	is_boss_acting = false
+	print("🔓 Boss sırası AÇILDI.")
+
 	# Kamera Güvenliği: Boss saldırısı veya zar bittiğinde kamera oyuncuya döner
 	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
 	if oyuncu:
