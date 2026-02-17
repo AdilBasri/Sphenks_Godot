@@ -1,0 +1,63 @@
+[gd_scene load_steps=6 format=3 uid="uid://cyy5cvfn3untg"]
+
+[ext_resource type="PackedScene" uid="uid://k1whi24gleww" path="res://Canavar/Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin.fbx" id="1_c4uxv"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_c4uxv"]
+albedo_color = Color(1.5844988, 1.5844988, 0, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_rwgfm"]
+material = SubResource("StandardMaterial3D_c4uxv")
+top_radius = 0.2
+bottom_radius = 0.2
+height = 0.1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_53g5v"]
+albedo_color = Color(1.285523, 1.285523, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_n53ud"]
+material = SubResource("StandardMaterial3D_53g5v")
+size = Vector3(0.1, 0.45, 0.1)
+
+[node name="Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin" instance=ExtResource("1_c4uxv")]
+
+[node name="Skeleton3D" parent="Armature" index="0"]
+bones/0/position = Vector3(0.15891005, 0.70363975, 0.67722887)
+bones/0/rotation = Quaternion(0.81578344, 0.04364385, -0.035821732, 0.5755949)
+bones/1/rotation = Quaternion(0.58935684, 0.1610747, -0.078064606, 0.787794)
+bones/2/rotation = Quaternion(0.76745737, -0.050104745, 0.016436344, 0.6389277)
+bones/3/rotation = Quaternion(-0.5769291, -0.0043134913, 0.05569973, 0.8148815)
+bones/4/rotation = Quaternion(-0.33342507, -0.013455192, 0.010587973, 0.9426212)
+bones/5/rotation = Quaternion(0.5684493, -0.124315605, 0.2795848, 0.7637038)
+bones/6/rotation = Quaternion(0.82527316, 0.043934498, -0.011021286, 0.5629143)
+bones/7/rotation = Quaternion(-0.63218313, 0.08443533, 0.015002417, 0.77005863)
+bones/8/rotation = Quaternion(-0.3201254, 0.011388257, -0.005637951, 0.94729)
+bones/9/rotation = Quaternion(-0.020227103, 0.045014333, 0.0064783264, 0.9987606)
+bones/10/rotation = Quaternion(0.03860579, 0.009114397, 0.024151124, 0.99892104)
+bones/11/rotation = Quaternion(0.0065701893, 0.00013253662, 0.0044566616, 0.9999685)
+bones/12/rotation = Quaternion(0.6309383, 0.43493322, -0.4418231, 0.46641442)
+bones/13/rotation = Quaternion(0.18109053, 0.13126303, 0.2514442, 0.9416751)
+bones/14/rotation = Quaternion(-0.120917276, -0.1795331, 0.35566986, 0.9092007)
+bones/15/rotation = Quaternion(-0.25232315, 0.19662008, 0.2783596, 0.9056432)
+bones/16/rotation = Quaternion(-0.61714333, 0.44522998, -0.48620516, -0.42954507)
+bones/17/rotation = Quaternion(0.27784908, -0.051535606, -0.24392289, 0.9277099)
+bones/18/rotation = Quaternion(-0.12177508, 0.15851153, -0.2347114, 0.9512915)
+bones/19/rotation = Quaternion(-0.14598775, -0.028137729, -0.89485687, 0.4208647)
+bones/20/rotation = Quaternion(-0.057793606, -0.014274362, -0.009688912, 0.9981795)
+bones/21/rotation = Quaternion(0.46524847, -0.048841156, 0.050116625, 0.88240963)
+bones/22/rotation = Quaternion(-0.27168304, 9.138256e-09, 0.0027335116, 0.9623829)
+bones/23/rotation = Quaternion(0.28328305, 3.800309e-08, -0.0028502352, 0.9590321)
+
+[node name="AnimationPlayer" parent="." index="1"]
+autoplay = "Armature|Armature|Stand_to_Sit_Transition_M|baselayer"
+
+[node name="Camera3D" type="Camera3D" parent="." index="2"]
+transform = Transform3D(0.78908414, 0.38323998, -0.48007646, 0, 0.7815205, 0.6238796, 0.61428523, -0.49229348, 0.6166854, -0.3689316, 1.6524969, 0.089551866)
+fov = 61.146767
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13036722, 0.44465455, -0.6910972)
+mesh = SubResource("CylinderMesh_rwgfm")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="MeshInstance3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.19399443, 0)
+mesh = SubResource("BoxMesh_n53ud")

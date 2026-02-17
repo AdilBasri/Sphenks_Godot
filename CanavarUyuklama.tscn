@@ -1,0 +1,60 @@
+[gd_scene load_steps=2 format=3 uid="uid://bg5wrobt17k7w"]
+
+[ext_resource type="PackedScene" uid="uid://dfbmswpda52iv" path="res://Canavar/Meshy_AI_Animation_Sit_and_Doze_Off_withSkin.fbx" id="1_oe1ql"]
+
+[node name="Meshy_AI_Animation_Sit_and_Doze_Off_withSkin" instance=ExtResource("1_oe1ql")]
+
+[node name="Armature" parent="." index="0"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
+
+[node name="Skeleton3D" parent="Armature" index="0"]
+bones/0/rotation = Quaternion(0.6871093, 0.004875908, -0.010040199, 0.7264684)
+bones/1/rotation = Quaternion(0.7172273, 0.05597368, -0.20179832, 0.6646273)
+bones/1/scale = Vector3(0.99999934, 0.9999982, 1.0000002)
+bones/2/rotation = Quaternion(0.814729, -0.061230727, 0.011713842, 0.576481)
+bones/3/position = Vector3(2.5331975e-08, 0.41099522, 1.7881394e-09)
+bones/3/rotation = Quaternion(-0.6580855, 0.014972417, -0.10663852, 0.745203)
+bones/4/position = Vector3(1.8179417e-08, 0.12017744, -7.1525577e-09)
+bones/4/rotation = Quaternion(-0.34091932, -0.012810081, 0.009828588, 0.9399539)
+bones/5/rotation = Quaternion(0.7203128, -0.036346957, 0.16135794, 0.67364097)
+bones/5/scale = Vector3(1, 0.9999983, 1.0000001)
+bones/6/rotation = Quaternion(0.80840075, 0.05579022, -0.0124761, 0.58584994)
+bones/7/rotation = Quaternion(-0.618513, -0.0055078445, 0.07478846, 0.78218806)
+bones/7/scale = Vector3(1, 0.9999999, 1.0000001)
+bones/8/position = Vector3(3.1292438e-09, 0.12493175, -2.3841853e-09)
+bones/8/rotation = Quaternion(-0.35975167, 0.012439033, -0.009816468, 0.9329136)
+bones/9/rotation = Quaternion(-0.022558615, 0.026331108, 0.026948621, 0.99903536)
+bones/9/scale = Vector3(1.0000002, 1.0000002, 1.0000001)
+bones/10/position = Vector3(-8.940697e-10, 0.12993307, -2.5853515e-08)
+bones/10/rotation = Quaternion(0.100514166, -0.0040879333, -0.0022512185, 0.9949248)
+bones/11/rotation = Quaternion(-0.0064009596, -0.00018683363, 0.00013232922, 0.9999795)
+bones/11/scale = Vector3(1, 1, 1.0000002)
+bones/12/rotation = Quaternion(0.49928916, 0.56684864, -0.36842543, 0.5419001)
+bones/12/scale = Vector3(1, 1.0000002, 1.0000001)
+bones/13/position = Vector3(3.9339067e-08, 0.13252382, 1.7702581e-07)
+bones/13/rotation = Quaternion(0.53623617, 0.055585504, 0.37001178, 0.75660574)
+bones/13/scale = Vector3(1.0000001, 1.0000002, 1.0000001)
+bones/14/position = Vector3(3.8146972e-08, 0.2914241, -5.4836278e-08)
+bones/14/rotation = Quaternion(-0.13311537, -0.16065401, 0.27545038, 0.93840164)
+bones/14/scale = Vector3(0.9999999, 1.0000001, 1)
+bones/15/position = Vector3(-5.722046e-08, 0.15860546, 3.3378598e-08)
+bones/15/rotation = Quaternion(-0.014066884, 0.6023811, 0.18697943, 0.77587235)
+bones/16/rotation = Quaternion(-0.4651373, 0.6038038, -0.36848333, -0.53224844)
+bones/16/scale = Vector3(1.0000001, 1.0000002, 1.0000004)
+bones/17/position = Vector3(5.960459e-10, 0.1324635, 6.556519e-09)
+bones/17/rotation = Quaternion(0.5706426, -0.038536534, -0.40528435, 0.7131806)
+bones/17/scale = Vector3(1.0000002, 1.0000001, 1)
+bones/18/position = Vector3(-9.536745e-09, 0.29136992, -4.7683715e-09)
+bones/18/rotation = Quaternion(-0.13418923, 0.15648167, -0.24459018, 0.9474611)
+bones/19/position = Vector3(-3.8146975e-08, 0.15844151, 9.0599045e-08)
+bones/19/rotation = Quaternion(0.18454942, -0.15267022, -0.83136535, 0.50146294)
+bones/20/rotation = Quaternion(0.08830618, -0.0048287143, -0.00335502, 0.99607605)
+bones/21/position = Vector3(8.940697e-10, 0.102688104, -5.5506817e-09)
+bones/21/rotation = Quaternion(0.67051446, -0.038890325, -0.0010682304, 0.7408756)
+bones/22/rotation = Quaternion(-0.27168304, 2.1382125e-08, 0.0027335256, 0.9623829)
+bones/22/scale = Vector3(1.0000002, 1, 1.0000001)
+bones/23/rotation = Quaternion(0.2832829, 5.8488926e-08, -0.0028502245, 0.9590322)
+bones/23/scale = Vector3(1.0000002, 1.0000004, 1.0000005)
+
+[node name="AnimationPlayer" parent="." index="1"]
+autoplay = "Armature|Armature|Sit_and_Doze_Off|baselayer"

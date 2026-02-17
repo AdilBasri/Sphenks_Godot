@@ -23,19 +23,14 @@ func oyunu_baslat():
 	_sahne_yukle_ve_kontrol_et()
 
 func _sahne_yukle_ve_kontrol_et():
-	# Katman 3, 6, 9... ise Pyro Koridoru'na git
+	# Sahne ismine göre state'i kesinleştiriyoruz
 	if suanki_katman % 3 == 0:
 		GameManager.pyro_aktif = true
-		GameManager.silah_cekildi = true # Silah otomatik çekilsin
-		print("🔥🔥🔥 PYRO MODU AKTİF! (Katman: " + str(suanki_katman) + ") 🔥🔥🔥")
-		# Dosya yolunu Mac hassasiyetine göre kontrol et
+		GameManager.silah_cekildi = true
 		get_tree().change_scene_to_file("res://PyroKoridoru.tscn")
 	else:
-		# Normal katmanlarda Sphenks (MezarOdasi) sahnesine git
-		GameManager.pyro_aktif = false
+		GameManager.pyro_aktif = false # Burası 1 ve 2. bölümlerde pyro'yu KESİN kapatır
 		GameManager.silah_cekildi = false
-		print("🌲 Normal Bölge (Katman: " + str(suanki_katman) + ")")
-		# Asıl ana oyun sahnenin yolu
 		get_tree().change_scene_to_file("res://Sphenks.tscn")
 
 func konumlari_kaydet(p1: Vector3, p2: Vector3, p3: Vector3, oyuncu: CharacterBody3D, oda_ref: Node):
@@ -94,25 +89,29 @@ func bolum_verilerini_getir() -> Dictionary:
 	return veri
 
 func boss_saldirisi_baslat():
+	# Sadece Pyro olmayan seviyelerde çalışır
 	if GameManager.pyro_aktif: return
 
 	var boss = get_tree().get_first_node_in_group("Dusman")
 	if boss:
 		if not boss.saldiri_tamamlandi.is_connected(_on_boss_isi_bitti):
 			boss.saldiri_tamamlandi.connect(_on_boss_isi_bitti)
-		if boss.has_method("saldiri_baslat"):
-			boss.saldiri_baslat()
-		else:
-			_on_boss_isi_bitti()
+		
+		# Boss uyanma ve saldırı sürecini başlatır
+		boss.saldiri_baslat()
 	else:
 		_on_boss_isi_bitti()
 
 func _on_boss_isi_bitti():
-	if oyun_odasi_ref:
-		if oyun_odasi_ref.has_method("tur_sonrasi_islemler"): 
-			oyun_odasi_ref.tur_sonrasi_islemler()
-		elif oyun_odasi_ref.has_method("oyunu_devam_ettir"): 
-			oyun_odasi_ref.oyunu_devam_ettir()
+	# Kamera Güvenliği: Boss saldırısı veya zar bittiğinde kamera oyuncuya döner
+	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+	if oyuncu:
+		var cam = oyuncu.find_child("Camera3D", true, false)
+		if cam and not cam.current:
+			cam.make_current()
+
+	if oyun_odasi_ref and oyun_odasi_ref.has_method("tur_sonrasi_islemler"):
+		oyun_odasi_ref.tur_sonrasi_islemler()
 
 func zar_at_animasyonunu_baslat():
 	if isleme_alindi_mi: return 
