@@ -244,6 +244,45 @@ func _wobble_guncelle(delta):
 	# Shader wobble iptal edildi, sadece pivot dönüşü (calkalanma) yeterli.
 	pass
 
+# --- REFUSAL FEEDBACK ---
+
+func notify_refusal():
+	"""Mide dolu olduğunda çağrılır.
+	Kısa bir titreme ve kırmızı yanıp sönme efekti yapar."""
+	if not is_inside_tree(): return
+	
+	# 1. Scale Shake (Titreme)
+	var t = create_tween()
+	var original_scale = Vector2.ONE
+	
+	t.tween_property(self, "scale", Vector2(1.1, 1.1), 0.05).set_trans(Tween.TRANS_SINE)
+	t.tween_property(self, "scale", Vector2(0.95, 0.95), 0.05)
+	t.tween_property(self, "scale", Vector2(1.05, 1.05), 0.05)
+	t.tween_property(self, "scale", original_scale, 0.05)
+	
+	# 2. Renk Flash (Kırmızı Yanıp Sönme)
+	# Mide mesh'inin rengini anlık parlak kırmızı yap
+	var meshler = mide_meshler if not mide_meshler.is_empty() else ([mide_mesh] if mide_mesh else [])
+	
+	# Mevcut rengi kaydet (genelde dolu_renk'tir çünkü doludur)
+	var current_color = dolu_renk
+	var flash_color = Color(1.0, 0.0, 0.0) * 2.0 # HDR Glow
+	
+	for mesh in meshler:
+		if not mesh: continue
+		var mat = mesh.material_override
+		if mat and mat is StandardMaterial3D:
+			mat.albedo_color = flash_color
+	
+	# 0.2 saniye sonra geri al
+	get_tree().create_timer(0.2).timeout.connect(func():
+		for mesh in meshler:
+			if not mesh: continue
+			var mat = mesh.material_override
+			if mat and mat is StandardMaterial3D:
+				mat.albedo_color = current_color
+	)
+
 # --- ÇALKALANMA (Hareket bazlı fiziksel tilt) ---
 
 func _calkalanma_guncelle(delta):

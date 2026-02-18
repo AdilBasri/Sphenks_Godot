@@ -37,9 +37,10 @@ var tek_zar_modu: bool = false
 var fener_aktif: bool = false
 
 # --- 🫁 MİDE SİSTEMİ ---
-var mide_kapasite: int = 1   # Her seviyede +1 artar
-var mide_doluluk: int = 0    # Şu anki doluluk
-var gore_intensity: float = 0.0  # Kalıcı gore birikimi (0.0-1.0) — bölümler arası sıfırlanmaz
+var mide_kapasite: int = 1   # (Eski logic - UI için tutulabilir veya get_stomach_capacity() ile değiştirilir)
+var mide_doluluk: int = 0    # Şu anki doluluk (Görsel)
+var gore_intensity: float = 0.0  # Kalıcı gore birikimi (0.0-1.0)
+var limbs_eaten_this_round: int = 0  # Bu tur kaç uzuv yendi
 
 # --- 🔥 PYRO MODU & SİLAH SİSTEMİ DEĞİŞKENLERİ ---
 var pyro_aktif: bool = false
@@ -66,11 +67,49 @@ func verileri_sifirla():
 	envanter.clear()
 	bolum_bufflarini_sifirla()
 	zar_atlama_hakki = 0
+	
 	mide_doluluk = 0
-	mide_kapasite = 1
+	limbs_eaten_this_round = 0
+	mide_kapasite = get_stomach_capacity()
 	gore_intensity = 0.0
+	
 	_arayuz_guncelle()
 
+
+
+# --- 🫁 MİDE FONKSİYONLARI ---
+
+func get_stomach_capacity() -> int:
+	"""Seviyeye göre mide kapasitesini döndürür."""
+	if suanki_seviye >= 9:
+		return 2
+	return 1
+
+func reset_stomach_round():
+	"""Pyro koridoruna girince yeme sayacını sıfırla."""
+	limbs_eaten_this_round = 0
+	print("🫁 Mide round sıfırlandı. Kapasite: %d" % get_stomach_capacity())
+
+func uzuv_yendi():
+	"""Bir uzuv yendiğinde çağrılır."""
+	limbs_eaten_this_round += 1
+	
+	# Görsel doluluk (UI için)
+	# UI doluluk barı sadece bu round'un doluluğunu göstersin
+	mide_kapasite = get_stomach_capacity()
+	mide_doluluk = limbs_eaten_this_round
+	
+	# Gore intensity (artık görselde kullanılmıyor ama logic'te kalsın)
+	gore_intensity = clamp(gore_intensity + 0.12, 0.0, 0.85)
+	
+	print("🫁 Uzuv yendi! Tur: %d/%d" % [limbs_eaten_this_round, mide_kapasite])
+	emit_signal("mide_guncellendi", mide_doluluk, mide_kapasite)
+
+func mide_sifirla():
+	"""Yeni seviyede (Pyro dışı) mideyi sıfırla."""
+	mide_doluluk = 0
+	mide_kapasite = get_stomach_capacity()
+	emit_signal("mide_guncellendi", mide_doluluk, mide_kapasite)
 func _arayuz_guncelle():
 	await get_tree().process_frame 
 	emit_signal("saglik_guncellendi", oyuncu_kalan_bar, oyuncu_suanki_hp)
@@ -190,25 +229,3 @@ func pelerin_hak_dus():
 		zar_atlama_hakki -= 1
 
 # --- 🫁 MİDE FONKSİYONLARI ---
-
-func uzuv_yendi():
-	"""Bir uzuv yendiğinde çağrılır. Mide doluluk artar."""
-	# Kapasite seviyeye göre ölçeklenir
-	mide_kapasite = max(1, suanki_seviye)
-	
-	if mide_doluluk < mide_kapasite:
-		mide_doluluk += 1
-	# else: dolu — fazla yiyemez ama uzuv yok edilir
-	
-	# Gore birikimi: her yenen uzuv intensity'yi artırır (max 0.85 — tam kapanmaz)
-	gore_intensity = clamp(gore_intensity + 0.12, 0.0, 0.85)
-	
-	var oran = float(mide_doluluk) / float(mide_kapasite)
-	print("🫁 Mide: %d/%d (%%%.0f) | Gore: %.2f" % [mide_doluluk, mide_kapasite, oran * 100.0, gore_intensity])
-	emit_signal("mide_guncellendi", mide_doluluk, mide_kapasite)
-
-func mide_sifirla():
-	"""Yeni seviyede mideyi sıfırla ve kapasiteyi güncelle."""
-	mide_doluluk = 0
-	mide_kapasite = max(1, suanki_seviye)
-	emit_signal("mide_guncellendi", mide_doluluk, mide_kapasite)

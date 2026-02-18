@@ -900,6 +900,52 @@ func yeme_baslat():
 	if is_eating: return
 	if not tutulan_nesne or not tutulan_nesne.is_in_group("KopanUzuv"): return
 	
+	# --- KAPASİTE KONTROLÜ (Level-Based) ---
+	if GameManager:
+		var kapasite = GameManager.get_stomach_capacity()
+		var yenen = GameManager.limbs_eaten_this_round
+		
+		# Eğer bu tur yenen sayı kapasiteye eşit veya fazlaysa -> YEME!
+		if yenen >= kapasite:
+			print("⛔ MİDE DOLU! (%d/%d) — Yeme reddedildi." % [yenen, kapasite])
+			
+			# 1. Sesli Tepki (Error Sound / Nefes)
+			# "ErrorSound.mp3" olmadığı için basit bir pitch-down nefes veya UI hatası çalınabilir
+			# Şimdilik debug print + ekran sallantısı (MideUI)
+			
+			# 2. Görsel Tepki (Mide UI Refusal)
+			var mide_ui = find_child("MideUI", true, false) # Recursive ara
+			if mide_ui and mide_ui.has_method("notify_refusal"):
+				mide_ui.notify_refusal()
+			else:
+				# Oyuncu/CanvasLayer içindeki MideUI için manuel arama (eğer yukarıdaki bulamazsa)
+				if mide_ui_container: # Export edilmiş path
+					var mide = mide_ui_container if mide_ui_container.has_method("notify_refusal") else null
+					if not mide and mide_ui_container.get_child_count() > 0:
+						mide = mide_ui_container.get_child(0)
+					if mide and mide.has_method("notify_refusal"):
+						mide.notify_refusal()
+
+			# 3. Yazılı Mesaj (Toast)
+			# EtkilesimYazisi'ni geçici olarak kullan veya yeni bir Label
+			var etkilesim_label = $CanvasLayer/EtkilesimYazisi
+			if etkilesim_label:
+				var eski_text = etkilesim_label.text
+				etkilesim_label.text = "Daha fazla yemek istemiyorum."
+				etkilesim_label.modulate = Color(1, 0, 0) # Kırmızı
+				
+				# 2 saniye sonra eski haline döndür
+				var t = create_tween()
+				t.tween_interval(2.0)
+				t.tween_callback(func(): 
+					etkilesim_label.text = "" # Boşalt veya eski haline
+					etkilesim_label.modulate = Color(1, 1, 1)
+				)
+			
+			return # YEMEYİ BAŞLATMA!
+	
+	# ---------------------------------------
+	
 	print("🩸 UZUV YEME BAŞLADI — Violent Bite System")
 	is_eating = true
 	if GameManager: GameManager.yeme_aktif_mi = true
