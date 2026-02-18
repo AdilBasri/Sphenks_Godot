@@ -27,6 +27,10 @@ var active_tween: Tween = null
 @export var kamera: Camera3D 
 @export var ui_container: HBoxContainer 
 
+# --- GORE UI REFERANSLARI (Inspector'dan sürükle-bırak) ---
+@export var gore_vignette: ColorRect  ## CanvasLayer altındaki GoreVignette
+@export var mide_ui_container: SubViewportContainer  ## Mide UI container (opsiyonel)
+
 # Kamera Açısı Kontrolü
 var x_rotasyonu: float = 0.0
 
@@ -36,16 +40,25 @@ var tutulan_nesne: RigidBody3D = null
 var tutma_noktasi: Node3D = null 
 var mouse_serbest_modu: bool = false 
 
-# --- YEME MEKANİĞİ ---
+# --- YEME MEKANİĞİ (Violent Bite System) ---
 var is_eating: bool = false
-var eating_timer: float = 0.0
-var eating_duration: float = 3.0
 var eating_tween: Tween = null
-var camera_shake_intensity: float = 0.004
+var bite_timer: Timer = null
+var bite_interval: float = 0.6  # Her ısırık arası süre (saniye)
 var kan_spreyi_sahne = preload("res://KanSpreyi.tscn")
-var aktif_kan_spreyi: Node = null
+
+# Kamera Travması
+var trauma: float = 0.0            # 0-1 arası, her ısırıkta artar
+var trauma_decay: float = 2.5       # Saniyede ne kadar azalır
+var max_shake_offset: float = 0.015 # Maksimum piksel kayması
+var max_shake_rotation: float = 0.02 # Maks rotasyon (radyan)
+
+# FOV Tünel Vizyonu
+var orijinal_fov: float = 75.0
+var min_fov: float = 50.0  # En dar tünel vizyonu
+
 # TODO: Ses dosyaları eklenince yorumları kaldır
-# var ses_et_kopma = preload("res://Flesh_Tear.ogg")
+# var ses_koparma = preload("res://Flesh_Tear.ogg")
 # var ses_cignemek = preload("res://Crunch.ogg")
 # var ses_yutmak = preload("res://Swallow.ogg")
 # var ses_sivi = preload("res://Liquid_Squish.ogg")
@@ -155,14 +168,11 @@ func _input(event):
 func _physics_process(delta):
 	if yere_dustu_mu or oldu_mu: return
 	
-	# --- YEME SIRASINDA HAREKET KİLİTLE ---
+	# --- YEME SIRASINDA HAREKET KİLİTLE + TRAVMA DECAY ---
 	if is_eating:
 		velocity = Vector3.ZERO
 		move_and_slide()
-		_kamera_sarsintisi(delta)
-		eating_timer += delta
-		if eating_timer >= eating_duration:
-			yeme_tamamlandi()
+		_travma_guncelle(delta)
 		# Tutma noktası fizik güncellemesi (limb pozisyonu)
 		if tutulan_nesne and tutma_noktasi:
 			var hedef_pos = tutma_noktasi.global_position
@@ -876,58 +886,119 @@ func _revive_ile_kalkis():
 	)
 
 # ============================================================
-# --- UZUV YEME MEKANİĞİ (Gore Consumption) ---
+# --- UZUV YEME MEKANİĞİ (Violent Bite System) ---
 # ============================================================
 
 func yeme_baslat():
 	"""R tuşuna basılınca ve KopanUzuv tutuluyorsa çağrılır.
-	Oyuncuyu kilitler, ritüel başlar."""
+	Timer-driven ısırık döngüsünü başlatır."""
 	if is_eating: return
 	if not tutulan_nesne or not tutulan_nesne.is_in_group("KopanUzuv"): return
 	
-	print("🩸 UZUV YEME BAŞLADI!")
+	print("🩸 UZUV YEME BAŞLADI — Violent Bite System")
 	is_eating = true
-	eating_timer = 0.0
+	trauma = 0.0
 	velocity = Vector3.ZERO
 	
-	# Vignette Shader Aç
-	_gore_vignette_kontrol(true)
+	# Orijinal FOV kaydet
+	if kamera:
+		orijinal_fov = kamera.fov
 	
-	# Uzvu küçültmeye başla (non-uniform squish)
+	# Uzvu hazırla
 	if tutulan_nesne.has_method("yenmeye_basla"):
-		tutulan_nesne.yenmeye_basla(eating_duration)
+		tutulan_nesne.yenmeye_basla(0.0)  # Sadece orijinal değerleri kaydetsin
 	
-	# Kan partikülleri (Ağız/Kamera yakınına)
-	if kan_spreyi_sahne and kamera:
-		aktif_kan_spreyi = kan_spreyi_sahne.instantiate()
-		kamera.add_child(aktif_kan_spreyi)
-		aktif_kan_spreyi.position = Vector3(0, -0.1, -0.5) # Kamera önünde, biraz aşağıda
-		aktif_kan_spreyi.emitting = true
+	# Vignette Shader Aç (başlangıç intensity)
+	_gore_vignette_ayarla(true, 0.0)
 	
-	# TODO: Ses çal
-	# var ses = AudioStreamPlayer.new()
-	# ses.stream = ses_et_kopma
-	# add_child(ses)
-	# ses.play()
+	# --- ISIRIK TIMER BAŞLAT ---
+	if bite_timer:
+		bite_timer.queue_free()
+	
+	bite_timer = Timer.new()
+	bite_timer.wait_time = bite_interval
+	bite_timer.one_shot = false
+	add_child(bite_timer)
+	bite_timer.timeout.connect(_on_bite_timer)
+	bite_timer.start()
+	
+	# İlk ısırığı hemen yap (beklemesin)
+	_take_bite()
 	
 	# UI bilgi
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
 	if arayuz and arayuz.has_method("bilgi_goster"):
-		arayuz.bilgi_goster("🩸 Yiyor... [R] bırak = İptal", eating_duration)
+		arayuz.bilgi_goster("🩸 YİYOR... [R bırak = İptal]", 5.0)
+
+func _on_bite_timer():
+	"""Timer her tetiklendiğinde bir ısırık at."""
+	if not is_eating: return
+	_take_bite()
+
+func _take_bite():
+	"""TEK BİR ISIRIK — Tüm efektler burada senkronize tetiklenir.
+	Bu fonksiyon 'the moment of violence'."""
+	if not is_eating: return
+	if not tutulan_nesne or not is_instance_valid(tutulan_nesne): 
+		yeme_tamamlandi()
+		return
+	
+	# === 1. UZUV ISIRMA (Mesh küçültme + jolt) ===
+	var bitti = false
+	if tutulan_nesne.has_method("isir"):
+		bitti = tutulan_nesne.isir()
+	
+	# === 2. İLERLEME HESAPLA (Frenzy) ===
+	var frenzy = 0.0
+	if tutulan_nesne.has_method("yenme_ilerlemesi"):
+		frenzy = tutulan_nesne.yenme_ilerlemesi()
+	
+	# === 3. KAMERA TRAVMASI (Per-bite punch) ===
+	# Her ısırıkta sert bir travma ekle — frenzy ile artar
+	var bite_trauma = 0.4 + frenzy * 0.5
+	kamera_travma(bite_trauma)
+	
+	# === 4. KAN SPREYİ (Her ısırıkta yeni patlama) ===
+	_kan_patlamasi()
+	
+	# === 5. VİGNETTE + FOV GÜNCELLE ===
+	_gore_vignette_ayarla(true, frenzy)
+	_fov_guncelle(frenzy)
+	
+	# === 6. SES SYNC NOKTASI ===
+	# TODO: Ses dosyaları eklenince aktif et
+	# _isirma_sesi_cal(frenzy)
+	
+	print("🦷 BITE! Frenzy: %.2f" % frenzy)
+	
+	# === 7. BİTTİ Mİ? ===
+	if bitti:
+		yeme_tamamlandi()
 
 func yeme_iptal():
-	"""R tuşu bırakıldığında veya hasar alındığında çağrılır.
+	"""R tuşu bırakıldığında çağrılır.
 	Her şeyi temiz şekilde eski haline döndürür."""
 	if not is_eating: return
 	
 	print("❌ Yeme iptal edildi!")
 	is_eating = false
-	eating_timer = 0.0
 	
-	# Vignette Shader Kapat
-	_gore_vignette_kontrol(false)
+	# Timer durdur
+	if bite_timer:
+		bite_timer.stop()
+		bite_timer.queue_free()
+		bite_timer = null
 	
-	# Kamera shake sıfırla
+	# Vignette kapat
+	_gore_vignette_ayarla(false, 0.0)
+	
+	# FOV geri yükle
+	if kamera:
+		var fov_tween = create_tween()
+		fov_tween.tween_property(kamera, "fov", orijinal_fov, 0.3)
+	
+	# Kamera travma sıfırla
+	trauma = 0.0
 	if kamera:
 		kamera.h_offset = 0.0
 		kamera.v_offset = 0.0
@@ -935,56 +1006,38 @@ func yeme_iptal():
 	# Uzuv skalasını geri al
 	if tutulan_nesne and is_instance_valid(tutulan_nesne) and tutulan_nesne.has_method("yenme_iptal"):
 		tutulan_nesne.yenme_iptal()
-	
-	# Kan partiküllerini temizle
-	if aktif_kan_spreyi and is_instance_valid(aktif_kan_spreyi):
-		aktif_kan_spreyi.emitting = false
-		# Biraz bekleyip sil (partiküller sönsün)
-		var timer = get_tree().create_timer(1.0)
-		var spreyi_ref = aktif_kan_spreyi
-		timer.timeout.connect(func():
-			if is_instance_valid(spreyi_ref):
-				spreyi_ref.queue_free()
-		)
-		aktif_kan_spreyi = null
 
 func yeme_tamamlandi():
-	"""Yeme süresi dolduğunda çağrılır.
-	Uzuv yok edilir, oyuncu iyileşir."""
+	"""Tüm ısırıklar tamamlandığında çağrılır.
+	Uzuv yok edilir, büyük şiddetli final efekti, oyuncu iyileşir."""
 	if not is_eating: return
 	
-	print("✅ UZUV YENDİ! İyileşme uygulanıyor...")
+	print("✅ UZUV YENDİ! Final travması uygulanıyor...")
 	is_eating = false
-	eating_timer = 0.0
 	
-	# Vignette kapat
-	_gore_vignette_kontrol(false)
+	# Timer durdur
+	if bite_timer:
+		bite_timer.stop()
+		bite_timer.queue_free()
+		bite_timer = null
 	
-	# Kamera shake sıfırla
+	# FINAL TRAVMASI — Son yutkunma şoku
+	kamera_travma(1.0)
+	
+	# Vignette yavaşça kapat
+	_gore_vignette_ayarla(false, 0.0)
+	
+	# FOV geri yükle (yavaş — dramatik)
 	if kamera:
-		kamera.h_offset = 0.0
-		kamera.v_offset = 0.0
-	
-	# Kan partiküllerini temizle
-	if aktif_kan_spreyi and is_instance_valid(aktif_kan_spreyi):
-		aktif_kan_spreyi.emitting = false
-		var spreyi_ref = aktif_kan_spreyi
-		var timer = get_tree().create_timer(1.0)
-		timer.timeout.connect(func():
-			if is_instance_valid(spreyi_ref):
-				spreyi_ref.queue_free()
-		)
-		aktif_kan_spreyi = null
+		var fov_tween = create_tween()
+		fov_tween.tween_property(kamera, "fov", orijinal_fov, 0.8).set_trans(Tween.TRANS_CUBIC)
 	
 	# --- İYİLEŞME ---
-	# Aktif barın HP'sini doldur (+25 HP eşdeğeri olarak tüm barı doldur)
-	# Eğer aktif bar zaten dolu ise bir üst barı aç
 	if suanki_hp < 10:
-		suanki_hp = 10 # Aktif barı fulleştir
+		suanki_hp = 10
 	elif suanki_can_bari < max_can_bari:
 		suanki_can_bari += 1
 		suanki_hp = 10
-	# else: zaten full can — yine de uzuv tüketilsin
 	
 	if GameManager:
 		GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
@@ -998,59 +1051,139 @@ func yeme_tamamlandi():
 	# UI mesajı
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
 	if arayuz and arayuz.has_method("bilgi_goster"):
-		arayuz.bilgi_goster("🩸 İyileştin! Uzuv tüketildi.", 2.0)
+		arayuz.bilgi_goster("🩸 İYİLEŞTİN! Uzuv tüketildi.", 2.0)
+	
+	# Mide sistemini güncelle
+	if GameManager and GameManager.has_method("uzuv_yendi"):
+		GameManager.uzuv_yendi()
 	
 	print("💚 Can güncellendi: Bar=%d HP=%d" % [suanki_can_bari, suanki_hp])
 
-func _kamera_sarsintisi(delta):
-	"""Yeme sırasında ritmik kamera sarsıntısı (çiğneme simülasyonu)."""
-	if not kamera or not is_eating: return
-	
-	# Ritmik sarsıntı — sin/cos ile çiğneme hissi
-	var zaman = Time.get_ticks_msec() / 1000.0
-	var frekans = 8.0 # Çiğneme hızı
-	
-	kamera.h_offset = sin(zaman * frekans) * camera_shake_intensity
-	kamera.v_offset = cos(zaman * frekans * 1.3) * camera_shake_intensity * 0.7
+# --- KAMERA TRAVMASI ---
 
-func _gore_vignette_kontrol(aktif: bool):
-	"""GoreVignette ColorRect'ini aç/kapat (tween ile)."""
-	var arayuz = get_tree().get_first_node_in_group("Arayuz")
-	if not arayuz: return
+func kamera_travma(miktar: float):
+	"""Anlık kamera travması ekle. Decay _physics_process'te yapılır."""
+	trauma = clamp(trauma + miktar, 0.0, 1.0)
+
+func _travma_guncelle(delta):
+	"""Her frame travma shake uygula ve decay et.
+	_physics_process'ten çağrılır."""
+	if not kamera: return
 	
-	var vignette = arayuz.get_node_or_null("GoreVignette")
-	if not vignette: 
-		print("⚠️ GoreVignette düğümü bulunamadı! OyunArayuzu altına ekleyin.")
+	if trauma > 0.0:
+		# Shake intensity = trauma^2 (quadratic — daha doğal hissettir)
+		var shake = trauma * trauma
+		
+		# Perlin-benzeri rastgele offset (her frame farklı seed)
+		var zaman = Time.get_ticks_msec() / 1000.0
+		kamera.h_offset = max_shake_offset * shake * sin(zaman * 37.0 + randf() * 2.0)
+		kamera.v_offset = max_shake_offset * shake * cos(zaman * 53.0 + randf() * 2.0)
+		
+		# Hafif rotasyon sarsması da ekle (daha visceral)
+		kamera.rotation.z = max_shake_rotation * shake * sin(zaman * 41.0)
+		
+		# Decay — hızlı söner (exponential)
+		trauma = max(trauma - trauma_decay * delta, 0.0)
+	else:
+		# Temiz sıfırlama
+		kamera.h_offset = 0.0
+		kamera.v_offset = 0.0
+		# rotation.z'yi sıfırla ama sadece yeme bittiyse
+		if not is_eating:
+			kamera.rotation.z = 0.0
+
+# --- KAN PATLAMASİ ---
+
+func _kan_patlamasi():
+	"""Her ısırıkta kameranın önünde taze kan burst'ü."""
+	if not kan_spreyi_sahne or not kamera: return
+	
+	var kan = kan_spreyi_sahne.instantiate()
+	kamera.add_child(kan)
+	# Kameranın önünde, hafif rastgele offset
+	kan.position = Vector3(
+		randf_range(-0.15, 0.15),
+		randf_range(-0.2, 0.0),
+		randf_range(-0.6, -0.3)
+	)
+	kan.emitting = true
+	
+	# Otomatik temizle (one_shot zaten true KanSpreyi'de)
+	var kan_ref = kan
+	get_tree().create_timer(2.0).timeout.connect(func():
+		if is_instance_valid(kan_ref):
+			kan_ref.queue_free()
+	)
+
+# --- VIGNETTE SHADER KONTROL ---
+
+func _gore_vignette_ayarla(aktif: bool, frenzy: float):
+	"""GoreVignette shader'ını intensity + frenzy ile kontrol et.
+	@export gore_vignette referansı kullanır (Inspector'dan atanmış)."""
+	if not gore_vignette:
+		# Export atanmamışsa — hata bas ama crash yapma
+		if aktif: 
+			push_warning("⚠️ gore_vignette atanmamış! Inspector'dan GoreVignette ColorRect'i sürükle.")
 		return
 	
 	if eating_tween and eating_tween.is_valid():
 		eating_tween.kill()
 	
-	eating_tween = create_tween()
-	
 	if aktif:
-		vignette.visible = true
-		# Shader intensity'yi tween et
-		if vignette.material:
-			vignette.material.set_shader_parameter("intensity", 0.0)
-			eating_tween.tween_method(func(val):
-				if is_instance_valid(vignette) and vignette.material:
-					vignette.material.set_shader_parameter("intensity", val)
-			, 0.0, 1.0, 0.5)
-		else:
-			# Shader yoksa sadece modulate ile fallback
-			vignette.modulate.a = 0.0
-			eating_tween.tween_property(vignette, "modulate:a", 0.8, 0.5)
+		gore_vignette.visible = true
+		if gore_vignette.material:
+			gore_vignette.material.set_shader_parameter("frenzy", frenzy)
+			
+			var current_intensity = gore_vignette.material.get_shader_parameter("intensity")
+			if current_intensity == null or current_intensity < 0.5:
+				eating_tween = create_tween()
+				eating_tween.tween_method(func(val):
+					if is_instance_valid(gore_vignette) and gore_vignette.material:
+						gore_vignette.material.set_shader_parameter("intensity", val)
+				, current_intensity if current_intensity != null else 0.0, 1.0, 0.3)
 	else:
-		if vignette.material:
+		if gore_vignette.material:
+			eating_tween = create_tween()
 			eating_tween.tween_method(func(val):
-				if is_instance_valid(vignette) and vignette.material:
-					vignette.material.set_shader_parameter("intensity", val)
-			, 1.0, 0.0, 0.3)
-		else:
-			eating_tween.tween_property(vignette, "modulate:a", 0.0, 0.3)
-		eating_tween.tween_callback(func():
-			if is_instance_valid(vignette):
-				vignette.visible = false
-		)
+				if is_instance_valid(gore_vignette) and gore_vignette.material:
+					gore_vignette.material.set_shader_parameter("intensity", val)
+					gore_vignette.material.set_shader_parameter("frenzy", val)
+			, 1.0, 0.0, 0.4)
+			eating_tween.tween_callback(func():
+				if is_instance_valid(gore_vignette):
+					gore_vignette.visible = false
+			)
 
+# --- FOV TÜNEL VİZYONU ---
+
+func _fov_guncelle(frenzy: float):
+	"""Frenzy arttıkça FOV daralır (tünel vizyonu)."""
+	if not kamera: return
+	var hedef_fov = lerp(orijinal_fov, min_fov, frenzy)
+	# Anlık snap (tween kullanmıyoruz — ısırıkla senkron olsun)
+	kamera.fov = hedef_fov
+
+# --- SES SYNC (TODO: Dosyalar eklenince aktif et) ---
+
+#func _isirma_sesi_cal(frenzy: float):
+#	"""Her ısırıkta senkronize ses çal.
+#	Frenzy ilerledikçe farklı sesler seçilir."""
+#	var ses = AudioStreamPlayer.new()
+#	ses.bus = "SFX"  # Varsa
+#	add_child(ses)
+#	
+#	# Frenzy'ye göre ses seç
+#	if frenzy < 0.3:
+#		ses.stream = ses_koparma   # İlk ısırıklar: et koparma
+#	elif frenzy < 0.7:
+#		ses.stream = ses_cignemek   # Ortası: çiğneme
+#	else:
+#		ses.stream = ses_yutmak     # Son ısırıklar: yutkunma
+#	
+#	# Pitch variation (tekrarlayan ses monoton olmasın)
+#	ses.pitch_scale = randf_range(0.85, 1.15)
+#	ses.volume_db = 2.0 + frenzy * 4.0  # Giderek daha yüksek
+#	ses.play()
+#	
+#	# Otomatik temizle
+#	ses.finished.connect(ses.queue_free)

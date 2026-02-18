@@ -1,38 +1,43 @@
 shader_type canvas_item;
 
-// Vignette / Gore Pulse Shader
-// Ekranın kenarlarını karartır, kırmızı/siyah nabız atar.
+// === GORE FRENZY VIGNETTE ===
+// Intensity: genel efekt gücü (0=kapalı, 1=tam)
+// Frenzy: yeme ilerledikçe artar → daha koyu, daha kırmızı, daha yoğun nabız
 uniform float intensity : hint_range(0.0, 1.0) = 0.0;
-uniform float pulse_speed : hint_range(0.5, 10.0) = 3.0;
-uniform float vignette_radius : hint_range(0.1, 1.0) = 0.45;
-uniform float vignette_softness : hint_range(0.01, 0.5) = 0.25;
+uniform float frenzy : hint_range(0.0, 1.0) = 0.0;
+uniform float pulse_speed : hint_range(0.5, 15.0) = 4.0;
+uniform float vignette_radius : hint_range(0.05, 1.0) = 0.4;
+uniform float vignette_softness : hint_range(0.01, 0.5) = 0.2;
 
 void fragment() {
-    // --- VIGNETTE ---
     vec2 center = UV - vec2(0.5);
     float dist = length(center);
 
-    // Kenarlardan merkeze doğru yumuşak karartma
-    float vignette = smoothstep(vignette_radius, vignette_radius + vignette_softness, dist);
+    // Frenzy arttıkça vignette daralsın (tünel vizyonu)
+    float dynamic_radius = vignette_radius - frenzy * 0.2;
+    float dynamic_softness = vignette_softness - frenzy * 0.08;
+    float vignette = smoothstep(dynamic_radius, dynamic_radius + dynamic_softness, dist);
 
-    // --- KAN NABZI ---
-    // Sinüs ile ritmik nabız (chewing/tearing simülasyonu)
-    float pulse = 0.5 + 0.5 * sin(TIME * pulse_speed);
-    float blood_pulse = pulse * 0.4; // Nabız şiddeti
+    // Nabız — frenzy arttıkça daha hızlı ve sert
+    float effective_speed = pulse_speed + frenzy * 8.0;
+    float raw_pulse = sin(TIME * effective_speed);
+    // Nabzı daha "keskin" yap (kare dalga hissi)
+    float pulse = 0.5 + 0.5 * sign(raw_pulse) * pow(abs(raw_pulse), 0.4);
 
-    // Kan kırmızısı + karanlık karışımı
-    vec3 blood_color = vec3(0.35, 0.02, 0.02); // Koyu kan kırmızısı
-    vec3 dark_color = vec3(0.0, 0.0, 0.0);     // Saf karanlık
+    // Renk paleti — frenzy ile değişim
+    vec3 blood_dark = vec3(0.25, 0.0, 0.0);   // Yoğun koyu kan
+    vec3 blood_bright = vec3(0.6, 0.03, 0.03); // Parlak kan kırmızısı
+    vec3 void_black = vec3(0.0, 0.0, 0.0);
 
-    // Nabızla renk geçişi: siyah <-> koyu kırmızı
-    vec3 final_color = mix(dark_color, blood_color, blood_pulse);
+    // Frenzy düşükken koyu siyah, yüksekken parlak kırmızı nabız
+    vec3 base_color = mix(void_black, blood_dark, frenzy);
+    vec3 pulse_color = mix(blood_dark, blood_bright, frenzy);
+    vec3 final_color = mix(base_color, pulse_color, pulse * frenzy);
 
-    // Vignette maskesi + intensity kontrolü
-    float alpha = vignette * intensity;
-
-    // Ekstra: nabız anında hafif parlama (daha visceral)
-    alpha += blood_pulse * 0.15 * intensity;
-    alpha = clamp(alpha, 0.0, 0.92); // Tam siyah olmasın, biraz görünsün
+    // Alpha — kenarlar + frenzy ile merkeze de yayılır
+    float edge_alpha = vignette * intensity;
+    float frenzy_flood = frenzy * 0.3 * pulse * intensity; // Merkezde de kırmızı baskı
+    float alpha = clamp(edge_alpha + frenzy_flood, 0.0, 0.95);
 
     COLOR = vec4(final_color, alpha);
 }

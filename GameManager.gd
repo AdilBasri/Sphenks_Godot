@@ -8,6 +8,7 @@ signal boss_oldu
 signal saglik_guncellendi(bar, hp) 
 signal altin_guncellendi(miktar)   
 signal mermi_degisti(yeni_sayi)
+signal mide_guncellendi(doluluk, kapasite)
 
 # --- OYUNCU SAĞLIK VERİLERİ ---
 var oyuncu_max_bar: int = 4
@@ -35,6 +36,10 @@ var mantar_modu: bool = false
 var tek_zar_modu: bool = false
 var fener_aktif: bool = false
 
+# --- 🫁 MİDE SİSTEMİ ---
+var mide_kapasite: int = 1   # Her seviyede +1 artar
+var mide_doluluk: int = 0    # Şu anki doluluk
+
 # --- 🔥 PYRO MODU & SİLAH SİSTEMİ DEĞİŞKENLERİ ---
 var pyro_aktif: bool = false
 var mermi_sayisi: int = 10
@@ -59,6 +64,8 @@ func verileri_sifirla():
 	envanter.clear()
 	bolum_bufflarini_sifirla()
 	zar_atlama_hakki = 0
+	mide_doluluk = 0
+	mide_kapasite = 1
 	_arayuz_guncelle()
 
 func _arayuz_guncelle():
@@ -178,3 +185,24 @@ func pelerin_korumasi_var_mi() -> bool:
 func pelerin_hak_dus():
 	if zar_atlama_hakki > 0:
 		zar_atlama_hakki -= 1
+
+# --- 🫁 MİDE FONKSİYONLARI ---
+
+func uzuv_yendi():
+	"""Bir uzuv yendiğinde çağrılır. Mide doluluk artar."""
+	# Kapasite seviyeye göre ölçeklenir
+	mide_kapasite = max(1, suanki_seviye)
+	
+	if mide_doluluk < mide_kapasite:
+		mide_doluluk += 1
+	# else: dolu — fazla yiyemez ama uzuv yok edilir
+	
+	var oran = float(mide_doluluk) / float(mide_kapasite)
+	print("🫁 Mide: %d/%d (%%%.0f)" % [mide_doluluk, mide_kapasite, oran * 100.0])
+	emit_signal("mide_guncellendi", mide_doluluk, mide_kapasite)
+
+func mide_sifirla():
+	"""Yeni seviyede mideyi sıfırla ve kapasiteyi güncelle."""
+	mide_doluluk = 0
+	mide_kapasite = max(1, suanki_seviye)
+	emit_signal("mide_guncellendi", mide_doluluk, mide_kapasite)

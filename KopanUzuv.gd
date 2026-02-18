@@ -37,48 +37,65 @@ func birakildi():
 	yere_degdi = false
 	gravity_scale = 1.0
 
-# --- YEME SİSTEMİ ---
-var yenme_tween: Tween = null
+# --- YEME SİSTEMİ (Violent Bite) ---
 var orijinal_scale: Vector3 = Vector3.ONE
+var orijinal_rotation: Vector3 = Vector3.ZERO
+var toplam_isirma: int = 0
+var max_isirma: int = 5  # Kaç ısırıkta bitecek
 
-func yenmeye_basla(sure: float):
-	"""Oyuncu tarafından yenmeye başlandığında çağrılır.
-	Mesh non-uniform küçülür (ısırık simülasyonu)."""
+func yenmeye_basla(_sure: float):
+	"""İlk çağrı — orijinal değerleri kaydet."""
 	orijinal_scale = scale
-	if yenme_tween and yenme_tween.is_valid():
-		yenme_tween.kill()
+	orijinal_rotation = rotation
+	toplam_isirma = 0
+	print("🦴 Uzuv yenmeye hazır. Max ısırma: ", max_isirma)
+
+func isir() -> bool:
+	"""Her ısırıkta çağrılır. Anlık küçültme + rastgele sarsma.
+	Bittiyse true döner."""
+	toplam_isirma += 1
 	
-	yenme_tween = create_tween()
-	var adim_suresi = sure / 4.0
+	# --- ANLİK SCALE AZALTMA (Chunk) ---
+	var azaltma = orijinal_scale * (1.0 / float(max_isirma))
+	# Non-uniform squish: rastgele eksen abartma
+	var squish = Vector3(
+		randf_range(0.7, 1.3),
+		randf_range(0.5, 1.0),
+		randf_range(0.7, 1.3)
+	)
+	scale -= azaltma * squish
+	# Negatif olmayı engelle
+	scale = scale.clamp(Vector3(0.02, 0.02, 0.02), orijinal_scale)
 	
-	# 1. Isırık — hafif squish
-	yenme_tween.tween_property(self, "scale",
-		orijinal_scale * Vector3(0.9, 0.7, 0.85), adim_suresi * 0.5).set_trans(Tween.TRANS_BACK)
-	yenme_tween.tween_property(self, "scale",
-		orijinal_scale * 0.8, adim_suresi * 0.5).set_trans(Tween.TRANS_ELASTIC)
+	# --- RASTGELE ROTASYON JOLTU (Et koparma kuvveti) ---
+	var jolt_intensity = 0.3 + (float(toplam_isirma) / float(max_isirma)) * 0.4
+	rotation += Vector3(
+		randf_range(-jolt_intensity, jolt_intensity),
+		randf_range(-jolt_intensity, jolt_intensity),
+		randf_range(-jolt_intensity, jolt_intensity)
+	)
 	
-	# 2. Isırık — daha belirgin
-	yenme_tween.tween_property(self, "scale",
-		orijinal_scale * Vector3(0.5, 0.7, 0.55), adim_suresi * 0.5).set_trans(Tween.TRANS_BACK)
-	yenme_tween.tween_property(self, "scale",
-		orijinal_scale * 0.6, adim_suresi * 0.5).set_trans(Tween.TRANS_ELASTIC)
+	# Mini geri-tepme tweeni (ısırık hissi — anlık büzülme sonra hafif geri)
+	var bite_tween = create_tween()
+	var gecici_scale = scale * Vector3(0.7, 1.2, 0.7)  # Anlık squish
+	bite_tween.tween_property(self, "scale", gecici_scale, 0.05)
+	bite_tween.tween_property(self, "scale", scale, 0.1).set_trans(Tween.TRANS_ELASTIC)
 	
-	# 3. Isırık — çok küçülüyor
-	yenme_tween.tween_property(self, "scale",
-		orijinal_scale * Vector3(0.25, 0.4, 0.3), adim_suresi * 0.5).set_trans(Tween.TRANS_BACK)
-	yenme_tween.tween_property(self, "scale",
-		orijinal_scale * 0.35, adim_suresi * 0.5).set_trans(Tween.TRANS_ELASTIC)
+	print("🩸 ISIRIK #%d — Scale: %s" % [toplam_isirma, str(scale)])
 	
-	# 4. Son lokma — neredeyse yok
-	yenme_tween.tween_property(self, "scale",
-		orijinal_scale * Vector3(0.05, 0.15, 0.08), adim_suresi * 0.5).set_trans(Tween.TRANS_BACK)
-	yenme_tween.tween_property(self, "scale",
-		orijinal_scale * 0.1, adim_suresi * 0.5).set_trans(Tween.TRANS_CUBIC)
+	# Bitti mi?
+	return toplam_isirma >= max_isirma
 
 func yenme_iptal():
-	"""Yeme iptal edilirse orijinal boyuta geri dön."""
-	if yenme_tween and yenme_tween.is_valid():
-		yenme_tween.kill()
-	
+	"""Yeme iptal edilirse orijinal boyut ve rotasyona geri dön."""
 	var geri_tween = create_tween()
+	geri_tween.set_parallel(true)
 	geri_tween.tween_property(self, "scale", orijinal_scale, 0.3).set_trans(Tween.TRANS_CUBIC)
+	geri_tween.tween_property(self, "rotation", orijinal_rotation, 0.3).set_trans(Tween.TRANS_CUBIC)
+	toplam_isirma = 0
+
+func yenme_ilerlemesi() -> float:
+	"""Ne kadar yendiğini 0.0-1.0 olarak döner (frenzy hesabı için)."""
+	if max_isirma <= 0: return 0.0
+	return clamp(float(toplam_isirma) / float(max_isirma), 0.0, 1.0)
+

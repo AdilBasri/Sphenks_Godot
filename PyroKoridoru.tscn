@@ -1,18 +1,20 @@
-[gd_scene load_steps=27 format=3 uid="uid://csnasspc4xyij"]
+[gd_scene load_steps=30 format=3 uid="uid://csnasspc4xyij"]
 
 [ext_resource type="Script" uid="uid://c3g6t5usagaa" path="res://PyroKoridoru.gd" id="1_h5fso"]
 [ext_resource type="Script" uid="uid://loithy76h54j" path="res://omni_light_3d.gd" id="1_so4kj"]
 [ext_resource type="PackedScene" uid="uid://b4bhb1v1do7yg" path="res://PyroDusman.tscn" id="2_oessh"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://oyuncu.gd" id="2_wck7j"]
 [ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://PressStart2P-Regular.ttf" id="3_tex5o"]
-[ext_resource type="Texture2D" uid="uid://ncorow4carpw" path="res://çerçeve_bar.png" id="4_0v4dx"]
+[ext_resource type="Texture2D" uid="uid://5oxpd5ppfsmg" path="res://çerçeve_bar.png" id="4_0v4dx"]
 [ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://iç_bar.png" id="5_jvfqp"]
-[ext_resource type="Texture2D" uid="uid://b5k4ffrdw2m3u" path="res://Assets/carpi.png" id="6_h5fso"]
+[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="6_h5fso"]
 [ext_resource type="PackedScene" uid="uid://dvucb86havcwa" path="res://oyun_arayuzu.tscn" id="7_jvfqp"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Sphenks.gdshader" id="8_h5fso"]
 [ext_resource type="Texture2D" uid="uid://b6qhtc7ov5oqy" path="res://crosshair.png" id="9_2f6ik"]
 [ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Kapi.tscn" id="11_2f6ik"]
 [ext_resource type="PackedScene" uid="uid://7eln5qfuv1pk" path="res://SilahSistemi.tscn" id="12_12o8v"]
+[ext_resource type="PackedScene" uid="uid://cwep2mo56dn1d" path="res://MideUI.tscn" id="12_np28r"]
+[ext_resource type="Shader" uid="uid://cuhlen0v736t0" path="res://gore_vignette.gdshader" id="gore_shader"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qik3h"]
 cull_mode = 2
@@ -78,6 +80,14 @@ font = ExtResource("3_tex5o")
 font_size = 24
 font_color = Color(1, 1, 0, 1)
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gore"]
+shader = ExtResource("gore_shader")
+shader_parameter/intensity = 0.0
+shader_parameter/frenzy = 0.0
+shader_parameter/pulse_speed = 4.0
+shader_parameter/vignette_radius = 0.4
+shader_parameter/vignette_softness = 0.2
+
 [node name="PyroKoridoru" type="Node3D"]
 script = ExtResource("1_h5fso")
 dusman_sahnesi = ExtResource("2_oessh")
@@ -102,11 +112,13 @@ omni_range = 2.989
 omni_attenuation = 1.619
 script = ExtResource("1_so4kj")
 
-[node name="Oyuncu" type="CharacterBody3D" parent="." node_paths=PackedStringArray("kamera", "ui_container") groups=["Oyuncu"]]
+[node name="Oyuncu" type="CharacterBody3D" parent="." node_paths=PackedStringArray("kamera", "ui_container", "gore_vignette", "mide_ui_container") groups=["Oyuncu"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 13.306)
 script = ExtResource("2_wck7j")
 kamera = NodePath("Camera3D")
 ui_container = NodePath("CanBarlariContainer")
+gore_vignette = NodePath("../MideKatmani/GoreVignette")
+mide_ui_container = NodePath("../MideKatmani/MideUI")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Oyuncu"]
 shape = SubResource("CapsuleShape3D_2f6ik")
@@ -394,5 +406,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7176584, 0, -14.182446)
 hedef_tipi = 1
 
 [node name="SilahKatmani" parent="." instance=ExtResource("12_12o8v")]
+
+[node name="MideKatmani" type="CanvasLayer" parent="."]
+
+[node name="MideUI" parent="MideKatmani" instance=ExtResource("12_np28r")]
+
+[node name="GoreVignette" type="ColorRect" parent="MideKatmani"]
+visible = false
+material = SubResource("ShaderMaterial_gore")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [editable path="Revolver"]

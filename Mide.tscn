@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://f4dj0em8pars"]
+
+[ext_resource type="PackedScene" uid="uid://dxlgtgpwf2hd6" path="res://Mide/Meshy_AI_Human_stomach_model_0217223854_texture.fbx" id="1_divm4"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7gjij"]
+
+[node name="StomachMesh" instance=ExtResource("1_divm4")]
+
+[node name="Mesh_0" parent="." index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_7gjij")
