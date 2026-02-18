@@ -86,9 +86,11 @@ func _process(delta):
 	if mermi_label and mermi_label.visible != nisangah_aktif:
 		mermi_label.visible = nisangah_aktif
 
-	# Kırmızı filtre kontrolü
-	if pyro_filtresi and pyro_filtresi.visible != GameManager.pyro_aktif:
-		pyro_filtresi.visible = GameManager.pyro_aktif
+	# Kırmızı filtre kontrolü — yeme sırasında gizle (gore_vignette ile çakışmasın)
+	if pyro_filtresi:
+		var filtre_gorunur = GameManager.pyro_aktif and not GameManager.yeme_aktif_mi
+		if pyro_filtresi.visible != filtre_gorunur:
+			pyro_filtresi.visible = filtre_gorunur
 
 func _on_mermi_degisti(sayi):
 	if mermi_label:

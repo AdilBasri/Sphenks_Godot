@@ -4,7 +4,7 @@ extends CharacterBody3D
 signal oyuncu_oldu 
 
 # --- AYARLAR ---
-var speed = 5.0
+var speed = 3.0
 var mouse_sensitivity = 0.003
 var gravity = 9.8
 var firlatma_gucu = 8.0 
@@ -104,6 +104,11 @@ func _ready():
 		suanki_hp = GameManager.oyuncu_suanki_hp
 		
 	ui_guncelle()
+	# GoreVignette'yi ayrı bir düşük layer'lı CanvasLayer'a taşı
+	# Böylece MideUI'nın (layer=1) altında render edilir — köşeyi kapatmaz
+	call_deferred("_gore_vignette_katmana_tasi")
+	# GoreVignette: bir frame sonra kalıcı intensity uygula (node'lar hazır olsun)
+	call_deferred("_gore_kalici_intensity_uygula")
 
 func _input(event):
 	if not kamera or oldu_mu: return 
@@ -897,6 +902,7 @@ func yeme_baslat():
 	
 	print("🩸 UZUV YEME BAŞLADI — Violent Bite System")
 	is_eating = true
+	if GameManager: GameManager.yeme_aktif_mi = true
 	trauma = 0.0
 	velocity = Vector3.ZERO
 	
@@ -982,6 +988,7 @@ func yeme_iptal():
 	
 	print("❌ Yeme iptal edildi!")
 	is_eating = false
+	if GameManager: GameManager.yeme_aktif_mi = false
 	
 	# Timer durdur
 	if bite_timer:
@@ -1014,6 +1021,7 @@ func yeme_tamamlandi():
 	
 	print("✅ UZUV YENDİ! Final travması uygulanıyor...")
 	is_eating = false
+	if GameManager: GameManager.yeme_aktif_mi = false
 	
 	# Timer durdur
 	if bite_timer:
@@ -1056,6 +1064,8 @@ func yeme_tamamlandi():
 	# Mide sistemini güncelle
 	if GameManager and GameManager.has_method("uzuv_yendi"):
 		GameManager.uzuv_yendi()
+		# Kalcı gore intensity'yi vignette'ye uygula
+		_gore_kalici_intensity_uygula()
 	
 	print("💚 Can güncellendi: Bar=%d HP=%d" % [suanki_can_bari, suanki_hp])
 
@@ -1126,33 +1136,102 @@ func _gore_vignette_ayarla(aktif: bool, frenzy: float):
 			push_warning("⚠️ gore_vignette atanmamış! Inspector'dan GoreVignette ColorRect'i sürükle.")
 		return
 	
+	# Material yoksa hiç dokunma — shader olmadan görünür yapmak ekranı boyar
+	if not gore_vignette.material:
+		push_warning("⚠️ gore_vignette'nin material'ı yok! ShaderMaterial atanmamış.")
+		return
+	
 	if eating_tween and eating_tween.is_valid():
 		eating_tween.kill()
 	
 	if aktif:
 		gore_vignette.visible = true
-		if gore_vignette.material:
-			gore_vignette.material.set_shader_parameter("frenzy", frenzy)
+		# Frenzy'yi 0.5'e sınırla — tam ekran kaplamasın, sadece kenar efekti
+		var clamped_frenzy = clamp(frenzy * 0.5, 0.0, 0.5)
+		gore_vignette.material.set_shader_parameter("frenzy", clamped_frenzy)
 			
-			var current_intensity = gore_vignette.material.get_shader_parameter("intensity")
-			if current_intensity == null or current_intensity < 0.5:
-				eating_tween = create_tween()
-				eating_tween.tween_method(func(val):
-					if is_instance_valid(gore_vignette) and gore_vignette.material:
-						gore_vignette.material.set_shader_parameter("intensity", val)
-				, current_intensity if current_intensity != null else 0.0, 1.0, 0.3)
+		var current_intensity = gore_vignette.material.get_shader_parameter("intensity")
+		if current_intensity == null: current_intensity = 0.0
+		# Max intensity 0.65 — ekranı tamamen kapatmaz
+		var hedef_intensity = clamp(current_intensity + 0.15, 0.0, 0.65)
+		eating_tween = create_tween()
+		eating_tween.tween_method(func(val):
+			if is_instance_valid(gore_vignette) and gore_vignette.material:
+				gore_vignette.material.set_shader_parameter("intensity", val)
+		, current_intensity, hedef_intensity, 0.2)
 	else:
-		if gore_vignette.material:
-			eating_tween = create_tween()
-			eating_tween.tween_method(func(val):
-				if is_instance_valid(gore_vignette) and gore_vignette.material:
-					gore_vignette.material.set_shader_parameter("intensity", val)
-					gore_vignette.material.set_shader_parameter("frenzy", val)
-			, 1.0, 0.0, 0.4)
-			eating_tween.tween_callback(func():
-				if is_instance_valid(gore_vignette):
-					gore_vignette.visible = false
-			)
+		# Yeme bitti — HEMEN gizle (Kalıcı olmayacak)
+		# Fade out efekti
+		eating_tween = create_tween()
+		eating_tween.tween_method(func(val):
+			if is_instance_valid(gore_vignette) and gore_vignette.material:
+				gore_vignette.material.set_shader_parameter("intensity", val)
+				gore_vignette.material.set_shader_parameter("frenzy", val * 0.0)
+		, 1.0, 0.0, 0.4) # 0.4 saniyede sıfırla
+		
+		eating_tween.tween_callback(func():
+			if is_instance_valid(gore_vignette):
+				gore_vignette.visible = false
+				# Material parametrelerini de sıfırla
+				if gore_vignette.material:
+					gore_vignette.material.set_shader_parameter("intensity", 0.0)
+		)
+
+
+# --- GORE VIGNETTE KATMAN YONETIMI ---
+
+func _gore_vignette_katmana_tasi():
+	"""GoreVignette'yi düşük layer'lı bir CanvasLayer'a taşır.
+	OyunArayuzu (layer=1) altında render edilir — MideUI'yı kapatmaz."""
+	if not gore_vignette: 
+		print("⚠️ GoreVignette yok!")
+		return
+	
+	var mevcut_parent = gore_vignette.get_parent()
+	if not mevcut_parent: 
+		print("⚠️ GoreVignette parent yok!")
+		return
+	
+	print("🎨 GoreVignette Layer Check: Parent=%s Layer=%s" % [mevcut_parent.name, str(mevcut_parent.layer) if "layer" in mevcut_parent else "N/A"])
+
+	print("🎨 GoreVignette Layer Check: Parent=%s Layer=%s" % [mevcut_parent.name, str(mevcut_parent.layer) if "layer" in mevcut_parent else "N/A"])
+
+	# Zaten ayrı bir GoreKatman'daysa tekrar taşıma
+	if mevcut_parent.name == "GoreKatman": return
+	
+	# Yeni CanvasLayer oluştur (layer=-1 — OyunArayuzu'nun kesin altında)
+	var gore_katman = CanvasLayer.new()
+	gore_katman.name = "GoreKatman"
+	gore_katman.layer = -1
+	
+	# Aynı sahne köküne ekle
+	var sahne_koku = get_tree().current_scene
+	sahne_koku.add_child(gore_katman)
+	
+	# GoreVignette'yi yeni layer'a taşı
+	# Transform/Anchor korumak için gerekirse ayar yapılabilir ama full-screen rect olduğu için sorun olmaz
+	mevcut_parent.remove_child(gore_vignette)
+	gore_katman.add_child(gore_vignette)
+	
+	# Tam ekran olduğundan emin ol (reparent sonrası bozulabilir)
+	gore_vignette.set_anchors_preset(Control.PRESET_FULL_RECT)
+	
+	print("🎨 GoreVignette YENİ GoreKatman'a (layer=-1) taşındı")
+
+# --- KALICI GORE INTENSITY ---
+
+func _gore_kalici_intensity_uygula():
+	"""GameManager.gore_intensity'yi ARTIK UYGULAMA (Kullanıcı isteği: Sadece yeme sırasında).
+	Bu fonksiyon sadece başlangıçta gizli olduğundan emin olur."""
+	
+	if not gore_vignette: return
+	
+	# Başlangıçta görünür olmasın
+	gore_vignette.visible = false
+	if gore_vignette.material:
+		gore_vignette.material.set_shader_parameter("intensity", 0.0)
+	
+	print("🩸 GORE: Kalıcı efekt iptal edildi (visible=false)")
 
 # --- FOV TÜNEL VİZYONU ---
 

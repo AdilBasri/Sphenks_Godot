@@ -6,16 +6,16 @@ shader_type canvas_item;
 uniform float intensity : hint_range(0.0, 1.0) = 0.0;
 uniform float frenzy : hint_range(0.0, 1.0) = 0.0;
 uniform float pulse_speed : hint_range(0.5, 15.0) = 4.0;
-uniform float vignette_radius : hint_range(0.05, 1.0) = 0.4;
-uniform float vignette_softness : hint_range(0.01, 0.5) = 0.2;
+uniform float vignette_radius : hint_range(0.05, 1.0) = 0.55;   // Daha geniş şeffaf merkez
+uniform float vignette_softness : hint_range(0.01, 0.5) = 0.25;
 
 void fragment() {
     vec2 center = UV - vec2(0.5);
     float dist = length(center);
 
     // Frenzy arttıkça vignette daralsın (tünel vizyonu)
-    float dynamic_radius = vignette_radius - frenzy * 0.2;
-    float dynamic_softness = vignette_softness - frenzy * 0.08;
+    float dynamic_radius = vignette_radius - frenzy * 0.1;  // Daha az daralma
+    float dynamic_softness = vignette_softness - frenzy * 0.05;
     float vignette = smoothstep(dynamic_radius, dynamic_radius + dynamic_softness, dist);
 
     // Nabız — frenzy arttıkça daha hızlı ve sert
@@ -36,8 +36,8 @@ void fragment() {
 
     // Alpha — kenarlar + frenzy ile merkeze de yayılır
     float edge_alpha = vignette * intensity;
-    float frenzy_flood = frenzy * 0.3 * pulse * intensity; // Merkezde de kırmızı baskı
-    float alpha = clamp(edge_alpha + frenzy_flood, 0.0, 0.95);
+    float frenzy_flood = frenzy * 0.08 * pulse * intensity; // Merkez flood azaltıldı
+    float alpha = clamp(edge_alpha + frenzy_flood, 0.0, 0.90);
 
     COLOR = vec4(final_color, alpha);
 }

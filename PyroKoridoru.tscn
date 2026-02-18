@@ -409,8 +409,6 @@ hedef_tipi = 1
 
 [node name="MideKatmani" type="CanvasLayer" parent="."]
 
-[node name="MideUI" parent="MideKatmani" instance=ExtResource("12_np28r")]
-
 [node name="GoreVignette" type="ColorRect" parent="MideKatmani"]
 visible = false
 material = SubResource("ShaderMaterial_gore")
@@ -420,5 +418,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="MideUI" parent="MideKatmani" instance=ExtResource("12_np28r")]
 
 [editable path="Revolver"]

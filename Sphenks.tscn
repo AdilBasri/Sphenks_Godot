@@ -741,18 +741,7 @@ text = "MERMİ:"
 label_settings = SubResource("LabelSettings_2531s")
 horizontal_alignment = 1
 
-[node name="PyroFiltresi" type="ColorRect" parent="OyunArayuzu" index="6"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(1, 0, 0, 0.25882354)
-
-[node name="MideUI" parent="OyunArayuzu" index="7" instance=ExtResource("34_2531s")]
-
-[node name="GoreVignette" type="ColorRect" parent="OyunArayuzu" index="8"]
+[node name="GoreVignette" type="ColorRect" parent="OyunArayuzu" index="6"]
 visible = false
 material = SubResource("ShaderMaterial_gore_s")
 anchors_preset = 15
@@ -761,6 +750,17 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="PyroFiltresi" type="ColorRect" parent="OyunArayuzu" index="7"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 0, 0, 0.25882354)
+
+[node name="MideUI" parent="OyunArayuzu" index="8" instance=ExtResource("34_2531s")]
 
 [node name="Sprite3D" type="Sprite3D" parent="." index="13"]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 2.814343, 0.7904787, -4.989589)

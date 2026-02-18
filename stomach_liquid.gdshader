@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode blend_mix, cull_back, unshaded;
+render_mode blend_mix, cull_back, unshaded, depth_draw_never;
 
 // === MİDE SIVI DOLDURMA SHADER ===
 // fill_amount: 0.0 (boş) → 1.0 (dolu)
@@ -17,7 +17,7 @@ uniform vec4 liquid_highlight : source_color = vec4(0.7, 0.1, 0.05, 1.0);
 uniform float liquid_fresnel_power : hint_range(0.5, 8.0) = 3.0;
 
 group_uniforms wall;
-uniform vec4 wall_color : source_color = vec4(0.15, 0.06, 0.06, 0.6);
+uniform vec4 wall_color : source_color = vec4(0.12, 0.04, 0.04, 0.35);  // Mide duvarı — hafif saydam
 uniform float wall_fresnel_power : hint_range(0.5, 8.0) = 2.0;
 
 group_uniforms wobble;

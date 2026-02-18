@@ -39,12 +39,14 @@ var fener_aktif: bool = false
 # --- 🫁 MİDE SİSTEMİ ---
 var mide_kapasite: int = 1   # Her seviyede +1 artar
 var mide_doluluk: int = 0    # Şu anki doluluk
+var gore_intensity: float = 0.0  # Kalıcı gore birikimi (0.0-1.0) — bölümler arası sıfırlanmaz
 
 # --- 🔥 PYRO MODU & SİLAH SİSTEMİ DEĞİŞKENLERİ ---
 var pyro_aktif: bool = false
 var mermi_sayisi: int = 10
 var max_mermi: int = 40
 var silah_cekildi: bool = false 
+var yeme_aktif_mi: bool = false  # Oyuncu uzuv yerken true — pyro_filtresi gizlenir
 
 func _ready():
 	print("GameManager Başlatıldı.")
@@ -66,6 +68,7 @@ func verileri_sifirla():
 	zar_atlama_hakki = 0
 	mide_doluluk = 0
 	mide_kapasite = 1
+	gore_intensity = 0.0
 	_arayuz_guncelle()
 
 func _arayuz_guncelle():
@@ -197,8 +200,11 @@ func uzuv_yendi():
 		mide_doluluk += 1
 	# else: dolu — fazla yiyemez ama uzuv yok edilir
 	
+	# Gore birikimi: her yenen uzuv intensity'yi artırır (max 0.85 — tam kapanmaz)
+	gore_intensity = clamp(gore_intensity + 0.12, 0.0, 0.85)
+	
 	var oran = float(mide_doluluk) / float(mide_kapasite)
-	print("🫁 Mide: %d/%d (%%%.0f)" % [mide_doluluk, mide_kapasite, oran * 100.0])
+	print("🫁 Mide: %d/%d (%%%.0f) | Gore: %.2f" % [mide_doluluk, mide_kapasite, oran * 100.0, gore_intensity])
 	emit_signal("mide_guncellendi", mide_doluluk, mide_kapasite)
 
 func mide_sifirla():

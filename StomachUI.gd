@@ -11,7 +11,7 @@ extends SubViewportContainer
 
 # --- AYARLAR ---
 @export_group("Boyut & Pozisyon")
-@export var panel_boyut: Vector2 = Vector2(180, 180)  ## UI panelinin piksel boyutu
+@export var panel_boyut: Vector2 = Vector2(220, 220)  ## UI panelinin piksel boyutu
 @export var kenar_boslugu: float = 20.0  ## Ekran kenarından mesafe
 
 @export_group("Doluluk")
@@ -20,14 +20,19 @@ extends SubViewportContainer
 @export_group("Wobble & Görsel")
 @export var wobble_hassasiyet: float = 0.12
 @export var idle_wobble: float = 0.015
-@export var donus_hizi: float = 0.4  ## Mesh otomatik dönüş (rad/s)
+@export var calkalanma_hassasiyet: float = 0.15  ## Fiziksel çalkalanma açısı (rad)
+@export var calkalanma_yumusama: float = 4.0  ## Smooth dönüş hızı
+@export var bos_renk: Color = Color(0.2, 0.0, 0.0)
+@export var dolu_renk: Color = Color(0.8, 0.1, 0.1)
+
 
 # --- SABİTLER ---
 const VIEWPORT_BOYUT: Vector2i = Vector2i(256, 256)
 
 # --- İÇ REFERANSLAR (otomatik oluşturulur) ---
 var sub_viewport: SubViewport = null
-var mide_mesh: MeshInstance3D = null
+var mide_mesh: MeshInstance3D = null  # Birincil mesh (geriye dönük uyumluluk)
+var mide_meshler: Array[MeshInstance3D] = []  # Tüm mesh'ler (FBX çok parçalı olabilir)
 var mide_kamera: Camera3D = null
 var mide_isik: OmniLight3D = null
 var mide_pivot: Node3D = null
@@ -36,6 +41,8 @@ var mide_pivot: Node3D = null
 var hedef_doluluk: float = 0.0
 var suanki_doluluk: float = 0.0
 var wobble_smooth: Vector3 = Vector3.ZERO
+var hedef_tilt: Vector3 = Vector3.ZERO  # Çalkalanma açısı hedefi
+var suanki_tilt: Vector3 = Vector3.ZERO  # Mevcut tilt
 
 func _ready():
 	# --- KENDİ BOYUTUNU AYARLA ---
@@ -112,19 +119,26 @@ func _viewport_ve_sahne_olustur():
 			mide_mesh = _mesh_bul(mide_instance)
 		
 		if mide_mesh:
-			# Shader material ata
-			var shader_mat = ShaderMaterial.new()
-			var shader = load("res://stomach_liquid.gdshader")
-			if shader:
-				shader_mat.shader = shader
-				shader_mat.set_shader_parameter("fill_amount", 0.0)
-				shader_mat.set_shader_parameter("liquid_color", Color(0.4, 0.02, 0.02, 1.0))
-				shader_mat.set_shader_parameter("liquid_highlight", Color(0.7, 0.1, 0.05, 1.0))
-				shader_mat.set_shader_parameter("wall_color", Color(0.15, 0.06, 0.06, 0.6))
-				shader_mat.set_shader_parameter("wobble", Vector3.ZERO)
-				mide_mesh.material_override = shader_mat
-			else:
-				push_warning("⚠️ stomach_liquid.gdshader bulunamadı!")
+			# Tüm mesh'leri topla (FBX çok parçalı olabilir)
+			mide_meshler.clear()
+			_tum_meshleri_bul(mide_instance, mide_meshler)
+			if mide_meshler.is_empty():
+				mide_meshler.append(mide_mesh)
+			print("🫁 Mide mesh sayısı: %d" % mide_meshler.size())
+			
+			# StandardMaterial3D ata (Basit renk değişimi)
+			var std_mat = StandardMaterial3D.new()
+			std_mat.albedo_color = bos_renk
+			std_mat.roughness = 0.3
+			std_mat.specular_mode = BaseMaterial3D.SPECULAR_SCHLICK_GGX
+			
+			# Her mesh'e uygula
+			for mesh in mide_meshler:
+				mesh.material_override = std_mat
+				for i in range(mesh.get_surface_override_material_count()):
+					mesh.set_surface_override_material(i, std_mat)
+				print("🫁 Materyal uygulandı: %s" % mesh.name)
+
 		else:
 			push_warning("⚠️ Mide.tscn içinde MeshInstance3D bulunamadı!")
 	else:
@@ -137,23 +151,21 @@ func _viewport_ve_sahne_olustur():
 		sphere.height = 0.8
 		mide_mesh.mesh = sphere
 		
-		var shader_mat = ShaderMaterial.new()
-		var shader = load("res://stomach_liquid.gdshader")
-		if shader:
-			shader_mat.shader = shader
-			shader_mat.set_shader_parameter("fill_amount", 0.0)
-			shader_mat.set_shader_parameter("liquid_color", Color(0.4, 0.02, 0.02, 1.0))
-			shader_mat.set_shader_parameter("liquid_highlight", Color(0.7, 0.1, 0.05, 1.0))
-			shader_mat.set_shader_parameter("wall_color", Color(0.15, 0.06, 0.06, 0.6))
-			mide_mesh.material_override = shader_mat
+		var std_mat = StandardMaterial3D.new()
+		std_mat.albedo_color = bos_renk
+		std_mat.roughness = 0.3
+		mide_mesh.material_override = std_mat
+		print("🫁 Fallback küre materyali uygulandı")
+		
+		mide_pivot.add_child(mide_mesh)
 		
 		mide_pivot.add_child(mide_mesh)
 	
 	# --- KAMERA ---
 	mide_kamera = Camera3D.new()
 	mide_kamera.name = "MideKamera"
-	mide_kamera.position = Vector3(0, 0.15, 1.3)
-	mide_kamera.fov = 40
+	mide_kamera.position = Vector3(0, 0.25, 5.5)
+	mide_kamera.fov = 35
 	mide_kamera.current = true
 	sub_viewport.add_child(mide_kamera)
 	
@@ -191,9 +203,8 @@ func _process(delta):
 	# --- WOBBLE ---
 	_wobble_guncelle(delta)
 	
-	# --- OTO DÖNDÜRME ---
-	if mide_pivot:
-		mide_pivot.rotate_y(donus_hizi * delta)
+	# --- ÇALKALANMA (Hareket bazlı tilt) ---
+	_calkalanma_guncelle(delta)
 
 # --- DOLULUK ---
 
@@ -202,7 +213,8 @@ func _doluluk_hesapla():
 	var kapasite = GameManager.get("mide_kapasite")
 	var doluluk = GameManager.get("mide_doluluk")
 	if kapasite != null and doluluk != null and kapasite > 0:
-		hedef_doluluk = clamp(float(doluluk) / float(kapasite), 0.0, 1.0)
+		# Max 0.9 yap ki tamamen dolup "kırmızı kare" gibi görünmesin (yüzey görünsün)
+		hedef_doluluk = clamp(float(doluluk) / float(kapasite), 0.0, 0.9)
 	else:
 		hedef_doluluk = 0.0
 
@@ -211,29 +223,57 @@ func _on_mide_guncellendi(_doluluk: int, _kapasite: int):
 	print("🫁 Mide: %d/%d → Fill: %.0f%%" % [_doluluk, _kapasite, hedef_doluluk * 100.0])
 
 func _shader_fill_guncelle(fill: float):
-	if not mide_mesh: return
-	var mat = mide_mesh.material_override
-	if mat and mat is ShaderMaterial:
-		mat.set_shader_parameter("fill_amount", fill)
+	# Renk değişimi (Koyu kırmızı -> Parlak kırmızı)
+	var yeni_renk = bos_renk.lerp(dolu_renk, fill)
+	
+	for mesh in mide_meshler:
+		if not mesh: continue
+		var mat = mesh.material_override
+		if mat and mat is StandardMaterial3D:
+			mat.albedo_color = yeni_renk
+			
+	# Geriye dönük uyumluluk
+	if mide_meshler.is_empty() and mide_mesh:
+		var mat = mide_mesh.material_override
+		if mat and mat is StandardMaterial3D:
+			mat.albedo_color = yeni_renk
 
 # --- WOBBLE ---
 
 func _wobble_guncelle(delta):
+	# Shader wobble iptal edildi, sadece pivot dönüşü (calkalanma) yeterli.
+	pass
+
+# --- ÇALKALANMA (Hareket bazlı fiziksel tilt) ---
+
+func _calkalanma_guncelle(delta):
+	"""Oyuncu hareketi → mide pivot tilt (doğal çalkalanma)."""
+	if not mide_pivot: return
+	
+	# Oyuncu hızını al
 	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
 	var hiz = oyuncu.velocity if oyuncu and oyuncu is CharacterBody3D else Vector3.ZERO
 	
-	var hedef_wobble = hiz * wobble_hassasiyet
-	var zaman = Time.get_ticks_msec() / 1000.0
-	hedef_wobble += Vector3(
-		sin(zaman * 1.5) * idle_wobble, 0.0,
-		cos(zaman * 1.2) * idle_wobble
+	# Hız → tilt açısı (sağa gidince sola yat, ileri gidince geriye yat)
+	hedef_tilt = Vector3(
+		-hiz.z * calkalanma_hassasiyet,  # İleri/geri → X tilt
+		0.0,
+		hiz.x * calkalanma_hassasiyet    # Sağ/sol → Z tilt
 	)
-	wobble_smooth = wobble_smooth.lerp(hedef_wobble, delta * 5.0)
 	
-	if not mide_mesh: return
-	var mat = mide_mesh.material_override
-	if mat and mat is ShaderMaterial:
-		mat.set_shader_parameter("wobble", wobble_smooth)
+	# İdle sway — hareket yokken hafif doğal sallanma
+	var zaman = Time.get_ticks_msec() / 1000.0
+	hedef_tilt += Vector3(
+		sin(zaman * 0.8) * 0.03,
+		sin(zaman * 0.5) * 0.02,  # Hafif Y dönüşü de
+		cos(zaman * 0.6) * 0.03
+	)
+	
+	# Smooth interpolation
+	suanki_tilt = suanki_tilt.lerp(hedef_tilt, delta * calkalanma_yumusama)
+	
+	# Pivot'a uygula (rotation sıfırlanıp yeniden set)
+	mide_pivot.rotation = suanki_tilt
 
 # --- PYRO GÖRÜNÜRLÜK ---
 
@@ -255,3 +295,9 @@ func _mesh_bul(node: Node) -> MeshInstance3D:
 			return sonuc
 	return null
 
+func _tum_meshleri_bul(node: Node, liste: Array) -> void:
+	"""Node ağacındaki TÜM MeshInstance3D'leri recursive olarak topla."""
+	if node is MeshInstance3D:
+		liste.append(node)
+	for child in node.get_children():
+		_tum_meshleri_bul(child, liste)
