@@ -147,6 +147,9 @@ func _show_step(adim: int):
 	if not metinler.has(adim):
 		print("🎓 Eğitim Tamamlandı!")
 		tutorial_aktif = false
+		if GameManager:
+			GameManager.tutorial_tamamlandi = true
+			GameManager.oyunu_kaydet()
 		hide_tutorial()
 		return
 		

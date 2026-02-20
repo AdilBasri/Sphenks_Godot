@@ -63,6 +63,8 @@ func _on_oyna_pressed():
 		# Çünkü oyuncu 3. seviyedeyse, o veriyi koruyarak sahneye girmeli.
 		
 		# GameManager'daki kayıtlı seviyeyi garantiye al
+		GameManager.oyunu_yukle()
+		
 		if GameManager.kayitli_seviye > 0:
 			GameManager.suanki_seviye = GameManager.kayitli_seviye
 		else:

@@ -72,7 +72,7 @@ func _ready():
 		oyuncu.oyuncu_oldu.connect(_on_oyuncu_oldu)
 		
 	if LevelManager and LevelManager.suanki_katman == 1:
-		if TutorialManager:
+		if TutorialManager and not GameManager.tutorial_tamamlandi:
 			TutorialManager.start_tutorial()
 
 func _pyro_dusmanlarini_yarat():

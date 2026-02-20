@@ -20,6 +20,7 @@ var suanki_seviye: int = 1
 var kayitli_seviye: int = 1
 var toplam_altin: int = 10 
 var intro_tamamlandi: bool = false
+var tutorial_tamamlandi: bool = false
 
 # --- ENVANTER ---
 var envanter: Array[ItemData] = []
@@ -297,12 +298,12 @@ func oyunu_kaydet():
 		if esya != null: esya_yollari.append(esya.resource_path)
 	config.set_value("Oyun", "Envanter", esya_yollari)
 	config.set_value("Oyun", "IntroTamamlandi", intro_tamamlandi)
+	config.set_value("Oyun", "TutorialTamamlandi", tutorial_tamamlandi)
 	config.save("user://savegame.cfg")
 	print("💾 Oyun kaydedildi.")
 
 func oyunu_yukle():
-	"""Kedi maması verildiğinde kaydedilen TÜM verileri yükler.
-	Sadece ana_menu 'Devam Et' mantığında çağrılır."""
+	"""Kaydedilen TÜM verileri yükler."""
 	var config = ConfigFile.new()
 	var hata = config.load("user://savegame.cfg")
 	if hata == OK:
@@ -326,6 +327,7 @@ func oyunu_yukle():
 				envanter.append(load(yol))
 
 		intro_tamamlandi = config.get_value("Oyun", "IntroTamamlandi", false)
+		tutorial_tamamlandi = config.get_value("Oyun", "TutorialTamamlandi", false)
 
 		# Corrupt save fix: HP sıfırsa tam sağlığa döndür
 		if oyuncu_kalan_bar <= 0 or oyuncu_suanki_hp <= 0:
@@ -337,16 +339,30 @@ func oyunu_yukle():
 
 
 func _intro_durumu_yukle():
-	"""Sadece intro tamamlandı mı bilgisini yükler.
-	Oyun state'i (HP, altın, envanter vb.) YÜKLENMİYOR — her açılışta sıfır."""
+	"""Sadece intro ve tutorial tamamlandı mı bilgisini yükler."""
 	var config = ConfigFile.new()
 	var hata = config.load("user://savegame.cfg")
 	if hata == OK:
 		intro_tamamlandi = config.get_value("Oyun", "IntroTamamlandi", false)
-		print("📂 Intro durumu yüklendi: ", intro_tamamlandi)
+		tutorial_tamamlandi = config.get_value("Oyun", "TutorialTamamlandi", false)
+		print("📂 Intro/Tutorial durumu yüklendi: Intro=", intro_tamamlandi, " Tutorial=", tutorial_tamamlandi)
 	else:
 		intro_tamamlandi = false
+		tutorial_tamamlandi = false
 		print("📂 Save dosyası bulunamadı, intro sıfır.")
+
+func dosyalari_tamamen_sil():
+	"""Kullanıcının kayıt dosyasını siler ve değişkenleri sıfırlar."""
+	if FileAccess.file_exists("user://savegame.cfg"):
+		var dir = DirAccess.open("user://")
+		dir.remove("savegame.cfg")
+		print("🗑️ Kayıt dosyası silindi.")
+	else:
+		print("📂 Kayıt dosyası zaten yok.")
+	
+	intro_tamamlandi = false
+	tutorial_tamamlandi = false
+	verileri_sifirla()
 
 func mermi_ekle(miktar: int) -> bool:
 	if mermi_sayisi >= max_mermi: return false
