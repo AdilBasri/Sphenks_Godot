@@ -112,6 +112,7 @@ func ayarlari_kapat():
 
 func ana_menuye_don():
 	uykudan_uyan()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE # Ana menüye dönerken mouse görünür olmalı
 	get_tree().change_scene_to_file("res://ana_menu.tscn")
 
 func _on_dil_degisti(index: int):

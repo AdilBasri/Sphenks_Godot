@@ -36,4 +36,4 @@ func _on_menu_pressed():
 		GameManager.verileri_sifirla()
 	
 	# Ana Menü yolunun doğruluğundan emin ol
-	get_tree().change_scene_to_file("res://Scenes/AnaMenu.tscn")
+	get_tree().change_scene_to_file("res://ana_menu.tscn")

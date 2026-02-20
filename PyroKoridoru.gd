@@ -7,12 +7,16 @@ extends Node3D
 @export var dusman_sahnesi: PackedScene # Inspector'dan PyroDusman.tscn'yi buraya atacağız
 @onready var spawn_noktalari_node = $SpawnNoktalari
 
+var olum_ekrani_sahnesi = preload("res://oyun_sonu.tscn")
+
 func _ready():
 	print("🔥 Pyro Koridoru Başlatılıyor...")
 
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if oyuncu:
 		oyuncu.global_position.y = 1.0 
+		if not oyuncu.oyuncu_oldu.is_connected(_on_oyuncu_oldu):
+			oyuncu.oyuncu_oldu.connect(_on_oyuncu_oldu)
 	
 	# GameManager Ayarları
 	GameManager.pyro_aktif = true
@@ -29,6 +33,14 @@ func _ready():
 	# 1 saniye bekle sonra yaratmaya başla
 	await get_tree().create_timer(1.0).timeout
 	dusmanlari_baslat()
+
+func _on_oyuncu_oldu():
+	print("💀 Pyro Koridoru: Oyuncu öldü.")
+	await get_tree().create_timer(2.0).timeout
+	if olum_ekrani_sahnesi:
+		var ekran = olum_ekrani_sahnesi.instantiate()
+		add_child(ekran)
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func dusmanlari_baslat():
 	if not dusman_sahnesi:
