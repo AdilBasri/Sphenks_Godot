@@ -76,6 +76,10 @@ func metinleri_guncelle():
 
 func _input(event):
 	if event.is_action_pressed("ui_cancel"):
+		# Ana menüdeyken veya sahne yüklenirken pause menüsünü açma
+		if get_tree().current_scene and get_tree().current_scene.name == "AnaMenu":
+			return
+			
 		if visible:
 			if ayarlar_ui.visible:
 				ayarlari_kapat()
