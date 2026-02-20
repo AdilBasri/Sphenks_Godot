@@ -20,6 +20,7 @@ var kalan_stok: int = 0
 var masadaki_aktif_bloklar: int = 0
 var tur_bitti_mi: bool = false
 var boss_oldu_mu: bool = false 
+var sag_tarafta_mi: bool = false # Sağa alındığında blokların yönünü düzeltmek için
 
 signal stok_bitti 
 signal stok_guncellendi(kalan: int)
@@ -251,16 +252,20 @@ func _blok_yarat_ve_firlat(target_marker: Marker3D) -> void:
 	# Spawner'a göre hizalayalım.
 	
 	# Eski ayar: (0, 180, 0) -> Tam tersi (arkası dönük belki?)
-	# Yeni ayar: 90 derece ofset verelim.
-	var hedef_rotasyon = Vector3(0, deg_to_rad(90), 0) 
+	# Yeni ayar: 90 derece ofset verelim. Ya da sağdaysa -90 verelim.
+	var hedef_rotasyon_y = 90
+	if sag_tarafta_mi:
+		hedef_rotasyon_y = -90
+
+	var hedef_rotasyon = Vector3(0, deg_to_rad(hedef_rotasyon_y), 0) 
 	
 	yeni_blok.rotation_degrees = Vector3(0, 180, 0) # Başlangıç (Tween öncesi önemsiz ama animasyon için)
 	
 	# EVE DÖN ROTASYONUNU GÜNCELLE
 	# BlokSurukle scripti _ready'de o anki açıyı (180) "orjinal" olarak kaydediyor.
-	# Ama biz onu tween ile 90'a götüreceğiz. Bırakınca 90'a (hedefe) dönsün, 180'e değil.
+	# Ama biz onu tween ile hedefe götüreceğiz. Bırakınca oraya (hedefe) dönsün.
 	if yeni_blok is BlokSurukle:
-		yeni_blok.orjinal_rotasyon_degrees = Vector3(0, 90, 0)
+		yeni_blok.orjinal_rotasyon_degrees = Vector3(0, hedef_rotasyon_y, 0)
 	
 	var tween = create_tween()
 	tween.set_parallel(true)

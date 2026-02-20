@@ -877,6 +877,23 @@ func _update_orbit_camera():
 		# Şimdilik "En kısa yol" sorununu çözelim, hizalamayı aynı koruyalım (-90).
 		
 		var target_spawner_rot_y = final_stool_rot_y - deg_to_rad(90)
+		var spawner_saga_gecsin_mi = false
+		
+		var boss = get_tree().get_first_node_in_group("Dusman")
+		if boss:
+			# Boss'un bana göre hangi tarafta olduğunu bul (Kamera / Tabure açısına göre)
+			var to_boss = (boss.global_position - target_pos).normalized()
+			var right_vec = Vector3.RIGHT.rotated(Vector3.UP, final_stool_rot_y)
+			var dot_val = to_boss.dot(right_vec)
+			
+			# Sadece boss BARIz bir şekilde kameranın solundaysa (dot_val çok düşükse)
+			if dot_val < -0.35:
+				# Boss kameranın solunda kalıyor, Blokları sağa al!
+				target_spawner_rot_y = final_stool_rot_y + deg_to_rad(90)
+				spawner_saga_gecsin_mi = true
+				
+		if "sag_tarafta_mi" in spawner:
+			spawner.sag_tarafta_mi = spawner_saga_gecsin_mi
 		
 		# Spawner için de shortest path hesabı
 		var current_spawner_rot_y = spawner.rotation.y
