@@ -1,0 +1,134 @@
+[gd_scene load_steps=2 format=3 uid="uid://cax2d4g0r8y"]
+
+[ext_resource type="Script" path="res://PauseMenu.gd" id="1_pause"]
+
+[node name="PauseMenu" type="CanvasLayer"]
+process_mode = 3
+layer = 120
+script = ExtResource("1_pause")
+
+[node name="RenkZemini" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.705882)
+
+[node name="AnaMenuUI" type="VBoxContainer" parent="RenkZemini"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -100.0
+offset_right = 150.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="Baslik_Duraklatildi" type="Label" parent="RenkZemini/AnaMenuUI"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "PAUSE"
+horizontal_alignment = 1
+
+[node name="Btn_Devam" type="Button" parent="RenkZemini/AnaMenuUI"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "DEVAM ET"
+
+[node name="Btn_Ayarlar" type="Button" parent="RenkZemini/AnaMenuUI"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "AYARLAR"
+
+[node name="Btn_Cikis" type="Button" parent="RenkZemini/AnaMenuUI"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "ANA MENÜYE ÇIK"
+
+[node name="AyarlarUI" type="Panel" parent="RenkZemini"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -250.0
+offset_right = 300.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="RenkZemini/AyarlarUI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 15
+
+[node name="Baslik_Ayarlar" type="Label" parent="RenkZemini/AyarlarUI/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "AYARLAR"
+horizontal_alignment = 1
+
+[node name="DilAlani" type="HBoxContainer" parent="RenkZemini/AyarlarUI/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="Lbl_Dil" type="Label" parent="RenkZemini/AyarlarUI/VBox/DilAlani"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "DİL / LANGUAGE:"
+
+[node name="DilSec" type="OptionButton" parent="RenkZemini/AyarlarUI/VBox/DilAlani"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="CozAlani" type="HBoxContainer" parent="RenkZemini/AyarlarUI/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="Lbl_Coz" type="Label" parent="RenkZemini/AyarlarUI/VBox/CozAlani"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "ÇÖZÜNÜRLÜK:"
+
+[node name="CozSec" type="OptionButton" parent="RenkZemini/AyarlarUI/VBox/CozAlani"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="Btn_TamEkran" type="CheckButton" parent="RenkZemini/AyarlarUI/VBox"]
+layout_mode = 2
+text = "Tam Ekran"
+
+[node name="KontrolMetni" type="RichTextLabel" parent="RenkZemini/AyarlarUI/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "[b]KONTROLLER:[/b]
+- Aksiyon (Sürükle/Ateş) [Sol Tık / A]
+- İptal / Parry [Sağ Tık / B]
+- Masa Kamerası (Klavye: A/D - Gamepad: LT/RT)
+- Koşma [Shift / R1]
+- Etkileşim [E / Y]
+- İncele [F / X]
+- Ye [R / L1]"
+
+[node name="Btn_AyarKapat" type="Button" parent="RenkZemini/AyarlarUI/VBox"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "KAPAT"

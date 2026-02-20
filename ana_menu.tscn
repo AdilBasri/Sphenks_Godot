@@ -55,6 +55,11 @@ layout_mode = 2
 size_flags_vertical = 3
 text = "OYNA"
 
+[node name="AyarlarButonu" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+text = "AYARLAR"
+
 [node name="CikisButonu" type="Button" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3

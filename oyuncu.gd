@@ -68,6 +68,13 @@ var current_stool: Node3D = null
 var original_camera_transform: Transform3D
 var table_camera_offset: float = 0.0
 
+# --- JOYPAD DEBOUNCE DEGISKENLERI ---
+var _rt_basildi = false
+var _lt_basildi = false
+
+# --- QTE ANTI-SPAM DEGISKENI ---
+var son_sag_tik_zamani: float = 0.0
+
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if not kamera: return
@@ -115,15 +122,14 @@ func _input(event):
 	if yere_dustu_mu: return 
 
 	# --- YEME INPUT ---
-	if event is InputEventKey and event.keycode == KEY_R:
-		if event.pressed and not event.is_echo():
-			if not is_eating and tutulan_nesne and tutulan_nesne.is_in_group("KopanUzuv"):
-				yeme_baslat()
-				return
-		elif not event.pressed:
-			if is_eating:
-				yeme_iptal()
-				return
+	if event.is_action_pressed("uzuv_ye"):
+		if not is_eating and tutulan_nesne and tutulan_nesne.is_in_group("KopanUzuv"):
+			yeme_baslat()
+			return
+	elif event.is_action_released("uzuv_ye"):
+		if is_eating:
+			yeme_iptal()
+			return
 	
 	# Yeme sırasında tüm diğer inputları engelle
 	if is_eating: return
@@ -132,39 +138,37 @@ func _input(event):
 		hasar_al(1)
 
 	# SPACE TUŞU İPTAL EDİLDİ - ARTIK TABURE SİSTEMİ VAR
-	if event is InputEventKey and event.pressed and event.keycode == KEY_E:
+	if event.is_action_pressed("etkilesim"):
 		if is_sitting:
 			stand_up()
 		else:
 			etkilesime_gir()
 			
-	if event is InputEventKey and event.keycode == KEY_SHIFT:
-		if event.pressed and not event.is_echo():
-			speed = 5.25
-		elif not event.pressed:
-			speed = 3.0
+	if event.is_action_pressed("kosma"):
+		speed = 5.25
+	elif event.is_action_released("kosma"):
+		speed = 3.0
 			
-	# --- 👁️ GLITCH PARRY INPUT ---
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-		if GameManager and GameManager.is_parry_window_open:
-			# PARRY SUCCESS!
-			var boss = get_tree().get_first_node_in_group("Dusman")
-			if boss and boss.has_method("glitch_yuzu_kapat"):
-				boss.glitch_yuzu_kapat()
-			GameManager.activate_ghost_move()
-			return # Consume input
-		
-		# Normal use item right-click logic
-		elif eldeki_ozel_esya:
-			esya_birak()
-	
 	if is_sitting:
-		if event is InputEventKey:
-			if event.pressed and not event.is_echo(): # Basılı tutmayı engelle (Spam koruması)
-				if event.keycode == KEY_A:
-					move_table_camera(-1.0)
-				elif event.keycode == KEY_D:
-					move_table_camera(1.0)
+		# Analog 'axis' değerleri sürekli tetiklendiğinden, manuel debounce (tek tıklama) uygulayalım
+		var lt_deger = Input.get_action_strength("masa_don_sol")
+		var rt_deger = Input.get_action_strength("masa_don_sag")
+		
+		var lt_aktif = lt_deger > 0.5
+		var rt_aktif = rt_deger > 0.5
+		
+		if lt_aktif and not _lt_basildi:
+			_lt_basildi = true
+			move_table_camera(-1.0)
+		elif not lt_aktif:
+			_lt_basildi = false
+			
+		if rt_aktif and not _rt_basildi:
+			_rt_basildi = true
+			move_table_camera(1.0)
+		elif not rt_aktif:
+			_rt_basildi = false
+			
 		return # Otururken diğer inputları (mouse look vs) engelle
 
 	# --- KAMERA ROTASYONU ---
@@ -177,16 +181,40 @@ func _input(event):
 			kamera.rotation.x = x_rotasyonu
 	
 	# --- TIKLAMA İŞLEMLERİ ---
-	if event is InputEventMouseButton and event.pressed:
-		if event.button_index == MOUSE_BUTTON_LEFT:
-			if eldeki_ozel_esya:
-				esya_kullan()
-			elif tutulan_nesne:
-				birak_veya_firlat()
-			else:
-				etkilesime_gir()
-		
-		elif event.button_index == MOUSE_BUTTON_RIGHT:
+	if event.is_action_pressed("sol_tik"):
+		# VIRTUAL MOUSE TIKLAMA SIMULASYONU (Sürükle-bırak için OS seviyesinde basılı tutma)
+		if mouse_serbest_modu:
+			var mouse_event = InputEventMouseButton.new()
+			mouse_event.button_index = MOUSE_BUTTON_LEFT
+			mouse_event.pressed = true
+			var ms_pos = get_viewport().get_mouse_position()
+			mouse_event.position = ms_pos
+			mouse_event.global_position = ms_pos
+			Input.parse_input_event(mouse_event)
+			
+		if eldeki_ozel_esya:
+			esya_kullan()
+		elif tutulan_nesne:
+			birak_veya_firlat()
+		else:
+			etkilesime_gir()
+			
+	elif event.is_action_released("sol_tik") and mouse_serbest_modu:
+		# VIRTUAL MOUSE BIRAKMA SIMULASYONU
+		var mouse_event = InputEventMouseButton.new()
+		mouse_event.button_index = MOUSE_BUTTON_LEFT
+		mouse_event.pressed = false
+		var ms_pos = get_viewport().get_mouse_position()
+		mouse_event.position = ms_pos
+		mouse_event.global_position = ms_pos
+		Input.parse_input_event(mouse_event)
+	
+	elif event.is_action_pressed("sag_tik"):
+		var anlik_zaman = Time.get_ticks_msec() / 1000.0
+		# 0.4s bekleme süresi kontrolü
+		if (anlik_zaman - son_sag_tik_zamani) >= 0.4:
+			son_sag_tik_zamani = anlik_zaman
+			
 			if GameManager and GameManager.is_parry_window_open:
 				var boss = get_tree().get_first_node_in_group("Dusman")
 				if boss and boss.has_method("glitch_yuzu_kapat"):
@@ -227,6 +255,29 @@ func _physics_process(delta):
 		velocity.z = move_toward(velocity.z, 0, speed)
 
 	move_and_slide()
+	
+	# --- JOYPAD KAMERA KONTROLU (Sürekli) ---
+	var cam_dir = Input.get_vector("kamera_sol", "kamera_sag", "kamera_yukari", "kamera_asagi")
+	if cam_dir.length_squared() > 0.01:
+		if not mouse_serbest_modu:
+			var joy_sens = 2.5 * delta # Gamepad FPS hassasiyeti (ayarlanabilir)
+			rotate_y(-cam_dir.x * joy_sens)
+			x_rotasyonu += -cam_dir.y * joy_sens
+			x_rotasyonu = clamp(x_rotasyonu, deg_to_rad(-80), deg_to_rad(80))
+			if kamera: kamera.rotation.x = x_rotasyonu
+		else:
+			# VIRTUAL MOUSE (Masa modunda sağ analog imleci kaydırır)
+			var cursor_speed = 750.0 * delta # Gamepad imlec hizi
+			var viewport = get_viewport()
+			var current_mouse = viewport.get_mouse_position()
+			var new_mouse = current_mouse + (cam_dir * cursor_speed)
+			
+			# Imleci ekranda sinirla (Isletim sistemi Taskbar'ina deymesini engellemek icin 20px margin)
+			var screen_size = viewport.get_visible_rect().size
+			new_mouse.x = clamp(new_mouse.x, 20, screen_size.x - 20)
+			new_mouse.y = clamp(new_mouse.y, 20, screen_size.y - 20)
+			
+			viewport.warp_mouse(new_mouse)
 	
 	if tutulan_nesne and tutma_noktasi:
 		var hedef_pos = tutma_noktasi.global_position
@@ -592,9 +643,9 @@ func check_ui_text():
 		
 		if veri:
 			if market_modu == true:
-				etkilesim_label.text = "[SOL TIK] SATIN AL\n" + veri.esya_adi + " (" + str(veri.fiyat) + " Altın)"
+				etkilesim_label.text = DilYoneticisi.metin_al("satin_al") % [veri.esya_adi, veri.fiyat]
 			else:
-				etkilesim_label.text = "[SOL TIK] AL\n" + veri.esya_adi
+				etkilesim_label.text = DilYoneticisi.metin_al("al") % [veri.esya_adi]
 			return
 
 		# 2. INTERACT METODU KONTROLÜ (Gelişmiş Arama)
@@ -603,15 +654,15 @@ func check_ui_text():
 		if bulunan_etkilesim:
 			# KAPI İSE FARKLI YAZI
 			if "Kapi" in bulunan_etkilesim.name or "Door" in bulunan_etkilesim.name or bulunan_etkilesim.has_method("kapiyi_ac"):
-				etkilesim_label.text = "[E] Kapıyı Aç"
+				etkilesim_label.text = DilYoneticisi.metin_al("kapiyi_ac")
 			# TABURE VEYA DİĞERLERİ
 			else:
-				etkilesim_label.text = "[E] Oynamak için Otur"
+				etkilesim_label.text = DilYoneticisi.metin_al("oynamak_icin_otur")
 			return
 		
 		# 3. FİZİKSEL NESNE TUTMA
 		if nesne is RigidBody3D and not tutulan_nesne:
-			etkilesim_label.text = "[SOL TIK] TUT"
+			etkilesim_label.text = DilYoneticisi.metin_al("tut")
 
 # --- ETKİLEŞİME GİR ---
 func etkilesime_gir():
@@ -688,7 +739,7 @@ func sit_on_stool(stool_node):
 	# UI GÜNCELLEME: [E] Kalk (Üstte, Küçük)
 	# UI GÜNCELLEME: [E] Kalk (Üstte, Ortada)
 	if etkilesim_label:
-		etkilesim_label.text = "[E] Kalk"
+		etkilesim_label.text = DilYoneticisi.metin_al("kalk")
 		# Anchor Top-Center
 		etkilesim_label.anchor_top = 0.05
 		etkilesim_label.anchor_bottom = 0.05
@@ -956,7 +1007,7 @@ func yeme_baslat():
 			var etkilesim_label = $CanvasLayer/EtkilesimYazisi
 			if etkilesim_label:
 				var eski_text = etkilesim_label.text
-				etkilesim_label.text = "Daha fazla yemek istemiyorum."
+				etkilesim_label.text = DilYoneticisi.metin_al("daha_fazla_yemek")
 				etkilesim_label.modulate = Color(1, 0, 0) # Kırmızı
 				
 				# 2 saniye sonra eski haline döndür

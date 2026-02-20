@@ -247,7 +247,7 @@ func _kanli_civi_perki_dusur():
 	canvas.add_child(panel)
 	
 	var label = Label.new()
-	label.text = "DÜŞMANDAN BİR 'KANLI ÇİVİ' PERKİ DÜŞTÜ! ALMAK İSTİYOR MUSUN?"
+	label.text = DilYoneticisi.metin_al("perk_soru")
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -265,12 +265,12 @@ func _kanli_civi_perki_dusur():
 	panel.add_child(hbox)
 	
 	var btn_evet = Button.new()
-	btn_evet.text = "EVET"
+	btn_evet.text = DilYoneticisi.metin_al("evet")
 	btn_evet.custom_minimum_size = Vector2(150, 50)
 	hbox.add_child(btn_evet)
 	
 	var btn_hayir = Button.new()
-	btn_hayir.text = "HAYIR"
+	btn_hayir.text = DilYoneticisi.metin_al("hayir")
 	btn_hayir.custom_minimum_size = Vector2(150, 50)
 	hbox.add_child(btn_hayir)
 	

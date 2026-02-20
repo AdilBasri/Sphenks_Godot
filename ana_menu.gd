@@ -23,11 +23,34 @@ func _ready():
 	# ÇIKIŞ BUTONU
 	if has_node("VBoxContainer/CikisButonu"):
 		$VBoxContainer/CikisButonu.pressed.connect(_on_cikis_pressed)
+		
+	# AYARLAR BUTONU
+	if has_node("VBoxContainer/AyarlarButonu"):
+		$VBoxContainer/AyarlarButonu.pressed.connect(_on_ayarlar_pressed)
 
 	# 🔥 SIFIRLA (HARD RESET) BUTONU 🔥
-	# Sahne ağacına 'SifirlaButonu' adında bir buton eklediğinden emin ol!
 	if has_node("VBoxContainer/SifirlaButonu"):
 		$VBoxContainer/SifirlaButonu.pressed.connect(_on_sifirla_pressed)
+
+	DilYoneticisi.dil_degisti.connect(metinleri_guncelle)
+	metinleri_guncelle()
+
+func metinleri_guncelle():
+	if has_node("VBoxContainer/OynaButonu"):
+		$VBoxContainer/OynaButonu.text = DilYoneticisi.metin_al("devam_et") if GameManager.intro_tamamlandi else DilYoneticisi.metin_al("basla")
+	if has_node("VBoxContainer/AyarlarButonu"):
+		$VBoxContainer/AyarlarButonu.text = DilYoneticisi.metin_al("ayarlar")
+	if has_node("VBoxContainer/CikisButonu"):
+		$VBoxContainer/CikisButonu.text = DilYoneticisi.metin_al("cikis")
+	if has_node("VBoxContainer/SifirlaButonu"):
+		$VBoxContainer/SifirlaButonu.text = DilYoneticisi.metin_al("kaydi_sifirla")
+
+func _on_ayarlar_pressed():
+	# PauseMenu AutoLoad nesnesini bul ve sadece ayarlar arayüzünü açmasını iste
+	var pause_menu = get_node_or_null("/root/PauseMenu")
+	if pause_menu:
+		pause_menu.uykuya_dal()
+		pause_menu.ayarlari_ac()
 
 func _on_oyna_pressed():
 	# --- KARAR MEKANİZMASI ---

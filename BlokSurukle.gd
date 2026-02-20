@@ -108,8 +108,10 @@ func _on_area_3d_input_event(_camera, event, _position, _normal, _shape_idx) -> 
 			_yakala(_position)
 
 func _input(event: InputEvent) -> void:
-	if tutuluyor and not kilitlendi and event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_LEFT and (not event.pressed):
+	if tutuluyor and not kilitlendi:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and (not event.pressed):
+			_birak()
+		elif event.is_action_released("sol_tik"):
 			_birak()
 
 func _yakala(_tiklanan_dunya_pos: Vector3) -> void:

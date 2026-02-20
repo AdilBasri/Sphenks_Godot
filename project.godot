@@ -19,6 +19,8 @@ config/icon="res://icon.svg"
 
 GameManager="*res://GameManager.gd"
 LevelManager="*res://LevelManager.gd"
+DilYoneticisi="*res://DilYoneticisi.gd"
+PauseMenu="*res://PauseMenu.tscn"
 
 [display]
 

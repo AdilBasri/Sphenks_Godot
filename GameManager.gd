@@ -58,8 +58,147 @@ var ghost_canvas: CanvasLayer = null
 
 func _ready():
 	print("GameManager Başlatıldı.")
+	_setup_gamepad()
 	# Sadece intro durumunu yükle — oyun state'i her açılışta sıfır başlar
 	_intro_durumu_yukle()
+
+func _setup_gamepad():
+	# Sol Tik (A)
+	if not InputMap.has_action("sol_tik"): InputMap.add_action("sol_tik")
+	var ev_a = InputEventJoypadButton.new()
+	ev_a.button_index = JOY_BUTTON_A
+	InputMap.action_add_event("sol_tik", ev_a)
+
+	# Sag Tik (B)
+	if not InputMap.has_action("sag_tik"): InputMap.add_action("sag_tik")
+	var ev_b = InputEventJoypadButton.new()
+	ev_b.button_index = JOY_BUTTON_B
+	InputMap.action_add_event("sag_tik", ev_b)
+
+	# Etkilesim (Y)
+	if not InputMap.has_action("etkilesim"): InputMap.add_action("etkilesim")
+	var ev_y = InputEventJoypadButton.new()
+	ev_y.button_index = JOY_BUTTON_Y
+	InputMap.action_add_event("etkilesim", ev_y)
+	
+	# Incele (X)
+	if not InputMap.has_action("incele"): InputMap.add_action("incele")
+	var ev_x = InputEventJoypadButton.new()
+	ev_x.button_index = JOY_BUTTON_X
+	InputMap.action_add_event("incele", ev_x)
+	
+	# Kosma (R1)
+	if not InputMap.has_action("kosma"): 
+		InputMap.add_action("kosma")
+		var ev_shift = InputEventKey.new()
+		ev_shift.physical_keycode = KEY_SHIFT
+		InputMap.action_add_event("kosma", ev_shift)
+	var ev_r1 = InputEventJoypadButton.new()
+	ev_r1.button_index = JOY_BUTTON_RIGHT_SHOULDER
+	InputMap.action_add_event("kosma", ev_r1)
+	
+	# Yurume (Sol Analog - Joypad Motion)
+	if not InputMap.has_action("ileri"): InputMap.add_action("ileri")
+	var ev_up = InputEventJoypadMotion.new()
+	ev_up.axis = JOY_AXIS_LEFT_Y
+	ev_up.axis_value = -1.0
+	InputMap.action_add_event("ileri", ev_up)
+	
+	if not InputMap.has_action("geri"): InputMap.add_action("geri")
+	var ev_down = InputEventJoypadMotion.new()
+	ev_down.axis = JOY_AXIS_LEFT_Y
+	ev_down.axis_value = 1.0
+	InputMap.action_add_event("geri", ev_down)
+	
+	if not InputMap.has_action("sol"): InputMap.add_action("sol")
+	var ev_left = InputEventJoypadMotion.new()
+	ev_left.axis = JOY_AXIS_LEFT_X
+	ev_left.axis_value = -1.0
+	InputMap.action_add_event("sol", ev_left)
+	
+	if not InputMap.has_action("sag"): InputMap.add_action("sag")
+	var ev_right = InputEventJoypadMotion.new()
+	ev_right.axis = JOY_AXIS_LEFT_X
+	ev_right.axis_value = 1.0
+	InputMap.action_add_event("sag", ev_right)
+	
+	# Ates Et (A)
+	if not InputMap.has_action("ates_et"): InputMap.add_action("ates_et")
+	var ev_ates = InputEventJoypadButton.new()
+	ev_ates.button_index = JOY_BUTTON_A
+	InputMap.action_add_event("ates_et", ev_ates)
+
+	# Uzuv Ye (L1)
+	if not InputMap.has_action("uzuv_ye"): InputMap.add_action("uzuv_ye")
+	var ev_lb = InputEventJoypadButton.new()
+	ev_lb.button_index = JOY_BUTTON_LEFT_SHOULDER
+	InputMap.action_add_event("uzuv_ye", ev_lb)
+
+	# Panel Ac (Q / Back-Select)
+	if not InputMap.has_action("panel_ac"): 
+		InputMap.add_action("panel_ac")
+		var ev_q = InputEventKey.new()
+		ev_q.physical_keycode = KEY_Q
+		InputMap.action_add_event("panel_ac", ev_q)
+	var ev_back = InputEventJoypadButton.new()
+	ev_back.button_index = JOY_BUTTON_BACK
+	InputMap.action_add_event("panel_ac", ev_back)
+
+	# Pause / Cancel (Start)
+	if not InputMap.has_action("ui_cancel"): InputMap.add_action("ui_cancel")
+	var ev_start = InputEventJoypadButton.new()
+	ev_start.button_index = JOY_BUTTON_START
+	InputMap.action_add_event("ui_cancel", ev_start)
+
+	# --- KAMERA KONTROLU (Saga Analog) ---
+	if not InputMap.has_action("kamera_yukari"): InputMap.add_action("kamera_yukari")
+	var ev_cam_up = InputEventJoypadMotion.new()
+	ev_cam_up.axis = JOY_AXIS_RIGHT_Y
+	ev_cam_up.axis_value = -1.0
+	InputMap.action_add_event("kamera_yukari", ev_cam_up)
+	
+	if not InputMap.has_action("kamera_asagi"): InputMap.add_action("kamera_asagi")
+	var ev_cam_down = InputEventJoypadMotion.new()
+	ev_cam_down.axis = JOY_AXIS_RIGHT_Y
+	ev_cam_down.axis_value = 1.0
+	InputMap.action_add_event("kamera_asagi", ev_cam_down)
+	
+	if not InputMap.has_action("kamera_sol"): InputMap.add_action("kamera_sol")
+	var ev_cam_left = InputEventJoypadMotion.new()
+	ev_cam_left.axis = JOY_AXIS_RIGHT_X
+	ev_cam_left.axis_value = -1.0
+	InputMap.action_add_event("kamera_sol", ev_cam_left)
+	
+	if not InputMap.has_action("kamera_sag"): InputMap.add_action("kamera_sag")
+	var ev_cam_right = InputEventJoypadMotion.new()
+	ev_cam_right.axis = JOY_AXIS_RIGHT_X
+	ev_cam_right.axis_value = 1.0
+	InputMap.action_add_event("kamera_sag", ev_cam_right)
+	
+	# --- MASA DONDURME (LT / RT) ---
+	if not InputMap.has_action("masa_don_sol"): InputMap.add_action("masa_don_sol")
+	# Klavye (Q)
+	var ev_masa_q = InputEventKey.new()
+	ev_masa_q.physical_keycode = KEY_A
+	InputMap.action_add_event("masa_don_sol", ev_masa_q)
+	# Gamepad (LT)
+	var ev_lt = InputEventJoypadMotion.new()
+	ev_lt.axis = JOY_AXIS_TRIGGER_LEFT
+	ev_lt.axis_value = 1.0
+	InputMap.action_add_event("masa_don_sol", ev_lt)
+	
+	if not InputMap.has_action("masa_don_sag"): InputMap.add_action("masa_don_sag")
+	# Klavye (R)
+	var ev_masa_e = InputEventKey.new()
+	ev_masa_e.physical_keycode = KEY_D
+	InputMap.action_add_event("masa_don_sag", ev_masa_e)
+	# Gamepad (RT)
+	var ev_rt = InputEventJoypadMotion.new()
+	ev_rt.axis = JOY_AXIS_TRIGGER_RIGHT
+	ev_rt.axis_value = 1.0
+	InputMap.action_add_event("masa_don_sag", ev_rt)
+
+	print("🎮 Gamepad (Xbox) kontrolleri eklendi!")
 
 func verileri_sifirla():
 	"""Tüm oyun verilerini başlangıç değerlerine sıfırlar."""

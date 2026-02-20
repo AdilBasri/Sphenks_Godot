@@ -95,7 +95,7 @@ func _process(delta):
 func _on_mermi_degisti(sayi):
 	if mermi_label:
 		# Sadece güncelle, görünürlüğü _process yönetiyor
-		mermi_label.text = "MERMİ: %d / %d" % [sayi, GameManager.max_mermi]
+		mermi_label.text = DilYoneticisi.metin_al("mermi_sayisi") % [sayi, GameManager.max_mermi]
 		
 		if sayi == 0:
 			mermi_label.modulate = Color.RED
@@ -105,7 +105,7 @@ func _on_mermi_degisti(sayi):
 			mermi_label.modulate = Color.WHITE
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and event.keycode == KEY_Q:
+	if event.is_action_pressed("panel_ac"):
 		toggle_panel()
 
 func totem_sayacini_guncelle():
@@ -120,7 +120,7 @@ func totem_sayacini_guncelle():
 	if sayac_label:
 		var mevcut = GameManager.envanter.size()
 		var maks = GameManager.max_totem_sayisi
-		sayac_label.text = "TOTEM %d/%d" % [mevcut, maks]
+		sayac_label.text = DilYoneticisi.metin_al("totem_sayisi") % [mevcut, maks]
 		sayac_label.modulate = Color(1, 0.5, 0.5) if mevcut >= maks else Color.WHITE
 
 func _on_altin_guncellendi(miktar: int):
@@ -163,7 +163,7 @@ func katman_yazisi_goster(kat_no: int):
 			katman_label = get_node_or_null("OyunArayuzu/KatmanLabel")
 	
 	if katman_label:
-		katman_label.text = "KATMAN " + str(kat_no)
+		katman_label.text = DilYoneticisi.metin_al("katman_yazisi") % [kat_no]
 		katman_label.visible = true
 		
 		# Animasyon varsa oynat, yoksa manuel parlat
