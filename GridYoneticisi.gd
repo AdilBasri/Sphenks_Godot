@@ -6,6 +6,11 @@ class_name GridYonetici
 @export var patlama_efekti_sahnesi: PackedScene 
 @export var kamera_sarsinti_scripti: Node3D 
 
+@export_group("Game Feel Ses ve Efektler")
+@export var koyma_sesi: AudioStream
+@export var patlama_sesi: AudioStream
+@export var toz_efekti_sahnesi: PackedScene
+
 # --- 🔥 YENİ AYAR: TAŞ/ASİT YÜKSEKLİĞİ 🔥 ---
 # Burayı Inspector'dan -1, -2, -5 yaparak taşların zemine oturmasını sağla!
 @export var engel_yuksekligi: float = 0.0 
@@ -144,6 +149,20 @@ func can_place(origin: Vector2i, footprint: Array[Vector2i]) -> bool:
 
 func tek_hucre_doldur(cell: Vector2i, item: Node3D) -> void:
 	grid_verisi[cell] = item
+	
+	if is_inside_tree():
+		if kamera_sarsinti_scripti and kamera_sarsinti_scripti.has_method("shake"):
+			kamera_sarsinti_scripti.shake(0.2)
+		if koyma_sesi:
+			var as_player = AudioStreamPlayer.new()
+			as_player.stream = koyma_sesi
+			add_child(as_player)
+			as_player.play()
+			as_player.finished.connect(as_player.queue_free)
+		if toz_efekti_sahnesi and item:
+			var toz = toz_efekti_sahnesi.instantiate()
+			add_child(toz)
+			toz.global_position = item.global_position
 
 # --- 🔥 GÜNCELLENEN KISIM: ZEMİN YÜKSEKLİĞİ 🔥 ---
 func hucreyi_kilitle(hedef: Vector2i, tip: String = "TAS"):
@@ -248,11 +267,57 @@ func satirlari_kontrol_et() -> void:
 			for y in range(grid_boyutu.y):
 				var h = Vector2i(x, y); if not h in patlayacak_hucreler: patlayacak_hucreler.append(h)
 			for y in range(grid_boyutu.y): _komsulari_kontrol_et_ve_kir(Vector2i(x, y))
+			
+	if GameManager and GameManager.get("kanli_civi_aktif"):
+		var min_b = min(grid_boyutu.x, grid_boyutu.y)
+		var d1_dolu = true
+		for i in range(min_b):
+			if not grid_verisi.has(Vector2i(i, i)): d1_dolu = false; break
+		if d1_dolu:
+			patlayan_satir_sayisi += 1
+			for i in range(min_b):
+				var h = Vector2i(i, i); if not h in patlayacak_hucreler: patlayacak_hucreler.append(h)
+			for i in range(min_b): _komsulari_kontrol_et_ve_kir(Vector2i(i, i))
+			
+		var d2_dolu = true
+		for i in range(min_b):
+			if not grid_verisi.has(Vector2i(i, grid_boyutu.y - 1 - i)): d2_dolu = false; break
+		if d2_dolu:
+			patlayan_satir_sayisi += 1
+			for i in range(min_b):
+				var h = Vector2i(i, grid_boyutu.y - 1 - i); if not h in patlayacak_hucreler: patlayacak_hucreler.append(h)
+			for i in range(min_b): _komsulari_kontrol_et_ve_kir(Vector2i(i, grid_boyutu.y - 1 - i))
+
 	if patlayacak_hucreler.size() > 0:
-		if kamera_sarsinti_scripti: kamera_sarsinti_scripti.shake(0.5)
+		Engine.time_scale = 0.05
+		get_tree().create_timer(0.1, true, false, true).timeout.connect(func(): Engine.time_scale = 1.0)
+		
+		if kamera_sarsinti_scripti and kamera_sarsinti_scripti.has_method("shake"): kamera_sarsinti_scripti.shake(1.0)
+		if patlama_sesi:
+			var as_player = AudioStreamPlayer.new()
+			as_player.stream = patlama_sesi
+			add_child(as_player)
+			as_player.play()
+			as_player.finished.connect(as_player.queue_free)
+			
+		var mantar_ekstra = 0.0
+		if GameManager and GameManager.mantar_modu:
+			var renk_frekans = {}
+			for h in patlayacak_hucreler:
+				if grid_verisi.has(h):
+					var b = grid_verisi[h]
+					if b and b.has_meta("boyali_renk"):
+						var c_str = str(b.get_meta("boyali_renk"))
+						renk_frekans[c_str] = renk_frekans.get(c_str, 0) + 1
+			var max_renk = 0
+			for f in renk_frekans.values():
+				if f > max_renk: max_renk = f
+			if max_renk > 0:
+				mantar_ekstra = 160.0 * pow(1.2, float(max_renk - 1))
+				
 		_bloklari_yok_et(patlayacak_hucreler)
 		kombo_carpani += 1; kombo_suresi = max_kombo_suresi
-		_gelismis_puan_hesapla(patlayan_satir_sayisi, patlayacak_hucreler)
+		_gelismis_puan_hesapla(patlayan_satir_sayisi, patlayacak_hucreler, mantar_ekstra)
 		GameManager.satir_patladi.emit()
 
 func _komsulari_kontrol_et_ve_kir(merkez: Vector2i):
@@ -271,7 +336,7 @@ func _bloklari_yok_et(hucreler: Array) -> void:
 				efekt.global_position = blok.global_position
 			grid_verisi.erase(h); if blok: blok.queue_free()
 
-func _gelismis_puan_hesapla(satir, bloklar):
+func _gelismis_puan_hesapla(satir, bloklar, mantar_ekstra = 0.0):
 	# 1. Kombo Çarpanı
 	var final_carpan = float(kombo_carpani)
 	
@@ -283,6 +348,7 @@ func _gelismis_puan_hesapla(satir, bloklar):
 	
 	# 3. Puan Hesabı
 	var p = bloklar.size() * 10 * final_carpan
+	p += mantar_ekstra
 	
 	# Sinyal Gönder
 	emit_signal("puan_kazanildi", int(p))
@@ -291,6 +357,8 @@ func _gelismis_puan_hesapla(satir, bloklar):
 	var mesaj = "KOMBO x" + str(kombo_carpani)
 	if GameManager.puan_carpani > 1.0:
 		mesaj += " (GÜÇ x1.3)" # Oyuncu iksirin çalıştığını görsün
+	if mantar_ekstra > 0.0:
+		mesaj += " (RENK BONUSU)"
 		
 	if arayuz: arayuz.puan_ekle(int(p), mesaj)
 

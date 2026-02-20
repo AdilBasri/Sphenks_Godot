@@ -35,6 +35,7 @@ var yarasa_bonusu: bool = false
 var mantar_modu: bool = false
 var tek_zar_modu: bool = false
 var fener_aktif: bool = false
+var kanli_civi_aktif: bool = false
 
 # --- 🫁 MİDE SİSTEMİ ---
 var mide_kapasite: int = 1   # (Eski logic - UI için tutulabilir veya get_stomach_capacity() ile değiştirilir)
@@ -127,6 +128,7 @@ func bolum_bufflarini_sifirla():
 	zar_atlama_hakki = 0
 	tek_zar_modu = false
 	fener_aktif = false
+	kanli_civi_aktif = false
 
 func oyunu_kaydet():
 	var config = ConfigFile.new()
@@ -141,6 +143,7 @@ func oyunu_kaydet():
 	config.set_value("Bufflar", "ReviveAktif", revive_aktif)
 	config.set_value("Bufflar", "FenerAktif", fener_aktif)
 	config.set_value("Bufflar", "ZamanYavas", pyro_yavaslatma)
+	config.set_value("Bufflar", "KanliCiviAktif", kanli_civi_aktif)
 	
 	var esya_yollari = []
 	for esya in envanter:
@@ -167,6 +170,7 @@ func oyunu_yukle():
 		revive_aktif = config.get_value("Bufflar", "ReviveAktif", false)
 		fener_aktif = config.get_value("Bufflar", "FenerAktif", false)
 		pyro_yavaslatma = config.get_value("Bufflar", "ZamanYavas", false)
+		kanli_civi_aktif = config.get_value("Bufflar", "KanliCiviAktif", false)
 		
 		envanter.clear()
 		var esya_yollari = config.get_value("Oyun", "Envanter", [])

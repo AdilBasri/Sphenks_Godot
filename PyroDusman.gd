@@ -105,6 +105,11 @@ func olum_efekti():
 	if suanki_durum == 99: return
 	suanki_durum = 99 # Durum anında ölüye çekildi
 	
+	# --- YENİ EKLENEN: KANLI ÇİVİ DÜŞME ŞANSI (Ölüm anında) ---
+	if GameManager and not GameManager.get("kanli_civi_aktif"):
+		if randf() <= 0.05: # 5% ihtimal
+			_kanli_civi_perki_dusur()
+	
 	# 1. Hareketi Durdur ama Yerçekimi Kalsın
 	velocity.x = 0
 	velocity.z = 0
@@ -226,3 +231,62 @@ func _meta_verilerini_yukle():
 		if bone_node:
 			var area = bone_node.find_child("Area3D", true, false)
 			if area: area.set_meta("Bolge", tanimlar[node_adi])
+
+# --- YENİ EKLENEN: PERK UI ---
+func _kanli_civi_perki_dusur():
+	var canvas = CanvasLayer.new()
+	canvas.layer = 100
+	canvas.process_mode = Node.PROCESS_MODE_ALWAYS
+	get_tree().current_scene.add_child(canvas)
+	
+	var panel = Panel.new()
+	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var sb = StyleBoxFlat.new()
+	sb.bg_color = Color(0, 0, 0, 0.8)
+	panel.add_theme_stylebox_override("panel", sb)
+	canvas.add_child(panel)
+	
+	var label = Label.new()
+	label.text = "DÜŞMANDAN BİR 'KANLI ÇİVİ' PERKİ DÜŞTÜ! ALMAK İSTİYOR MUSUN?"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	label.add_theme_font_size_override("font_size", 24)
+	label.add_theme_color_override("font_color", Color.RED)
+	panel.add_child(label)
+	
+	var hbox = HBoxContainer.new()
+	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	hbox.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	# Center horizontally and position closer to center vertical
+	hbox.anchor_top = 0.6
+	hbox.anchor_bottom = 0.6
+	hbox.add_theme_constant_override("separation", 50)
+	panel.add_child(hbox)
+	
+	var btn_evet = Button.new()
+	btn_evet.text = "EVET"
+	btn_evet.custom_minimum_size = Vector2(150, 50)
+	hbox.add_child(btn_evet)
+	
+	var btn_hayir = Button.new()
+	btn_hayir.text = "HAYIR"
+	btn_hayir.custom_minimum_size = Vector2(150, 50)
+	hbox.add_child(btn_hayir)
+	
+	get_tree().paused = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	
+	var cleanup = func():
+		canvas.queue_free()
+		get_tree().paused = false
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		
+	btn_evet.pressed.connect(func():
+		GameManager.kanli_civi_aktif = true
+		if GameManager.has_method("oyunu_kaydet"):
+			GameManager.oyunu_kaydet()
+		cleanup.call()
+	)
+	
+	btn_hayir.pressed.connect(cleanup)

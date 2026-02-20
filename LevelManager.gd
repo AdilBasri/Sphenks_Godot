@@ -144,8 +144,9 @@ func zar_at_animasyonunu_baslat():
 		oyuncuya_saldir(randi_range(1, 3))
 		_on_boss_isi_bitti()
 	
-	await get_tree().create_timer(1.0).timeout
-	isleme_alindi_mi = false
+	# isleme_alindi_mi'yi burada sıfırlarsam, odanın zarı atmasını beklemeden kilidi açar.
+	# Bunu önlemek için oyun odası zar işlemini bitirince sıfırlanmalıdır.
+	# LevelManager'dan bu kilidi açacak fonksiyon ekliyoruz (veya zar bitince false yapıyoruz).
 
 func oyuncuya_saldir(hasar_miktari: int):
 	if GameManager and GameManager.pelerin_korumasi_var_mi():

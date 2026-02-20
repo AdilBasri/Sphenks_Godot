@@ -1130,10 +1130,12 @@ operation = 2
 size = Vector3(3.5, 3.5, 3.5)
 
 [node name="OmniLight3D6" type="OmniLight3D" parent="ZarOdasi/CSGBox3D" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.012934685, -0.4990176, -0.01415503)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.012934685, -0.42016852, -0.01415503)
 light_color = Color(0.35047063, 0.24055037, 0.9999998, 1)
-omni_range = 1.75
-omni_attenuation = -1.849
+light_energy = 4.0
+light_volumetric_fog_energy = 3.0
+omni_range = 2.0
+omni_attenuation = 1.9
 
 [node name="ZarAtisNoktasi" type="Marker3D" parent="ZarOdasi" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.18612671, 1.242451, -0.06695452)

@@ -137,6 +137,12 @@ func _input(event):
 			stand_up()
 		else:
 			etkilesime_gir()
+			
+	if event is InputEventKey and event.keycode == KEY_SHIFT:
+		if event.pressed and not event.is_echo():
+			speed = 5.25
+		elif not event.pressed:
+			speed = 3.0
 	
 	if is_sitting:
 		if event is InputEventKey:

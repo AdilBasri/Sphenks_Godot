@@ -278,14 +278,6 @@ func _on_zar_durdu(gelen_sayi):
 		# Kilit Açılıyor
 		zar_firlatiliyor_mu = false 
 		
-		await get_tree().create_timer(1.5).timeout
-		oyunu_devam_ettir()
-		
-		# Zarları temizle
-		for zar in atilan_zarlar:
-			if is_instance_valid(zar): zar.queue_free()
-		atilan_zarlar.clear()
-		
 		# Ekrana Hasarı Yazdır
 		if hasar_label:
 			hasar_label.text = "HASAR: " + str(toplam_sonuc)
@@ -294,17 +286,25 @@ func _on_zar_durdu(gelen_sayi):
 			hasar_label.scale = Vector2(0, 0)
 			tween.tween_property(hasar_label, "scale", Vector2(1, 1), 0.5).set_trans(Tween.TRANS_ELASTIC)
 		
-		await get_tree().create_timer(0.5).timeout
+		await get_tree().create_timer(1.5).timeout
+		oyunu_devam_ettir()
 		
 		if LevelManager: LevelManager.oyuncuya_saldir(toplam_sonuc)
 		elif oyuncu: oyuncu.hasar_al(toplam_sonuc)
 
-		await get_tree().create_timer(2.0).timeout
+		await get_tree().create_timer(1.5).timeout
 		if hasar_label: hasar_label.visible = false
 			
+		# Zarları temizle
+		for zar in atilan_zarlar:
+			if is_instance_valid(zar): zar.queue_free()
+		atilan_zarlar.clear()
+			
 		# Boss Sırasını Bitir (Bunu unutursan oyun donar)
-		if LevelManager and LevelManager.has_method("_on_boss_isi_bitti"):
-			LevelManager._on_boss_isi_bitti()
+		if LevelManager:
+			LevelManager.isleme_alindi_mi = false
+			if LevelManager.has_method("_on_boss_isi_bitti"):
+				LevelManager._on_boss_isi_bitti()
 
 func oyunu_devam_ettir():
 	if oyuncu_kamerasi:
