@@ -39,7 +39,7 @@ func _ready():
 		# Konumları Kaydet
 		var p1 = market_spawn.global_position if market_spawn else Vector3.ZERO
 		var p2 = campfire_spawn.global_position if campfire_spawn else Vector3.ZERO
-		var p3 = start_spawn.global_position if start_spawn else Vector3.ZERO
+		var p3 = start_spawn.global_position if start_spawn else (oyuncu.global_position if oyuncu else Vector3.ZERO)
 		LevelManager.konumlari_kaydet(p1, p2, p3, oyuncu, self)
 		
 		# Atmosferi Ayarla
@@ -155,6 +155,17 @@ func _on_satir_patladi():
 func _on_blok_yerlestirildi():
 	if boss_tamamen_oldu: return
 	if GameManager.pyro_aktif: return # Pyro'da boss saldırmaz
+	
+	# --- 👁️ GLITCH PARRY BYPASS (FREE BLOCK BUT BOSS STILL GETS ITS TURN) ---
+	if GameManager and GameManager.ghost_move_active:
+		print("🌌 BLOCK PLACED IN GHOST MODE! Boss counter-attack allowed to resume.")
+		GameManager.end_ghost_move()
+		# Boss, _saldiri_resume_ediliyor modunda olduğu için telegraph/yüz kısmını atlayarak direkt saldıracak
+		# Yani oyuncu bedavadan 1 blok koymuş oldu, ancak oyun döngüsü devam ediyor
+		var boss = get_tree().get_first_node_in_group("Dusman")
+		if boss and boss.has_method("gercek_saldiri_basa_don"):
+			boss.gercek_saldiri_basa_don()
+		return # GameManager'in boss'u devam ettirmesi yeterli, LevelManager.boss_saldirisi_baslat()'ı pas geç.
 
 	# Race condition fix: Boss zaten aksiyondaysa blok yerleştirmeyi yoksay
 	if LevelManager and LevelManager.is_boss_acting:

@@ -20,6 +20,10 @@ var arayuz: CanvasLayer = null # Arayüz (bilgi_goster)
 @export var boss_adi: String = "Canavar"
 @export var mermi_zemini_y: float = -1.0
 
+# --- 👁️ GLITCH PARRY (REALITY DENIAL) ASSETS ---
+@export var glitch_yuzu_dokusu: Texture2D
+@export var kirik_cam_sesi: AudioStream
+var glitch_ui_rect: TextureRect = null
 
 # --- DURUM MAKİNESİ ---
 # Durumlar: "BASLANGIC", "UYUKLAMA", "AYAKTA", "SALDIRI"
@@ -34,6 +38,7 @@ var uyuklama_anim_adi: String = ""
 # --- TABURE POZİSYONU (Issue 2: eski global_position clamp - artık bone fix kullanılıyor) ---
 var tabure_pozisyonu: Vector3 = Vector3.ZERO
 var tabure_pozisyonu_kaydedildi: bool = false
+var _saldiri_resume_ediliyor: bool = false
 
 # ==========================================
 # HAZIRLIK
@@ -417,6 +422,17 @@ func saldiri_baslat():
 		saldiri_tamamlandi.emit()
 		return
 
+	# --- 👁️ GLITCH PARRY WINDOW (PRE-ATTACK) ---
+	if not _saldiri_resume_ediliyor:
+		var parry_basarili = await pre_attack()
+		if parry_basarili:
+			# PARRY EDİLDİ! Saldırı sekansını tamamen durdur.
+			# Boss, Ghost Move periyodu bitene veya oyuncu blok koyana kadar donar.
+			# (OyunOdasi / GameManager üzerinden tekrar tetiklenebilir)
+			return
+	_saldiri_resume_ediliyor = false
+	# -------------------------------------------
+
 	# 4. Saldırı tipi seç
 	suanki_durum = "SALDIRI"
 	var sans = randf()
@@ -444,6 +460,75 @@ func saldiri_baslat():
 		"ZAR":
 			await _zar_sekansi()
 
+# ==========================================
+# 🌌 GLITCH PARRY (REALITY DENIAL)
+# ==========================================
+
+func pre_attack() -> bool:
+	"""
+	Saldırı öncesi kısa (0.3s) pencere açar. 
+	Oyuncu bu pencerede sağ tıklarsa gerçekliği inkar eder (Glitch Parry).
+	"""
+	if not glitch_yuzu_dokusu: return false # Asset yoksa sistemi atla
+	
+	# Pencereyi Aç
+	if GameManager: GameManager.is_parry_window_open = true
+	
+	# Ekranda Korkunç Yüz Göster
+	glitch_ui_rect = TextureRect.new()
+	glitch_ui_rect.texture = glitch_yuzu_dokusu
+	glitch_ui_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	glitch_ui_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	glitch_ui_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	glitch_ui_rect.modulate = Color(1, 1, 1, 0.8) # Yarım transparan
+	
+	# GLITCH SHADER EKLE
+	var mat = ShaderMaterial.new()
+	var shader = load("res://glitch_yuz.gdshader")
+	if shader: mat.shader = shader
+	glitch_ui_rect.material = mat
+	
+	# En üste çizilmesi için CanvasLayer
+	var canvas = CanvasLayer.new()
+	canvas.layer = 99 
+	canvas.add_child(glitch_ui_rect)
+	add_child(canvas)
+	
+	await get_tree().create_timer(0.3).timeout
+	
+	# Süre Bitti. Pencere hala açık mı? (Oyuncu tıklamadıysa true kalır)
+	if GameManager and GameManager.is_parry_window_open:
+		# TIKLAYAMADI! Normal saldırıya devam.
+		GameManager.is_parry_window_open = false
+		if is_instance_valid(canvas): canvas.queue_free()
+		return false
+	else:
+		# TIKLADI! (oyuncu.gd is_parry_window_open'ı false yaptı)
+		# Ses Çalar
+		if kirik_cam_sesi:
+			var as_player = AudioStreamPlayer.new()
+			as_player.stream = kirik_cam_sesi
+			add_child(as_player)
+			as_player.play()
+			as_player.finished.connect(as_player.queue_free)
+			
+		print("❌ BOSS ATTACK CANCELLED! (GLITCH PARRY)")
+		return true
+
+func glitch_yuzu_kapat():
+	if is_instance_valid(glitch_ui_rect) and glitch_ui_rect.get_parent():
+		glitch_ui_rect.get_parent().queue_free()
+
+func gercek_saldiri_basa_don():
+	"""
+	Ghost Move sırasında oyuncu 5 saniye boyunca HİÇBİR ŞEY yapmazsa,
+	GameManager bu fonksiyonu çağırarak Boss'u kaldığı yerden devam ettirir.
+	"""
+	if _oldu_mu_kontrol(): return
+	print("⏳ Ghost Move bitti, hamle yapılmadı. Boss saldırıya geçiyor!")
+	await get_tree().create_timer(0.5).timeout
+	_saldiri_resume_ediliyor = true
+	saldiri_baslat()
 
 # ==========================================
 # TELEGRAPH (UYARI EFEKTİ)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=108 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=109 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
@@ -22,6 +22,7 @@
 [ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://PressStart2P-Regular.ttf" id="13_bpxfr"]
 [ext_resource type="Script" uid="uid://bnl3r0qmhc78q" path="res://BossCanavar.gd" id="14_2531s"]
 [ext_resource type="Script" uid="uid://y8xd6535ud3l" path="res://Dusman.gd" id="15_krygw"]
+[ext_resource type="Texture2D" uid="uid://ckixlfjiyxftu" path="res://CultFace.png" id="15_qrobu"]
 [ext_resource type="PackedScene" uid="uid://bgolektkymgbc" path="res://block_kare.tscn" id="16_b7lqx"]
 [ext_resource type="PackedScene" uid="uid://cj7t4ncxfa3jh" path="res://block_cubuk.tscn" id="17_sbm3a"]
 [ext_resource type="PackedScene" uid="uid://30bh24oxy3ca" path="res://block_t.tscn" id="18_btjas"]
@@ -377,6 +378,7 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.6
 [node name="Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin" parent="MezarOdasi" index="7" instance=ExtResource("13_bjfsn")]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.16618979, -1.0051993, -0.9190335)
 script = ExtResource("14_2531s")
+glitch_yuzu_dokusu = ExtResource("15_qrobu")
 
 [node name="Armature" parent="MezarOdasi/Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin" index="0"]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0.23335242, 0.037705958)

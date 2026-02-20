@@ -28,7 +28,7 @@ func _input(event):
 	
 	# --- SOL TIK: ATEŞ (Sadece Silah Çekiliyse) ---
 	if GameManager.silah_cekildi and event.is_action_pressed("ates_et") and not islem_mesgul:
-		if GameManager.mermi_harca():
+		if GameManager.mermiyi_kullan():
 			_animasyon_oynat_ates()
 		else:
 			_mermi_yok_uyarisi()

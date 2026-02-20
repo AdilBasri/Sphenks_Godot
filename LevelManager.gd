@@ -43,7 +43,14 @@ func konumlari_kaydet(p1: Vector3, p2: Vector3, p3: Vector3, oyuncu: CharacterBo
 	
 	# Bölüm yüklendiğinde oyuncuyu spawn noktasına ışınla
 	if suanki_katman > 1 and oyuncu_ref:
+		# Oyuncu grid üstüne oturmuş veya move_and_slide'da sıkışmış olabilir. 
+		# Bu yüzden global_position atamasını bir frame sonra yaparız.
+		call_deferred("_oyuncuyu_baslangica_isinla")
+
+func _oyuncuyu_baslangica_isinla():
+	if is_instance_valid(oyuncu_ref):
 		oyuncu_ref.global_position = start_pos
+		oyuncu_ref.velocity = Vector3.ZERO
 
 func odaya_don_ve_level_atla():
 	# Katmanı bir artır ve ilerlemeyi kaydet

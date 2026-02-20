@@ -50,6 +50,12 @@ var max_mermi: int = 40
 var silah_cekildi: bool = false 
 var yeme_aktif_mi: bool = false  # Oyuncu uzuv yerken true — pyro_filtresi gizlenir
 
+# --- 👁️ GLITCH PARRY SİSTEMİ ---
+var glitch_face_aktif: bool = false
+var is_parry_window_open: bool = false
+var ghost_move_active: bool = false
+var ghost_canvas: CanvasLayer = null
+
 func _ready():
 	print("GameManager Başlatıldı.")
 	# Sadece intro durumunu yükle — oyun state'i her açılışta sıfır başlar
@@ -129,6 +135,7 @@ func bolum_bufflarini_sifirla():
 	tek_zar_modu = false
 	fener_aktif = false
 	kanli_civi_aktif = false
+	glitch_face_aktif = false
 
 func oyunu_kaydet():
 	var config = ConfigFile.new()
@@ -144,6 +151,7 @@ func oyunu_kaydet():
 	config.set_value("Bufflar", "FenerAktif", fener_aktif)
 	config.set_value("Bufflar", "ZamanYavas", pyro_yavaslatma)
 	config.set_value("Bufflar", "KanliCiviAktif", kanli_civi_aktif)
+	config.set_value("Bufflar", "GlitchFaceAktif", glitch_face_aktif)
 	
 	var esya_yollari = []
 	for esya in envanter:
@@ -207,12 +215,80 @@ func mermi_ekle(miktar: int) -> bool:
 	emit_signal("mermi_degisti", mermi_sayisi)
 	return true
 
-func mermi_harca() -> bool:
+func mermiyi_kullan():
 	if mermi_sayisi > 0:
 		mermi_sayisi -= 1
-		emit_signal("mermi_degisti", mermi_sayisi)
+		_arayuz_guncelle()
 		return true
 	return false
+
+# ==========================================
+# 🌌 GHOST MOVE PARRY MANTIĞI 🌌
+# ==========================================
+
+func activate_ghost_move():
+	is_parry_window_open = false
+	ghost_move_active = true
+	
+	print("🌌 REALITY DENIED! Ghost Move Activated (5s B&W Blur).")
+	
+	# Create Shader UI Layer
+	ghost_canvas = CanvasLayer.new()
+	ghost_canvas.layer = 100 
+	
+	# B&W Matrix Screen Shader
+	var cr = ColorRect.new()
+	cr.set_anchors_preset(Control.PRESET_FULL_RECT)
+	cr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var mat = ShaderMaterial.new()
+	var shader = load("res://ghost_shader.gdshader")
+	if shader: mat.shader = shader
+	cr.material = mat
+	ghost_canvas.add_child(cr)
+	
+	# Scary Timer Label
+	var lbl = Label.new()
+	lbl.add_theme_font_size_override("font_size", 120)
+	lbl.add_theme_color_override("font_color", Color(1.0, 0.0, 0.0, 1.0))
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	var font = load("res://PressStart2P-Regular.ttf")
+	if font: lbl.add_theme_font_override("font", font)
+	
+	lbl.text = "5"
+	lbl.set_anchors_preset(Control.PRESET_CENTER_LEFT)
+	lbl.position = Vector2(100, (get_viewport().get_visible_rect().size.y / 2) - 100)
+	ghost_canvas.add_child(lbl)
+	
+	get_tree().current_scene.add_child(ghost_canvas)
+	
+	# Disable Enemy processing and RETURN CAMERA TO PLAYER
+	get_tree().call_group("Dusman", "set_process_mode", Node.PROCESS_MODE_DISABLED)
+	get_tree().call_group("Dusman", "_kamerayi_oyuncuya_ver")
+	
+	var sayac = 5
+	for i in range(5):
+		await get_tree().create_timer(1.0).timeout
+		if not ghost_move_active: return # Killed early due to block placement
+		sayac -= 1
+		lbl.text = str(sayac)
+		
+	# Time is up
+	if ghost_move_active:
+		end_ghost_move()
+		var boss = get_tree().get_first_node_in_group("Dusman")
+		if boss and boss.has_method("gercek_saldiri_basa_don"):
+			boss.gercek_saldiri_basa_don()
+
+func end_ghost_move():
+	if not ghost_move_active: return
+	ghost_move_active = false
+	
+	if is_instance_valid(ghost_canvas):
+		ghost_canvas.queue_free()
+		
+	get_tree().call_group("Dusman", "set_process_mode", Node.PROCESS_MODE_INHERIT)
+	print("🌍 REALITY RESTORED.")
 
 func saglik_guncelle(bar: int, hp: int):
 	oyuncu_kalan_bar = bar; oyuncu_suanki_hp = hp;

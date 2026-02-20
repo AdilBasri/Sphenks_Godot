@@ -143,6 +143,20 @@ func _input(event):
 			speed = 5.25
 		elif not event.pressed:
 			speed = 3.0
+			
+	# --- 👁️ GLITCH PARRY INPUT ---
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		if GameManager and GameManager.is_parry_window_open:
+			# PARRY SUCCESS!
+			var boss = get_tree().get_first_node_in_group("Dusman")
+			if boss and boss.has_method("glitch_yuzu_kapat"):
+				boss.glitch_yuzu_kapat()
+			GameManager.activate_ghost_move()
+			return # Consume input
+		
+		# Normal use item right-click logic
+		elif eldeki_ozel_esya:
+			esya_birak()
 	
 	if is_sitting:
 		if event is InputEventKey:
@@ -173,7 +187,12 @@ func _input(event):
 				etkilesime_gir()
 		
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			if eldeki_ozel_esya:
+			if GameManager and GameManager.is_parry_window_open:
+				var boss = get_tree().get_first_node_in_group("Dusman")
+				if boss and boss.has_method("glitch_yuzu_kapat"):
+					boss.glitch_yuzu_kapat()
+				GameManager.activate_ghost_move()
+			elif eldeki_ozel_esya:
 				esya_birak()
 
 func _physics_process(delta):
