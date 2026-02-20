@@ -76,8 +76,9 @@ func metinleri_guncelle():
 
 func _input(event):
 	if event.is_action_pressed("ui_cancel"):
-		# Ana menüdeyken veya sahne yüklenirken pause menüsünü açma
 		if get_tree().current_scene and get_tree().current_scene.name == "AnaMenu":
+			if ayarlar_ui.visible:
+				ayarlari_kapat()
 			return
 			
 		if visible:
@@ -96,6 +97,7 @@ func uykuya_dal():
 func uykudan_uyan():
 	visible = false
 	ayarlar_ui.visible = false
+	ana_menu_ui.visible = true # <--- Ana menü yüzünü sıfırla ki sonra tekrar açıldığında boş gelmesin
 	get_tree().paused = false
 	
 	# Sadece oyuncu sahnedeyse ve 3d oyundaysa mouse'u kitle
@@ -112,7 +114,13 @@ func ayarlari_ac():
 
 func ayarlari_kapat():
 	ayarlar_ui.visible = false
-	ana_menu_ui.visible = true
+	
+	if get_tree().current_scene and get_tree().current_scene.name == "AnaMenu":
+		visible = false
+		get_tree().paused = false
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	else:
+		ana_menu_ui.visible = true
 
 func ana_menuye_don():
 	uykudan_uyan()
