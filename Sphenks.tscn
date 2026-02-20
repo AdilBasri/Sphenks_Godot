@@ -1,4 +1,4 @@
-[gd_scene load_steps=106 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=108 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://sphenks.gd" id="2_fi7dh"]
@@ -11,10 +11,10 @@
 [ext_resource type="Texture2D" uid="uid://exewje3jhncc" path="res://tile1.png" id="7_lxn88"]
 [ext_resource type="Script" uid="uid://cqqrxhofxtxw6" path="res://KediEtkilesim.gd" id="7_ouiq0"]
 [ext_resource type="PackedScene" uid="uid://5wga44lwetiq" path="res://oyun_sonu.tscn" id="8_5uvl0"]
-[ext_resource type="Texture2D" uid="uid://bcddf7y4a2g2y" path="res://KediTutulan.png" id="8_p4fw5"]
+[ext_resource type="Texture2D" uid="uid://b2nhri0gq2vpk" path="res://KediTutulan.png" id="8_p4fw5"]
 [ext_resource type="PackedScene" uid="uid://b4bhb1v1do7yg" path="res://PyroDusman.tscn" id="9_bjfsn"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Sphenks.gdshader" id="10_h2n1q"]
-[ext_resource type="Texture2D" uid="uid://b7j5ikchr6yce" path="res://blob.png" id="10_jl7q8"]
+[ext_resource type="Texture2D" uid="uid://81ov5s7ykwpl" path="res://blob.png" id="10_jl7q8"]
 [ext_resource type="Script" uid="uid://bmnvsawx0sym2" path="res://DiyalogYoneticisi.gd" id="11_1eqvi"]
 [ext_resource type="Shader" uid="uid://bdknl4my2yii6" path="res://Shader.gdshader" id="11_48she"]
 [ext_resource type="PackedScene" uid="uid://7eln5qfuv1pk" path="res://SilahSistemi.tscn" id="11_63q5f"]
@@ -28,18 +28,19 @@
 [ext_resource type="PackedScene" uid="uid://c427aja5jykgk" path="res://block_z.tscn" id="19_5n3a3"]
 [ext_resource type="PackedScene" uid="uid://bq8mjuugdsa8p" path="res://block_tek.tscn" id="20_mc62c"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://oyuncu.gd" id="23_4kj0i"]
-[ext_resource type="Texture2D" uid="uid://5oxpd5ppfsmg" path="res://çerçeve_bar.png" id="23_k4rhs"]
-[ext_resource type="Texture2D" uid="uid://c2r1kq8qmui5u" path="res://hand.png" id="24_4kj0i"]
+[ext_resource type="Texture2D" uid="uid://ncorow4carpw" path="res://çerçeve_bar.png" id="23_k4rhs"]
+[ext_resource type="Texture2D" uid="uid://u5y1jjivkyg4" path="res://hand.png" id="24_4kj0i"]
 [ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://iç_bar.png" id="24_uxn7w"]
-[ext_resource type="Texture2D" uid="uid://dxocxwnf7pv0r" path="res://mesaledeneme.png" id="25_lxn88"]
-[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="25_q606s"]
-[ext_resource type="Texture2D" uid="uid://crq17pk8urwv2" path="res://skull.png" id="25_yiyi8"]
+[ext_resource type="Texture2D" uid="uid://v3hgvensx0ub" path="res://mesaledeneme.png" id="25_lxn88"]
+[ext_resource type="Texture2D" uid="uid://b5k4ffrdw2m3u" path="res://Assets/carpi.png" id="25_q606s"]
+[ext_resource type="Texture2D" uid="uid://cw3yccl0y15yc" path="res://skull.png" id="25_yiyi8"]
 [ext_resource type="Texture2D" uid="uid://diw64yisqg55h" path="res://web.png" id="27_offaw"]
 [ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Kapi.tscn" id="29_kqumn"]
 [ext_resource type="Texture2D" uid="uid://b6qhtc7ov5oqy" path="res://crosshair.png" id="30_3fpuv"]
 [ext_resource type="PackedScene" uid="uid://cobgol1r61s8u" path="res://karanlik_koridor.tscn" id="30_1283l"]
 [ext_resource type="Texture2D" uid="uid://dts5ye3ydelp0" path="res://tabela_market.png" id="31_ewkc5"]
 [ext_resource type="Script" uid="uid://bgxx0sj7xnnh4" path="res://catal_odasi.gd" id="31_ojhqj"]
+[ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://global.gdshader" id="31_y4nvu"]
 [ext_resource type="Texture2D" uid="uid://b5lev6qm0rdoe" path="res://tabela_fire.png" id="32_ojhqj"]
 [ext_resource type="PackedScene" uid="uid://crts7a2wj50ro" path="res://campfire_odasi.tscn" id="33_1g7sh"]
 [ext_resource type="Texture2D" uid="uid://dywjvxrqxoifi" path="res://marketa.png" id="34_1g7sh"]
@@ -154,6 +155,18 @@ region = Rect2(389.22156, 296.0412, 1253.7622, 1473.935)
 [sub_resource type="AtlasTexture" id="AtlasTexture_5uvl0"]
 atlas = ExtResource("24_uxn7w")
 region = Rect2(375.71313, 280.9171, 1237.1509, 1443.3556)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qrobu"]
+shader = ExtResource("31_y4nvu")
+shader_parameter/brightness = 1.1
+shader_parameter/contrast = 1.15
+shader_parameter/saturation = 0.6
+shader_parameter/shadow_color = Color(0.08, 0.1, 0.15, 1)
+shader_parameter/highlight_color = Color(0.9, 0.85, 0.7, 1)
+shader_parameter/tint_blend = 0.45
+shader_parameter/ca_strength = 0.003
+shader_parameter/grain_amount = 0.06
+shader_parameter/vignette_intensity = 0.3
 
 [sub_resource type="LabelSettings" id="LabelSettings_5uvl0"]
 font = ExtResource("13_bpxfr")
@@ -608,6 +621,18 @@ current = true
 [node name="RayCast3D" type="RayCast3D" parent="Oyuncu/Camera3D" index="0"]
 target_position = Vector3(0, 0, -2.5)
 collision_mask = 15
+
+[node name="GlobalFiltre" type="CanvasLayer" parent="Oyuncu/Camera3D" index="1"]
+layer = 100
+
+[node name="ColorRect" type="ColorRect" parent="Oyuncu/Camera3D/GlobalFiltre" index="0"]
+material = SubResource("ShaderMaterial_qrobu")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="OyunArayuzu" parent="." index="12" node_paths=PackedStringArray("mermi_label", "nisangah", "pyro_filtresi") groups=["Arayuz"] instance=ExtResource("3_4kj0i")]
 mermi_label = NodePath("Control/MermiLabel")

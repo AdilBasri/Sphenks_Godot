@@ -98,4 +98,3 @@ func yenme_ilerlemesi() -> float:
 	"""Ne kadar yendiğini 0.0-1.0 olarak döner (frenzy hesabı için)."""
 	if max_isirma <= 0: return 0.0
 	return clamp(float(toplam_isirma) / float(max_isirma), 0.0, 1.0)
-

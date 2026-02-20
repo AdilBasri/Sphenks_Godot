@@ -1,16 +1,17 @@
-[gd_scene load_steps=30 format=3 uid="uid://csnasspc4xyij"]
+[gd_scene load_steps=32 format=3 uid="uid://csnasspc4xyij"]
 
 [ext_resource type="Script" uid="uid://c3g6t5usagaa" path="res://PyroKoridoru.gd" id="1_h5fso"]
 [ext_resource type="Script" uid="uid://loithy76h54j" path="res://omni_light_3d.gd" id="1_so4kj"]
 [ext_resource type="PackedScene" uid="uid://b4bhb1v1do7yg" path="res://PyroDusman.tscn" id="2_oessh"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://oyuncu.gd" id="2_wck7j"]
 [ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://PressStart2P-Regular.ttf" id="3_tex5o"]
-[ext_resource type="Texture2D" uid="uid://5oxpd5ppfsmg" path="res://çerçeve_bar.png" id="4_0v4dx"]
+[ext_resource type="Texture2D" uid="uid://ncorow4carpw" path="res://çerçeve_bar.png" id="4_0v4dx"]
 [ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://iç_bar.png" id="5_jvfqp"]
-[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="6_h5fso"]
+[ext_resource type="Texture2D" uid="uid://b5k4ffrdw2m3u" path="res://Assets/carpi.png" id="6_h5fso"]
 [ext_resource type="PackedScene" uid="uid://dvucb86havcwa" path="res://oyun_arayuzu.tscn" id="7_jvfqp"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Sphenks.gdshader" id="8_h5fso"]
 [ext_resource type="Texture2D" uid="uid://b6qhtc7ov5oqy" path="res://crosshair.png" id="9_2f6ik"]
+[ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://global.gdshader" id="9_ocmv8"]
 [ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Kapi.tscn" id="11_2f6ik"]
 [ext_resource type="PackedScene" uid="uid://7eln5qfuv1pk" path="res://SilahSistemi.tscn" id="12_12o8v"]
 [ext_resource type="PackedScene" uid="uid://cwep2mo56dn1d" path="res://MideUI.tscn" id="12_np28r"]
@@ -50,6 +51,18 @@ region = Rect2(389.22156, 296.0412, 1253.7622, 1473.935)
 [sub_resource type="AtlasTexture" id="AtlasTexture_t1agt"]
 atlas = ExtResource("5_jvfqp")
 region = Rect2(375.71313, 280.9171, 1237.1509, 1443.3556)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7tuvr"]
+shader = ExtResource("9_ocmv8")
+shader_parameter/brightness = 1.1
+shader_parameter/contrast = 1.15
+shader_parameter/saturation = 0.6
+shader_parameter/shadow_color = Color(0.08, 0.1, 0.15, 1)
+shader_parameter/highlight_color = Color(0.9, 0.85, 0.7, 1)
+shader_parameter/tint_blend = 0.45
+shader_parameter/ca_strength = 0.003
+shader_parameter/grain_amount = 0.06
+shader_parameter/vignette_intensity = 0.3
 
 [sub_resource type="LabelSettings" id="LabelSettings_np28r"]
 font = ExtResource("3_tex5o")
@@ -244,6 +257,18 @@ current = true
 [node name="RayCast3D" type="RayCast3D" parent="Oyuncu/Camera3D"]
 target_position = Vector3(0, 0, -2.5)
 collision_mask = 15
+
+[node name="GlobalFiltre" type="CanvasLayer" parent="Oyuncu/Camera3D"]
+layer = 100
+
+[node name="ColorRect" type="ColorRect" parent="Oyuncu/Camera3D/GlobalFiltre"]
+material = SubResource("ShaderMaterial_7tuvr")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="Revolver" parent="." node_paths=PackedStringArray("mermi_label", "nisangah", "pyro_filtresi") groups=["Arayuz"] instance=ExtResource("7_jvfqp")]
 mermi_label = NodePath("Control/MermiLabel")
