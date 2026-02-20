@@ -407,10 +407,16 @@ func activate_ghost_move():
 	
 	var sayac = 5
 	for i in range(5):
-		await get_tree().create_timer(1.0).timeout
+		# --- TUTORIAL DONDURMASI (HAYALET HAMLE EĞİTİMİ) ---
+		while TutorialManager and TutorialManager.tutorial_aktif and (TutorialManager.suanki_adim == 8 or TutorialManager.suanki_adim == 9):
+			await get_tree().process_frame
+			if not ghost_move_active: return
+			
+		await get_tree().create_timer(1.0, false).timeout
 		if not ghost_move_active: return # Killed early due to block placement
+		
 		sayac -= 1
-		lbl.text = str(sayac)
+		if is_instance_valid(lbl): lbl.text = str(sayac)
 		
 	# Time is up
 	if ghost_move_active:
@@ -418,6 +424,8 @@ func activate_ghost_move():
 		var boss = get_tree().get_first_node_in_group("Dusman")
 		if boss and boss.has_method("gercek_saldiri_basa_don"):
 			boss.gercek_saldiri_basa_don()
+func grid_yonetici_kontrol():
+	pass
 
 func end_ghost_move():
 	if not ghost_move_active: return

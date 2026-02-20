@@ -21,7 +21,9 @@ var su_anki_adim = 0
 
 func _ready():
 	panel.visible = false
-	
+	call_deferred("_paneli_ayarla")
+
+func _paneli_ayarla():
 	# --- 1. PANELİ GENİŞLET (ELİN HİZASINA ÇEK) ---
 	var ekran_boyutu = get_viewport().get_visible_rect().size
 	var ekran_genislik = ekran_boyutu.x
@@ -29,6 +31,9 @@ func _ready():
 	
 	# Paneli %40'tan %60'a çıkardık (Daha geniş alan)
 	var panel_genislik = ekran_genislik * 0.60 
+	
+	# Uyarı Çözümü: Anchor'ları sıfırla ki .size ile çakışmasın
+	panel.anchors_preset = Control.PRESET_TOP_LEFT
 	
 	panel.size = Vector2(panel_genislik, ekran_yukseklik)
 	panel.position = Vector2(ekran_genislik - panel_genislik, 0)

@@ -118,6 +118,9 @@ func _yakala(_tiklanan_dunya_pos: Vector3) -> void:
 	tutuluyor = true
 	son_hucre = null
 	
+	if TutorialManager:
+		TutorialManager.eylemi_dogrula("blok_sürükleme")
+	
 	if hayalet: hayalet.visible = true
 	var main_scene = get_tree().current_scene
 	if main_scene: reparent(main_scene, true)

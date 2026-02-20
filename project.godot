@@ -21,6 +21,7 @@ GameManager="*res://GameManager.gd"
 LevelManager="*res://LevelManager.gd"
 DilYoneticisi="*res://DilYoneticisi.gd"
 PauseMenu="*res://PauseMenu.tscn"
+TutorialManager="*res://TutorialManager.tscn"
 
 [display]
 

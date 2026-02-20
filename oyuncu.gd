@@ -220,6 +220,9 @@ func _input(event):
 				if boss and boss.has_method("glitch_yuzu_kapat"):
 					boss.glitch_yuzu_kapat()
 				GameManager.activate_ghost_move()
+				
+				if TutorialManager:
+					TutorialManager.eylemi_dogrula("parry")
 			elif eldeki_ozel_esya:
 				esya_birak()
 
@@ -423,7 +426,12 @@ func esya_kullan():
 		"kilic": if hedef_hucre != null: grid.blok_kir(hedef_hucre, false); basarili = true
 		"dig": if hedef_hucre != null: grid.blok_kir(hedef_hucre, true); basarili = true
 		"paint": if hedef_hucre != null: grid.bloku_boya(hedef_hucre); basarili = true
-		"mantar": if grid: grid.mantar_modu_aktif(); _ekran_bozma_efekti(true); basarili = true
+		"mantar": 
+			if grid: 
+				grid.mantar_modu_aktif()
+				_ekran_bozma_efekti(true)
+				basarili = true
+				if TutorialManager: TutorialManager.eylemi_dogrula("mantar_yeme")
 		"magnet": if grid: grid.miknatis_etkisi(); basarili = true
 		_: print("Tanımsız Eşya: ", id); basarili = true
 
@@ -440,7 +448,7 @@ func satin_al(urun_node):
 		var basarili = market.satin_almaya_calis(veri.fiyat, veri)
 		if basarili:
 			var tween = create_tween()
-			tween.tween_property(urun_node, "scale", Vector3.ZERO, 0.2)
+			tween.tween_property(urun_node, "scale", Vector3(0.01, 0.01, 0.01), 0.2)
 			tween.tween_callback(urun_node.queue_free)
 
 func esyayi_ele_al(urun_node):
@@ -765,6 +773,9 @@ func sit_on_stool(stool_node):
 			spawner.bloklari_goster()
 
 	print("🪑 Tabureye oturuldu.")
+	
+	if TutorialManager:
+		TutorialManager.eylemi_dogrula("oturma")
 
 func move_table_camera(direction: float):
 	if not is_sitting or not current_stool: return
@@ -929,6 +940,9 @@ func stand_up():
 	
 	current_stool = null
 	print("🚶 Tabureden kalkıldı.")
+	
+	if TutorialManager:
+		TutorialManager.eylemi_dogrula("kalkma")
 
 func toggle_mouse_mode():
 	if oldu_mu: return

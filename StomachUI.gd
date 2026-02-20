@@ -240,7 +240,7 @@ func _shader_fill_guncelle(fill: float):
 
 # --- WOBBLE ---
 
-func _wobble_guncelle(delta):
+func _wobble_guncelle(_delta):
 	# Shader wobble iptal edildi, sadece pivot dönüşü (calkalanma) yeterli.
 	pass
 

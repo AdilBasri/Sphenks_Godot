@@ -70,6 +70,10 @@ func _ready():
 	
 	if oyuncu and not oyuncu.oyuncu_oldu.is_connected(_on_oyuncu_oldu):
 		oyuncu.oyuncu_oldu.connect(_on_oyuncu_oldu)
+		
+	if LevelManager and LevelManager.suanki_katman == 1:
+		if TutorialManager:
+			TutorialManager.start_tutorial()
 
 func _pyro_dusmanlarini_yarat():
 	if not pyro_dusman_sahnesi: return

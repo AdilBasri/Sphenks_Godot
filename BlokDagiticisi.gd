@@ -110,6 +110,11 @@ func _stoktan_yeni_parti_ver() -> void:
 	if tur_bitti_mi: return
 	if blok_sahneleri.is_empty(): return
 
+	# Tutorial sınırsız blok bypass
+	if TutorialManager and TutorialManager.tutorial_aktif:
+		if kalan_stok <= 5:
+			kalan_stok += 50
+	
 	if kalan_stok <= 0 and masadaki_aktif_bloklar <= 0:
 		emit_signal("stok_bitti")
 		_tur_sonu_hesaplamasi()
@@ -129,6 +134,11 @@ func _on_blok_yerlesti() -> void:
 
 func _anlik_boss_kontrolu() -> void:
 	if boss_oldu_mu: return
+	
+	# TUTORIAL SIRASINDA BOSS ÖLEMEZ
+	if TutorialManager and TutorialManager.tutorial_aktif:
+		return
+		
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
 	if arayuz:
 		var skor = 0
