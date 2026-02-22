@@ -147,6 +147,34 @@ var ceviriler = {
 	"geri": {
 		"tr": "GERİ",
 		"en": "BACK"
+	},
+	"boss_uyandi": {
+		"tr": "BOSS UYANDI!",
+		"en": "BOSS AWAKENED!"
+	},
+	"tebrikler_boss": {
+		"tr": "TEBRİKLER! BOSS YENİLDİ.",
+		"en": "CONGRATS! BOSS DEFEATED."
+	},
+	"hasar": {
+		"tr": "HASAR: ",
+		"en": "DAMAGE: "
+	},
+	"altin_kazandin": {
+		"tr": "+%d Altın Kazandın!",
+		"en": "+%d Gold Earned!"
+	},
+	"campfire_gold_tooltip": {
+		"tr": "Açgözlülük: Altın ara (0-30 Gold)",
+		"en": "Greed: Search for gold (0-30 Gold)"
+	},
+	"campfire_sleep_tooltip": {
+		"tr": "Dinlenme: Rüyalara dal (+1 Can)",
+		"en": "Rest: Fall into dreams (+1 Health)"
+	},
+	"sec_bir_yol": {
+		"tr": "Bir yol seç...",
+		"en": "Choose a path..."
 	}
 }
 

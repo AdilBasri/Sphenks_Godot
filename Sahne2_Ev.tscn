@@ -180,7 +180,7 @@ shader_parameter/shape_feathering = 0.0
 shader_parameter/shape_treshold = 1.0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_u2kip"]
-size = Vector3(1.222168, 1.4199219, 1.8994141)
+size = Vector3(268.53543, 134.601, 135.33871)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_cfcbr"]
 size = Vector3(1.6828613, 2.2207031, 1.607544)
@@ -201,6 +201,7 @@ shape = SubResource("CapsuleShape3D_7c0w5")
 
 [node name="Camera3D" type="Camera3D" parent="Oyuncu" index="1"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6047709, 0)
+current = true
 fov = 80.0
 near = 0.001
 
@@ -451,14 +452,14 @@ texture = ExtResource("8_l7nfj")
 transform = Transform3D(-2.1855695e-10, 0, 0.005, 0, 0.005, 0, -0.005, 0, -2.1855695e-10, 2.351478, -0.4499238, -5.6204414)
 
 [node name="Watch" parent="." index="18" instance=ExtResource("9_u2kip")]
-transform = Transform3D(-0.066188306, 0, -0.13460724, 0, 0.15, 0, 0.13460724, 0, -0.066188306, 1.3875554, 0.3551445, -2.407662)
+transform = Transform3D(-0.00044125534, 0, -0.00089738163, 0, 0.001, 0, 0.00089738163, 0, -0.00044125534, 1.3875554, 0.3230638, -2.407662)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Watch" index="2"]
 collision_layer = 7
 script = ExtResource("4_sh0wk")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Watch/StaticBody3D" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.111083984, 0.20996094, -0.44970703)
+transform = Transform3D(1, 0, 0, 0, 1.0000021, 0, 0, 0, 1, -14.996582, 31.144714, -36.077637)
 shape = SubResource("BoxShape3D_u2kip")
 
 [node name="Cup" parent="." index="19" instance=ExtResource("10_cfcbr")]

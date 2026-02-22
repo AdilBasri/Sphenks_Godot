@@ -14,10 +14,34 @@ enum HedefTipi { SADECE_ACIL, SONRAKI_LEVEL, MARKET, CAMPFIRE }
 
 var kilitli_mi: bool = false
 var acik_mi: bool = false
+var oyuncu_gecti_mi: bool = false
 
 func _ready():
 	if kilitli_olsun_mu:
 		kilitle()
+	# Body Entered sinyalini bağla (varsa)
+	_gecisin_sensorunu_bagla()
+
+func _gecisin_sensorunu_bagla():
+	# Eğer bu kapı sisteminde Area3D varsa body_entered bağla
+	for child in get_children():
+		if child is StaticBody3D:
+			# StaticBody3D'ye input event alan versiyonu zaten var
+			pass
+	# Geciş algılama için kapı önünde Area3D oluştur
+	var gecis_area = Area3D.new()
+	gecis_area.name = "GecisAlgila"
+	var col = CollisionShape3D.new()
+	var shape = BoxShape3D.new()
+	shape.size = Vector3(2.0, 3.0, 1.5)
+	col.shape = shape
+	# Z ofsetini odanın bayağı içine taşıyoruz ki kapıya değince hemen kapanmasın
+	col.position = Vector3(0, 0, -2.5)
+	gecis_area.add_child(col)
+	gecis_area.collision_layer = 0
+	gecis_area.collision_mask = 1  # Oyuncu layerı
+	add_child(gecis_area)
+	gecis_area.body_entered.connect(_oyuncu_gecti)
 
 # --- AKSİYONLAR ---
 func interact(_oyuncu):
@@ -58,6 +82,24 @@ func kapiyi_ac():
 	
 	# DİKKAT: Market ve Campfire için hiçbir şey yapmıyoruz. 
 	# Kapı açıldı, oyuncu yürüyerek içeri girecek.
+
+func _oyuncu_gecti(body):
+	# Oyuncu kapıdan geçince kapıyı kapat ve kilitle
+	if oyuncu_gecti_mi: return
+	if not body.is_in_group("Oyuncu"): return
+	if not acik_mi: return
+	oyuncu_gecti_mi = true
+	# Kapıyı geri kapat (y=0 konumuna dön)
+	var tween = create_tween()
+	tween.tween_property(self, "rotation_degrees:y", 0.0, 1.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	if kapi_isigi:
+		tween.tween_property(kapi_isigi, "light_energy", 0.0, 0.5)
+		tween.tween_callback(func(): kapi_isigi.visible = false)
+	tween.tween_callback(func():
+		acik_mi = false
+		kilitli_mi = true  # Artık açılamaz
+		print("🔐 Kapı geçiş sonra kilitlendi.")
+	)
 
 func kilitle():
 	if acik_mi: return 

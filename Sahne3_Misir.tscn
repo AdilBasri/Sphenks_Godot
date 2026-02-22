@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://u280l10jq4xw"]
+[gd_scene load_steps=27 format=3 uid="uid://u280l10jq4xw"]
 
 [ext_resource type="PackedScene" uid="uid://b145yhb185yrn" path="res://pyramid/scene.gltf" id="1_50npa"]
 [ext_resource type="Script" uid="uid://bdlg7liuik76m" path="res://sahne_3_misir.gd" id="1_cxnkm"]
@@ -106,6 +106,9 @@ volumetric_fog_enabled = true
 volumetric_fog_density = 0.01
 volumetric_fog_albedo = Color(0.46225756, 0.4585076, 0, 1)
 volumetric_fog_emission_energy = 5.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_glfev"]
+size = Vector3(11.942553, 7.3865967, 11.718933)
 
 [sub_resource type="LabelSettings" id="LabelSettings_oqsja"]
 font = ExtResource("4_glfev")
@@ -270,6 +273,12 @@ environment = SubResource("Environment_xedi3")
 
 [node name="Piramit" parent="." instance=ExtResource("1_50npa")]
 transform = Transform3D(9, 0, 0, 0, 9, 0, 0, 0, 9, -212.28482, 0, 1.0144038)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Piramit"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Piramit/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.044115067, 3.1932983, -0.009002417)
+shape = SubResource("BoxShape3D_glfev")
 
 [node name="UI" type="CanvasLayer" parent="."]
 

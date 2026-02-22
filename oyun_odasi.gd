@@ -152,9 +152,9 @@ func _on_satir_patladi():
 	if boss_tamamen_oldu: return
 	if not boss_uyandi_mi and not GameManager.pyro_aktif:
 		boss_uyandi_mi = true
-		print("⚠️ BOSS UYANDI!")
+		print("BOSS AWAKENED!")
 		var arayuz = get_tree().get_first_node_in_group("Arayuz")
-		if arayuz: arayuz.bilgi_goster("BOSS UYANDI!", 3.0)
+		if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("boss_uyandi"), 3.0)
 
 func _on_blok_yerlestirildi():
 	if boss_tamamen_oldu: return
@@ -181,6 +181,9 @@ func _on_blok_yerlestirildi():
 		return
 
 	print("🧱 Blok yerleşti. Boss saldırısı bekleniyor...")
+	# Pre-lock: await'ten önce kilitle ki bekleme süresinde de blok koyulamasın
+	if LevelManager:
+		LevelManager.is_boss_acting = true
 	await get_tree().create_timer(1.0).timeout
 	
 	if LevelManager and not boss_tamamen_oldu:
@@ -206,7 +209,7 @@ func _on_boss_oldu():
 		
 		# Arayüze mesaj gönder
 		var arayuz = get_tree().get_first_node_in_group("Arayuz")
-		if arayuz: arayuz.bilgi_goster("TEBRİKLER! BOSS YENİLDİ.", 5.0)
+		if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss"), 5.0)
 
 	# --- KAPIYI AÇ ---
 	_kapiyi_ac()
@@ -295,7 +298,7 @@ func _on_zar_durdu(gelen_sayi):
 		
 		# Ekrana Hasarı Yazdır
 		if hasar_label:
-			hasar_label.text = "HASAR: " + str(toplam_sonuc)
+			hasar_label.text = DilYoneticisi.metin_al("hasar") + str(toplam_sonuc)
 			hasar_label.visible = true
 			var tween = create_tween()
 			hasar_label.scale = Vector2(0, 0)

@@ -58,7 +58,16 @@ func odaya_don_ve_level_atla():
 	if GameManager:
 		GameManager.suanki_seviye = suanki_katman
 		GameManager.mantar_modu = false
-		# Auto-save KALDIRILDI — save sadece kedi maması verildiğinde olur
+		GameManager.silah_cekildi = false # KESİN SİLAH KAPATMA
+		GameManager.pyro_aktif = false    # KESİN PYRO KAPATMA
+	
+	# Oyuncunun elde tuttuğu nesneyi/eşya temizle
+	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+	if oyuncu:
+		if oyuncu.get("tutulan_nesne") and oyuncu.has_method("birak_veya_firlat"):
+			oyuncu.birak_veya_firlat()
+		if oyuncu.get("eldeki_ozel_esya") and oyuncu.has_method("esya_birak"):
+			oyuncu.esya_birak()
 	
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
 	if arayuz and arayuz.has_method("mantar_efekti_yonet"):
@@ -100,10 +109,9 @@ func boss_saldirisi_baslat():
 	# Sadece Pyro olmayan seviyelerde çalışır
 	if GameManager.pyro_aktif: return
 
-	# Zaten sıra Boss'taysa tekrar çağırma (Race condition fix)
-	if is_boss_acting:
-		print("🔒 Boss zaten aksiyonda, çift saldırı engellendi.")
-		return
+	# is_boss_acting oyuncunun blok atmasını engellemek için dışarıdan (oyun_odasi) set edilir.
+	# Dolayısıyla boss'un kendi saldırmasını burada durdurmamalı.
+	# (Double-call vs olmaz çünkü dışarıdan kontrollü)
 
 	var boss = get_tree().get_first_node_in_group("Dusman")
 	if boss:

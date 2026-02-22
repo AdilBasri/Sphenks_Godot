@@ -594,6 +594,9 @@ func game_over():
 	oldu_mu = true 
 	yere_dustu_mu = true 
 	set_physics_process(false)
+	# Clear held items so they don't float during scene transition
+	if tutulan_nesne: birak_veya_firlat()
+	if eldeki_ozel_esya: esya_birak()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE 
 	oyuncu_oldu.emit() 
 

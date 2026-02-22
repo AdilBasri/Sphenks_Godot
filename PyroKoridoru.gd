@@ -28,6 +28,9 @@ func _ready():
 		if "silah_gorsel" in silah_sistemi and silah_sistemi.silah_gorsel:
 			if "orjinal_pos" in silah_sistemi and silah_sistemi.orjinal_pos != Vector2.ZERO:
 				silah_sistemi.silah_gorsel.position = silah_sistemi.orjinal_pos
+
+	# --- DİL ÇEVİRİLERİ VE MİDE UI ---
+	_arayuzu_hazirla()
 	
 	# --- DÜŞMANLARI YARAT ---
 	# 1 saniye bekle sonra yaratmaya başla
@@ -54,6 +57,28 @@ func dusmanlari_baslat():
 		spawn_et()
 		# Her düşman arasında biraz bekle
 		await get_tree().create_timer(2.0).timeout
+
+func _arayuzu_hazirla():
+	# Çeviriler
+	var is_en = DilYoneticisi.secili_dil == "en"
+	
+	var katman = find_child("KatmanLabel", true, false)
+	if katman: katman.text = ("LAYER " if is_en else "KATMAN ") + str(GameManager.suanki_seviye)
+	
+	var mermi = find_child("MermiLabel", true, false)
+	if mermi: mermi.text = "AMMO:" if is_en else "MERMİ:"
+		
+	var hasar = find_child("HasarYazisi", true, false)
+	if hasar: hasar.text = "DAMAGE: 0" if is_en else "HASAR: 0"
+	
+	# Mide UI Görünürlüğü (Bazen kapalı başlıyor)
+	var mide = find_child("MideKatmani", true, false)
+	if mide: mide.visible = true
+	var mide_ui = find_child("MideUI", true, false)
+	if mide_ui: 
+		mide_ui.visible = true
+		if mide_ui.has_method("guncelle"):
+			mide_ui.guncelle(GameManager.oyuncu_mide_doluluk, GameManager.oyuncu_mide_kapasite)
 
 func spawn_et():
 	# 1. Düşmanı Hafızadan Oluştur

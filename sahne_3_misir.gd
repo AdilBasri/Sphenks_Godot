@@ -55,8 +55,15 @@ func monolog_oynat():
 		await get_tree().create_timer(0.5).timeout
 
 func kapidan_giris(body):
-	if body.name == "Oyuncu":
-		print("Piramite giriliyor... Simülasyon Başlıyor.")
+	if body.name == "Oyuncu" or body.is_in_group("Oyuncu"):
+		print("Piramite giriliyor... Geçiş ekranı başlıyor.")
+		# Hemen ekrana beyaz flash
+		if gecis_perdesi:
+			# Parıldayıp kararma: önce beyaza çek, sonra siyaha al
+			gecis_perdesi.color = Color(1, 1, 1, 0)
+			var t = create_tween()
+			t.tween_property(gecis_perdesi, "color", Color(1, 1, 1, 1), 0.3)
+			t.tween_property(gecis_perdesi.material, "shader_parameter/factor", 1.0, 0.5)
 		ozel_gecis_yap()
 
 func ozel_gecis_yap():

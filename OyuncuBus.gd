@@ -3,6 +3,7 @@ extends CharacterBody3D
 # --- AYARLAR ---
 var inceleme_modu_aktif = false
 var yurume_hizi = 3.0
+var sprint_hizi = 5.5   # Shift ile sprint hızı
 var yer_cekimi = 9.8
 var fare_hassasiyeti = 0.003
 var titreme_gucu = 0.005
@@ -82,15 +83,17 @@ func _physics_process(delta):
 	if not is_on_floor():
 		velocity.y -= yer_cekimi * delta
 
+	var anlik_hiz = sprint_hizi if Input.is_action_pressed("kosma") else yurume_hizi
+
 	var input_dir = Input.get_vector("sol", "sag", "ileri", "geri")
 	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
 	if direction:
-		velocity.x = direction.x * yurume_hizi
-		velocity.z = direction.z * yurume_hizi
+		velocity.x = direction.x * anlik_hiz
+		velocity.z = direction.z * anlik_hiz
 	else:
-		velocity.x = move_toward(velocity.x, 0, yurume_hizi)
-		velocity.z = move_toward(velocity.z, 0, yurume_hizi)
+		velocity.x = move_toward(velocity.x, 0, anlik_hiz)
+		velocity.z = move_toward(velocity.z, 0, anlik_hiz)
 
 	move_and_slide()
 

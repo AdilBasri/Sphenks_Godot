@@ -10,17 +10,33 @@ extends CanvasLayer
 var orjinal_pos: Vector2
 var islem_mesgul: bool = false 
 
+# Muzzle flash overlay
+var flash_rect: ColorRect = null
+var oyuncu_ref: Node = null
+
 func _ready():
 	# Başlangıçta silahı gizle
 	visible = false
+	GameManager.silah_cekildi = false  # Başlangıçta silah kesinlikle gizli
 	if silah_gorsel:
 		orjinal_pos = silah_gorsel.position
 		if animasyon_kareleri.size() > 0:
 			silah_gorsel.texture = animasyon_kareleri[7] # Idle
+	# Muzzle flash oluştur
+	flash_rect = ColorRect.new()
+	flash_rect.color = Color(1.0, 0.95, 0.5, 0.85)
+	flash_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flash_rect.visible = false
+	add_child(flash_rect)
+	# Oyuncu referansı
+	oyuncu_ref = get_tree().get_first_node_in_group("Oyuncu")
 
 func _input(event):
 	# Eğer PYRO modunda değilsek bu tuşlar çalışmasın
 	if not GameManager.pyro_aktif: return
+	# Oyuncu öldüyse ateş edemez
+	if oyuncu_ref and oyuncu_ref.get("oldu_mu") == true: return
 	
 	# --- SAĞ TIK: SİLAHI ÇEK / GİZLE ---
 	if event.is_action_pressed("sag_tik"): # Input Map'te 'sag_tik' (Right Mouse Button) ekli olmalı
@@ -83,8 +99,43 @@ func _animasyon_oynat_ates():
 	tween.tween_property(silah_gorsel, "position", orjinal_pos + tepme_vektoru, 0.04).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	tween.tween_property(silah_gorsel, "position", orjinal_pos, 0.15).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 	_mermi_olustur()
+	_muzzle_flash_goster()
+	# Tüm düşmanlar öldü mü kontrol et
 	await get_tree().create_timer(0.15).timeout
 	islem_mesgul = false
+	_dusman_kontrol()
+
+func _muzzle_flash_goster():
+	if not flash_rect: return
+	flash_rect.visible = true
+	var t = create_tween()
+	t.tween_property(flash_rect, "color:a", 0.0, 0.08)
+	t.tween_callback(func(): 
+		if is_instance_valid(flash_rect):
+			flash_rect.color.a = 0.85
+			flash_rect.visible = false
+	)
+
+func _dusman_kontrol():
+	# Pyro düşmanları bitince silahı otomatik kaldır
+	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
+	# Ölmemiş düşman var mı?
+	var hayatta_kalan = false
+	for d in dusmanlar:
+		if is_instance_valid(d) and d.get("suanki_durum") != 99:
+			hayatta_kalan = true
+			break
+	if not hayatta_kalan and dusmanlar.size() > 0:
+		_silahi_kaldir()
+
+func _silahi_kaldir():
+	if not GameManager.silah_cekildi: return
+	GameManager.silah_cekildi = false
+	GameManager.pyro_aktif = false
+	var tween = create_tween()
+	tween.tween_property(silah_gorsel, "position:y", get_viewport().size.y + 200, 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tween.tween_callback(func(): visible = false)
+	print("✅ Tüm düşmanlar öldü — silah kaldırıldı.")
 
 func _mermi_olustur():
 	if not mermi_sahnesi: return

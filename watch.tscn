@@ -3,4 +3,4 @@
 [ext_resource type="PackedScene" uid="uid://dmmewy7gjw75" path="res://watch/scene.gltf" id="1_3rl8q"]
 
 [node name="Sketchfab_Scene" instance=ExtResource("1_3rl8q")]
-transform = Transform3D(0.001, 0, 0, 0, 0.001, 0, 0, 0, 0.001, 0, 0, 0)
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 0, 0, 0)

@@ -188,6 +188,19 @@ func _show_step(adim: int):
 		panel.offset_top = 20
 		panel.offset_right = 400
 		panel.offset_bottom = 220
+		
+		# TUTORIAL BOSS FIX: Adım 6'da Boss'a saldırı emri ver
+		if suanki_adim == 6:
+			# Küçük bir gecikmeyle saldırıyı başlat ki oyuncu okuyabilsin
+			var tree = get_tree()
+			if tree:
+				var timer = tree.create_timer(1.0)
+				timer.timeout.connect(func():
+					if LevelManager:
+						LevelManager.is_boss_acting = true
+						LevelManager.boss_saldirisi_baslat()
+						print("⚔️ Tutorial Boss Saldırısı Tetiklendi!")
+				)
 
 func eylemi_dogrula(gerceklesecek_eylem: String):
 	"""

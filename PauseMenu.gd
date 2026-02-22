@@ -75,19 +75,22 @@ func metinleri_guncelle():
 	kontrol_metni.text = kb
 
 func _input(event):
-	if event.is_action_pressed("ui_cancel"):
-		if get_tree().current_scene and get_tree().current_scene.name == "AnaMenu":
-			if ayarlar_ui.visible:
-				ayarlari_kapat()
-			return
-			
-		if visible:
-			if ayarlar_ui.visible:
-				ayarlari_kapat()
-			else:
-				uykudan_uyan()
+	if not event.is_action_pressed("ui_cancel"): return
+	# AnaMenu sahnesindeyse sadece ayarları kapat
+	if get_tree().current_scene and get_tree().current_scene.name == "AnaMenu":
+		if ayarlar_ui.visible:
+			ayarlari_kapat()
+		get_viewport().set_input_as_handled()
+		return
+		
+	get_viewport().set_input_as_handled()
+	if visible:
+		if ayarlar_ui.visible:
+			ayarlari_kapat()
 		else:
-			uykuya_dal()
+			uykudan_uyan()
+	else:
+		uykuya_dal()
 
 func uykuya_dal():
 	visible = true

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://crts7a2wj50ro"]
+[gd_scene load_steps=12 format=3 uid="uid://crts7a2wj50ro"]
 
 [ext_resource type="Texture2D" uid="uid://blgep7fpf3xmq" path="res://AtesAnimasyonu/kare0000.png" id="1_svn6m"]
 [ext_resource type="Texture2D" uid="uid://b8css5ym42adl" path="res://AtesAnimasyonu/kare0001.png" id="2_mdd2d"]
@@ -8,7 +8,9 @@
 [ext_resource type="Texture2D" uid="uid://7np2smabsf7e" path="res://AtesAnimasyonu/kare0005.png" id="6_v38la"]
 [ext_resource type="Texture2D" uid="uid://dwp7wkwemm5j8" path="res://AtesAnimasyonu/kare0006.png" id="7_8leu4"]
 [ext_resource type="Texture2D" uid="uid://d4givl4slili0" path="res://AtesAnimasyonu/kare0007.png" id="8_4ced7"]
-
+[ext_resource type="Script" uid="uid://campfireroom_uid" path="res://CampfireRoom.gd" id="9_campfire"]
+[ext_resource type="Texture2D" path="res://card_gold.png" id="10_gold"]
+[ext_resource type="Texture2D" path="res://card_sleep.png" id="11_sleep"]
 [sub_resource type="SpriteFrames" id="SpriteFrames_or45s"]
 animations = [{
 "frames": [{
@@ -42,6 +44,9 @@ animations = [{
 }]
 
 [node name="CampfireOdasi" type="Node3D"]
+script = ExtResource("9_campfire")
+gold_card_texture = ExtResource("10_gold")
+sleep_card_texture = ExtResource("11_sleep")
 
 [node name="KampAtesi" type="AnimatedSprite3D" parent="."]
 billboard = 2
