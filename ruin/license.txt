@@ -1,0 +1,11 @@
+Model Information:
+* title:	Ruined Elden Ring Church
+* source:	https://sketchfab.com/3d-models/ruined-elden-ring-church-ab40afe857a6409e9334345622ae6e05
+* author:	Tim Friedmann (https://sketchfab.com/coulbi.tim.friedmann)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Ruined Elden Ring Church" (https://sketchfab.com/3d-models/ruined-elden-ring-church-ab40afe857a6409e9334345622ae6e05) by Tim Friedmann (https://sketchfab.com/coulbi.tim.friedmann) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)

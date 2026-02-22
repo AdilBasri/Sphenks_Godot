@@ -1,0 +1,11 @@
+Model Information:
+* title:	Barren Soil
+* source:	https://sketchfab.com/3d-models/barren-soil-04cc6ce1324b44989a20130bd9ce50d2
+* author:	Aya Rady (https://sketchfab.com/ayarady)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Barren Soil" (https://sketchfab.com/3d-models/barren-soil-04cc6ce1324b44989a20130bd9ce50d2) by Aya Rady (https://sketchfab.com/ayarady) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

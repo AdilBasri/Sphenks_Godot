@@ -1,0 +1,769 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 5323,
+      "max": [
+        2.6237988471984863,
+        1.7894916534423828,
+        2.5211524963378906
+      ],
+      "min": [
+        -4.162210941314697,
+        -5.963096618652344,
+        -1.331376075744629
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 63876,
+      "componentType": 5126,
+      "count": 5323,
+      "max": [
+        0.9999955892562866,
+        0.9996964335441589,
+        1.0
+      ],
+      "min": [
+        -0.9997760057449341,
+        -0.9999956488609314,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 5323,
+      "max": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -0.9999957084655762,
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 5323,
+      "max": [
+        9.826963424682617,
+        1.0852233171463013
+      ],
+      "min": [
+        -8.814179420471191,
+        -0.21354490518569946
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 42584,
+      "componentType": 5126,
+      "count": 5323,
+      "max": [
+        9.826963424682617,
+        1.0852233171463013
+      ],
+      "min": [
+        -8.814179420471191,
+        -0.21354490518569946
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 13830,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 127752,
+      "componentType": 5126,
+      "count": 2099,
+      "max": [
+        2.6209120750427246,
+        1.7039202451705933,
+        2.693718910217285
+      ],
+      "min": [
+        -4.096055030822754,
+        -4.043448448181152,
+        -1.331376075744629
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 152940,
+      "componentType": 5126,
+      "count": 2099,
+      "max": [
+        0.9929041862487793,
+        0.9999241828918457,
+        1.0
+      ],
+      "min": [
+        -0.9992859959602356,
+        -0.9999092817306519,
+        -0.9998250603675842
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 85168,
+      "componentType": 5126,
+      "count": 2099,
+      "max": [
+        0.999549150466919,
+        0.9997543692588806,
+        0.999126672744751,
+        1.0
+      ],
+      "min": [
+        -0.998875617980957,
+        -0.9999732971191406,
+        -1.0,
+        -1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 85168,
+      "componentType": 5126,
+      "count": 2099,
+      "max": [
+        2.3593411445617676,
+        2.3275036811828613
+      ],
+      "min": [
+        -1.3593411445617676,
+        -1.3409332036972046
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 101960,
+      "componentType": 5126,
+      "count": 2099,
+      "max": [
+        2.3593411445617676,
+        2.3275036811828613
+      ],
+      "min": [
+        -1.3593411445617676,
+        -1.3409332036972046
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 55320,
+      "componentType": 5125,
+      "count": 5853,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 178128,
+      "componentType": 5126,
+      "count": 3172,
+      "max": [
+        -0.17511224746704102,
+        1.6377496719360352,
+        2.3173131942749023
+      ],
+      "min": [
+        -2.2489047050476074,
+        0.28416091203689575,
+        -1.2628624439239502
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 216192,
+      "componentType": 5126,
+      "count": 3172,
+      "max": [
+        0.9999991655349731,
+        0.99995356798172,
+        1.0
+      ],
+      "min": [
+        -0.9999998211860657,
+        -0.9999988675117493,
+        -0.7600991725921631
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 118752,
+      "componentType": 5126,
+      "count": 3172,
+      "max": [
+        0.9999974966049194,
+        0.999998927116394,
+        0.9999991059303284,
+        1.0
+      ],
+      "min": [
+        -0.9999991059303284,
+        -0.9999986886978149,
+        -1.0,
+        -1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 118752,
+      "componentType": 5126,
+      "count": 3172,
+      "max": [
+        0.9994350671768188,
+        1.7574554681777954
+      ],
+      "min": [
+        0.011718988418579102,
+        -0.8699554204940796
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 144128,
+      "componentType": 5126,
+      "count": 3172,
+      "max": [
+        0.9994350671768188,
+        1.7574554681777954
+      ],
+      "min": [
+        0.011718988418579102,
+        -0.8699554204940796
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 169504,
+      "componentType": 5126,
+      "count": 3172,
+      "max": [
+        0.9994350671768188,
+        1.7574554681777954
+      ],
+      "min": [
+        0.011718988418579102,
+        -0.8699554204940796
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 78732,
+      "componentType": 5125,
+      "count": 12084,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 254256,
+      "componentType": 5126,
+      "count": 701,
+      "max": [
+        -0.031783223152160645,
+        1.618762731552124,
+        1.5068507194519043
+      ],
+      "min": [
+        -2.2047343254089355,
+        -1.2277112007141113,
+        -1.3313759565353394
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 262668,
+      "componentType": 5126,
+      "count": 701,
+      "max": [
+        0.9985284209251404,
+        0.04070010036230087,
+        1.0
+      ],
+      "min": [
+        -0.9043238162994385,
+        -0.9998995661735535,
+        -0.45509085059165955
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 169504,
+      "componentType": 5126,
+      "count": 701,
+      "max": [
+        0.9823781251907349,
+        0.9996225237846375,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -0.9999784827232361,
+        -0.19218675792217255,
+        -0.9999003410339355,
+        -1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 194880,
+      "componentType": 5126,
+      "count": 701,
+      "max": [
+        0.9977081418037415,
+        0.9978224039077759
+      ],
+      "min": [
+        0.0023754537105560303,
+        0.0022002458572387695
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 200488,
+      "componentType": 5126,
+      "count": 701,
+      "max": [
+        0.9977081418037415,
+        0.9978224039077759
+      ],
+      "min": [
+        0.0023754537105560303,
+        0.0022002458572387695
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 127068,
+      "componentType": 5125,
+      "count": 1359,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "Tim Friedmann (https://sketchfab.com/coulbi.tim.friedmann)",
+      "license": "CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)",
+      "source": "https://sketchfab.com/3d-models/ruined-elden-ring-church-ab40afe857a6409e9334345622ae6e05",
+      "title": "Ruined Elden Ring Church"
+    },
+    "generator": "Sketchfab-16.95.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 132504,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 206096,
+      "byteOffset": 132504,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 271080,
+      "byteOffset": 338600,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 180720,
+      "byteOffset": 609680,
+      "byteStride": 16,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 790400,
+      "uri": "scene.bin"
+    }
+  ],
+  "images": [
+    {
+      "uri": "textures/stone_trimsheet_baseColor.png"
+    },
+    {
+      "uri": "textures/stone_trimsheet_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/stone_trimsheet_normal.png"
+    },
+    {
+      "uri": "textures/Wallrocks_baseColor.png"
+    },
+    {
+      "uri": "textures/Wallrocks_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/Wallrocks_normal.png"
+    },
+    {
+      "uri": "textures/pillar_baseColor.png"
+    },
+    {
+      "uri": "textures/pillar_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/pillar_normal.png"
+    },
+    {
+      "uri": "textures/Material_baseColor.png"
+    },
+    {
+      "uri": "textures/Material_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/Material_normal.png"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "name": "stone_trimsheet",
+      "normalTexture": {
+        "index": 2
+      },
+      "occlusionTexture": {
+        "index": 1
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicFactor": 0.0,
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "Wallrocks",
+      "normalTexture": {
+        "index": 5
+      },
+      "occlusionTexture": {
+        "index": 4
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 3
+        },
+        "metallicFactor": 0.0,
+        "metallicRoughnessTexture": {
+          "index": 4
+        }
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "pillar",
+      "normalTexture": {
+        "index": 8
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 6
+        },
+        "metallicRoughnessTexture": {
+          "index": 7
+        }
+      }
+    },
+    {
+      "alphaMode": "BLEND",
+      "doubleSided": true,
+      "name": "Material",
+      "normalTexture": {
+        "index": 11
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 9
+        },
+        "metallicRoughnessTexture": {
+          "index": 10
+        }
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Apsis_Pillar_R.001_stone trimsheet_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TANGENT": 2,
+            "TEXCOORD_0": 3,
+            "TEXCOORD_1": 4
+          },
+          "indices": 5,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "Apsis_Pillar_R.001_Wallrocks_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 7,
+            "POSITION": 6,
+            "TANGENT": 8,
+            "TEXCOORD_0": 9,
+            "TEXCOORD_1": 10
+          },
+          "indices": 11,
+          "material": 1,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "Apsis_Pillar_R.001_pillar_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 13,
+            "POSITION": 12,
+            "TANGENT": 14,
+            "TEXCOORD_0": 15,
+            "TEXCOORD_1": 16,
+            "TEXCOORD_2": 17
+          },
+          "indices": 18,
+          "material": 2,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "Apsis_Pillar_R.001_Material_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 20,
+            "POSITION": 19,
+            "TANGENT": 21,
+            "TEXCOORD_0": 22,
+            "TEXCOORD_1": 23
+          },
+          "indices": 24,
+          "material": 3,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        -1.0,
+        0.0,
+        0.0,
+        1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "matrix": [
+        0.009999999776482582,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.009999999776482582,
+        0.0,
+        0.0,
+        -0.009999999776482582,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "216006f246034b43af0ba67601e219fe.fbx"
+    },
+    {
+      "children": [
+        3
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "matrix": [
+        98.13582943290541,
+        -8.138115899777336e-07,
+        19.21875405416957,
+        0.0,
+        19.218754054169576,
+        7.390415055336571e-06,
+        -98.13582943290514,
+        0.0,
+        -6.217048445500417e-07,
+        99.99999999999972,
+        7.409048430329079e-06,
+        0.0,
+        106.20008850097656,
+        126.28624725341797,
+        82.33776092529297,
+        1.0
+      ],
+      "name": "Apsis_Pillar_R.001"
+    },
+    {
+      "mesh": 0,
+      "name": "Apsis_Pillar_R.001_stone trimsheet_0"
+    },
+    {
+      "mesh": 1,
+      "name": "Apsis_Pillar_R.001_Wallrocks_0"
+    },
+    {
+      "mesh": 2,
+      "name": "Apsis_Pillar_R.001_pillar_0"
+    },
+    {
+      "mesh": 3,
+      "name": "Apsis_Pillar_R.001_Material_0"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    },
+    {
+      "sampler": 0,
+      "source": 3
+    },
+    {
+      "sampler": 0,
+      "source": 4
+    },
+    {
+      "sampler": 0,
+      "source": 5
+    },
+    {
+      "sampler": 0,
+      "source": 6
+    },
+    {
+      "sampler": 0,
+      "source": 7
+    },
+    {
+      "sampler": 0,
+      "source": 8
+    },
+    {
+      "sampler": 0,
+      "source": 9
+    },
+    {
+      "sampler": 0,
+      "source": 10
+    },
+    {
+      "sampler": 0,
+      "source": 11
+    }
+  ]
+}

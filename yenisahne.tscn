@@ -1,0 +1,432 @@
+[gd_scene load_steps=17 format=3 uid="uid://e0jbl1w7to3b"]
+
+[ext_resource type="PackedScene" uid="uid://dvmpbbvtvhnti" path="res://ruin/scene.gltf" id="1_4f6kp"]
+[ext_resource type="PackedScene" uid="uid://d1i7qlqatxeoa" path="res://tarikat/Meshy_AI_Meshy_Merged_Animations.fbx" id="2_4ysdl"]
+[ext_resource type="PackedScene" uid="uid://dtu3va5lt6wfc" path="res://pusat/Meshy_AI_Meshy_Merged_Animations.fbx" id="3_3d27p"]
+[ext_resource type="PackedScene" uid="uid://gpq8ek1pbpgj" path="res://throne/scene.gltf" id="4_uwjte"]
+[ext_resource type="PackedScene" uid="uid://bbeutattpnsao" path="res://body/scene.gltf" id="5_uwjte"]
+[ext_resource type="PackedScene" uid="uid://dao6ms6escntk" path="res://grass/scene.gltf" id="6_eqomy"]
+[ext_resource type="PackedScene" uid="uid://cjct8ashdh7av" path="res://soil/scene.gltf" id="7_kg32g"]
+[ext_resource type="Script" uid="uid://l3tf3bxqbcvw" path="res://OyuncuBus.gd" id="8_eqomy"]
+[ext_resource type="PackedScene" uid="uid://ct6wtxy260y4l" path="res://gas_lamp/scene.gltf" id="9_kg32g"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_eqomy"]
+size = Vector3(1000, 50, 1000)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kg32g"]
+cull_mode = 2
+albedo_color = Color(0.29411766, 0.28627452, 0.18431373, 1)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_pulps"]
+data = PackedVector3Array(-500, 25, 500, 500, 25, 500, -500, -25, 500, 500, 25, 500, 500, -25, 500, -500, -25, 500, 500, 25, -500, -500, 25, -500, 500, -25, -500, -500, 25, -500, -500, -25, -500, 500, -25, -500, 500, 25, 500, 500, 25, -500, 500, -25, 500, 500, 25, -500, 500, -25, -500, 500, -25, 500, -500, 25, -500, -500, 25, 500, -500, -25, -500, -500, 25, 500, -500, -25, 500, -500, -25, -500, 500, 25, 500, -500, 25, 500, 500, 25, -500, -500, 25, 500, -500, 25, -500, 500, 25, -500, -500, -25, 500, 500, -25, 500, -500, -25, -500, 500, -25, 500, 500, -25, -500, -500, -25, -500)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kg32g"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_pulps"]
+size = Vector2(2, 2)
+
+[sub_resource type="Shader" id="Shader_vh38o"]
+code = "shader_type spatial;
+render_mode unshaded, cull_disabled;
+
+// Godot'un kendi derinlik ve ekran dokularını alıyoruz
+uniform sampler2D depth_texture : hint_depth_texture, filter_linear_mipmap;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+
+// Ayarlar (Inspector'dan değiştirebilirsin)
+uniform float cizgi_kalinligi : hint_range(0.0, 5.0) = 1.0;
+uniform float hassasiyet : hint_range(0.0, 10.0) = 2.0; // Eşik değeri
+uniform vec4 cizgi_rengi : source_color = vec4(0.0, 0.0, 0.0, 1.0); // Siyah
+uniform vec4 kagit_rengi : source_color = vec4(0.95, 0.95, 0.95, 1.0); // Beyaz Kağıt
+
+void vertex() {
+	// Filtreyi kameranın gözüne yapıştır
+	POSITION = vec4(VERTEX.xy, 1.0, 1.0);
+}
+
+// Derinliği \"Metre\" cinsinden düzgün okumak için matematik fonksiyonu
+float get_depth(vec2 screen_uv, mat4 inv_proj_mat) {
+	float depth = texture(depth_texture, screen_uv).r;
+	vec3 ndc = vec3(screen_uv * 2.0 - 1.0, depth);
+	vec4 view = inv_proj_mat * vec4(ndc, 1.0);
+	view.xyz /= view.w;
+	return -view.z; // Kameradan uzaklık (metre cinsinden)
+}
+
+void fragment() {
+	// 1. Piksel boyutunu al
+	vec2 e = vec2(1.0 / VIEWPORT_SIZE.xy) * cizgi_kalinligi;
+	
+	// 2. Etraftaki 4 noktanın derinliğini ölç (Metre cinsinden)
+	float d_merkez = get_depth(SCREEN_UV, INV_PROJECTION_MATRIX);
+	float d_ust    = get_depth(SCREEN_UV + vec2(0.0, e.y), INV_PROJECTION_MATRIX);
+	float d_alt    = get_depth(SCREEN_UV - vec2(0.0, e.y), INV_PROJECTION_MATRIX);
+	float d_sag    = get_depth(SCREEN_UV + vec2(e.x, 0.0), INV_PROJECTION_MATRIX);
+	float d_sol    = get_depth(SCREEN_UV - vec2(e.x, 0.0), INV_PROJECTION_MATRIX);
+	
+	// 3. Farkları hesapla (Sobel Benzeri)
+	// Eğer yanındaki piksel senden çok daha uzaktaysa orada bir kenar vardır.
+	float fark = abs(d_ust - d_alt) + abs(d_sag - d_sol);
+	
+	// 4. Eşik değerine göre boya
+	// Eğer fark \"hassasiyet\"ten büyükse Siyah, değilse Kağıt Rengi
+	if (fark > hassasiyet * 0.1) { // 0.1 çarpanı ince ayar içindir
+		ALBEDO = cizgi_rengi.rgb;
+	} else {
+		ALBEDO = kagit_rengi.rgb;
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_c7svy"]
+render_priority = 0
+shader = SubResource("Shader_vh38o")
+shader_parameter/cizgi_kalinligi = 5.0
+shader_parameter/hassasiyet = 1.0000000475
+shader_parameter/cizgi_rengi = Color(0, 0, 0, 1)
+shader_parameter/kagit_rengi = Color(0.9490196, 0.9490196, 0.6784314, 1)
+
+[node name="Node3D" type="Node3D"]
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_4f6kp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06749761, 0, -4.482279)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -25, 0)
+mesh = SubResource("BoxMesh_eqomy")
+surface_material_override/0 = SubResource("StandardMaterial3D_kg32g")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_pulps")
+
+[node name="tarikat2" parent="." instance=ExtResource("2_4ysdl")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.3563623, 0.03901443, -2.8543043)
+
+[node name="Skeleton3D" parent="tarikat2/Armature" index="0"]
+bones/0/position = Vector3(0.06703062, -0.091248035, 0.76642835)
+bones/0/rotation = Quaternion(-0.1266312, -0.18446578, 0.5640383, 0.79485714)
+bones/1/rotation = Quaternion(-0.6420023, 0.42159152, -0.15161139, 0.62217987)
+bones/2/rotation = Quaternion(0.23713572, 0.015724098, -0.017202027, 0.9711969)
+bones/3/rotation = Quaternion(-0.64038765, -0.16398054, 0.0136725865, 0.75021803)
+bones/4/rotation = Quaternion(-0.22541326, -0.03363563, 0.012792802, 0.9735985)
+bones/5/rotation = Quaternion(-0.48732477, 0.5519238, -0.27977875, 0.6161319)
+bones/6/rotation = Quaternion(0.18419348, -0.024569094, 0.0011554388, 0.9825822)
+bones/7/rotation = Quaternion(-0.70653373, 0.14936966, 0.03551414, 0.6908239)
+bones/8/rotation = Quaternion(-0.23910663, 0.036729906, -0.01297061, 0.9702117)
+bones/9/rotation = Quaternion(0.6865406, -0.22941473, -0.49799803, 0.47752362)
+bones/10/rotation = Quaternion(-0.06482426, -0.003224278, 0.013663463, 0.99779797)
+bones/11/rotation = Quaternion(0.007017366, -0.0029614589, -1.6832464e-05, 0.99997103)
+bones/12/rotation = Quaternion(0.4727221, 0.54163736, -0.38145232, 0.5810825)
+bones/13/rotation = Quaternion(0.7212993, 0.18010406, 0.016272085, 0.6685994)
+bones/14/rotation = Quaternion(-0.2235637, -0.2510049, -0.006705335, 0.9417913)
+bones/15/rotation = Quaternion(0.13047928, -0.06466851, -0.04765838, 0.9881912)
+bones/16/rotation = Quaternion(-0.40526927, 0.6340935, -0.43376932, -0.49550626)
+bones/17/rotation = Quaternion(0.7022913, -0.1811439, -0.06559015, 0.68532604)
+bones/18/rotation = Quaternion(-0.24323204, 0.2441599, -0.047384754, 0.93753874)
+bones/19/rotation = Quaternion(-0.049669653, -0.24588586, -0.051303256, 0.9666649)
+bones/20/rotation = Quaternion(0.08995419, -0.0029505996, 0.02614444, 0.9955983)
+bones/21/rotation = Quaternion(0.45933083, -0.013070455, -0.01699999, 0.8880065)
+bones/22/rotation = Quaternion(-0.2788299, -9.3683276e-08, 0.0038020995, 0.960333)
+bones/23/rotation = Quaternion(0.37285435, -2.1035804e-08, -0.0050842017, 0.927876)
+
+[node name="tarikat7" parent="." instance=ExtResource("2_4ysdl")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 2.3350272, 0.03901443, -2.8543043)
+
+[node name="tarikat8" parent="." instance=ExtResource("2_4ysdl")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 2.3350272, 0.03901443, -1.5307976)
+
+[node name="tarikat9" parent="." instance=ExtResource("2_4ysdl")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 2.3350272, 0.03901443, 0.0064743757)
+
+[node name="tarikat10" parent="." instance=ExtResource("2_4ysdl")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 2.3350272, 0.03901443, 1.3046119)
+
+[node name="tarikat11" parent="." instance=ExtResource("2_4ysdl")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 2.3350272, 0.03901443, 2.5786943)
+
+[node name="tarikat3" parent="." instance=ExtResource("2_4ysdl")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.3563623, 0.03901443, -1.3038481)
+
+[node name="tarikat4" parent="." instance=ExtResource("2_4ysdl")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.3563623, 0.03901443, 0.05453646)
+
+[node name="tarikat5" parent="." instance=ExtResource("2_4ysdl")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.3563623, 0.03901443, 1.2035824)
+
+[node name="tarikat6" parent="." instance=ExtResource("2_4ysdl")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.3563623, 0.03901443, 2.5244093)
+
+[node name="Meshy_AI_Meshy_Merged_Animations" parent="." instance=ExtResource("3_3d27p")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.0357005, 0.0107314885, -4.49232)
+
+[node name="Skeleton3D" parent="Meshy_AI_Meshy_Merged_Animations/Armature" index="0"]
+bones/0/position = Vector3(-0.003623356, -0.010517018, 0.4946089)
+bones/0/rotation = Quaternion(0.81124, -0.5573729, 0.17549162, 0.020684721)
+bones/1/rotation = Quaternion(-0.027264975, -0.29219475, -0.7100769, 0.6400544)
+bones/2/rotation = Quaternion(0.84921354, -0.0038809106, -0.07251533, 0.5230324)
+bones/3/rotation = Quaternion(-0.6348763, 0.0032511149, -0.043924224, 0.77135736)
+bones/4/rotation = Quaternion(-0.42659375, -0.02197734, 0.0044543264, 0.9041653)
+bones/5/rotation = Quaternion(0.046490513, -0.081216305, -0.4103239, 0.90712565)
+bones/6/rotation = Quaternion(0.8420158, 0.009112837, 0.07604235, 0.5339887)
+bones/7/rotation = Quaternion(-0.61519766, 0.010734292, 0.013159165, 0.78819)
+bones/8/rotation = Quaternion(-0.41291806, 0.030122738, -0.0033712387, 0.9102637)
+bones/9/rotation = Quaternion(0.54347473, -0.29494774, 0.52928776, -0.58094376)
+bones/10/rotation = Quaternion(0.09984269, -0.0030333444, -0.00041127496, 0.9949985)
+bones/11/rotation = Quaternion(-0.06845464, 0.004434388, -0.005040867, 0.99763167)
+bones/12/rotation = Quaternion(0.5029603, 0.5748077, -0.35093606, 0.5417297)
+bones/13/rotation = Quaternion(0.53707314, 0.1301822, 0.3120507, 0.77280617)
+bones/14/rotation = Quaternion(-0.12644295, -0.111727044, 0.3828546, 0.9082685)
+bones/15/rotation = Quaternion(0.026517428, 0.65640575, 0.09891805, 0.7474246)
+bones/16/rotation = Quaternion(-0.47069597, 0.61512625, -0.37333873, -0.5105715)
+bones/17/rotation = Quaternion(0.5763498, -0.14000183, -0.3506032, 0.7247743)
+bones/18/rotation = Quaternion(-0.15290394, 0.13712992, -0.36956468, 0.90622175)
+bones/19/rotation = Quaternion(-0.053732082, -0.8499194, -0.21650952, 0.47736102)
+bones/20/rotation = Quaternion(0.14917059, -0.00016509893, -0.002698347, 0.98880786)
+bones/21/rotation = Quaternion(0.57124466, -0.034048554, 0.011384712, 0.81999433)
+bones/22/rotation = Quaternion(-0.32484448, 1.0451683e-06, -0.0058575165, 0.9457494)
+bones/23/rotation = Quaternion(0.36226046, 8.9758e-07, 0.006531968, 0.93205404)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+use_collision = true
+collision_layer = 255
+size = Vector3(15, 15, 15)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="CSGBox3D"]
+operation = 2
+size = Vector3(13, 13, 13)
+
+[node name="throne" parent="." instance=ExtResource("4_uwjte")]
+transform = Transform3D(-4.8082526e-08, 0, -1.1, 0, 1.1, 0, 1.1, 0, -4.8082526e-08, -0.020886958, -0.08369097, -4.4947886)
+
+[node name="body" parent="." instance=ExtResource("5_uwjte")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 5.016857, 0.19114125, 5.7991652)
+
+[node name="body2" parent="." instance=ExtResource("5_uwjte")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -5.122648, 0.19114125, 5.7991652)
+
+[node name="body3" parent="." instance=ExtResource("5_uwjte")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -5.122648, 0.19114125, -5.756341)
+
+[node name="body4" parent="." instance=ExtResource("5_uwjte")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 5.2469845, 0.19114125, -5.756341)
+
+[node name="Sketchfab_Scene2" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, -2.8505836, -0.025820136, -3.6355286)
+
+[node name="Sketchfab_Scene3" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, -0.7842996, -0.025820136, -3.6355286)
+
+[node name="Sketchfab_Scene4" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 1.1636789, -0.025820136, -3.6355286)
+
+[node name="Sketchfab_Scene5" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 3.3609045, -0.025820136, -3.6355286)
+
+[node name="Sketchfab_Scene6" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 5.191737, -0.025820136, -3.6355286)
+
+[node name="Sketchfab_Scene7" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 7.2688637, -0.025820136, -3.6355286)
+
+[node name="Sketchfab_Scene8" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 7.2688637, -0.025820136, -0.25115108)
+
+[node name="Sketchfab_Scene9" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 7.2688637, -0.025820136, 2.1651301)
+
+[node name="Sketchfab_Scene10" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 7.2688637, -0.025820136, 4.4083076)
+
+[node name="Sketchfab_Scene11" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 7.2688637, -0.025820136, 6.5407424)
+
+[node name="Sketchfab_Scene12" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 5.3681345, -0.025820136, 6.5407424)
+
+[node name="Sketchfab_Scene13" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 2.4792633, -0.025820136, 6.5407424)
+
+[node name="Sketchfab_Scene14" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, -0.5082817, -0.025820136, 6.5407424)
+
+[node name="Sketchfab_Scene15" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, -2.6576753, -0.025820136, 6.5407424)
+
+[node name="Sketchfab_Scene16" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, -2.6576753, -0.025820136, 4.393305)
+
+[node name="Sketchfab_Scene17" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, -2.6576753, -0.025820136, 1.7847843)
+
+[node name="Sketchfab_Scene18" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, -2.6576753, -0.025820136, -0.90692234)
+
+[node name="Sketchfab_Scene19" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, -0.9564363, -0.025820136, -0.33954692)
+
+[node name="Sketchfab_Scene20" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, -0.9564363, -0.025820136, 2.4367723)
+
+[node name="Sketchfab_Scene21" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, -0.9564363, -0.025820136, 4.338219)
+
+[node name="Sketchfab_Scene22" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 1.195059, -0.025820136, 4.338219)
+
+[node name="Sketchfab_Scene23" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 1.195059, -0.025820136, 6.355969)
+
+[node name="Sketchfab_Scene24" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 3.2143784, -0.025820136, 5.538761)
+
+[node name="Sketchfab_Scene25" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 3.2143784, -0.025820136, 3.567649)
+
+[node name="Sketchfab_Scene26" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 3.2143784, -0.025820136, 1.0361102)
+
+[node name="Sketchfab_Scene27" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 2.7233438, -0.025820136, -0.27259946)
+
+[node name="Sketchfab_Scene28" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 5.072856, -0.025820136, -0.27259946)
+
+[node name="Sketchfab_Scene29" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 5.072856, -0.025820136, 1.4782791)
+
+[node name="Sketchfab_Scene30" parent="." instance=ExtResource("6_eqomy")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 5.072856, -0.025820136, 3.6959317)
+
+[node name="Sketchfab_Scene31" parent="." instance=ExtResource("7_kg32g")]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, -1.3806219, 1.789609, 1.3763893)
+
+[node name="Plane001__0" parent="Sketchfab_Scene31/Sketchfab_model/ad04d9246c274c7cbe0a063827389fa2_fbx/RootNode/Plane001" index="0"]
+transform = Transform3D(55, 0, 0, 0, 55, 0, 0, 0, 55, 1014.16736, 886.8924, -169.2986)
+
+[node name="Oyuncu" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.021933496, 1.6743279, 4.975643)
+script = ExtResource("8_eqomy")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Oyuncu"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.30522037, 0)
+shape = SubResource("CapsuleShape3D_kg32g")
+
+[node name="Camera3D" type="Camera3D" parent="Oyuncu"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6047709, 0)
+fov = 80.0
+near = 0.001
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Oyuncu/Camera3D"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, -0.01)
+visible = false
+mesh = SubResource("QuadMesh_pulps")
+surface_material_override/0 = SubResource("ShaderMaterial_c7svy")
+
+[node name="RayCast3D" type="RayCast3D" parent="Oyuncu/Camera3D"]
+target_position = Vector3(0, 0, -5)
+collision_mask = 6
+
+[node name="Sketchfab_Scene32" parent="." instance=ExtResource("9_kg32g")]
+transform = Transform3D(-4.371139e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.371139e-09, -2.4382758, 0.3914714, 1.945653)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Sketchfab_Scene32"]
+light_color = Color(1, 0.73333335, 0.19607843, 1)
+light_energy = 2.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 10.0
+omni_range = 3.924
+
+[node name="Sketchfab_Scene33" parent="." instance=ExtResource("9_kg32g")]
+transform = Transform3D(-4.371139e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.371139e-09, -2.4382758, 0.3914714, 0.6366887)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Sketchfab_Scene33"]
+light_color = Color(1, 0.73333335, 0.19607843, 1)
+light_energy = 2.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 10.0
+omni_range = 3.924
+
+[node name="Sketchfab_Scene34" parent="." instance=ExtResource("9_kg32g")]
+transform = Transform3D(-4.371139e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.371139e-09, -2.4382758, 0.3914714, -0.5137656)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Sketchfab_Scene34"]
+light_color = Color(1, 0.73333335, 0.19607843, 1)
+light_energy = 2.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 10.0
+omni_range = 3.924
+
+[node name="Sketchfab_Scene35" parent="." instance=ExtResource("9_kg32g")]
+transform = Transform3D(-4.371139e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.371139e-09, -2.4382758, 0.3914714, -1.8790828)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Sketchfab_Scene35"]
+light_color = Color(1, 0.73333335, 0.19607843, 1)
+light_energy = 2.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 10.0
+omni_range = 3.924
+
+[node name="Sketchfab_Scene36" parent="." instance=ExtResource("9_kg32g")]
+transform = Transform3D(-4.371139e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.371139e-09, -2.4382758, 0.3914714, -3.4579475)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Sketchfab_Scene36"]
+light_color = Color(1, 0.73333335, 0.19607843, 1)
+light_energy = 2.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 10.0
+omni_range = 3.924
+
+[node name="Sketchfab_Scene37" parent="." instance=ExtResource("9_kg32g")]
+transform = Transform3D(-4.371139e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.371139e-09, 2.4812553, 0.3914714, -2.3088834)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Sketchfab_Scene37"]
+light_color = Color(1, 0.73333335, 0.19607843, 1)
+light_energy = 2.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 10.0
+omni_range = 3.924
+
+[node name="Sketchfab_Scene38" parent="." instance=ExtResource("9_kg32g")]
+transform = Transform3D(-4.371139e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.371139e-09, 2.4240112, 0.3914714, -0.9834292)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Sketchfab_Scene38"]
+light_color = Color(1, 0.73333335, 0.19607843, 1)
+light_energy = 2.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 10.0
+omni_range = 3.924
+
+[node name="Sketchfab_Scene39" parent="." instance=ExtResource("9_kg32g")]
+transform = Transform3D(-4.371139e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.371139e-09, 2.3695583, 0.3914714, 0.60136247)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Sketchfab_Scene39"]
+light_color = Color(1, 0.73333335, 0.19607843, 1)
+light_energy = 2.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 10.0
+omni_range = 3.924
+
+[node name="Sketchfab_Scene40" parent="." instance=ExtResource("9_kg32g")]
+transform = Transform3D(-4.371139e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.371139e-09, 2.4967413, 0.3914714, 1.8787553)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Sketchfab_Scene40"]
+light_color = Color(1, 0.73333335, 0.19607843, 1)
+light_energy = 2.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 10.0
+omni_range = 3.924
+
+[node name="Sketchfab_Scene41" parent="." instance=ExtResource("9_kg32g")]
+transform = Transform3D(-4.371139e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.371139e-09, 2.4208105, 0.3914714, 3.1500223)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Sketchfab_Scene41"]
+light_color = Color(1, 0.73333335, 0.19607843, 1)
+light_energy = 2.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 10.0
+omni_range = 3.924
+
+[editable path="tarikat2"]
+[editable path="Meshy_AI_Meshy_Merged_Animations"]
+[editable path="Sketchfab_Scene31"]
