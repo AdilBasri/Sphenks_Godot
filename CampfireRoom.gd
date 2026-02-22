@@ -12,6 +12,7 @@ var sleep_kart: Node3D = null
 var oyuncu_kart_alani_icinde: bool = false
 var gecici_nisangah: CanvasLayer = null
 var kapi_sistemi: Node3D = null
+var cards_resolved: bool = false # KART SEÇİMİ VE KAPI ETKİLEŞİMİ DÜZELTMESİ
 
 func _ready():
 	_kartlari_olustur()
@@ -28,26 +29,32 @@ func _ready():
 	# Geçiş alanını bul ve bağla
 	var gecis_area = _gecis_alanini_bul()
 	if gecis_area:
-		gecis_area.body_entered.connect(_oyuncu_girdi)
+		# Sadece bir kere tetiklenmesi için one_shot bağlantı yapıyoruz (Auto-Door Close Bug)
+		gecis_area.body_entered.connect(_oyuncu_girdi, CONNECT_ONE_SHOT)
 		print("✅ CampfireOdasi: Geçiş alanı bağlandı.")
 	else:
 		print("⚠️ CampfireOdasi: Geçiş Alan3D bulunamadı!")
 
+
 func _gecis_alanini_bul() -> Area3D:
-	var sahne_koku = get_tree().current_scene
-	if not sahne_koku: return null
-	var campfire_gecis = sahne_koku.find_child("campfire_gecis", true, false)
-	if not campfire_gecis: return null
-	for child in campfire_gecis.get_children():
-		if child is Area3D:
-			return child
-	return null
+	var gecis_area2 = Area3D.new()
+	var col2 = CollisionShape3D.new()
+	var shp2 = BoxShape3D.new()
+	shp2.size = Vector3(10.0, 6.0, 10.0)
+	col2.shape = shp2
+	gecis_area2.add_child(col2)
+	var kmp2 = get_node_or_null("KampAtesi")
+	if kmp2: gecis_area2.position = kmp2.position
+	add_child(gecis_area2)
+	gecis_area2.collision_layer = 0
+	gecis_area2.collision_mask = 1
+	return gecis_area2
 
 # ─────────── KART OLUŞTURMA ───────────
 func _kartlari_olustur():
 	var kampates = get_node_or_null("KampAtesi")
 	var ates_pos = Vector3.ZERO
-	if kampates: ates_pos = kampates.position
+	if kampates: ates_pos = kampates.global_position
 
 	gold_kart  = _kart_olustur(gold_card_texture,  ates_pos + Vector3(-2.5, 1.0, 0.5), "GoldKart")
 	sleep_kart = _kart_olustur(sleep_card_texture, ates_pos + Vector3( 2.5, 1.0, 0.5), "SleepKart")
@@ -55,9 +62,9 @@ func _kartlari_olustur():
 func _kart_olustur(texture: Texture2D, konum: Vector3, ad: String) -> Node3D:
 	var kart_kok = Node3D.new()
 	kart_kok.name = ad
-	kart_kok.position = konum
-	kart_kok.scale = Vector3.ZERO  # Başlangıçta katlanmış
-	add_child(kart_kok)
+	add_child(kart_kok) # Doğrudan eklensin ki scale vs yamulmasın, global_position çalışsın.
+	kart_kok.global_position = konum
+	kart_kok.scale = Vector3(0.001, 0.001, 0.001)  # Başlangıçta katlanmış
 
 	# Görsel (Sprite3D)
 	var sprite = Sprite3D.new()
@@ -69,19 +76,13 @@ func _kart_olustur(texture: Texture2D, konum: Vector3, ad: String) -> Node3D:
 
 	# Tıklanabilir fiziksel alan (StaticBody3D)
 	var sb = StaticBody3D.new()
+	sb.add_to_group("CampfireKart")
 	sb.input_ray_pickable = true  # ← Kritik! Godot 4'te tıklama için şart
 	var col = CollisionShape3D.new()
 	var shp = BoxShape3D.new()
 	shp.size = Vector3(1.4, 2.0, 0.15)
 	col.shape = shp
 	sb.add_child(col)
-	# Bağla: hangi kart seçildi bilgisini ilet
-	sb.input_event.connect(func(_cam, event, _pos, _nrm, _idx):
-		if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
-			return
-		if kartlar_gorunuyor and oyuncu_kart_alani_icinde and not secim_yapildi:
-			_kart_secildi(kart_kok)
-	)
 	kart_kok.add_child(sb)
 
 	return kart_kok
@@ -93,15 +94,38 @@ func _oyuncu_girdi(body):
 	oyuncu_kart_alani_icinde = true
 	kartlar_gorunuyor = true
 	
-	# 🔫 SİLAHI ZORLA KAPAT (Campfire'da silah çıkmasın)
+	# Giriş kapısını bulup kapat (Auto-Door Close Bug)
+	get_tree().call_group("Kapi", "_oyuncu_gecti", body)
+	var sahne_koku = get_tree().current_scene
+	if sahne_koku:
+		var c_room = null
+		if "Campfire" in sahne_koku.name:
+			c_room = sahne_koku
+		else:
+			c_room = sahne_koku.find_child("*Campfire*", true, false)
+			
+		if c_room:
+			for child in c_room.get_children():
+				if child is Node3D and "KapiSistemi" in child.name and child.name != "KapiSistemi3" and child.has_method("_oyuncu_gecti"):
+					child._oyuncu_gecti(body) # Kapıyı kapat ve kilitle
+	
+	# 🔫 SİLAHI ZORLA KAPAT VE OYUNCU DURUMUNU GÜNCELLE (Forced Weapon Unequip Bug)
 	GameManager.silah_cekildi = false
 	GameManager.pyro_aktif    = false
-	# Tüm Sahne'deki SilahKatmani'nı bul ve gizle
+	
+	# Oyuncu statüsünü "Safe" yap ve silahı kapat
+	body.set("state", "Safe") # Eğer state machine varsa Safe state e zorla
+	if body.has_method("unequip_weapons"):
+		body.unequip_weapons()
+	elif body.has_method("hide_weapon"):
+		body.hide_weapon()
+	body.set("weapon_input_disabled", true) # Silah inputlarını engelle
+	
+	# Mevcut mantıktaki silah gizleme kodu
 	var silah = get_tree().get_first_node_in_group("SilahKatmani")
 	if not silah:
 		silah = get_tree().current_scene.find_child("SilahKatmani", true, false)
 	if silah: silah.visible = false
-	# Revolver gibi gruptan bul
 	var revolver = get_tree().get_first_node_in_group("Arayuz")
 	if revolver and revolver.has_method("_silahi_kaldir"):
 		revolver._silahi_kaldir()
@@ -114,33 +138,17 @@ func _oyuncu_girdi(body):
 # ─────────── KART ANİMASYONU ───────────
 func _kartlari_ac():
 	for kart in [gold_kart, sleep_kart]:
-		if not kart: continue
+		if not kart or not is_instance_valid(kart): continue
 		var t = create_tween()
-		kart.scale = Vector3(0.0, 1.0, 1.0)
+		kart.scale = Vector3(0.001, 1.0, 1.0)
 		t.tween_property(kart, "scale", Vector3(1.0, 1.0, 1.0), 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 # ─────────── NİŞANGAH ───────────
 func _nisangahi_goster():
-	if gecici_nisangah: return
-	gecici_nisangah = CanvasLayer.new()
-	gecici_nisangah.layer = 100
-	get_tree().current_scene.add_child(gecici_nisangah)
-	
-	var tr = TextureRect.new()
-	var tex = load("res://1.png")
-	if tex: tr.texture = tex
-	gecici_nisangah.add_child(tr)
-	tr.set_anchors_preset(Control.PRESET_CENTER)
-	tr.offset_left = -20; tr.offset_top = -20
-	tr.offset_right = 20; tr.offset_bottom = 20
-	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tr.scale = Vector2(0.5, 0.5)
-	tr.pivot_offset = Vector2(20, 20)
+	pass
 
 func _nisangahi_gizle():
-	if gecici_nisangah and is_instance_valid(gecici_nisangah):
-		gecici_nisangah.queue_free()
-		gecici_nisangah = null
+	pass
 
 # ─────────── KART SEÇİMİ ───────────
 func _kart_secildi(secilen_kart: Node3D):
@@ -155,7 +163,7 @@ func _kart_secildi(secilen_kart: Node3D):
 	var diger = sleep_kart if secilen_kart == gold_kart else gold_kart
 	if diger and is_instance_valid(diger):
 		var t_giz = create_tween()
-		t_giz.tween_property(diger, "scale", Vector3.ZERO, 0.25)
+		t_giz.tween_property(diger, "scale", Vector3(0.001, 0.001, 0.001), 0.25)
 		t_giz.tween_callback(diger.queue_free)
 	
 	# Seçilen kartı vurgula
@@ -171,6 +179,7 @@ func _kart_secildi(secilen_kart: Node3D):
 
 # ─────────── ALTIN KARTI ───────────
 func _altin_secildi():
+	cards_resolved = true # İlerleme bayrağını işaretle
 	var miktar = randi_range(0, 30)
 	if GameManager:
 		GameManager.toplam_altin += miktar
@@ -182,7 +191,7 @@ func _altin_secildi():
 	# Seçilen kartı da gizle
 	if gold_kart and is_instance_valid(gold_kart):
 		var t = create_tween()
-		t.tween_property(gold_kart, "scale", Vector3.ZERO, 0.3)
+		t.tween_property(gold_kart, "scale", Vector3(0.001, 0.001, 0.001), 0.3)
 		t.tween_callback(gold_kart.queue_free)
 		await t.finished
 	
@@ -191,6 +200,7 @@ func _altin_secildi():
 
 # ─────────── UYKU KARTI ───────────
 func _uyku_secildi():
+	cards_resolved = true # İlerleme bayrağını işaretle
 	# Göz kapanma efekti
 	_gozu_kapat()
 	await get_tree().create_timer(1.5).timeout
@@ -209,9 +219,8 @@ func _uyku_secildi():
 func _kampfire_kapisini_ac():
 	if kapi_sistemi:
 		kapi_sistemi.kilitli_mi = false
-		if kapi_sistemi.has_method("kapiyi_ac"):
-			kapi_sistemi.kapiyi_ac()
-			print("🔓 Campfire kapısı açıldı!")
+		print("🔓 Campfire kapısının kilidi açıldı, oyuncu etkileşime girebilir!")
+		# Otomatik açılması yerine oyuncunun etkileşime girmesi için kapiyi_ac() KALDIRILDI
 	else:
 		# Kapi bulunamazsa direkt geçiş
 		if LevelManager:

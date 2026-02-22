@@ -15,12 +15,13 @@ var bolum_blok_limiti: int = 12
 var elde_tutulan_max: int = 3    
 var baslangic_kotasi: int = 300 
 
-# --- DEĞİŞKENLER ---
 var kalan_stok: int = 0
 var masadaki_aktif_bloklar: int = 0
 var tur_bitti_mi: bool = false
 var boss_oldu_mu: bool = false 
 var sag_tarafta_mi: bool = false # Sağa alındığında blokların yönünü düzeltmek için
+var dongu_basladi_mi: bool = false # GHOST BUG FIX (Yedekte duruyor)
+
 
 signal stok_bitti 
 signal stok_guncellendi(kalan: int)
@@ -52,7 +53,6 @@ func yeni_bolumu_baslat():
 	tur_bitti_mi = false
 	boss_oldu_mu = false
 	masadaki_aktif_bloklar = 0
-	
 	# 3. BOSS GÜNCELLEME (Görünürlük Fix)
 	if boss_objesi:
 		boss_objesi.visible = true # Zorla görünür yap
@@ -91,6 +91,7 @@ func yeni_bolumu_baslat():
 	# _stoktan_yeni_parti_ver()
 
 func baslat_spawn_dongusu() -> void:
+	print("!!! BLOK DAGITICISI TETIKLENDI !!!")
 	# Oyun başladığında (Tabureye oturunca) çağrılacak
 	_spawn_noktalarini_guncelle(true)
 	await get_tree().create_timer(0.5).timeout
@@ -108,8 +109,13 @@ func _spawn_noktalarini_guncelle(aktif: bool) -> void:
 # Yine de tam halini istiyorsan aşağıya devamını ekliyorum:
 
 func _stoktan_yeni_parti_ver() -> void:
-	if tur_bitti_mi: return
-	if blok_sahneleri.is_empty(): return
+	print(">>> Stok Kontrol Ediliyor - Kalan: ", kalan_stok, " Masadaki: ", masadaki_aktif_bloklar)
+	if tur_bitti_mi:
+		print("--- Tur Zaten Bitti, Blok Verilmeyecek ---")
+		return
+	if blok_sahneleri.is_empty():
+		print("--- HATA: Blok Sahneleri Bos! ---")
+		return
 
 	# Tutorial sınırsız blok bypass
 	if TutorialManager and TutorialManager.tutorial_aktif:
@@ -205,9 +211,14 @@ func _oyun_kaybedildi(arayuz_ref) -> void:
 		arayuz_ref.puan_ekle(0, "YETERSİZ PUAN - KAYBETTİN")
 
 func spawn_bloklar(adet: int) -> void:
+	print(">>> Yaratilacak Blok Adedi: ", adet)
 	for i in range(adet):
+		print(">> Spawn denemesi: ", i)
 		var hedef_marker = _bos_spawn_noktasi_bul()
-		if hedef_marker == null: break
+		if hedef_marker == null: 
+			print("--- HATA: Bos Spawn Noktasi Bulunamadi veya Spawn Array'i Bos! ---")
+			break
+		print(">> Hedef Marker Bulundu: ", hedef_marker.name)
 		kalan_stok -= 1
 		emit_signal("stok_guncellendi", kalan_stok)
 		masadaki_aktif_bloklar += 1
@@ -215,8 +226,14 @@ func spawn_bloklar(adet: int) -> void:
 		await get_tree().create_timer(0.2).timeout
 
 func _bos_spawn_noktasi_bul() -> Marker3D:
+	if spawn_noktalari.is_empty():
+		print(">>> HATA: spawn_noktalari dizisi bombos!")
+		return null
+		
 	for nokta in spawn_noktalari:
+		if nokta == null: continue
 		if nokta.get_child_count() == 0: return nokta
+		
 		var blok_var = false
 		for child in nokta.get_children():
 			if child.is_in_group("Blok") or "Blok" in child.name:

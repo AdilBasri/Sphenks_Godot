@@ -31,13 +31,21 @@ func _gecisin_sensorunu_bagla():
 	# Geciş algılama için kapı önünde Area3D oluştur
 	var gecis_area = Area3D.new()
 	gecis_area.name = "GecisAlgila"
-	var col = CollisionShape3D.new()
-	var shape = BoxShape3D.new()
-	shape.size = Vector3(2.0, 3.0, 1.5)
-	col.shape = shape
-	# Z ofsetini odanın bayağı içine taşıyoruz ki kapıya değince hemen kapanmasın
-	col.position = Vector3(0, 0, -2.5)
-	gecis_area.add_child(col)
+	
+	var col1 = CollisionShape3D.new()
+	var shape1 = BoxShape3D.new()
+	shape1.size = Vector3(3.0, 3.0, 1.5)
+	col1.shape = shape1
+	col1.position = Vector3(0, 0, -2.5)
+	gecis_area.add_child(col1)
+
+	var col2 = CollisionShape3D.new()
+	var shape2 = BoxShape3D.new()
+	shape2.size = Vector3(3.0, 3.0, 1.5)
+	col2.shape = shape2
+	col2.position = Vector3(0, 0, 2.5)
+	gecis_area.add_child(col2)
+	
 	gecis_area.collision_layer = 0
 	gecis_area.collision_mask = 1  # Oyuncu layerı
 	add_child(gecis_area)

@@ -246,7 +246,7 @@ albedo_texture = ExtResource("34_ipvml")
 albedo_texture_force_srgb = true
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_8wtdy"]
-size = Vector3(1.1359711, 2.625061, 0.94121933)
+size = Vector3(0.93640137, 1, 0.88414764)
 
 [sub_resource type="LabelSettings" id="LabelSettings_k4rhs"]
 font = ExtResource("13_bpxfr")
@@ -383,14 +383,10 @@ script = ExtResource("14_2531s")
 glitch_yuzu_dokusu = ExtResource("15_qrobu")
 
 [node name="Armature" parent="MezarOdasi/Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin" index="0"]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0.23335242, 0.075831294)
-
-[node name="Camera3D" parent="MezarOdasi/Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin" index="2"]
-transform = Transform3D(0.5260561, 0.2266268, -0.34110078, 0, 0.55528086, 0.3689277, 0.4095235, -0.29111496, 0.43816328, -0.3689316, 1.7665404, 0.12147406)
-fov = 100.8
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0.23335242, 0.037705958)
 
 [node name="MeshInstance3D" parent="MezarOdasi/Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13036722, 0.7029474, -0.5996864)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13036722, 0.7029474, -0.5311965)
 
 [node name="Kedi" type="Sprite3D" parent="." index="4"]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.4053817, -0.19308585, -3.5038295)
@@ -836,7 +832,8 @@ spot_angle = 60.0
 [node name="TumMasaSistemi" parent="." index="19" instance=ExtResource("37_63q5f")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.1451937)
 
-[node name="BlokDagiticisi" parent="TumMasaSistemi" index="4" node_paths=PackedStringArray("boss_objesi")]
+[node name="BlokDagiticisi" parent="TumMasaSistemi" index="4" node_paths=PackedStringArray("spawn_noktalari", "boss_objesi")]
+spawn_noktalari = []
 boss_objesi = NodePath("../../MezarOdasi/Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin")
 
 [node name="KaranlikKoridor" parent="." index="20" instance=ExtResource("30_1283l")]
@@ -1126,11 +1123,9 @@ operation = 2
 size = Vector3(1.5482178, 2.9299502, 0.6573989)
 
 [node name="GirisTetikleyici" type="Area3D" parent="campfire_gecis" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.31323457, -0.03407097)
 collision_layer = 0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="campfire_gecis/GirisTetikleyici" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00063323975, 0.07821655, 0.028535843)
 shape = SubResource("BoxShape3D_8wtdy")
 
 [node name="CampfireOdasi" parent="." index="25" instance=ExtResource("33_1g7sh")]

@@ -18,6 +18,10 @@ var suanki_hp = 10
 var yere_dustu_mu: bool = false 
 var oldu_mu: bool = false        
 
+# --- SİLAH VE DURUM KONTROLÜ ---
+var weapon_input_disabled: bool = false
+var state: String = "Normal"
+
 # --- ÖZEL EŞYA ---
 var eldeki_ozel_esya: Node3D = null 
 var ozel_esya_verisi: ItemData = null
@@ -641,6 +645,26 @@ func birak_veya_firlat():
 		tutulan_nesne.apply_central_impulse(-kamera.global_transform.basis.z * firlatma_gucu)
 		tutulan_nesne = null
 
+func hide_weapon():
+	weapon_input_disabled = true
+	var silah = get_tree().get_first_node_in_group("SilahKatmani")
+	if not silah:
+		silah = get_tree().current_scene.find_child("SilahKatmani", true, false)
+	if silah: 
+		silah.visible = false
+		silah.process_mode = Node.PROCESS_MODE_DISABLED
+	
+	var revolver = get_tree().get_first_node_in_group("Arayuz")
+	if revolver:
+		if revolver.has_method("_silahi_kaldir"):
+			revolver._silahi_kaldir()
+		# Forcing the Revolver Canvas layer to explicitly hide its nested elements
+		var nisangah = revolver.get_node_or_null("Nisangah")
+		if nisangah: nisangah.hide()
+
+func unequip_weapons():
+	hide_weapon()
+
 # --- OYUNCU.GD GÜNCEL ETKİLEŞİM SİSTEMİ (DÜZELTİLMİŞ) ---
 func check_ui_text():
 	if not etkilesim_label: return
@@ -667,13 +691,34 @@ func check_ui_text():
 		if bulunan_etkilesim:
 			# KAPI İSE FARKLI YAZI
 			if "Kapi" in bulunan_etkilesim.name or "Door" in bulunan_etkilesim.name or bulunan_etkilesim.has_method("kapiyi_ac"):
+				# KAPI KİLİTLİYSE VEYA KARTLAR SEÇİLMEDİYSE ETKİLEŞİM YAZMA
+				if bulunan_etkilesim.get("kilitli_mi") == true:
+					return
+				if bulunan_etkilesim.get("hedef_tipi") == 1: # SONRAKI_LEVEL
+					var cf = null
+					if "Campfire" in get_tree().current_scene.name:
+						cf = get_tree().current_scene
+					else:
+						cf = get_tree().current_scene.find_child("*Campfire*", true, false)
+					
+					if cf and "cards_resolved" in cf and not cf.cards_resolved:
+						return
+				
 				etkilesim_label.text = DilYoneticisi.metin_al("kapiyi_ac")
 			# TABURE VEYA DİĞERLERİ
 			else:
 				etkilesim_label.text = DilYoneticisi.metin_al("oynamak_icin_otur")
 			return
 		
-		# 3. FİZİKSEL NESNE TUTMA
+		# 3. KART SEÇİMİ VEYA FİZİKSEL NESNE TUTMA
+		if nesne.is_in_group("CampfireKart"):
+			var ad = nesne.get_parent().name
+			if "Gold" in ad:
+				etkilesim_label.text = "[E] Altın Kart"
+			else:
+				etkilesim_label.text = "[E] Uyku Kartı"
+			return
+			
 		if nesne is RigidBody3D and not tutulan_nesne:
 			etkilesim_label.text = DilYoneticisi.metin_al("tut")
 
@@ -693,10 +738,27 @@ func etkilesime_gir():
 			esyayi_ele_al(nesne)
 		return
 
+	if nesne.is_in_group("CampfireKart"):
+		var campfire = nesne.get_parent().get_parent()
+		if campfire and campfire.has_method("_kart_secildi"):
+			campfire._kart_secildi(nesne.get_parent())
+			return
+			
 	# Gelişmiş Arama ile Bul
 	var bulunan_etkilesim = _bul_etkilesim_nesnesi(nesne)
 	
 	if bulunan_etkilesim:
+		if bulunan_etkilesim.get("kilitli_mi") == true:
+			return
+		if bulunan_etkilesim.has_method("kapiyi_ac") and bulunan_etkilesim.get("hedef_tipi") == 1:
+			var cf = null
+			if "Campfire" in get_tree().current_scene.name:
+				cf = get_tree().current_scene
+			else:
+				cf = get_tree().current_scene.find_child("*Campfire*", true, false)
+			
+			if cf and "cards_resolved" in cf and not cf.cards_resolved:
+				return
 		bulunan_etkilesim.interact(self)
 		return
 
@@ -770,12 +832,14 @@ func sit_on_stool(stool_node):
 	# Blok Dağıtıcısını Başlat (Eğer başlamadıysa)
 	var spawner = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
 	if spawner:
-		# Yeni methodu çağır (Varsa)
 		if spawner.has_method("baslat_spawn_dongusu"):
-			# Sadece ilk kez çağrılmalı, zaten çalışıyorsa sorun yok (içeride kontrol edilebilir veya basitçe çağırırız)
 			spawner.baslat_spawn_dongusu()
-		elif spawner.has_method("bloklari_goster"): # Eski kod kalıntısı için güvenlik
+		elif spawner.has_method("bloklari_goster"):
 			spawner.bloklari_goster()
+	else:
+		# Fallback: Eğer obje direkt name ile bulunamazsa (veya grup varsa)
+		get_tree().call_group("Spawner", "baslat_spawn_dongusu")
+		get_tree().call_group("Spawner", "bloklari_goster")
 
 	print("🪑 Tabureye oturuldu.")
 	
