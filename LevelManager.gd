@@ -109,7 +109,8 @@ func boss_saldirisi_baslat():
 	if boss:
 		# KİLİTLE — oyuncu blok koyamaz
 		is_boss_acting = true
-		print("🔒 Boss sırası KİLİTLENDİ.")
+		get_tree().call_group("Blok", "iptal_et")
+		print("🔒 Boss sırası KİLİTLENDİ. Eldeki bloklar iptal edildi.")
 
 		if not boss.saldiri_tamamlandi.is_connected(_on_boss_isi_bitti):
 			boss.saldiri_tamamlandi.connect(_on_boss_isi_bitti)

@@ -352,3 +352,8 @@ func _materyal_uygula(mesh: MeshInstance3D, renk: Color):
 	mat.emission = renk
 	mat.emission_energy_multiplier = 1.0 
 	mesh.material_override = mat
+
+func iptal_et() -> void:
+	if tutuluyor:
+		tutuluyor = false
+		_eve_don()

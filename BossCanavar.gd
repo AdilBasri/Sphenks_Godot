@@ -495,7 +495,7 @@ func pre_attack() -> bool:
 	add_child(canvas)
 	
 	# process_always=false parametresi ile, TutorialManager oyunu dondurduğunda (pause) bu zamanlayıcı da donacak, böylece arka planda bitmeyecek!
-	await get_tree().create_timer(0.3, false).timeout
+	await get_tree().create_timer(0.5, false).timeout
 	
 	# Süre Bitti. Pencere hala açık mı? (Oyuncu tıklamadıysa true kalır)
 	if GameManager and GameManager.is_parry_window_open:
