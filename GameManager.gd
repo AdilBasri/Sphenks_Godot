@@ -385,6 +385,9 @@ func activate_ghost_move():
 	is_parry_window_open = false
 	ghost_move_active = true
 	
+	if LevelManager:
+		LevelManager.is_boss_acting = false # PARRY: unlock turn and show cursor
+	
 	print("🌌 REALITY DENIED! Ghost Move Activated (5s B&W Blur).")
 	
 	# Create Shader UI Layer
@@ -446,6 +449,9 @@ func grid_yonetici_kontrol():
 func end_ghost_move():
 	if not ghost_move_active: return
 	ghost_move_active = false
+	
+	if LevelManager:
+		LevelManager.is_boss_acting = true # Re-lock turn and hide cursor
 	
 	if is_instance_valid(ghost_canvas):
 		ghost_canvas.queue_free()

@@ -3,7 +3,16 @@ extends Node
 # --- OYUN DURUMU ---
 var suanki_katman: int = 1
 var isleme_alindi_mi: bool = false
-var is_boss_acting: bool = false  # Turn-lock: true iken oyuncu blok koyamaz
+var is_boss_acting: bool = false:
+	set(value):
+		is_boss_acting = value
+		if value:
+			Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+		else:
+			if oyuncu_ref and "mouse_serbest_modu" in oyuncu_ref and oyuncu_ref.mouse_serbest_modu:
+				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			elif not oyuncu_ref:
+				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 # --- KONUM REFERANSLARI ---
 var market_pos: Vector3
