@@ -17,31 +17,8 @@ func _ready():
 	orjinal_konum = global_position
 	orjinal_ebeveyn = get_parent()
 
-func _on_area_3d_input_event(_camera, event, _position, _normal, _shape_idx):
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.pressed and not tutuluyor:
-			yakala()
-		elif not event.pressed and tutuluyor:
-			birak()
-
-func _input(event):
-	if tutuluyor:
-		if event is InputEventMouseButton:
-			if event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-				birak()
-		
-		elif event is InputEventMouseMotion:
-			var kamera = get_viewport().get_camera_3d()
-			if not kamera: return
-			
-			# Ekrandaki fare koordinatını kameranın 1 metre ilerisindeki 3D koordinata dönüştür
-			var mouse_pos = get_viewport().get_mouse_position()
-			var depth = 1.0
-			var world_pos = kamera.project_position(mouse_pos, depth)
-			
-			global_position = world_pos
-			# Kameraya tam bakması için rotasyonu temizle
-			rotation = Vector3.ZERO
+# --- FPS ETKİLEŞİMİ ---
+# (Area3d input ve _input silindi, artık oyuncu.gd üzerinden çağrılıyor)
 
 func yakala():
 	tutuluyor = true
@@ -56,10 +33,10 @@ func yakala():
 	if kamera:
 		reparent(kamera, true) 
 		rotation = Vector3.ZERO 
+		position = Vector3(0.4, -0.3, -1.0) # Sağ alta hizala
 		scale = tutulma_boyutu
 
-func birak():
-	# Zaten bırakılmışsa tekrar tetikleme
+func birak(hedef_pozisyon: Vector3):
 	if not tutuluyor: return 
 	
 	tutuluyor = false
@@ -70,25 +47,42 @@ func birak():
 	var yerlesti = false
 	
 	if grid_yoneticisi:
-		var world_pos = grid_yoneticisi.get_masa_world_noktasi()
-		if world_pos != null:
-			var cell = grid_yoneticisi.world_to_cell(world_pos)
-			if cell != null:
-				if grid_yoneticisi.can_place(cell, [Vector2i(0,0)]):
-					yerlesti = true
-					reparent(grid_yoneticisi.masa_node, true) 
-					var merkez = grid_yoneticisi.cell_center_world(cell)
-					global_position = Vector3(merkez.x, merkez.y + 0.05, merkez.z)
-					rotation_degrees = Vector3(-90, 0, 0) # Masaya yatır
-					scale = orjinal_boyut
-					grid_yoneticisi.occupy(cell, [Vector2i(0,0)], self)
-					print("✅ Kedi Grid'e oturdu: ", cell)
+		var cell = grid_yoneticisi.world_to_cell(hedef_pozisyon)
+		if cell != null and grid_yoneticisi.can_place(cell, [Vector2i(0,0)]):
+			yerlesti = true
+			reparent(grid_yoneticisi.masa_node, true) 
+			var merkez = grid_yoneticisi.cell_center_world(cell)
+			global_position = Vector3(merkez.x, merkez.y + 0.05, merkez.z)
+			rotation_degrees = Vector3(-90, 0, 0) # Masaya yatır
+			scale = orjinal_boyut
+			grid_yoneticisi.occupy(cell, [Vector2i(0,0)], self)
+			print("✅ Kedi Grid'e oturdu: ", cell)
 
 	if not yerlesti:
-		print("↩️ Kedi eve döndü.")
-		if orjinal_ebeveyn:
-			reparent(orjinal_ebeveyn, true)
-			var tween = create_tween()
-			tween.tween_property(self, "global_position", orjinal_konum, 0.3)
-			tween.parallel().tween_property(self, "scale", orjinal_boyut, 0.3)
-			tween.parallel().tween_property(self, "rotation", Vector3.ZERO, 0.3)
+		print("↩️ Kedi bırakıldı: ", hedef_pozisyon)
+		var ana_sahne = get_tree().current_scene
+		if ana_sahne:
+			reparent(ana_sahne, true)
+		
+		# Ortada kalmaması için havadan aşağı (zemine kadar) raycast atalım
+		var uzay = get_world_3d().direct_space_state
+		var query = PhysicsRayQueryParameters3D.new()
+		var start_pos = hedef_pozisyon + Vector3(0, 0.5, 0) # Hafif yukardan başla ki zemin içindeyse üstüne çıksın
+		var end_pos = start_pos + Vector3(0, -10.0, 0)
+		query.from = start_pos
+		query.to = end_pos
+		var sonuc = uzay.intersect_ray(query)
+		
+		# İlk olarak hedef noktayı tam baktığımız yere hizalayalım, animasyon buradan başlayacak
+		global_position = hedef_pozisyon
+		rotation_degrees = Vector3(0, 0, 0)
+		scale = orjinal_boyut
+		
+		if sonuc:
+			var zemin_yuksekligi = sonuc.position + Vector3(0, 0.45, 0)
+			# Eğer kedi zaten zemindeyse (ya da çok yakınsa) tween yapmaya gerek yok
+			if global_position.distance_to(zemin_yuksekligi) > 0.1:
+				var drop_tween = create_tween()
+				drop_tween.tween_property(self, "global_position", zemin_yuksekligi, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			else:
+				global_position = zemin_yuksekligi

@@ -24,6 +24,7 @@ var state: String = "Normal"
 
 # --- ÖZEL EŞYA ---
 var eldeki_ozel_esya: Node3D = null 
+var eldeki_kedi: Node3D = null
 var ozel_esya_verisi: ItemData = null
 var active_tween: Tween = null
 
@@ -146,7 +147,7 @@ func _input(event):
 		if is_sitting:
 			stand_up()
 		else:
-			etkilesime_gir()
+			etkilesime_gir(false)
 			
 	if event.is_action_pressed("kosma"):
 		speed = 5.25
@@ -207,12 +208,14 @@ func _input(event):
 			mouse_event.global_position = ms_pos
 			Input.parse_input_event(mouse_event)
 			
-		if eldeki_ozel_esya:
+		if eldeki_kedi:
+			kedi_birak()
+		elif eldeki_ozel_esya:
 			esya_kullan()
 		elif tutulan_nesne:
 			birak_veya_firlat()
 		else:
-			etkilesime_gir()
+			etkilesime_gir(true)
 			
 	elif event.is_action_released("sol_tik") and mouse_serbest_modu:
 		# VIRTUAL MOUSE BIRAKMA SIMULASYONU
@@ -669,6 +672,10 @@ func check_ui_text():
 	if not etkilesim_label: return
 	etkilesim_label.text = ""
 	
+	if eldeki_kedi:
+		etkilesim_label.text = "[SOL TIK] Kediyi Bırak"
+		return
+	
 	if raycast and raycast.is_colliding():
 		var nesne = raycast.get_collider()
 		if not nesne: return 
@@ -684,7 +691,14 @@ func check_ui_text():
 				etkilesim_label.text = DilYoneticisi.metin_al("al") % [veri.esya_adi]
 			return
 
-		# 2. INTERACT METODU KONTROLÜ (Gelişmiş Arama)
+		# 2. KEDİ KONTROLÜ
+		if nesne.is_in_group("Kedi") or (nesne.get_parent() and nesne.get_parent().is_in_group("Kedi")):
+			var dist = kamera.global_position.distance_to(raycast.get_collision_point())
+			if dist <= 2.5:
+				etkilesim_label.text = "[SOL TIK] Kediyi Eline Al"
+			return
+
+		# 3. INTERACT METODU KONTROLÜ (Gelişmiş Arama)
 		var bulunan_etkilesim = _bul_etkilesim_nesnesi(nesne)
 		
 		if bulunan_etkilesim:
@@ -722,7 +736,7 @@ func check_ui_text():
 			etkilesim_label.text = DilYoneticisi.metin_al("tut")
 
 # --- ETKİLEŞİME GİR ---
-func etkilesime_gir():
+func etkilesime_gir(is_mouse_click: bool = false):
 	if not raycast or not raycast.is_colliding(): return
 	var nesne = raycast.get_collider()
 	if not nesne: return
@@ -742,6 +756,14 @@ func etkilesime_gir():
 		if campfire and campfire.has_method("_kart_secildi"):
 			campfire._kart_secildi(nesne.get_parent())
 			return
+			
+	if nesne.is_in_group("Kedi") or (nesne.get_parent() and nesne.get_parent().is_in_group("Kedi")):
+		if is_mouse_click:
+			var dist = kamera.global_position.distance_to(raycast.get_collision_point())
+			if dist <= 2.5:
+				var asil_kedi = nesne if nesne.is_in_group("Kedi") else nesne.get_parent()
+				kedi_al(asil_kedi)
+		return
 			
 	# Gelişmiş Arama ile Bul
 	var bulunan_etkilesim = _bul_etkilesim_nesnesi(nesne)
@@ -763,6 +785,32 @@ func etkilesime_gir():
 
 	if nesne is RigidBody3D:
 		nesne_tut(nesne)
+
+func kedi_al(kedi: Node3D):
+	eldeki_kedi = kedi
+	if kedi.has_method("yakala"):
+		kedi.yakala()
+
+func kedi_birak():
+	if not eldeki_kedi: return
+	
+	var max_mesafe = 2.5
+	var yon = -kamera.global_transform.basis.z
+	var hedef = kamera.global_position + yon * max_mesafe
+	
+	if raycast and raycast.is_colliding():
+		var hit_pos = raycast.get_collision_point()
+		var normal = raycast.get_collision_normal()
+		var dist = kamera.global_position.distance_to(hit_pos)
+		
+		if dist <= max_mesafe:
+			# Duvarın veya eşyanın içine girmemesi için normal yönünde daha fazla geri çek
+			hedef = hit_pos + (normal * 0.45)
+	
+	if eldeki_kedi.has_method("birak"):
+		eldeki_kedi.birak(hedef)
+	
+	eldeki_kedi = null
 
 # --- YARDIMCI: ETKİLEŞİME GİRİLECEK NESNEYİ BUL ---
 # Raycast collider'ı bazen child (StaticBody) olabilir.
