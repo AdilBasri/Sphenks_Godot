@@ -34,11 +34,16 @@ var oldu_mu: bool = false
 # --- ANİMASYON İSİMLERİ (Otomatik keşfedilecek) ---
 var oturma_anim_adi: String = ""
 var uyuklama_anim_adi: String = ""
+var ayakta_durma_anim_adi: String = ""
+var ilk_uyanisi_yapti_mi: bool = false
 
 # --- TABURE POZİSYONU (Issue 2: eski global_position clamp - artık bone fix kullanılıyor) ---
 var tabure_pozisyonu: Vector3 = Vector3.ZERO
 var tabure_pozisyonu_kaydedildi: bool = false
 var _saldiri_resume_ediliyor: bool = false
+
+# --- HARİCİ ANİMASYON YÜKLEYİCİ ---
+@export var harici_ayakta_anim_fbx: PackedScene = preload("res://AyaktaAnimasyon/Meshy_AI_Animation_Idle_11_withSkin.fbx")
 
 # ==========================================
 # HAZIRLIK
@@ -75,12 +80,19 @@ func _ready():
 			for sub in child.get_children():
 				print("    ", sub.name, " -> ", sub.get_class())
 
+	# Harici FBX'ten ayakta durma animasyonunu otomatik yükle (Manuel kopyalamaya gerek kalmaz)
+	_harici_animleri_yukle()
+
 	# Animasyon isimlerini FBX import isimlerinden otomatik bul
 	_animasyonlari_kesfet()
 
 	# Uyuklama animasyonundan position_3d tracklerini kaldır
 	# (Bu trackler Hips kemiğini yanlış konuma snaplayıyor)
 	_uyuklama_pozisyon_tracklarini_kaldir()
+	
+	# Ayakta animasyonundan position_3d tracklerini kaldır (0.0 frame yani ayakta pozuyla hizala)
+	# (Böylece Boss grid içine girmek yerine sandalyenin önünde dikilir)
+	_ayakta_pozisyon_tracklarini_kaldir()
 
 	# Ölüm sinyalini dinle
 	if GameManager and GameManager.has_signal("boss_oldu"):
@@ -101,6 +113,36 @@ func _process(_delta):
 		if suanki_durum not in ["SALDIRI", "AYAKTA"]:
 			_skeleton.set_bone_pose_position(_hips_bone_idx, _hips_oturma_sonu_poz)
 
+func _harici_animleri_yukle():
+	"""İçe aktarılan Harici FBX'teki animasyonu kalıcı AnimationPlayer'a kopyalar."""
+	if not harici_ayakta_anim_fbx: return
+	if not anim_player: return
+	
+	print("⏳ Harici ayakta durma animasyonu FBX içinden yükleniyor...")
+	var gecici_fbx = harici_ayakta_anim_fbx.instantiate()
+	var fbx_player: AnimationPlayer = gecici_fbx.find_child("AnimationPlayer", true, false)
+	
+	if fbx_player:
+		var list = fbx_player.get_animation_list()
+		for a_name in list:
+			if not a_name.to_upper().contains("RESET") and not a_name.to_upper().contains("REST"):
+				var anim_kopyasi = fbx_player.get_animation(a_name).duplicate()
+				anim_kopyasi.loop_mode = Animation.LOOP_LINEAR # Otomatik döngüye al
+				
+				var lib: AnimationLibrary
+				if anim_player.has_animation_library(""):
+					lib = anim_player.get_animation_library("")
+				else:
+					lib = AnimationLibrary.new()
+					anim_player.add_animation_library("", lib)
+				
+				var yeni_isim = "a_otomatik_harici_ayakta_idle"
+				if not lib.has_animation(yeni_isim):
+					lib.add_animation(yeni_isim, anim_kopyasi)
+					print("✅ Harici animasyon başarıyla aktarıldı: ", yeni_isim)
+				break
+	
+	gecici_fbx.queue_free()
 
 func _animasyonlari_kesfet():
 	"""AnimationPlayer kütüphanesini tarayarak gerçek animasyon isimlerini bulur."""
@@ -126,11 +168,19 @@ func _animasyonlari_kesfet():
 				uyuklama_anim_adi = anim_adi
 				print("🔍 Uyuklama animasyonu bulundu: ", anim_adi)
 
+		# Ayakta durma animasyonu: "Idle", "Stand" veya "Ayakta" içeriyorsa
+		if ayakta_durma_anim_adi.is_empty():
+			if kucuk.contains("ayakta") or kucuk.contains("idle") or (kucuk.contains("stand") and not kucuk.contains("sit")):
+				ayakta_durma_anim_adi = anim_adi
+				print("🔍 Ayakta durma animasyonu bulundu: ", anim_adi)
+
 	# Bulunamadıysa uyarı ver (ama çökmez)
 	if oturma_anim_adi.is_empty():
 		push_warning("⚠️ Oturma animasyonu bulunamadı! Mevcut: " + str(anim_listesi))
 	if uyuklama_anim_adi.is_empty():
 		push_warning("⚠️ Uyuklama animasyonu bulunamadı! Mevcut: " + str(anim_listesi))
+	if ayakta_durma_anim_adi.is_empty():
+		push_warning("⚠️ Ayakta durma animasyonu bulunamadı! Mevcut: " + str(anim_listesi))
 
 
 func _uyuklama_pozisyon_tracklarini_kaldir():
@@ -178,6 +228,48 @@ func _uyuklama_pozisyon_tracklarini_kaldir():
 		print("✅ Uyuklama'da %d position track sabitlendi (drift fix)" % duzeltilen)
 	else:
 		print("ℹ️ Uyuklama'da düzeltilecek position track bulunamadı")
+
+func _ayakta_pozisyon_tracklarini_kaldir():
+	"""Ayakta animasyonundaki position_3d track keyframe'lerini
+	oturma animasyonunun ILK frame (zaman 0.0) değerleriyle DEĞİŞTİRİR.
+	Böylece Boss FBX'in 0 noktasından ötürü grid içine kaymaz."""
+	if not anim_player or ayakta_durma_anim_adi.is_empty() or oturma_anim_adi.is_empty():
+		return
+
+	var oturma_anim = anim_player.get_animation(oturma_anim_adi)
+	var ayakta_anim = anim_player.get_animation(ayakta_durma_anim_adi)
+	if not oturma_anim or not ayakta_anim:
+		return
+
+	# 1. Oturma animasyonunun 0.0 frame'indeki position değerlerini topla (Ayağa kalktığı sıfır noktası)
+	var oturma_ilk_pozlar = {}  # NodePath -> Vector3
+	for i in range(oturma_anim.get_track_count()):
+		if oturma_anim.track_get_type(i) == Animation.TYPE_POSITION_3D:
+			var path = oturma_anim.track_get_path(i)
+			var ilk_poz = oturma_anim.position_track_interpolate(i, 0.0)
+			oturma_ilk_pozlar[path] = ilk_poz
+
+	# 2. Ayakta'daki position tracklerinin TÜM keyframe'lerini
+	#    oturma'nın ilk frame değeriyle değiştir
+	var duzeltilen = 0
+	for i in range(ayakta_anim.get_track_count() - 1, -1, -1):
+		if ayakta_anim.track_get_type(i) == Animation.TYPE_POSITION_3D:
+			var path = ayakta_anim.track_get_path(i)
+
+			if path in oturma_ilk_pozlar:
+				var sabit_poz = oturma_ilk_pozlar[path]
+				for k in range(ayakta_anim.track_get_key_count(i)):
+					ayakta_anim.track_set_key_value(i, k, sabit_poz)
+				duzeltilen += 1
+				print("🔧 [Ayakta] %s -> sabit poz: %s" % [path, sabit_poz])
+			else:
+				ayakta_anim.remove_track(i)
+				print("🔧 [Ayakta] karşılıksız track kaldırıldı: ", path)
+
+	if duzeltilen > 0:
+		print("✅ Ayakta animasyonunda %d position track sabitlendi (grid clipping fix)" % duzeltilen)
+	else:
+		print("ℹ️ Ayakta animasyonunda düzeltilecek position track bulunamadı")
 
 
 # ==========================================
@@ -345,11 +437,25 @@ func uyuklamaya_basla():
 # RECOVERY STATE RESET (Issue 4)
 # ==========================================
 
+func ayakta_beklemeye_gec():
+	"""Canavarı ayakta (idle) bekleme animasyonuna geçirir."""
+	if _oldu_mu_kontrol(): return
+	suanki_durum = "AYAKTA"
+
+	# Pozisyonu tekrar sabitle
+	_pozisyonu_tabureye_sabitle()
+
+	if not ayakta_durma_anim_adi.is_empty() and is_instance_valid(anim_player) and anim_player.has_animation(ayakta_durma_anim_adi):
+		anim_player.play(ayakta_durma_anim_adi)
+		print("🧍 Canavar ayakta beklemeye başladı.")
+	else:
+		print("⚠️ Ayakta durma animasyonu bulunamadı veya boş!")
+
 func boss_durumu_sifirla():
-	"""Oyuncu iyileştiğinde veya tur arası boss'u temiz UYUKLAMA durumuna döndürür."""
+	"""Oyuncu iyileştiğinde veya tur arası boss'u UYUKLAMA veya AYAKTA durumuna döndürür."""
 	if _oldu_mu_kontrol(): return
 
-	print("🔄 Boss durumu sıfırlanıyor → UYUKLAMA")
+	print("🔄 Boss durumu sıfırlanıyor...")
 
 	# Devam eden her şeyi durdur
 	_animasyonu_durdur()
@@ -364,11 +470,14 @@ func boss_durumu_sifirla():
 	if LevelManager:
 		LevelManager.is_boss_acting = false
 
-	# UYUKLAMA durumuna geç
-	suanki_durum = "UYUKLAMA"
-	if not uyuklama_anim_adi.is_empty() and is_instance_valid(anim_player) and anim_player.has_animation(uyuklama_anim_adi):
-		anim_player.play(uyuklama_anim_adi)
-		print("💤 Boss temiz UYUKLAMA durumuna döndü.")
+	if ilk_uyanisi_yapti_mi:
+		ayakta_beklemeye_gec()
+	else:
+		# UYUKLAMA durumuna geç
+		suanki_durum = "UYUKLAMA"
+		if not uyuklama_anim_adi.is_empty() and is_instance_valid(anim_player) and anim_player.has_animation(uyuklama_anim_adi):
+			anim_player.play(uyuklama_anim_adi)
+			print("💤 Boss temiz UYUKLAMA durumuna döndü.")
 
 
 # ==========================================
@@ -394,6 +503,7 @@ func saldiri_baslat():
 		_animasyonu_durdur()
 
 		var uyanma_basarili = await _guvenli_anim_oynat(oturma_anim_adi, -1.0, true)
+		ilk_uyanisi_yapti_mi = true
 
 		if _oldu_mu_kontrol():
 			_kamerayi_oyuncuya_ver()
@@ -409,7 +519,10 @@ func saldiri_baslat():
 			print("⚠️ Uyanma animasyonu atlandı.")
 
 	# 3. AYAKTA durumuna geç
-	suanki_durum = "AYAKTA"
+	if ilk_uyanisi_yapti_mi:
+		ayakta_beklemeye_gec()
+	else:
+		suanki_durum = "AYAKTA"
 
 	# "BOSS KARAR VERİYOR..." UI mesajı
 	if arayuz and arayuz.has_method("bilgi_goster"):
@@ -659,8 +772,11 @@ func _zar_sekansi():
 			saldiri_tamamlandi.emit()
 			return
 
-		# Geri otur (kamera LevelManager tarafından zaten döndürülecek)
-		otura_gec()
+		# Geri otur veya ayakta bekle (kamera LevelManager tarafından zaten döndürülecek)
+		if ilk_uyanisi_yapti_mi:
+			ayakta_beklemeye_gec()
+		else:
+			otura_gec()
 		saldiri_tamamlandi.emit()
 	else:
 		# Zar metodu yoksa → normal bitir
@@ -672,14 +788,17 @@ func _zar_sekansi():
 # ==========================================
 
 func _sirayi_bitir_ve_tekrar_otur():
-	"""Saldırı bittikten sonra kamerayı iade et ve canavarı geri oturt."""
+	"""Saldırı bittikten sonra kamerayı iade et ve canavarı geri oturt (veya ayakta bekleme pozuna geç)."""
 	_kamerayi_oyuncuya_ver()
 
 	if _oldu_mu_kontrol():
 		saldiri_tamamlandi.emit()
 		return
 
-	# Oturma animasyonu normal yönde → uyuklamaya geç
-	await otura_gec()
+	# Oturma animasyonu normal yönde veya ayakta bekle
+	if ilk_uyanisi_yapti_mi:
+		ayakta_beklemeye_gec()
+	else:
+		await otura_gec()
 
 	saldiri_tamamlandi.emit()
