@@ -16,7 +16,12 @@ var kilitli_mi: bool = false
 var acik_mi: bool = false
 var oyuncu_gecti_mi: bool = false
 
+var kapali_rot_y: float = 0.0
+var oyuncu_giris_z: Dictionary = {}
+var gecis_area: Area3D
+
 func _ready():
+	kapali_rot_y = rotation.y
 	if kilitli_olsun_mu:
 		kilitle()
 	# Body Entered sinyalini bağla (varsa)
@@ -26,30 +31,28 @@ func _gecisin_sensorunu_bagla():
 	# Eğer bu kapı sisteminde Area3D varsa body_entered bağla
 	for child in get_children():
 		if child is StaticBody3D:
-			# StaticBody3D'ye input event alan versiyonu zaten var
 			pass
 	# Geciş algılama için kapı önünde Area3D oluştur
-	var gecis_area = Area3D.new()
+	gecis_area = Area3D.new()
 	gecis_area.name = "GecisAlgila"
 	
-	var col1 = CollisionShape3D.new()
-	var shape1 = BoxShape3D.new()
-	shape1.size = Vector3(3.0, 3.0, 1.5)
-	col1.shape = shape1
-	col1.position = Vector3(0, 0, -2.5)
-	gecis_area.add_child(col1)
-
-	var col2 = CollisionShape3D.new()
-	var shape2 = BoxShape3D.new()
-	shape2.size = Vector3(3.0, 3.0, 1.5)
-	col2.shape = shape2
-	col2.position = Vector3(0, 0, 2.5)
-	gecis_area.add_child(col2)
+	var col = CollisionShape3D.new()
+	var shape = BoxShape3D.new()
+	shape.size = Vector3(4.0, 4.0, 3.0)
+	col.shape = shape
+	col.position = Vector3(0, 1.5, 0)
+	gecis_area.add_child(col)
 	
 	gecis_area.collision_layer = 0
 	gecis_area.collision_mask = 1  # Oyuncu layerı
+	
+	# Kapı dönerken alanın savrulmaması için top_level yapıyoruz
+	gecis_area.top_level = true
 	add_child(gecis_area)
-	gecis_area.body_entered.connect(_oyuncu_gecti)
+	gecis_area.global_transform = self.global_transform
+	
+	gecis_area.body_entered.connect(_oyuncu_girdi)
+	gecis_area.body_exited.connect(_oyuncu_cikti)
 
 # --- AKSİYONLAR ---
 func interact(_oyuncu):
@@ -77,7 +80,7 @@ func kapiyi_ac():
 	# 3. Animasyon (Fiziksel Açılma)
 	var tween = create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(self, "rotation_degrees:y", 95.0, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "rotation:y", kapali_rot_y + deg_to_rad(95.0), 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	
 	if kapi_isigi:
 		kapi_isigi.visible = true 
@@ -91,15 +94,28 @@ func kapiyi_ac():
 	# DİKKAT: Market ve Campfire için hiçbir şey yapmıyoruz. 
 	# Kapı açıldı, oyuncu yürüyerek içeri girecek.
 
-func _oyuncu_gecti(body):
-	# Oyuncu kapıdan geçince kapıyı kapat ve kilitle
+func _oyuncu_girdi(body):
+	if not body.is_in_group("Oyuncu"): return
+	var yerel_pos = gecis_area.to_local(body.global_position)
+	oyuncu_giris_z[body.get_instance_id()] = sign(yerel_pos.z)
+
+func _oyuncu_cikti(body):
 	if oyuncu_gecti_mi: return
 	if not body.is_in_group("Oyuncu"): return
 	if not acik_mi: return
-	oyuncu_gecti_mi = true
-	# Kapıyı geri kapat (y=0 konumuna dön)
+	
+	var yerel_pos = gecis_area.to_local(body.global_position)
+	var giris_isareti = oyuncu_giris_z.get(body.get_instance_id(), sign(yerel_pos.z))
+	
+	if giris_isareti != 0 and sign(yerel_pos.z) != 0 and giris_isareti != sign(yerel_pos.z):
+		# Oyuncu gerçekten kapıdan diğer tarafa geçti!
+		oyuncu_gecti_mi = true
+		_kapiyi_kapat()
+
+func _kapiyi_kapat():
+	# Kapıyı geri kapat (orijinal rotasyonuna dön)
 	var tween = create_tween()
-	tween.tween_property(self, "rotation_degrees:y", 0.0, 1.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(self, "rotation:y", kapali_rot_y, 1.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	if kapi_isigi:
 		tween.tween_property(kapi_isigi, "light_energy", 0.0, 0.5)
 		tween.tween_callback(func(): kapi_isigi.visible = false)
