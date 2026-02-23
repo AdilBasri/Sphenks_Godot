@@ -175,6 +175,50 @@ var ceviriler = {
 	"sec_bir_yol": {
 		"tr": "Bir yol seç...",
 		"en": "Choose a path..."
+	},
+	"anubis_konus_etkilesim": {
+		"tr": "[E / Y] Konuş",
+		"en": "[E / Y] Talk"
+	},
+	"anubis_diyalog_1": {
+		"tr": "Demek bana gelmeye karar verdin.",
+		"en": "So you have decided to come to me."
+	},
+	"anubis_diyalog_2": {
+		"tr": "Asırlardır insanlar kutuların içinde, anlamsız bir sona doğru sürüklenip duruyor.",
+		"en": "For centuries, humans have been drifting in boxes toward a meaningless end."
+	},
+	"anubis_diyalog_3": {
+		"tr": "Sen de o yığınlardan koptun. İçindeki o çürüyen boşluğu, o bitmek bilmeyen tatminsizliği görebiliyorum.",
+		"en": "You too broke away from those masses. I can see that rotting emptiness, that endless dissatisfaction within you."
+	},
+	"anubis_diyalog_4": {
+		"tr": "Buraya kendi iradenle geldiğini sanıyorsun... Halbuki adımların, sen daha doğmadan önce bu kumların üzerine yazılmıştı.",
+		"en": "You think you came here of your own will... But your steps were written on these sands before you were even born."
+	},
+	"anubis_diyalog_5": {
+		"tr": "Etrafına bak. Bu maskelerin ardında kimlik yok, acı yok... Sadece ebedi bir adanmışlık var.",
+		"en": "Look around. Behind these masks, there is no identity, no pain... Only eternal devotion."
+	},
+	"anubis_diyalog_6": {
+		"tr": "Senin kalbin ise hala dış dünyanın o sahte anılarıyla, o kof arzularla çok ağır. Ma'at'ın terazisinde ezileceksin.",
+		"en": "Your heart is still too heavy with the fake memories and hollow desires of the outside world. You will be crushed under Ma'at's scale."
+	},
+	"anubis_diyalog_7": {
+		"tr": "Ama korkma... Seni o yüklerden arındıracağız. Zihnini yavaş yavaş, parça parça soyacağız.",
+		"en": "But fear not... We will cleanse you of those burdens. We will strip your mind slowly, piece by piece."
+	},
+	"anubis_diyalog_8": {
+		"tr": "Ölüm bir son değil, yalnızca ilk adımdır. Şimdi diz çök... ve gerçek uyanışını kucakla.",
+		"en": "Death is not an end, merely the first step. Now kneel... and embrace your true awakening."
+	},
+	"anubis_diyalog_9": {
+		"tr": "Evine git ve de dönüşü olmayan bu yolculuk için hazırlan!",
+		"en": "Go home and prepare for this journey of no return!"
+	},
+	"anubis_diyalog_10": {
+		"tr": "Yakında benden bir haber alacaksın, ölümlü.",
+		"en": "You will hear from me soon, mortal."
 	}
 }
 

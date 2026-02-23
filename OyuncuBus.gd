@@ -70,6 +70,9 @@ func _input(event):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		crosshair_tiklama_efekti()
 		kontrol_et_ve_tikla()
+		
+	if event.is_action_pressed("etkilesim"):
+		kontrol_et_ve_tikla()
 
 func _physics_process(delta):
 	if kamera:
@@ -82,6 +85,8 @@ func _physics_process(delta):
 
 	if not is_on_floor():
 		velocity.y -= yer_cekimi * delta
+
+	odaklanmayi_kontrol_et()
 
 	var anlik_hiz = sprint_hizi if Input.is_action_pressed("kosma") else yurume_hizi
 
@@ -97,6 +102,14 @@ func _physics_process(delta):
 
 	move_and_slide()
 
+func _etkilesim_nesnesi_bul(dugum: Node, metod_adi: String) -> Node:
+	var current = dugum
+	while current != null:
+		if current.has_method(metod_adi):
+			return current
+		current = current.get_parent()
+	return null
+
 func kontrol_et_ve_tikla():
 	if raycast == null: return
 
@@ -104,14 +117,36 @@ func kontrol_et_ve_tikla():
 	
 	if raycast.is_colliding():
 		var carpan = raycast.get_collider()
+		print("Raycast hit: ", carpan.name, " (", carpan, ")") # DEBUG: Hangi objeye değdiğini görelim
 		
-		if carpan.has_method("etkilesim_baslat"):
-			carpan.etkilesim_baslat()
-		elif carpan.get_parent() and carpan.get_parent().has_method("etkilesim_baslat"):
-			carpan.get_parent().etkilesim_baslat()
+		var etkilesim_hedefi = _etkilesim_nesnesi_bul(carpan, "etkilesim_baslat")
+		if etkilesim_hedefi:
+			etkilesim_hedefi.etkilesim_baslat()
 		else:
-			# Çarpılan nesnenin adını yazdır ki neye vurduğumuzu görelim
-			print("Etkileşimsiz nesneye çarpıldı: ", carpan.name)
+			print("Nesnenin veya üst nesnelerinin 'etkilesim_baslat' fonksiyonu yok!")
+	else:
+		print("Raycast hiçbir şeye değmiyor.")
+
+var onceki_odaklanan = null
+
+func odaklanmayi_kontrol_et():
+	if raycast == null: return
+	
+	raycast.force_raycast_update()
+	var suanki_odaklanan = raycast.get_collider() if raycast.is_colliding() else null
+	
+	if suanki_odaklanan != onceki_odaklanan:
+		if onceki_odaklanan != null and is_instance_valid(onceki_odaklanan):
+			var cikis_hedefi = _etkilesim_nesnesi_bul(onceki_odaklanan, "_on_mouse_exited")
+			if cikis_hedefi:
+				cikis_hedefi._on_mouse_exited()
+				
+		if suanki_odaklanan != null:
+			var giris_hedefi = _etkilesim_nesnesi_bul(suanki_odaklanan, "_on_mouse_entered")
+			if giris_hedefi:
+				giris_hedefi._on_mouse_entered()
+				
+		onceki_odaklanan = suanki_odaklanan
 
 func crosshair_tiklama_efekti():
 	if not crosshair_ui: return

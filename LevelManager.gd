@@ -62,8 +62,18 @@ func _oyuncuyu_baslangica_isinla():
 		oyuncu_ref.velocity = Vector3.ZERO
 
 func odaya_don_ve_level_atla():
+	var onceki_katman = suanki_katman
 	# Katmanı bir artır ve ilerlemeyi kaydet
 	suanki_katman += 1
+	
+	if SaveManager:
+		var alinacak_yildiz = 3
+		if GameManager and GameManager.oyuncu_suanki_hp <= 5:
+			alinacak_yildiz = 1
+		elif GameManager and GameManager.oyuncu_suanki_hp <= 8:
+			alinacak_yildiz = 2
+		SaveManager.complete_level(onceki_katman, alinacak_yildiz)
+		
 	if GameManager:
 		GameManager.suanki_seviye = suanki_katman
 		GameManager.mantar_modu = false

@@ -364,6 +364,9 @@ func dosyalari_tamamen_sil():
 	else:
 		print("📂 Kayıt dosyası zaten yok.")
 	
+	if SaveManager:
+		SaveManager.dosyalari_tamamen_sil()
+	
 	intro_tamamlandi = false
 	tutorial_tamamlandi = false
 	verileri_sifirla()
