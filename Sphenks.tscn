@@ -67,7 +67,7 @@
 [ext_resource type="Resource" uid="uid://cuaduhijndtpm" path="res://Items/Paint.tres" id="47_bjfsn"]
 [ext_resource type="Resource" uid="uid://bifkv4jermqcn" path="res://Items/Revive.tres" id="48_2531s"]
 [ext_resource type="Script" uid="uid://cr3bhd7ohfluw" path="res://market_ui.gd" id="56_16a52"]
-[ext_resource type="AudioStream" uid="uid://cxr8wtfv6xnps" path="res://ErrorSound.mp3" id="57_sroql"]
+[ext_resource type="AudioStream" uid="uid://cxr8wtfv6xnps" path="res://Sesler/ErrorSound.mp3" id="57_sroql"]
 [ext_resource type="Script" uid="uid://ccn3umee5kexm" path="res://MasaSpawner.gd" id="59_q606s"]
 [ext_resource type="PackedScene" uid="uid://bafdowoddcpqw" path="res://zar.tscn" id="62_q606s"]
 [ext_resource type="Shader" uid="uid://cuhlen0v736t0" path="res://gore_vignette.gdshader" id="gore_shader_sphenks"]

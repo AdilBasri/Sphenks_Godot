@@ -216,8 +216,17 @@ func _uyku_secildi():
 			GameManager.saglik_guncelle(GameManager.oyuncu_kalan_bar, GameManager.oyuncu_suanki_hp)
 			print("💚 Uyku: Zaten max barsın, mevcut hp tam dolduruldu.")
 	
-	# Yeni bölüme geç (Uyku sahnesine git ya da hak bittiyse direkt atla)
-	if GameManager and GameManager.uyku_sahnesi_giris_sayisi >= 2:
+	# Yeni bölüme geç (Uyku sahnesine git ya da hak bittiyse/uygun değilse direkt atla)
+	var direkt_atla = false
+	if GameManager:
+		if GameManager.uyku_sahnesi_giris_sayisi >= 2:
+			direkt_atla = true
+		elif GameManager.uyku_sahnesi_giris_sayisi == 1:
+			# 3'ün katı olan Pyro bölümüne girmeden önceyse 2. rüyayı ertele
+			if LevelManager and (LevelManager.suanki_katman + 1) % 3 == 0:
+				direkt_atla = true
+				
+	if direkt_atla:
 		if LevelManager:
 			LevelManager.odaya_don_ve_level_atla()
 	else:

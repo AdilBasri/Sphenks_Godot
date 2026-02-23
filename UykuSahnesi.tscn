@@ -247,6 +247,10 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="KapiSistemi" parent="." instance=ExtResource("12_0fgoa")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.78494734, 1.223, 7.683)
+visible = false
+
 [node name="YeniSandık" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -26.182108)
 visible = false
@@ -301,7 +305,3 @@ transform = Transform3D(-0.46769655, 0.49284923, -0.73372984, 0.72537434, 0.6883
 
 [node name="Sketchfab_Scene14" parent="YeniSandık" instance=ExtResource("10_cg10u")]
 transform = Transform3D(-0.8365748, -0.20907919, -0.5063876, 0.40562418, 0.38492298, -0.8290374, 0.3682548, -0.898955, -0.23720926, 0.37702158, 0.5664925, -0.23862839)
-
-[node name="KapiSistemi" parent="." instance=ExtResource("12_0fgoa")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.78494734, 1.223, 7.683)
-visible = false

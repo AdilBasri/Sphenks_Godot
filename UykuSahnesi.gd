@@ -120,8 +120,35 @@ func _ikinci_ruya_ortami_kur():
 		
 	# Bütün ışıkları kırmızı yap
 	for light in find_children("*", "Light3D", true, false):
-		light.light_color = Color(1.0, 0.0, 0.0)
-		light.light_energy *= 2.0
+		light.light_color = Color(1.0, 0.3, 0.3)
+		light.light_energy *= 1.2
+		
+	# Rastgele kan efektleri ekle
+	var kan_tex = load("res://KAN.png")
+	if kan_tex:
+		for i in range(24):
+			var decal = Decal.new()
+			decal.texture_albedo = kan_tex
+			
+			var s = randf_range(1.5, 2.5)
+			decal.size = Vector3(s, 1.5, s)
+			
+			var wall_choice = randi() % 3
+			
+			if wall_choice == 0:
+				# Sol duvar (Left Wall)
+				decal.position = Vector3(-2.15, randf_range(0.5, 3.0), randf_range(0.0, -25.0))
+				decal.transform.basis = Basis(Vector3(0, 0, 1), Vector3(-1, 0, 0), Vector3(0, -1, 0))
+			elif wall_choice == 1:
+				# Sağ duvar (Right Wall)
+				decal.position = Vector3(2.15, randf_range(0.5, 3.0), randf_range(0.0, -25.0))
+				decal.transform.basis = Basis(Vector3(0, 0, -1), Vector3(1, 0, 0), Vector3(0, -1, 0))
+			else:
+				# Arka duvar (Chest olduğu yer)
+				decal.position = Vector3(randf_range(-2.0, 2.0), randf_range(0.5, 3.0), -27.8)
+				decal.transform.basis = Basis(Vector3(-1, 0, 0), Vector3(0, 0, -1), Vector3(0, -1, 0))
+				
+			add_child(decal)
 
 func _sahneyi_bitir():
 	var level_manager = get_node_or_null("/root/LevelManager")

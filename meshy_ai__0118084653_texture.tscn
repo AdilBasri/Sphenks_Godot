@@ -61,7 +61,7 @@
 [ext_resource type="Texture2D" uid="uid://doh1kv2f0quxr" path="res://own.png" id="59_5vyjf"]
 [ext_resource type="Texture2D" uid="uid://bpltnjm6hg5a3" path="res://kese.png" id="60_dowfb"]
 [ext_resource type="Script" uid="uid://cr3bhd7ohfluw" path="res://market_ui.gd" id="61_1leoj"]
-[ext_resource type="AudioStream" uid="uid://cxr8wtfv6xnps" path="res://ErrorSound.mp3" id="62_dgb10"]
+[ext_resource type="AudioStream" uid="uid://cxr8wtfv6xnps" path="res://Sesler/ErrorSound.mp3" id="62_dgb10"]
 [ext_resource type="PackedScene" uid="uid://crts7a2wj50ro" path="res://campfire_odasi.tscn" id="63_3gqa2"]
 
 [sub_resource type="Environment" id="Environment_jcgda"]
