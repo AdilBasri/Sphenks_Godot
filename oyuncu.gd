@@ -153,6 +153,17 @@ func _input(event):
 	elif event.is_action_released("kosma"):
 		speed = 3.0
 			
+	if event.is_action_pressed("sag_tik"):
+		if GameManager and GameManager.is_parry_window_open:
+			var boss = get_tree().get_first_node_in_group("Dusman")
+			if boss and boss.has_method("glitch_yuzu_kapat"):
+				boss.glitch_yuzu_kapat()
+			GameManager.activate_ghost_move()
+			
+			if TutorialManager:
+				TutorialManager.eylemi_dogrula("parry")
+			return
+			
 	if is_sitting:
 		# Analog 'axis' değerleri sürekli tetiklendiğinden, manuel debounce (tek tıklama) uygulayalım
 		var lt_deger = Input.get_action_strength("masa_don_sol")
@@ -215,22 +226,10 @@ func _input(event):
 	
 	elif event.is_action_pressed("sag_tik"):
 		var anlik_zaman = Time.get_ticks_msec() / 1000.0
-		
-		# Parry penceresi açıksa bekleme süresini (cooldown) YOK SAY
-		if GameManager and GameManager.is_parry_window_open:
-			var boss = get_tree().get_first_node_in_group("Dusman")
-			if boss and boss.has_method("glitch_yuzu_kapat"):
-				boss.glitch_yuzu_kapat()
-			GameManager.activate_ghost_move()
-			
-			if TutorialManager:
-				TutorialManager.eylemi_dogrula("parry")
-		else:
-			# Normal eşya bırakma için 0.4s bekleme süresi kontrolü
-			if (anlik_zaman - son_sag_tik_zamani) >= 0.4:
-				son_sag_tik_zamani = anlik_zaman
-				if eldeki_ozel_esya:
-					esya_birak()
+		if (anlik_zaman - son_sag_tik_zamani) >= 0.4:
+			son_sag_tik_zamani = anlik_zaman
+			if eldeki_ozel_esya:
+				esya_birak()
 
 func _physics_process(delta):
 	if yere_dustu_mu or oldu_mu: return
