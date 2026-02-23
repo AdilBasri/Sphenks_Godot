@@ -720,7 +720,10 @@ func check_ui_text():
 				etkilesim_label.text = DilYoneticisi.metin_al("kapiyi_ac")
 			# TABURE VEYA DİĞERLERİ
 			else:
-				etkilesim_label.text = DilYoneticisi.metin_al("oynamak_icin_otur")
+				if bulunan_etkilesim.has_method("get_etkilesim_yazisi"):
+					etkilesim_label.text = bulunan_etkilesim.get_etkilesim_yazisi()
+				else:
+					etkilesim_label.text = DilYoneticisi.metin_al("oynamak_icin_otur")
 			return
 		
 		# 3. KART SEÇİMİ VEYA FİZİKSEL NESNE TUTMA

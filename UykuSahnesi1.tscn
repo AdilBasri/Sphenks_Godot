@@ -1,0 +1,239 @@
+[gd_scene load_steps=17 format=3 uid="uid://cfmhdr4eyebqd"]
+
+[ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://oyuncu.gd" id="1_qn812"]
+[ext_resource type="Script" uid="uid://c2h4u7catxpt" path="res://UykuSahnesi1.gd" id="1_uyku_script"]
+[ext_resource type="PackedScene" uid="uid://dlnne4b7iscxy" path="res://Chest/scene.gltf" id="1_v408n"]
+[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://PressStart2P-Regular.ttf" id="2_v408n"]
+[ext_resource type="Texture2D" uid="uid://5oxpd5ppfsmg" path="res://çerçeve_bar.png" id="3_nxnmf"]
+[ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://iç_bar.png" id="4_uougm"]
+[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="5_f2q21"]
+[ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://global.gdshader" id="6_flbnd"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wtxsn"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yrfme"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_edujb"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_qk6he"]
+font = ExtResource("2_v408n")
+font_color = Color(1, 1, 0, 1)
+shadow_size = 3
+shadow_color = Color(0, 0, 0, 0.84705883)
+
+[sub_resource type="LabelSettings" id="LabelSettings_6nfxx"]
+font = ExtResource("2_v408n")
+font_size = 32
+font_color = Color(1, 0, 0, 1)
+shadow_size = 5
+shadow_color = Color(1, 0, 0, 0)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7shas"]
+atlas = ExtResource("3_nxnmf")
+region = Rect2(389.22156, 296.0412, 1253.7622, 1473.935)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_caf0d"]
+atlas = ExtResource("4_uougm")
+region = Rect2(375.71313, 280.9171, 1237.1509, 1443.3556)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pylxm"]
+shader = ExtResource("6_flbnd")
+shader_parameter/brightness = 1.1
+shader_parameter/contrast = 1.15
+shader_parameter/saturation = 0.6
+shader_parameter/shadow_color = Color(0.08, 0.1, 0.15, 1)
+shader_parameter/highlight_color = Color(0.9, 0.85, 0.7, 1)
+shader_parameter/tint_blend = 0.45
+shader_parameter/ca_strength = 0.003
+shader_parameter/grain_amount = 0.06
+shader_parameter/vignette_intensity = 0.3
+
+[node name="UykuSahnesi1" type="Node3D"]
+script = ExtResource("1_uyku_script")
+
+[node name="Chest" parent="." instance=ExtResource("1_v408n")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.22632861, -1.1534662)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.8195627, -0.07967377, 1.8498688, -9.668152)
+use_collision = true
+collision_layer = 255
+size = Vector3(4.527359, 4.6997375, 20.336304)
+material = SubResource("StandardMaterial3D_wtxsn")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="CSGBox3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.024564743, -0.11636734, -0.09223938)
+operation = 2
+size = Vector3(3.6146889, 4.0000687, 19.229645)
+material = SubResource("StandardMaterial3D_yrfme")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3869197, -2.425003)
+light_color = Color(0, 0.2901961, 1, 1)
+light_energy = 7.0
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3869197, -8.793304)
+light_color = Color(0, 0.2901961, 1, 1)
+light_energy = 7.0
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3869197, -17.541271)
+light_color = Color(0, 0.2901961, 1, 1)
+light_energy = 7.0
+
+[node name="OmniLight3D4" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3869197, -27.02199)
+light_color = Color(0, 0.2901961, 1, 1)
+light_energy = 7.0
+
+[node name="OmniLight3D5" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3869197, 6.4636602)
+visible = false
+light_color = Color(0, 0.2901961, 1, 1)
+light_energy = 7.0
+
+[node name="Oyuncu" type="CharacterBody3D" parent="." node_paths=PackedStringArray("kamera", "ui_container") groups=["Oyuncu"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6134291, 6.1003275)
+script = ExtResource("1_qn812")
+kamera = NodePath("Camera3D")
+ui_container = NodePath("CanBarlariContainer")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Oyuncu"]
+shape = SubResource("CapsuleShape3D_edujb")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="Oyuncu"]
+
+[node name="EtkilesimYazisi" type="Label" parent="Oyuncu/CanvasLayer"]
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.85
+anchor_right = 0.5
+anchor_bottom = 0.85
+offset_left = -150.0
+offset_top = -20.0
+offset_right = 150.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+label_settings = SubResource("LabelSettings_qk6he")
+horizontal_alignment = 1
+
+[node name="HasarYazisi" type="Label" parent="Oyuncu/CanvasLayer"]
+visible = false
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -16.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "HASAR: 0"
+label_settings = SubResource("LabelSettings_6nfxx")
+horizontal_alignment = 1
+
+[node name="CanBarlariContainer" type="HBoxContainer" parent="Oyuncu"]
+anchors_preset = -1
+anchor_left = 0.041
+anchor_top = 0.053000003
+anchor_right = 0.044000003
+anchor_bottom = 0.053000003
+offset_left = -51.232002
+offset_top = -35.344
+offset_right = 4042.312
+offset_bottom = 2012.656
+scale = Vector2(0.07, 0.07)
+theme_override_constants/separation = -200
+
+[node name="Bar1" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+texture_over = SubResource("AtlasTexture_7shas")
+texture_progress = SubResource("AtlasTexture_caf0d")
+
+[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar1"]
+visible = false
+layout_mode = 0
+offset_left = -1059.0
+offset_top = -928.5713
+offset_right = 989.0
+offset_bottom = 1119.4287
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("5_f2q21")
+
+[node name="Bar2" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+texture_over = SubResource("AtlasTexture_7shas")
+texture_progress = SubResource("AtlasTexture_caf0d")
+
+[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar2"]
+visible = false
+layout_mode = 0
+offset_left = -1059.0
+offset_top = -928.5713
+offset_right = 989.0
+offset_bottom = 1119.4287
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("5_f2q21")
+
+[node name="Bar3" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+texture_over = SubResource("AtlasTexture_7shas")
+texture_progress = SubResource("AtlasTexture_caf0d")
+
+[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar3"]
+visible = false
+layout_mode = 0
+offset_left = -1059.0
+offset_top = -928.5713
+offset_right = 989.0
+offset_bottom = 1119.4287
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("5_f2q21")
+
+[node name="Bar4" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+fill_mode = 3
+texture_over = SubResource("AtlasTexture_7shas")
+texture_progress = SubResource("AtlasTexture_caf0d")
+
+[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar4"]
+visible = false
+layout_mode = 0
+offset_left = -1059.0
+offset_top = -928.5713
+offset_right = 989.0
+offset_bottom = 1119.4287
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("5_f2q21")
+
+[node name="Camera3D" type="Camera3D" parent="Oyuncu" groups=["OyuncuKamera"]]
+physics_interpolation_mode = 2
+transform = Transform3D(0.99888355, -0.024378376, -0.040465526, 0.01922809, 0.9922066, -0.12311137, 0.043151416, 0.12219585, 0.9915675, -0.045120563, 0.83062285, 0.014348984)
+current = true
+
+[node name="RayCast3D" type="RayCast3D" parent="Oyuncu/Camera3D"]
+target_position = Vector3(0, 0, -2.5)
+collision_mask = 15
+
+[node name="GlobalFiltre" type="CanvasLayer" parent="Oyuncu/Camera3D"]
+layer = 100
+
+[node name="ColorRect" type="ColorRect" parent="Oyuncu/Camera3D/GlobalFiltre"]
+material = SubResource("ShaderMaterial_pylxm")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

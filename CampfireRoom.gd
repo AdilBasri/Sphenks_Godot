@@ -216,9 +216,8 @@ func _uyku_secildi():
 			GameManager.saglik_guncelle(GameManager.oyuncu_kalan_bar, GameManager.oyuncu_suanki_hp)
 			print("💚 Uyku: Zaten max barsın, mevcut hp tam dolduruldu.")
 	
-	# Yeni bölüme geç
-	if LevelManager:
-		LevelManager.odaya_don_ve_level_atla()
+	# Yeni bölüme geç (Uyku sahnesine git)
+	get_tree().change_scene_to_file("res://UykuSahnesi1.tscn")
 
 # ─────────── KAPI + BÖLÜM GEÇİŞİ ───────────
 func _kampfire_kapisini_ac():
