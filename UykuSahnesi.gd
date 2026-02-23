@@ -112,11 +112,8 @@ func _ikinci_ruya_ortami_kur():
 	if has_node("KuruKafa"):
 		$KuruKafa.visible = true
 	
-	# Kapıyı göster ve aktif et
-	if has_node("KapiSistemi"):
-		$KapiSistemi.visible = true
-		$KapiSistemi.set_process_mode(Node.PROCESS_MODE_INHERIT)
-		$KapiSistemi.kilitli_mi = false
+	# Kapıyı GÖSTERME (başlangıçta)
+	# (Bulmaca sonunda gösterilecek)
 		
 	# Bütün ışıkları kırmızı yap
 	for light in find_children("*", "Light3D", true, false):
@@ -149,6 +146,184 @@ func _ikinci_ruya_ortami_kur():
 				decal.transform.basis = Basis(Vector3(-1, 0, 0), Vector3(0, 0, -1), Vector3(0, -1, 0))
 				
 			add_child(decal)
+
+	_bulmacayi_baslat()
+
+var nefes_sesi_player: AudioStreamPlayer
+var bulmaca_layer: CanvasLayer
+
+func _bulmacayi_baslat():
+	bulmaca_layer = CanvasLayer.new()
+	bulmaca_layer.layer = 105
+	add_child(bulmaca_layer)
+	
+	var r_player = AudioStreamPlayer.new()
+	r_player.stream = load("res://Sesler/dream_2.wav")
+	add_child(r_player)
+	
+	var sub_label = Label.new()
+	sub_label.text = ""
+	sub_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	sub_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub_label.add_theme_font_size_override("font_size", 24)
+	sub_label.add_theme_color_override("font_color", Color(1, 0, 0))
+	sub_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	sub_label.add_theme_constant_override("outline_size", 8)
+	var font = load("res://PressStart2P-Regular.ttf")
+	if font: sub_label.add_theme_font_override("font", font)
+	
+	# Margin from bottom
+	sub_label.offset_top = -150
+	sub_label.offset_bottom = -50
+	bulmaca_layer.add_child(sub_label)
+	
+	r_player.play()
+	var d = r_player.stream.get_length() if r_player.stream else 8.0
+	_altyazilari_oynat(sub_label, d)
+	
+	r_player.finished.connect(func():
+		if is_instance_valid(sub_label): sub_label.queue_free()
+		r_player.queue_free()
+		_elleri_goster()
+	)
+
+func _altyazilari_oynat(lbl, d):
+	lbl.text = "S*ktir, s*ktir, s*ktir!"
+	await get_tree().create_timer(1.2).timeout
+	if not is_instance_valid(lbl): return
+	lbl.text = "Uyanmam lazım!\nBu gerçek olamaz!"
+	await get_tree().create_timer(4.5 - 1.2).timeout
+	if not is_instance_valid(lbl): return
+	lbl.text = "Evet! Parmaklarım...\nEğer rüyadaysam onları sayamamam gerekir!"
+
+func _elleri_goster():
+	if not is_instance_valid(bulmaca_layer): return
+	
+	# Arka planda siyah bir matlık ekleyelim el daha net görünsün.
+	var bg = ColorRect.new()
+	bg.color = Color(0,0,0,0.1)
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bulmaca_layer.add_child(bg)
+
+	var tex = TextureRect.new()
+	tex.texture = load("res://hand_8.png")
+	tex.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	
+	# Keep aspect ratio so hands don't stretch weirdly
+	tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	
+	# Make it appear coming from bottom
+	tex.offset_left = -350
+	tex.offset_right = 350
+	
+	# Başlangıçta ekranın dışında durmalılar (Aşağıda)
+	tex.offset_top = 0
+	tex.offset_bottom = 650
+	
+	bulmaca_layer.add_child(tex)
+	
+	# Ellerin aşağıdan yukarı çıkma animasyonu
+	var tween = create_tween()
+	tween.tween_property(tex, "offset_top", -650.0, 2.0).set_trans(Tween.TRANS_SINE)
+	tween.parallel().tween_property(tex, "offset_bottom", 0.0, 2.0).set_trans(Tween.TRANS_SINE)
+	
+	# Animasyon bitene kadar diğerlerini bekletelim
+	await tween.finished
+	if not is_instance_valid(bulmaca_layer): return
+	
+	var info_lbl = Label.new()
+	info_lbl.text = "Parmaklarını Say..."
+	info_lbl.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	info_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	info_lbl.add_theme_font_size_override("font_size", 24)
+	info_lbl.add_theme_color_override("font_color", Color(1, 0, 0))
+	info_lbl.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	info_lbl.add_theme_constant_override("outline_size", 8)
+	var font = load("res://PressStart2P-Regular.ttf")
+	if font: info_lbl.add_theme_font_override("font", font)
+	info_lbl.position.y += 50
+	bulmaca_layer.add_child(info_lbl)
+	
+	var input = LineEdit.new()
+	input.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	# Giriş kutusu yazının hemen altına taşındı ve küçültüldü
+	input.offset_left = -80
+	input.offset_right = 80
+	input.offset_top = 100
+	input.offset_bottom = 150
+	input.placeholder_text = "Cevap?"
+	input.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	input.add_theme_font_size_override("font_size", 24)
+	
+	# Sadece sayı girilmesine izin ver, w,a,s,d karakterleri kutuya yazılmasın.
+	input.text_changed.connect(func(new_text):
+		var filtered = ""
+		for c in new_text:
+			if c in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+				filtered += c
+		if filtered != new_text:
+			input.text = filtered
+			input.caret_column = filtered.length()
+	)
+	# Odağını asla kaybetmemesini sağla
+	input.focus_exited.connect(input.grab_focus)
+	
+	bulmaca_layer.add_child(input)
+	
+	# Mouse TIKLAMAYI beklemeyeceğiz, oyun akmaya devam edecek
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	input.grab_focus()
+	
+	input.text_submitted.connect(func(text):
+		if text.strip_edges() == "16":
+			# BAŞARILI
+			if is_instance_valid(bulmaca_layer):
+				bulmaca_layer.queue_free()
+			if is_instance_valid(nefes_sesi_player):
+				nefes_sesi_player.stop()
+				nefes_sesi_player.queue_free()
+			
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			
+			if has_node("KapiSistemi"):
+				$KapiSistemi.visible = true
+				$KapiSistemi.set_process_mode(Node.PROCESS_MODE_INHERIT)
+				$KapiSistemi.kilitli_mi = false
+				
+			# Hemen geçiş
+			_sahneyi_bitir()
+		else:
+			# HATALI
+			var err_p = AudioStreamPlayer.new()
+			err_p.stream = load("res://Sesler/ErrorSound.mp3")
+			add_child(err_p)
+			err_p.play()
+			err_p.finished.connect(err_p.queue_free)
+			
+			info_lbl.text = "Yanlış! Tekrar Say..."
+			input.text = ""
+			input.grab_focus()
+	)
+	
+	# Nefes sesi
+	nefes_sesi_player = AudioStreamPlayer.new()
+	var s_breathe = load("res://Sesler/breathe.wav")
+	nefes_sesi_player.stream = s_breathe
+	add_child(nefes_sesi_player)
+	
+	if s_breathe is AudioStreamWAV:
+		s_breathe.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		# loop bitimi icin bir sınır belirtmeye genelde gerek kalmaz ama
+		# godot otomatik loop_end i datanın sonuna koyar.
+	else:
+		pass
+		
+	# loop etmesini garantiye al
+	if not nefes_sesi_player.finished.is_connected(nefes_sesi_player.play):
+		nefes_sesi_player.finished.connect(nefes_sesi_player.play)
+		
+	nefes_sesi_player.play()
 
 func _sahneyi_bitir():
 	var level_manager = get_node_or_null("/root/LevelManager")
