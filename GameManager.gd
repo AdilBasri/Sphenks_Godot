@@ -21,6 +21,7 @@ var kayitli_seviye: int = 1
 var toplam_altin: int = 10 
 var intro_tamamlandi: bool = false
 var tutorial_tamamlandi: bool = false
+var uyku_sahnesi_giris_sayisi: int = 0
 
 # --- ENVANTER ---
 var envanter: Array[ItemData] = []
@@ -208,6 +209,7 @@ func verileri_sifirla():
 	suanki_seviye = 1
 	kayitli_seviye = 1
 	toplam_altin = 10
+	uyku_sahnesi_giris_sayisi = 0
 	mermi_sayisi = 10
 	pyro_aktif = false
 	silah_cekildi = false 
@@ -299,6 +301,7 @@ func oyunu_kaydet():
 	config.set_value("Oyun", "Envanter", esya_yollari)
 	config.set_value("Oyun", "IntroTamamlandi", intro_tamamlandi)
 	config.set_value("Oyun", "TutorialTamamlandi", tutorial_tamamlandi)
+	config.set_value("Oyun", "UykuSahnesiGirisSayisi", uyku_sahnesi_giris_sayisi)
 	config.save("user://savegame.cfg")
 	print("💾 Oyun kaydedildi.")
 
@@ -328,6 +331,7 @@ func oyunu_yukle():
 
 		intro_tamamlandi = config.get_value("Oyun", "IntroTamamlandi", false)
 		tutorial_tamamlandi = config.get_value("Oyun", "TutorialTamamlandi", false)
+		uyku_sahnesi_giris_sayisi = config.get_value("Oyun", "UykuSahnesiGirisSayisi", 0)
 
 		# Corrupt save fix: HP sıfırsa tam sağlığa döndür
 		if oyuncu_kalan_bar <= 0 or oyuncu_suanki_hp <= 0:

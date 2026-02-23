@@ -33,6 +33,16 @@ func _ready():
 	collision.shape = shape
 	collision.position = Vector3(0, 0.75, 0)
 	static_body.add_child(collision)
+	
+	# Initial states for 2nd run
+	if has_node("YeniSandık"):
+		$YeniSandık.visible = false
+	if has_node("KuruKafa"):
+		$KuruKafa.visible = false
+	if has_node("KapiSistemi"):
+		$KapiSistemi.visible = false
+		$KapiSistemi.set_process_mode(Node.PROCESS_MODE_DISABLED)
+		$KapiSistemi.hedef_tipi = 1 # SONRAKI_LEVEL
 
 func _process(delta):
 	if kapanis_basladi: return
@@ -56,19 +66,62 @@ func sandik_acildi():
 	if kapanis_basladi: return
 	kapanis_basladi = true
 	
+	var rüya_sayisi = 0
+	if GameManager:
+		rüya_sayisi = GameManager.uyku_sahnesi_giris_sayisi
+		
 	var canvas = CanvasLayer.new()
 	canvas.layer = 100
 	add_child(canvas)
 	
 	var cr = ColorRect.new()
-	cr.color = Color(1, 1, 1, 0)
 	cr.set_anchors_preset(Control.PRESET_FULL_RECT)
 	cr.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	canvas.add_child(cr)
 	
-	var t = create_tween()
-	t.tween_property(cr, "color", Color(1, 1, 1, 1), 1.0).set_trans(Tween.TRANS_SINE)
-	t.tween_callback(self._sahneyi_bitir)
+	if rüya_sayisi <= 0:
+		if GameManager: GameManager.uyku_sahnesi_giris_sayisi += 1
+		# İlk Rüya (Eski davranış)
+		cr.color = Color(1, 1, 1, 0)
+		var t = create_tween()
+		t.tween_property(cr, "color", Color(1, 1, 1, 1), 1.0).set_trans(Tween.TRANS_SINE)
+		t.tween_callback(self._sahneyi_bitir)
+	else:
+		if GameManager: GameManager.uyku_sahnesi_giris_sayisi += 1
+		# İkinci Rüya (Yeni davranış)
+		cr.color = Color(1, 0, 0, 0)
+		var t = create_tween()
+		
+		# 1 saniye boyunca ekran tamamen kırmızıya boyanır
+		t.tween_property(cr, "color", Color(1, 0, 0, 1.0), 1.0).set_trans(Tween.TRANS_SINE)
+		
+		# Ekran tamamen kırmızıyken arkada dünya değişir
+		t.tween_callback(self._ikinci_ruya_ortami_kur)
+		
+		# Sonra kırmızı yavaşça dağılır (hafif kırmızımsı kalabilir 0.2 gibi)
+		t.tween_property(cr, "color", Color(1, 0, 0, 0.2), 1.0).set_trans(Tween.TRANS_SINE)
+
+func _ikinci_ruya_ortami_kur():
+	# Eski sandığı gizle, yenisini ve kafayı göster
+	if chest:
+		chest.visible = false
+		chest.set_process_mode(Node.PROCESS_MODE_DISABLED) # Bu, sandığın etkileşim alanını da kapatır
+	
+	if has_node("YeniSandık"):
+		$YeniSandık.visible = true
+	if has_node("KuruKafa"):
+		$KuruKafa.visible = true
+	
+	# Kapıyı göster ve aktif et
+	if has_node("KapiSistemi"):
+		$KapiSistemi.visible = true
+		$KapiSistemi.set_process_mode(Node.PROCESS_MODE_INHERIT)
+		$KapiSistemi.kilitli_mi = false
+		
+	# Bütün ışıkları kırmızı yap
+	for light in find_children("*", "Light3D", true, false):
+		light.light_color = Color(1.0, 0.0, 0.0)
+		light.light_energy *= 2.0
 
 func _sahneyi_bitir():
 	var level_manager = get_node_or_null("/root/LevelManager")
