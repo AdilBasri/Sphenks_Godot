@@ -207,9 +207,14 @@ func _uyku_secildi():
 	
 	# +1 can barı
 	if GameManager:
-		GameManager.oyuncu_kalan_bar = min(GameManager.oyuncu_kalan_bar + 1, GameManager.oyuncu_max_bar)
-		GameManager.saglik_guncelle(GameManager.oyuncu_kalan_bar, GameManager.oyuncu_suanki_hp)
-		print("💚 Uyku: +1 can barı → Toplam: ", GameManager.oyuncu_kalan_bar)
+		if GameManager.oyuncu_kalan_bar < GameManager.oyuncu_max_bar:
+			GameManager.oyuncu_kalan_bar += 1
+			GameManager.saglik_guncelle(GameManager.oyuncu_kalan_bar, GameManager.oyuncu_suanki_hp)
+			print("💚 Uyku: +1 can barı → Toplam: ", GameManager.oyuncu_kalan_bar)
+		else:
+			GameManager.oyuncu_suanki_hp = 10
+			GameManager.saglik_guncelle(GameManager.oyuncu_kalan_bar, GameManager.oyuncu_suanki_hp)
+			print("💚 Uyku: Zaten max barsın, mevcut hp tam dolduruldu.")
 	
 	# Yeni bölüme geç
 	if LevelManager:
