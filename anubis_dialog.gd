@@ -3,6 +3,7 @@ extends StaticBody3D
 # OYUNCU İLE ETKİLEŞİM İÇİN DEĞİŞKENLER
 var sinematik_aktif: bool = false
 var orjinal_kamera = null
+var sinematik_kamera: Camera3D = null
 var oyuncu_node = null
 
 # SİNEMATİK AYARLARI
@@ -13,11 +14,11 @@ var metin_sayaci: int = 0
 # UI ELEMANLARI
 var canvas: CanvasLayer = null
 var shader_rect: ColorRect = null
-var yazi_label: Label = null
+var yazi_rt: RichTextLabel = null
 var etkilesim_yazi: Label3D = null
 
 # KAMERA SALLANMASI
-var kamera_sallanma_gucu: float = 0.003
+var kamera_sallanma_gucu: float = 0.004
 var kamera_sallaniyor_mu: bool = false
 
 var anubis_metinleri = [
@@ -45,11 +46,13 @@ func _ready():
 	pass
 
 func _process(_delta):
-	# Kamera sallama efekti
-	if kamera_sallaniyor_mu and orjinal_kamera:
-		# Oyuncu kamerasının offset değerlerini rastgele değiştir
-		orjinal_kamera.h_offset = randf_range(-kamera_sallanma_gucu, kamera_sallanma_gucu)
-		orjinal_kamera.v_offset = randf_range(-kamera_sallanma_gucu, kamera_sallanma_gucu)
+	# Kamera sallama efekti — SinematikKamera aktifken ONU salla
+	if kamera_sallaniyor_mu and sinematik_kamera and is_instance_valid(sinematik_kamera):
+		var t = Time.get_ticks_msec() / 1000.0
+		# Düzensiz, korkutucu sarsıntı
+		sinematik_kamera.h_offset = sin(t * 23.7) * kamera_sallanma_gucu + randf_range(-0.001, 0.001)
+		sinematik_kamera.v_offset = cos(t * 31.3) * kamera_sallanma_gucu + randf_range(-0.001, 0.001)
+		sinematik_kamera.rotation.z = sin(t * 17.0) * 0.003
 
 func _on_bakis_basladi():
 	if not sinematik_aktif and etkilesim_yazi:
@@ -59,7 +62,12 @@ func _on_bakis_bitti():
 	if etkilesim_yazi:
 		etkilesim_yazi.visible = false
 
-# RAYCAST İLE ETKİLEŞİM İÇİN (OyuncuBus.gd bu fonksiyonu çağırıyor)
+# RAYCAST İLE ETKİLEŞİM İÇİN
+# oyuncu.gd interact(self) çağırır — bu fonksiyon köprü görevi görür
+func interact(_oyuncu = null):
+	if not sinematik_aktif:
+		sinematik_baslat()
+
 func etkilesim_baslat():
 	if not sinematik_aktif:
 		sinematik_baslat()
@@ -83,9 +91,14 @@ func sinematik_baslat():
 	
 	# 1. Oyuncunun kontrolünü dondur
 	oyuncu_node = get_tree().get_first_node_in_group("Oyuncu")
+	if not oyuncu_node:
+		# yenisahne.tscn'de Oyuncu grubu olmayabilir — isimle de ara
+		oyuncu_node = get_tree().current_scene.find_child("Oyuncu", true, false)
+	
 	if oyuncu_node:
 		oyuncu_node.set_process(false)
 		oyuncu_node.set_physics_process(false)
+		oyuncu_node.set_process_input(false)  # OyuncuBus.gd _input() kullanıyor
 		
 		# Kamerayı bul
 		for child in oyuncu_node.get_children():
@@ -93,17 +106,20 @@ func sinematik_baslat():
 				orjinal_kamera = child
 				break
 	
-	# 2. Kamerayı Anubis'e yaklaştırma şöleni (Tween)
-	var sinematik_kamera = get_parent().get_node_or_null("SinematikKamera")
-	if orjinal_kamera and sinematik_kamera:
-		var end_transform = sinematik_kamera.global_transform
-		
-		# Oyuncuyu fiziksel olarak dondurduk, kamerayı dünyadan söküp köke takıyoruz ki 
-		# hareketleri oyuncunun lokal eksenine bağlı kalmasın. Geçici bir kamera da yapabiliriz.
-		# Daha güvenli olan, kameranın fov veya global transformunu tweenlemektir.
-		var tween = get_tree().create_tween()
-		tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-		tween.tween_property(orjinal_kamera, "global_transform", end_transform, 2.0)
+	# 2. SinematikKamera BU NODE'un (AnubisEtkilesim) ÇOCUĞU
+	sinematik_kamera = get_node_or_null("SinematikKamera")
+	if not sinematik_kamera:
+		# Fallback: parent (Anubis) altında da ara
+		sinematik_kamera = get_parent().get_node_or_null("SinematikKamera")
+	
+	if sinematik_kamera:
+		print("🎥 SinematikKamera bulundu: ", sinematik_kamera.get_path())
+		# Oyuncu kamerasını deaktif et ve sinematik kamerayı aktif et
+		if orjinal_kamera:
+			orjinal_kamera.current = false
+		sinematik_kamera.current = true
+	else:
+		push_warning("⚠️ SinematikKamera bulunamadı!")
 	
 	# 3. Ekran Shader ve UI Katmanını oluştur
 	await get_tree().create_timer(1.0).timeout
@@ -114,12 +130,26 @@ func sinematik_baslat():
 	
 	# 5. Yazılar akmaya başlasın
 	metin_sayaci = 0
+	
+	# Audio Sync Tweak: Metinleri sese uyumlu hızda yazsın
+	klavye_hizi = 0.06
+	yazi_bekleme = 2.3
+	
 	_siradaki_metni_yaz()
+
+var ses_oynatici: AudioStreamPlayer
 
 func ui_katmanini_kur():
 	canvas = CanvasLayer.new()
 	canvas.layer = 90
 	get_tree().current_scene.add_child(canvas)
+	
+	# Ses Oynatıcıyı Kur
+	if not ses_oynatici:
+		ses_oynatici = AudioStreamPlayer.new()
+		ses_oynatici.stream = load("res://anubis_dialog.wav")
+		ses_oynatici.bus = "SFX"
+		add_child(ses_oynatici)
 	
 	# B&W Matrix Screen Shader
 	var shader = load("res://ghost_shader.gdshader")
@@ -139,27 +169,37 @@ func ui_katmanini_kur():
 		var tween = get_tree().create_tween()
 		tween.tween_property(shader_rect, "modulate:a", 1.0, 1.5)
 	
-	# Yazı Label'ı
-	yazi_label = Label.new()
-	yazi_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	# Yazı RichTextLabel'ı (Korkutucu Titreme İçin)
+	yazi_rt = RichTextLabel.new()
+	yazi_rt.bbcode_enabled = true
+	yazi_rt.scroll_active = false
+	yazi_rt.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	
-	# Merkeze ve alt kısıma konumlandır
-	var screen_size = get_viewport().get_visible_rect().size
-	yazi_label.position = Vector2(0, screen_size.y - 300)
-	yazi_label.size = Vector2(screen_size.x, 200)
+	# Layout'u Intro sahnelerindeki gibi alt merkeze itelim, daha dar ve okunaklı
+	yazi_rt.offset_left = 200
+	yazi_rt.offset_right = -200
+	yazi_rt.offset_top = -180
+	yazi_rt.offset_bottom = -20
 	
-	yazi_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	yazi_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	yazi_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# Daha ideal Piramit Intro Boyutu
+	yazi_rt.add_theme_font_size_override("normal_font_size", 24)
 	
-	yazi_label.add_theme_font_size_override("font_size", 42)
-	# Kırmızı Font - İsteğe uygun olarak.
-	yazi_label.add_theme_color_override("font_color", Color(0.9, 0.1, 0.1, 1.0))
-	yazi_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
-	yazi_label.add_theme_constant_override("outline_size", 8)
+	# Kırmızı Font, kalın hatlar
+	yazi_rt.add_theme_color_override("default_color", Color(0.9, 0.1, 0.1, 1.0))
+	yazi_rt.add_theme_color_override("font_outline_color", Color(0, 0, 0, 1))
+	yazi_rt.add_theme_constant_override("outline_size", 5)
 	
-	yazi_label.text = ""
-	canvas.add_child(yazi_label)
+	# Fontu ata (Projedeki retro fontu kullan)
+	var retro_font = load("res://PressStart2P-Regular.ttf")
+	if retro_font:
+		yazi_rt.add_theme_font_override("normal_font", retro_font)
+		
+	yazi_rt.text = ""
+	canvas.add_child(yazi_rt)
+
+	# Bütün diyalog boyunca süreceği için sesi BAŞLANGIÇTA sadece 1 kere başlat (her metinde baştan başlatma)
+	if ses_oynatici:
+		ses_oynatici.play()
 
 func _siradaki_metni_yaz():
 	if metin_sayaci >= anubis_metinleri.size():
@@ -168,14 +208,18 @@ func _siradaki_metni_yaz():
 		
 	var anahtar = anubis_metinleri[metin_sayaci]
 	var suanki_metin = DilYoneticisi.metin_al(anahtar) if DilYoneticisi else anahtar
-	yazi_label.text = suanki_metin
-	yazi_label.visible_ratio = 0.0
+	
+	# Korkunç hava için metni titretecek BBCode etiketi ekle [shake]
+	var korkunc_yazi = "[center][shake rate=30.0 level=8 connected=1]" + suanki_metin + "[/shake][/center]"
+	
+	yazi_rt.text = korkunc_yazi
+	yazi_rt.visible_ratio = 0.0
 	
 	var metin_uzunlugu = suanki_metin.length()
 	var yazma_suresi = metin_uzunlugu * klavye_hizi
 	
 	var tween = get_tree().create_tween()
-	tween.tween_property(yazi_label, "visible_ratio", 1.0, yazma_suresi)
+	tween.tween_property(yazi_rt, "visible_ratio", 1.0, yazma_suresi)
 	
 	# Yazım bittikten sonra ekranda kalma süresi
 	tween.tween_interval(yazi_bekleme)
@@ -184,36 +228,51 @@ func _siradaki_metni_yaz():
 func _metin_bitti():
 	metin_sayaci += 1
 	var tween = get_tree().create_tween()
-	tween.tween_property(yazi_label, "modulate:a", 0.0, 0.5)
+	tween.tween_property(yazi_rt, "modulate:a", 0.0, 0.5)
 	tween.tween_callback(func():
-		yazi_label.modulate.a = 1.0
+		yazi_rt.modulate.a = 1.0
 		_siradaki_metni_yaz()
 	)
 
 func sinematigi_bitir():
 	kamera_sallaniyor_mu = false
 	
-	# Shader'ı yavaşça kaldır
-	var tween = get_tree().create_tween()
+	# Müzik çalıyorsa kapat
+	if ses_oynatici:
+		ses_oynatici.stop()
+	
+	# SinematikKamera offsetlerini sıfırla
+	if sinematik_kamera and is_instance_valid(sinematik_kamera):
+		sinematik_kamera.h_offset = 0
+		sinematik_kamera.v_offset = 0
+		sinematik_kamera.rotation.z = 0
+	
+	# --- GEÇİŞ EFEKTİ: Intro sahnelerindeki gibi fade-to-black ---
+	# 1. Önce yazıyı gizle
+	if yazi_rt:
+		var yazi_tween = get_tree().create_tween()
+		yazi_tween.tween_property(yazi_rt, "modulate:a", 0.0, 0.5)
+		await yazi_tween.finished
+	
+	# 2. Geçiş perdesi oluştur (Siyah fade)
+	var gecis_perdesi = ColorRect.new()
+	gecis_perdesi.set_anchors_preset(Control.PRESET_FULL_RECT)
+	gecis_perdesi.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	gecis_perdesi.color = Color(0, 0, 0, 0)  # Başlangıç: tamamen saydam
+	canvas.add_child(gecis_perdesi)
+	# Perdenin shader'dan önde olması için en üste taşı 
+	canvas.move_child(gecis_perdesi, canvas.get_child_count() - 1)
+	
+	# 3. Fade-to-black animasyonu (3 saniye — intro ile aynı tempo)
+	var gecis_tween = get_tree().create_tween()
+	gecis_tween.tween_property(gecis_perdesi, "color:a", 1.0, 3.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	
+	# Eş zamanlı: B&W shader'ı da solduralim
 	if shader_rect:
-		tween.tween_property(shader_rect, "modulate:a", 0.0, 1.5)
-	if yazi_label:
-		tween.parallel().tween_property(yazi_label, "modulate:a", 0.0, 0.5)
-		
-	# Kamerayı eski yerine götürmeye gerek var mı? 'Evine git' dediği için oyuncunun yolculuğu biter.
-	# Ama bozmamak için oyunu geri verelim
-	if oyuncu_node and orjinal_kamera:
-		orjinal_kamera.h_offset = 0
-		orjinal_kamera.v_offset = 0
-		
-		# Kameranın dönüşünü de sıfırlayalım ki çarpılmasın. (Tween bittiğinde düzelsin)
-		# Sadece oyuncu kontrolünü yeniden açalım.
-		oyuncu_node.set_process(true)
-		oyuncu_node.set_physics_process(true)
-		
-	tween.tween_callback(func():
-		if canvas:
-			canvas.queue_free()
-		# Eğer sadece 1 kere tetiklensin istersek:
-		queue_free()
-	)
+		gecis_tween.parallel().tween_property(shader_rect, "modulate:a", 0.0, 2.0)
+	
+	await gecis_tween.finished
+	
+	# 4. Sahne geçişi: Sahne2_Ev.tscn'e yükle
+	print("🎬 Anubis sinematik bitti — Sahne2_Ev.tscn yükleniyor...")
+	get_tree().change_scene_to_file("res://Sahne2_Ev.tscn")

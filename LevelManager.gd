@@ -13,6 +13,8 @@ var is_boss_acting: bool = false:
 				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 			elif not oyuncu_ref:
 				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			else:
+				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 # --- KONUM REFERANSLARI ---
 var market_pos: Vector3

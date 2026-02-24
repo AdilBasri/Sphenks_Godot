@@ -1390,12 +1390,10 @@ func _kan_patlamasi():
 	)
 	kan.emitting = true
 	
-	# Otomatik temizle (one_shot zaten true KanSpreyi'de)
-	var kan_ref = kan
-	get_tree().create_timer(2.0).timeout.connect(func():
-		if is_instance_valid(kan_ref):
-			kan_ref.queue_free()
-	)
+	# Otomatik temizle
+	await get_tree().create_timer(2.0).timeout
+	if is_instance_valid(kan):
+		kan.queue_free()
 
 # --- VIGNETTE SHADER KONTROL ---
 
