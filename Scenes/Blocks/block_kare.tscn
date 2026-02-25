@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://bgolektkymgbc"]
 
 [ext_resource type="Script" uid="uid://bnmxktemkijbe" path="res://Scripts/BlokSurukle.gd" id="1_2x4as"]
-[ext_resource type="PackedScene" uid="uid://bq8mjuugdsa8p" path="res://Scenes/block_tek.tscn" id="2_ad4u8"]
-[ext_resource type="PackedScene" uid="uid://cfk5b1431kbbh" path="res://Scenes/block.tscn" id="2_bfjwq"]
+[ext_resource type="PackedScene" uid="uid://bq8mjuugdsa8p" path="res://Scenes/Blocks/block_tek.tscn" id="2_ad4u8"]
+[ext_resource type="PackedScene" uid="uid://cfk5b1431kbbh" path="res://Scenes/Blocks/block.tscn" id="2_bfjwq"]
 [ext_resource type="Material" uid="uid://d2gy67gtklkkk" path="res://Materials_Shaders/Hayalet_Mat.tres" id="3_ad4u8"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_0rorx"]

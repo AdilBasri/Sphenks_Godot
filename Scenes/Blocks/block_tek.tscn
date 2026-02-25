@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://bq8mjuugdsa8p"]
 
 [ext_resource type="Script" uid="uid://bnmxktemkijbe" path="res://Scripts/BlokSurukle.gd" id="1_5qd32"]
-[ext_resource type="PackedScene" uid="uid://cfk5b1431kbbh" path="res://Scenes/block.tscn" id="2_a7e7m"]
+[ext_resource type="PackedScene" uid="uid://cfk5b1431kbbh" path="res://Scenes/Blocks/block.tscn" id="2_a7e7m"]
 [ext_resource type="Material" uid="uid://d2gy67gtklkkk" path="res://Materials_Shaders/Hayalet_Mat.tres" id="3_5fq7k"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_0rorx"]

@@ -4,12 +4,12 @@
 [ext_resource type="PackedScene" uid="uid://cj46rixd4dii6" path="res://Scenes/PatlamaEfekti.tscn" id="2_x0cqj"]
 [ext_resource type="PackedScene" uid="uid://glivtlhgy6dm" path="res://Scenes/Tabure.tscn" id="3_g47xu"]
 [ext_resource type="Script" uid="uid://8aat777heohw" path="res://Scripts/BlokDagiticisi.gd" id="4_h44hb"]
-[ext_resource type="PackedScene" uid="uid://cj7t4ncxfa3jh" path="res://Scenes/block_cubuk.tscn" id="5_binpf"]
-[ext_resource type="PackedScene" uid="uid://bgolektkymgbc" path="res://Scenes/block_kare.tscn" id="6_uqaje"]
-[ext_resource type="PackedScene" uid="uid://bq8mjuugdsa8p" path="res://Scenes/block_tek.tscn" id="7_lwamr"]
-[ext_resource type="PackedScene" uid="uid://c427aja5jykgk" path="res://Scenes/block_z.tscn" id="8_brhnk"]
-[ext_resource type="PackedScene" uid="uid://30bh24oxy3ca" path="res://Scenes/block_t.tscn" id="9_mlo4q"]
-[ext_resource type="PackedScene" uid="uid://d23veo8v7bk73" path="res://Scenes/block_l.tscn" id="10_l6jow"]
+[ext_resource type="PackedScene" uid="uid://cj7t4ncxfa3jh" path="res://Scenes/Blocks/block_cubuk.tscn" id="5_binpf"]
+[ext_resource type="PackedScene" uid="uid://bgolektkymgbc" path="res://Scenes/Blocks/block_kare.tscn" id="6_uqaje"]
+[ext_resource type="PackedScene" uid="uid://bq8mjuugdsa8p" path="res://Scenes/Blocks/block_tek.tscn" id="7_lwamr"]
+[ext_resource type="PackedScene" uid="uid://c427aja5jykgk" path="res://Scenes/Blocks/block_z.tscn" id="8_brhnk"]
+[ext_resource type="PackedScene" uid="uid://30bh24oxy3ca" path="res://Scenes/Blocks/block_t.tscn" id="9_mlo4q"]
+[ext_resource type="PackedScene" uid="uid://d23veo8v7bk73" path="res://Scenes/Blocks/block_l.tscn" id="10_l6jow"]
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_qtiyh"]
 points = PackedVector3Array(0.01, 0.01, 0.0016615901, 0.01, -0.01, 0.0016615901, 0.01, 0.01, -0.0016615901, -0.01, 0.01, 0.0016615901, 0.01, -0.01, -0.0016615901, -0.01, -0.01, 0.0016615901, -0.01, 0.01, -0.0016615901, -0.01, -0.01, -0.0016615901)
