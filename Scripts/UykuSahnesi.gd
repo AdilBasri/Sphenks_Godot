@@ -20,6 +20,13 @@ class ChestInteract extends StaticBody3D:
 			ana_sahne.sandik_acildi()
 
 func _ready():
+	var crunch_shader_path = "res://Materials_Shaders/texture_crunch.gdshader"
+	_remove_crunch_from_all_meshes(self, crunch_shader_path)
+	
+	# Global filtreyi de ilk rüyada kapatalım (tüm oyunda olan global.gdshader)
+	if oyuncu and oyuncu.has_node("Camera3D/GlobalFiltre"):
+		oyuncu.get_node("Camera3D/GlobalFiltre").visible = false
+		
 	# Çarpışma ve Etkileşim için gövde ekle
 	var static_body = ChestInteract.new()
 	static_body.ana_sahne = self
@@ -119,6 +126,13 @@ func _ikinci_ruya_ortami_kur():
 	for light in find_children("*", "Light3D", true, false):
 		light.light_color = Color(1.0, 0.3, 0.3)
 		light.light_energy *= 1.2
+		
+	var crunch_shader = load("res://Materials_Shaders/texture_crunch.gdshader")
+	if crunch_shader:
+		_apply_crunch_to_all_meshes(self, crunch_shader)
+		
+	if oyuncu and oyuncu.has_node("Camera3D/GlobalFiltre"):
+		oyuncu.get_node("Camera3D/GlobalFiltre").visible = true
 		
 	# Rastgele kan efektleri ekle
 	var kan_tex = load("res://Assets/Images/KAN.png")
@@ -331,3 +345,72 @@ func _sahneyi_bitir():
 		level_manager.odaya_don_ve_level_atla()
 	else:
 		print("Hata: LevelManager bulunamadı!")
+
+func _apply_crunch_to_all_meshes(node: Node, shader: Shader):
+	if node is MeshInstance3D:
+		var mi = node as MeshInstance3D
+		if mi.mesh:
+			var sc = mi.mesh.get_surface_count()
+			for s_idx in range(sc):
+				var mat = mi.get_surface_override_material(s_idx)
+				if mat == null:
+					mat = mi.mesh.surface_get_material(s_idx)
+				
+				if mat is ShaderMaterial and mat.shader == shader:
+					continue
+					
+				var crunch = ShaderMaterial.new()
+				crunch.shader = shader
+				
+				var original_texture: Texture2D = null
+				var original_color: Color = Color.WHITE
+				
+				if mat is BaseMaterial3D:
+					original_texture = mat.albedo_texture
+					original_color = mat.albedo_color
+				elif mat is ShaderMaterial:
+					for u in ["albedo_texture", "texture_albedo", "albedo", "diffuse_texture", "base_color_texture"]:
+						var val = mat.get_shader_parameter(u)
+						if val is Texture2D:
+							original_texture = val
+							break
+							
+				if original_texture != null:
+					crunch.set_shader_parameter("albedo_texture", original_texture)
+				else:
+					crunch.set_shader_parameter("albedo_tint", original_color)
+					
+				mi.set_surface_override_material(s_idx, crunch)
+				
+	for child in node.get_children():
+		_apply_crunch_to_all_meshes(child, shader)
+
+func _remove_crunch_from_all_meshes(node: Node, shader_path: String):
+	if node is MeshInstance3D:
+		var mi = node as MeshInstance3D
+		if mi.mesh:
+			var sc = mi.mesh.get_surface_count()
+			for s_idx in range(sc):
+				var override = mi.get_surface_override_material(s_idx)
+				var mat = override if override else mi.mesh.surface_get_material(s_idx)
+				
+				if mat is ShaderMaterial and mat.shader:
+					var is_crunch = false
+					if mat.shader.resource_path != null and "texture_crunch" in mat.shader.resource_path:
+						is_crunch = true
+					elif mat.shader.code != null and (mat.shader.code.find("TEXTURE CRUNCH") != -1 or mat.shader.code.find("posterize_steps") != -1):
+						is_crunch = true
+						
+					if is_crunch:
+						var std_mat := StandardMaterial3D.new()
+						var tex = mat.get_shader_parameter("albedo_texture")
+						if tex is Texture2D:
+							std_mat.albedo_texture = tex
+						var col = mat.get_shader_parameter("albedo_tint")
+						if col != null:
+							std_mat.albedo_color = col
+						
+						mi.set_surface_override_material(s_idx, std_mat)
+					
+	for child in node.get_children():
+		_remove_crunch_from_all_meshes(child, shader_path)
