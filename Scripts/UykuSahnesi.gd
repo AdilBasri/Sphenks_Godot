@@ -217,30 +217,49 @@ func _elleri_goster():
 	var bg = ColorRect.new()
 	bg.color = Color(0,0,0,0.1)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE # Tıklamaları engelle
 	bulmaca_layer.add_child(bg)
 
-	var tex = TextureRect.new()
-	tex.texture = load("res://Assets/Images/hand_8.png")
-	tex.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	# 3D Eller Sahnesini SubViewport içine yükleyelim
+	var viewport_container = SubViewportContainer.new()
+	viewport_container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	viewport_container.stretch = true 
+	viewport_container.mouse_filter = Control.MOUSE_FILTER_IGNORE # Tıklamaları engelle
+	bulmaca_layer.add_child(viewport_container)
 	
-	# Keep aspect ratio so hands don't stretch weirdly
-	tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	var sub_viewport = SubViewport.new()
+	sub_viewport.transparent_bg = true
+	sub_viewport.own_world_3d = true # Ana dünyadan bağımsız render alması için
+	sub_viewport.gui_disable_input = true # İçeriye tıklama sızmasını engelle
+	viewport_container.add_child(sub_viewport)
 	
-	# Make it appear coming from bottom
-	tex.offset_left = -350
-	tex.offset_right = 350
+	var el_sahnesi = load("res://Scenes/ElIncelemeSahnesi.tscn").instantiate()
+	# Eller normalde Z=0 civarında, kamerada görünmesi için ayarlayalım
+	sub_viewport.add_child(el_sahnesi)
 	
-	# Başlangıçta ekranın dışında durmalılar (Aşağıda)
-	tex.offset_top = 0
-	tex.offset_bottom = 650
+	# Ellerin mouse'u takip edip dönmesini (eller_tutucu.gd) kapatmak için:
+	if el_sahnesi.has_node("EllerTutucu"):
+		el_sahnesi.get_node("EllerTutucu").set_process_input(false)
+		
+	# SubViewport kendi dünyasına sahip olduğu için ışıksız kalıyor.
+	# Zifiri karanlık silüet olmamaları için ışık ekleyelim:
+	var isik = DirectionalLight3D.new()
+	isik.light_energy = 1.5
+	isik.rotation_degrees = Vector3(-45, 30, 0)
+	sub_viewport.add_child(isik)
 	
-	bulmaca_layer.add_child(tex)
+	var ambient_light = OmniLight3D.new()
+	ambient_light.light_energy = 3.0
+	ambient_light.position = Vector3(0, 2, 2)
+	sub_viewport.add_child(ambient_light)
 	
-	# Ellerin aşağıdan yukarı çıkma animasyonu
+	# Aşağıdan yukarı çıkma efekti için container'ın offsetlerini animasyona bağlayalım
+	viewport_container.offset_top = 650
+	viewport_container.offset_bottom = 650
+	
 	var tween = create_tween()
-	tween.tween_property(tex, "offset_top", -650.0, 2.0).set_trans(Tween.TRANS_SINE)
-	tween.parallel().tween_property(tex, "offset_bottom", 0.0, 2.0).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(viewport_container, "offset_top", 0.0, 2.0).set_trans(Tween.TRANS_SINE)
+	tween.parallel().tween_property(viewport_container, "offset_bottom", 0.0, 2.0).set_trans(Tween.TRANS_SINE)
 	
 	# Animasyon bitene kadar diğerlerini bekletelim
 	await tween.finished
@@ -290,7 +309,7 @@ func _elleri_goster():
 	input.grab_focus()
 	
 	input.text_submitted.connect(func(text):
-		if text.strip_edges() == "16":
+		if text.strip_edges() == "12":
 			# BAŞARILI
 			if is_instance_valid(bulmaca_layer):
 				bulmaca_layer.queue_free()
@@ -316,8 +335,8 @@ func _elleri_goster():
 			err_p.finished.connect(err_p.queue_free)
 			
 			info_lbl.text = "Yanlış! Tekrar Say..."
-			input.text = ""
-			input.grab_focus()
+			input.call_deferred("clear")
+			input.call_deferred("grab_focus")
 	)
 	
 	# Nefes sesi
