@@ -1,0 +1,56 @@
+[gd_scene load_steps=12 format=3 uid="uid://crts7a2wj50ro"]
+
+[ext_resource type="Texture2D" uid="uid://blgep7fpf3xmq" path="res://AtesAnimasyonu/kare0000.png" id="1_svn6m"]
+[ext_resource type="Texture2D" uid="uid://b8css5ym42adl" path="res://AtesAnimasyonu/kare0001.png" id="2_mdd2d"]
+[ext_resource type="Texture2D" uid="uid://b3mu27gqb7sde" path="res://AtesAnimasyonu/kare0002.png" id="3_jki0a"]
+[ext_resource type="Texture2D" uid="uid://sdaoffph5nrn" path="res://AtesAnimasyonu/kare0004.png" id="4_5mhnv"]
+[ext_resource type="Texture2D" uid="uid://cmfawe4eapyct" path="res://AtesAnimasyonu/kare0003.png" id="5_b8ya4"]
+[ext_resource type="Texture2D" uid="uid://7np2smabsf7e" path="res://AtesAnimasyonu/kare0005.png" id="6_v38la"]
+[ext_resource type="Texture2D" uid="uid://dwp7wkwemm5j8" path="res://AtesAnimasyonu/kare0006.png" id="7_8leu4"]
+[ext_resource type="Texture2D" uid="uid://d4givl4slili0" path="res://AtesAnimasyonu/kare0007.png" id="8_4ced7"]
+[ext_resource type="Script" uid="uid://campfireroom_uid" path="res://Scripts/CampfireRoom.gd" id="9_campfire"]
+[ext_resource type="Texture2D" path="res://Assets/Images/card_gold.png" id="10_gold"]
+[ext_resource type="Texture2D" path="res://Assets/Images/card_sleep.png" id="11_sleep"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_or45s"]
+animations = [{
+"frames": [{
+"duration": 1.01,
+"texture": ExtResource("1_svn6m")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_mdd2d")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_jki0a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_5mhnv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_b8ya4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_v38la")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_8leu4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_4ced7")
+}],
+"loop": true,
+"name": &"yaniyor",
+"speed": 5.0
+}]
+
+[node name="CampfireOdasi" type="Node3D"]
+script = ExtResource("9_campfire")
+gold_card_texture = ExtResource("10_gold")
+sleep_card_texture = ExtResource("11_sleep")
+
+[node name="KampAtesi" type="AnimatedSprite3D" parent="."]
+billboard = 2
+sprite_frames = SubResource("SpriteFrames_or45s")
+animation = &"yaniyor"
+autoplay = "yaniyor"
+frame_progress = 0.3252376

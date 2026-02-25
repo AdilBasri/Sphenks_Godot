@@ -1,0 +1,374 @@
+[gd_scene load_steps=27 format=3 uid="uid://u280l10jq4xw"]
+
+[ext_resource type="PackedScene" uid="uid://b145yhb185yrn" path="res://pyramid/scene.gltf" id="1_50npa"]
+[ext_resource type="Script" uid="uid://bdlg7liuik76m" path="res://Scripts/sahne_3_misir.gd" id="1_cxnkm"]
+[ext_resource type="Script" uid="uid://l3tf3bxqbcvw" path="res://Scripts/OyuncuBus.gd" id="2_df857"]
+[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="4_glfev"]
+[ext_resource type="Texture2D" uid="uid://ca5otomdb8oem" path="res://Assets/1.png" id="5_k545h"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_glfev"]
+size = Vector3(1000, 50, 1000)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_50npa"]
+cull_mode = 2
+albedo_color = Color(0.29411766, 0.28627452, 0.18431373, 1)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_k545h"]
+data = PackedVector3Array(-500, 25, 500, 500, 25, 500, -500, -25, 500, 500, 25, 500, 500, -25, 500, -500, -25, 500, 500, 25, -500, -500, 25, -500, 500, -25, -500, -500, 25, -500, -500, -25, -500, 500, -25, -500, 500, 25, 500, 500, 25, -500, 500, -25, 500, 500, 25, -500, 500, -25, -500, 500, -25, 500, -500, 25, -500, -500, 25, 500, -500, -25, -500, -500, 25, 500, -500, -25, 500, -500, -25, -500, 500, 25, 500, -500, 25, 500, 500, 25, -500, -500, 25, 500, -500, 25, -500, 500, 25, -500, -500, -25, 500, 500, -25, 500, -500, -25, -500, 500, -25, 500, 500, -25, -500, -500, -25, -500)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_cxnkm"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_xedi3"]
+size = Vector2(2, 2)
+
+[sub_resource type="Shader" id="Shader_vh38o"]
+code = "shader_type spatial;
+render_mode unshaded, cull_disabled;
+
+// Godot'un kendi derinlik ve ekran dokularını alıyoruz
+uniform sampler2D depth_texture : hint_depth_texture, filter_linear_mipmap;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+
+// Ayarlar (Inspector'dan değiştirebilirsin)
+uniform float cizgi_kalinligi : hint_range(0.0, 5.0) = 1.0;
+uniform float hassasiyet : hint_range(0.0, 10.0) = 2.0; // Eşik değeri
+uniform vec4 cizgi_rengi : source_color = vec4(0.0, 0.0, 0.0, 1.0); // Siyah
+uniform vec4 kagit_rengi : source_color = vec4(0.95, 0.95, 0.95, 1.0); // Beyaz Kağıt
+
+void vertex() {
+	// Filtreyi kameranın gözüne yapıştır
+	POSITION = vec4(VERTEX.xy, 1.0, 1.0);
+}
+
+// Derinliği \"Metre\" cinsinden düzgün okumak için matematik fonksiyonu
+float get_depth(vec2 screen_uv, mat4 inv_proj_mat) {
+	float depth = texture(depth_texture, screen_uv).r;
+	vec3 ndc = vec3(screen_uv * 2.0 - 1.0, depth);
+	vec4 view = inv_proj_mat * vec4(ndc, 1.0);
+	view.xyz /= view.w;
+	return -view.z; // Kameradan uzaklık (metre cinsinden)
+}
+
+void fragment() {
+	// 1. Piksel boyutunu al
+	vec2 e = vec2(1.0 / VIEWPORT_SIZE.xy) * cizgi_kalinligi;
+	
+	// 2. Etraftaki 4 noktanın derinliğini ölç (Metre cinsinden)
+	float d_merkez = get_depth(SCREEN_UV, INV_PROJECTION_MATRIX);
+	float d_ust    = get_depth(SCREEN_UV + vec2(0.0, e.y), INV_PROJECTION_MATRIX);
+	float d_alt    = get_depth(SCREEN_UV - vec2(0.0, e.y), INV_PROJECTION_MATRIX);
+	float d_sag    = get_depth(SCREEN_UV + vec2(e.x, 0.0), INV_PROJECTION_MATRIX);
+	float d_sol    = get_depth(SCREEN_UV - vec2(e.x, 0.0), INV_PROJECTION_MATRIX);
+	
+	// 3. Farkları hesapla (Sobel Benzeri)
+	// Eğer yanındaki piksel senden çok daha uzaktaysa orada bir kenar vardır.
+	float fark = abs(d_ust - d_alt) + abs(d_sag - d_sol);
+	
+	// 4. Eşik değerine göre boya
+	// Eğer fark \"hassasiyet\"ten büyükse Siyah, değilse Kağıt Rengi
+	if (fark > hassasiyet * 0.1) { // 0.1 çarpanı ince ayar içindir
+		ALBEDO = cizgi_rengi.rgb;
+	} else {
+		ALBEDO = kagit_rengi.rgb;
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_glfev"]
+render_priority = 0
+shader = SubResource("Shader_vh38o")
+shader_parameter/cizgi_kalinligi = 5.0
+shader_parameter/hassasiyet = 1.0000000475
+shader_parameter/cizgi_rengi = Color(0, 0, 0, 1)
+shader_parameter/kagit_rengi = Color(0.9490196, 0.9490196, 0.6784314, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_glfev"]
+size = Vector2(0.05, 0.05)
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_df857"]
+ground_bottom_color = Color(0.30043122, 0.25762567, 0.26830977, 1)
+
+[sub_resource type="Sky" id="Sky_cxnkm"]
+sky_material = SubResource("ProceduralSkyMaterial_df857")
+
+[sub_resource type="Environment" id="Environment_xedi3"]
+background_mode = 1
+background_color = Color(0.29411766, 0.2901961, 0.18431373, 1)
+sky = SubResource("Sky_cxnkm")
+ambient_light_source = 2
+ambient_light_color = Color(0.29411766, 0.28627452, 0.18431373, 1)
+ambient_light_energy = 0.5
+glow_normalized = true
+fog_enabled = true
+fog_light_color = Color(0.5921569, 0.5803922, 0.39215687, 1)
+fog_sky_affect = 0.435
+fog_height = -858.84
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.01
+volumetric_fog_albedo = Color(0.46225756, 0.4585076, 0, 1)
+volumetric_fog_emission_energy = 5.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_glfev"]
+size = Vector3(11.942553, 7.3865967, 11.718933)
+
+[sub_resource type="LabelSettings" id="LabelSettings_oqsja"]
+font = ExtResource("4_glfev")
+font_color = Color(0, 0, 0, 1)
+outline_size = 5
+shadow_size = 5
+shadow_color = Color(1, 1, 1, 1)
+
+[sub_resource type="Shader" id="Shader_n11a3"]
+code = "shader_type canvas_item;
+
+uniform vec4 base_color : source_color;
+uniform vec2 node_resolution;
+
+uniform float factor : hint_range(0.0, 1.0, 0.01) = 0.54;
+uniform float width = 0.4;
+
+group_uniforms gradient;
+uniform sampler2D gradient_texture;
+uniform bool gradient_fixed = false;
+
+group_uniforms shape;
+uniform sampler2D shape_texture;
+uniform float shape_tiling = 32.0;
+uniform float shape_rotation = 0.0;
+uniform vec2 shape_scroll = vec2(0.0);
+uniform float shape_feathering : hint_range(0.0, 1.0, 0.01) = 0.00;
+uniform float shape_treshold : hint_range(0.0, 2.0, 0.01) = 1.0;
+
+float gradient(vec2 uv, vec2 fixed_uv, bool fixed){
+	float value = 0.0;
+	if(fixed){
+		value = texture(gradient_texture, fixed_uv).r;
+	} else {
+		value = texture(gradient_texture, uv).r;
+	}
+	return value;
+}
+
+vec2 rotate(vec2 uv, vec2 pivot, float angle)
+{
+	mat2 rotation = mat2(vec2(sin(angle), -cos(angle)),
+						vec2(cos(angle), sin(angle)));
+	uv -= pivot;
+	uv = uv * rotation;
+	uv += pivot;
+	return uv;
+}
+
+void fragment() {
+	float progress = mix(-width, 1.0, factor);
+	float aspect = node_resolution.y / node_resolution.x;
+
+	vec2 aspect_uv = ((UV-vec2(0.0,0.5)) * vec2(1.0, aspect))+vec2(0.0,0.5);
+
+	float value = clamp((gradient(UV, aspect_uv, gradient_fixed) - progress) / (width), 0.0, 1.0);
+
+	vec2 tiled_uv = rotate(mod((aspect_uv + vec2(TIME)*shape_scroll) * shape_tiling, 1.0), vec2(0.5), radians(shape_rotation));
+	float shape_value = 1.0 - texture(shape_texture, tiled_uv).r;
+
+	shape_value = mix(shape_feathering * 0.5, 1.0 - shape_feathering * 0.5, shape_value);
+	float shaped_gradient = smoothstep(value - (shape_feathering * 0.5), value + (shape_feathering * 0.5), shape_treshold - shape_value);
+
+	COLOR.rgb = vec3(0.0);
+	COLOR.a = shaped_gradient;
+}
+"
+
+[sub_resource type="Gradient" id="Gradient_kl0s2"]
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_qpq5m"]
+gradient = SubResource("Gradient_kl0s2")
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_54byg"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ojgu0"]
+shader = SubResource("Shader_n11a3")
+shader_parameter/base_color = Color(0, 0, 0, 1)
+shader_parameter/node_resolution = Vector2(0, 0)
+shader_parameter/factor = 0.54
+shader_parameter/width = 0.4
+shader_parameter/gradient_texture = SubResource("GradientTexture2D_qpq5m")
+shader_parameter/gradient_fixed = false
+shader_parameter/shape_texture = SubResource("NoiseTexture2D_54byg")
+shader_parameter/shape_tiling = 32.0
+shader_parameter/shape_rotation = 0.0
+shader_parameter/shape_scroll = Vector2(0, 0)
+shader_parameter/shape_feathering = 0.0
+shader_parameter/shape_treshold = 1.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_k545h"]
+size = Vector3(1, 1.1699219, 0.54504395)
+
+[sub_resource type="BoxMesh" id="BoxMesh_oqsja"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kl0s2"]
+albedo_color = Color(0, 0, 0, 1)
+metallic = 1.0
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_cxnkm")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -25, 0)
+mesh = SubResource("BoxMesh_glfev")
+surface_material_override/0 = SubResource("StandardMaterial3D_50npa")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_k545h")
+
+[node name="Oyuncu" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.021933496, 6.6980023, -1.352917)
+script = ExtResource("2_df857")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Oyuncu"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.30522037, 0)
+shape = SubResource("CapsuleShape3D_cxnkm")
+
+[node name="Camera3D" type="Camera3D" parent="Oyuncu"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6047709, 0)
+fov = 80.0
+near = 0.001
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Oyuncu/Camera3D"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, -0.01)
+visible = false
+mesh = SubResource("QuadMesh_xedi3")
+surface_material_override/0 = SubResource("ShaderMaterial_glfev")
+
+[node name="RayCast3D" type="RayCast3D" parent="Oyuncu/Camera3D"]
+target_position = Vector3(0, 0, -5)
+collision_mask = 6
+
+[node name="El_Konumu" type="Node3D" parent="Oyuncu/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, -0.2, -0.5)
+
+[node name="CPUParticles3D" type="CPUParticles3D" parent="Oyuncu/Camera3D"]
+layers = 7
+amount = 400
+lifetime = 10.0
+preprocess = 1.0
+speed_scale = 0.8
+explosiveness = 0.04
+randomness = 0.25
+fixed_fps = 5
+mesh = SubResource("QuadMesh_glfev")
+emission_shape = 3
+emission_box_extents = Vector3(10, 10, 10)
+particle_flag_align_y = true
+gravity = Vector3(0, 0.2, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.7071068, -0.5, 0.5, 0, 0.7071068, 0.70710677, -0.7071068, -0.5, 0.5, 1.1525245, 31.342688, 9.723404)
+light_color = Color(0.2563866, 0.25230184, 0, 1)
+light_energy = 2.0
+light_indirect_energy = 5.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_xedi3")
+
+[node name="Piramit" parent="." instance=ExtResource("1_50npa")]
+transform = Transform3D(9, 0, 0, 0, 9, 0, 0, 0, 9, -212.28482, 0, 1.0144038)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Piramit"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Piramit/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.044115067, 3.1932983, -0.009002417)
+shape = SubResource("BoxShape3D_glfev")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="UI"]
+anchors_preset = -1
+anchor_left = 0.50100005
+anchor_top = 0.95900005
+anchor_right = 0.50100005
+anchor_bottom = 0.95900005
+offset_left = -25.152039
+offset_top = -11.432007
+offset_right = 24.847961
+offset_bottom = 11.567993
+grow_horizontal = 2
+grow_vertical = 0
+label_settings = SubResource("LabelSettings_oqsja")
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="GecisEkrani" type="ColorRect" parent="UI"]
+material = SubResource("ShaderMaterial_ojgu0")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 384.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Nisangah" type="TextureRect" parent="UI"]
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.52500004
+anchor_right = 0.5
+anchor_bottom = 0.52500004
+offset_left = -52.0
+offset_top = -55.200012
+offset_right = 1948.0
+offset_bottom = 1944.8
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.05, 0.05)
+mouse_filter = 2
+texture = ExtResource("5_k545h")
+
+[node name="Kapi_On" type="Area3D" parent="."]
+transform = Transform3D(9, 0, 0, 0, 9, 0, 0, 0, 9, -158.35901, 0, 1.0144038)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Kapi_On"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.27986336, 0.08496094, -0.22747803)
+shape = SubResource("BoxShape3D_k545h")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Kapi_On/CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.5, 0, 0, 0)
+mesh = SubResource("BoxMesh_oqsja")
+surface_material_override/0 = SubResource("StandardMaterial3D_kl0s2")
+
+[node name="Kapi_Sag" type="Area3D" parent="."]
+transform = Transform3D(9, 0, 0, 0, 9, 0, 0, 0, 9, -210.81601, 0, -49.975685)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Kapi_Sag"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.27986336, 0.08496094, -0.22747803)
+shape = SubResource("BoxShape3D_k545h")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Kapi_Sag/CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.5, 0, 0, 0)
+mesh = SubResource("BoxMesh_oqsja")
+surface_material_override/0 = SubResource("StandardMaterial3D_kl0s2")
+
+[node name="Kapi_Arka" type="Area3D" parent="."]
+transform = Transform3D(9, 0, 0, 0, 9, 0, 0, 0, 9, -260.85144, 0, 1.7111969)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Kapi_Arka"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.27986336, 0.08496094, -0.22747803)
+shape = SubResource("BoxShape3D_k545h")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Kapi_Arka/CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.5, 0, 0, 0)
+mesh = SubResource("BoxMesh_oqsja")
+surface_material_override/0 = SubResource("StandardMaterial3D_kl0s2")
+
+[node name="Kapi_Sol" type="Area3D" parent="."]
+transform = Transform3D(9, 0, 0, 0, 9, 0, 0, 0, 9, -207.70752, 0, 56.34472)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Kapi_Sol"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.27986336, 0.08496094, -0.22747803)
+shape = SubResource("BoxShape3D_k545h")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Kapi_Sol/CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.5, 0, 0, 0)
+mesh = SubResource("BoxMesh_oqsja")
+surface_material_override/0 = SubResource("StandardMaterial3D_kl0s2")

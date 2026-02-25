@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://iawfvtay0cq"]
+
+[ext_resource type="Script" uid="uid://b86liwndofhdn" path="res://Scripts/KopanUzuv.gd" id="1_6646l"]
+[ext_resource type="Material" uid="uid://b5pcufaqoeel2" path="res://Materials_Shaders/CanavarMat.tres" id="2_g0wk8"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_q1wie"]
+material = ExtResource("2_g0wk8")
+radius = 0.15
+height = 1.0
+radial_segments = 30
+rings = 3
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6646l"]
+radius = 0.18847656
+height = 1.012085
+
+[node name="KopanUzuv" type="RigidBody3D"]
+collision_layer = 13
+collision_mask = 3
+continuous_cd = true
+script = ExtResource("1_6646l")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_q1wie")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.010437012, 0)
+shape = SubResource("CapsuleShape3D_6646l")

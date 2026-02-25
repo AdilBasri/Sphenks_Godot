@@ -1,0 +1,75 @@
+[gd_scene load_steps=5 format=3 uid="uid://30bh24oxy3ca"]
+
+[ext_resource type="PackedScene" uid="uid://cfk5b1431kbbh" path="res://Scenes/block.tscn" id="1_2vjh6"]
+[ext_resource type="Script" uid="uid://bnmxktemkijbe" path="res://Scripts/BlokSurukle.gd" id="1_kkq00"]
+[ext_resource type="Material" uid="uid://d2gy67gtklkkk" path="res://Materials_Shaders/Hayalet_Mat.tres" id="3_o4k5j"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0rorx"]
+size = Vector3(3.3549805, 2.8617554, 1.6254883)
+
+[node name="BlokT" type="Node3D" node_paths=PackedStringArray("hayalet")]
+transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -0.706, 0.521, 1.524)
+script = ExtResource("1_kkq00")
+hayalet = NodePath("Hayalet")
+tekli_blok_sahnesi = ExtResource("1_2vjh6")
+footprint = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, -1), Vector2i(-1, -1), Vector2i(1, -1)])
+
+[node name="Area3D" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.9999998, -1.1920929e-07, 0, 1.1920929e-07, 0.9999998, -0.36811852, -0.27087128, -0.094799995)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 0.99999034, -2.2500753e-06, 0, 2.2500753e-06, 0.99999034, 0.40973163, 0.9936292, 0.10544872)
+shape = SubResource("BoxShape3D_0rorx")
+
+[node name="Gorsel" type="Node3D" parent="."]
+
+[node name="Node3D" parent="Gorsel" instance=ExtResource("1_2vjh6")]
+
+[node name="Node3D2" parent="Gorsel" instance=ExtResource("1_2vjh6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="Node3D3" parent="Gorsel" instance=ExtResource("1_2vjh6")]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 1, 1, 0)
+
+[node name="Node3D4" parent="Gorsel" instance=ExtResource("1_2vjh6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, 0)
+
+[node name="Hayalet" type="Node3D" parent="."]
+
+[node name="Node3D" parent="Hayalet" instance=ExtResource("1_2vjh6")]
+
+[node name="MeshInstance3D" parent="Hayalet/Node3D/Run_Tasi" index="1"]
+surface_material_override/0 = ExtResource("3_o4k5j")
+
+[node name="Node3D2" parent="Hayalet" instance=ExtResource("1_2vjh6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="MeshInstance3D" parent="Hayalet/Node3D2/Run_Tasi" index="1"]
+surface_material_override/0 = ExtResource("3_o4k5j")
+
+[node name="Node3D3" parent="Hayalet" instance=ExtResource("1_2vjh6")]
+transform = Transform3D(1, 0, 0, 0, 0.9999998, -2.9802322e-08, 0, 2.9802322e-08, 0.9999998, 1, 0, 0)
+
+[node name="CollisionShape3D" parent="Hayalet/Node3D3/Run_Tasi" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="MeshInstance3D" parent="Hayalet/Node3D3/Run_Tasi" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+surface_material_override/0 = ExtResource("3_o4k5j")
+
+[node name="Node3D4" parent="Hayalet" instance=ExtResource("1_2vjh6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0)
+
+[node name="CollisionShape3D" parent="Hayalet/Node3D4/Run_Tasi" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 0)
+
+[node name="MeshInstance3D" parent="Hayalet/Node3D4/Run_Tasi" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 0)
+surface_material_override/0 = ExtResource("3_o4k5j")
+
+[connection signal="input_event" from="Area3D" to="." method="_on_area_3d_input_event"]
+
+[editable path="Hayalet/Node3D"]
+[editable path="Hayalet/Node3D2"]
+[editable path="Hayalet/Node3D3"]
+[editable path="Hayalet/Node3D4"]

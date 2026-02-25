@@ -1,0 +1,68 @@
+[gd_scene load_steps=9 format=3 uid="uid://df8kicnf6xi1m"]
+
+[ext_resource type="Script" uid="uid://baxth3vpudysc" path="res://Scripts/yan_sehpa.gd" id="1_3rooa"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_3rooa"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0fa3j"]
+albedo_color = Color(0.36078432, 0.22352941, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_t5rlg"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hejgr"]
+albedo_color = Color(0.36078432, 0.22352941, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bw3o5"]
+albedo_color = Color(0.36078432, 0.22352941, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ac6k8"]
+albedo_color = Color(0.36078432, 0.22352941, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_umuy6"]
+albedo_color = Color(0.36078432, 0.22352941, 0, 1)
+
+[node name="YanSehpa" type="Node3D"]
+script = ExtResource("1_3rooa")
+
+[node name="Sprite3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.2, 0, 0, 0, 0.1, 0, 0, 0, 0.6, 0, 0.5, 0)
+mesh = SubResource("BoxMesh_3rooa")
+surface_material_override/0 = SubResource("StandardMaterial3D_0fa3j")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.1, 0, 0, 0, 0.5, 0, 0, 0, 0.1, -0.54307944, 0.19864678, -0.24780518)
+mesh = SubResource("BoxMesh_t5rlg")
+surface_material_override/0 = SubResource("StandardMaterial3D_hejgr")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.1, 0, 0, 0, 0.5, 0, 0, 0, 0.1, -0.54307944, 0.19864678, 0.24866998)
+mesh = SubResource("BoxMesh_t5rlg")
+surface_material_override/0 = SubResource("StandardMaterial3D_bw3o5")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.1, 0, 0, 0, 0.5, 0, 0, 0, 0.1, 0.5503694, 0.19864678, 0.24866998)
+mesh = SubResource("BoxMesh_t5rlg")
+surface_material_override/0 = SubResource("StandardMaterial3D_ac6k8")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.1, 0, 0, 0, 0.5, 0, 0, 0, 0.1, 0.5503694, 0.19864678, -0.24986434)
+mesh = SubResource("BoxMesh_t5rlg")
+surface_material_override/0 = SubResource("StandardMaterial3D_umuy6")
+
+[node name="Slotlar" type="Node3D" parent="."]
+transform = Transform3D(1.2, 0, 0, 0, 0.1, 0, 0, 0, 0.6, 0, 0.5, 0)
+
+[node name="Marker3D" type="Marker3D" parent="Slotlar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38804707, 1.1933331, -0.36827335)
+
+[node name="Marker3D2" type="Marker3D" parent="Slotlar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.24007104, 1.2746911, 0.28951946)
+
+[node name="Marker3D3" type="Marker3D" parent="Slotlar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2410545, -0.15348503)
+
+[node name="Marker3D4" type="Marker3D" parent="Slotlar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.19942017, 1.2292504, 0.22756834)
+
+[node name="Marker3D5" type="Marker3D" parent="Slotlar"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.39842346, 1.2275515, -0.19080149)

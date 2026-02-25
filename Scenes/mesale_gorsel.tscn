@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://d1dfpjofydjc2"]
+
+[ext_resource type="Texture2D" uid="uid://v3hgvensx0ub" path="res://Assets/Images/mesaledeneme.png" id="1_iulcs"]
+
+[node name="MesaleGorsel" type="Node3D"]
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -3.022, 2.066, 0)
+billboard = 2
+texture = ExtResource("1_iulcs")

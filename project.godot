@@ -17,12 +17,12 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-GameManager="*res://GameManager.gd"
-SaveManager="*res://SaveManager.gd"
-LevelManager="*res://LevelManager.gd"
-DilYoneticisi="*res://DilYoneticisi.gd"
-PauseMenu="*res://PauseMenu.tscn"
-TutorialManager="*res://TutorialManager.tscn"
+GameManager="*res://Scripts/GameManager.gd"
+SaveManager="*res://Scripts/SaveManager.gd"
+LevelManager="*res://Scripts/LevelManager.gd"
+DilYoneticisi="*res://Scripts/DilYoneticisi.gd"
+PauseMenu="*res://UI/PauseMenu.tscn"
+TutorialManager="*res://Scenes/TutorialManager.tscn"
 
 [display]
 

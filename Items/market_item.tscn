@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bpfk1rymhv38x" path="res://market_item.gd" id="1_d4dl3"]
 [ext_resource type="Resource" uid="uid://c3nrit3lega7q" path="res://Items/Mantar.tres" id="2_k6obf"]
-[ext_resource type="Texture2D" uid="uid://brup05bqrvcp" path="res://shroom.png" id="2_x2pdn"]
+[ext_resource type="Texture2D" uid="uid://brup05bqrvcp" path="res://Assets/Images/shroom.png" id="2_x2pdn"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_k6obf"]
 

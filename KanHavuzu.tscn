@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://cqna4pxhg04b0"]
-
-[ext_resource type="Texture2D" uid="uid://wix57o6cofcm" path="res://KAN.png" id="1_k2r43"]
-
-[node name="KanHavuzu" type="Decal"]
-texture_albedo = ExtResource("1_k2r43")

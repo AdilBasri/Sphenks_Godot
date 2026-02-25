@@ -1,0 +1,45 @@
+[gd_scene load_steps=7 format=3 uid="uid://cj46rixd4dii6"]
+
+[ext_resource type="Script" uid="uid://bshdocq3ptudn" path="res://Scripts/patlama_efekti.gd" id="1_jho1c"]
+
+[sub_resource type="Curve" id="Curve_jho1c"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_byce7"]
+curve = SubResource("Curve_jho1c")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_uvrv6"]
+emission_shape_scale = Vector3(0.5, 0.8, 1)
+initial_velocity_min = 3.0
+initial_velocity_max = 5.0
+angular_velocity_min = -360.0
+angular_velocity_max = 359.99997
+gravity = Vector3(0, -15, 0)
+damping_min = 2.0
+damping_max = 5.0
+scale_min = 0.5
+scale_max = 0.79999995
+scale_curve = SubResource("CurveTexture_byce7")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_byce7"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_dcg0d"]
+material = SubResource("StandardMaterial3D_byce7")
+size = Vector2(0.4, 0.1)
+
+[node name="PatlamaEfekti" type="GPUParticles3D"]
+emitting = false
+amount = 12
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_uvrv6")
+draw_pass_1 = SubResource("QuadMesh_dcg0d")
+script = ExtResource("1_jho1c")

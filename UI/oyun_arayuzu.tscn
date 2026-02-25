@@ -1,0 +1,108 @@
+[gd_scene load_steps=7 format=3 uid="uid://dvucb86havcwa"]
+
+[ext_resource type="Script" uid="uid://b8ibwfklv2nrd" path="res://UI/oyun_arayuzu.gd" id="1_ffnym"]
+[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="2_bksd8"]
+[ext_resource type="Texture2D" uid="uid://blfo33uyjauwy" path="res://Assets/Images/parsomen.png" id="2_jdx7h"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_ffnym"]
+font = ExtResource("2_bksd8")
+font_size = 32
+font_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_xpipy"]
+font = ExtResource("2_bksd8")
+font_size = 32
+font_color = Color(0, 0, 0, 1)
+shadow_size = 2
+shadow_color = Color(1, 1, 1, 0)
+
+[sub_resource type="LabelSettings" id="LabelSettings_4o0u1"]
+font = ExtResource("2_bksd8")
+font_size = 28
+font_color = Color(1, 0.25490198, 0, 1)
+
+[node name="OyunArayuzu" type="CanvasLayer"]
+script = ExtResource("1_ffnym")
+
+[node name="ParsomenPanel" type="Panel" parent="."]
+self_modulate = Color(1, 1, 1, 0)
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -500.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="ArkaplanGorseli" type="TextureRect" parent="ParsomenPanel"]
+modulate = Color(0.61745477, 0.61745477, 0.6174547, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_jdx7h")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ToplamPuanLabel" type="Label" parent="ParsomenPanel/ArkaplanGorseli"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -120.0
+offset_top = 175.0
+offset_right = 633.25
+offset_bottom = 225.0
+grow_horizontal = 2
+label_settings = SubResource("LabelSettings_ffnym")
+
+[node name="PuanTablosu" type="VBoxContainer" parent="ParsomenPanel"]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -72.0
+offset_right = -13.0
+offset_bottom = 72.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 30
+
+[node name="Liste" type="VBoxContainer" parent="ParsomenPanel/PuanTablosu"]
+layout_mode = 2
+
+[node name="QuotaBaslik" type="Label" parent="ParsomenPanel/PuanTablosu"]
+layout_mode = 2
+text = "QUOTA"
+label_settings = SubResource("LabelSettings_xpipy")
+horizontal_alignment = 1
+
+[node name="QuotaDeger" type="Label" parent="ParsomenPanel/PuanTablosu"]
+layout_mode = 2
+text = "300"
+label_settings = SubResource("LabelSettings_xpipy")
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="ParsomenPanel/PuanTablosu"]
+modulate = Color(1, 0, 0, 1)
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+size_flags_stretch_ratio = 8.47
+
+[node name="TotalScoreBaslik" type="Label" parent="ParsomenPanel/PuanTablosu"]
+layout_mode = 2
+text = "TOTAL SCORE"
+label_settings = SubResource("LabelSettings_4o0u1")
+horizontal_alignment = 1
+
+[node name="TotalScoreDeger" type="Label" parent="ParsomenPanel/PuanTablosu"]
+layout_mode = 2
+text = "0"
+label_settings = SubResource("LabelSettings_4o0u1")
+horizontal_alignment = 1

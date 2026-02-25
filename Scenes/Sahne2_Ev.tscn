@@ -1,0 +1,485 @@
+[gd_scene load_steps=28 format=3 uid="uid://bt1hdlkvdh1dq"]
+
+[ext_resource type="PackedScene" uid="uid://cqukpojxiic2a" path="res://the_serving_room/scene.gltf" id="1_j03r5"]
+[ext_resource type="Script" uid="uid://l3tf3bxqbcvw" path="res://Scripts/OyuncuBus.gd" id="2_2vqy4"]
+[ext_resource type="Script" uid="uid://c51w52lnmwjcl" path="res://Scripts/sahne_2_ev.gd" id="2_7c0w5"]
+[ext_resource type="Script" uid="uid://bnnrbprirdc5v" path="res://Scripts/EtkilesimNesnesi.gd" id="4_sh0wk"]
+[ext_resource type="PackedScene" uid="uid://blbr78aw2rq8l" path="res://blender/scene.gltf" id="5_tvibb"]
+[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="7_6cp0h"]
+[ext_resource type="Texture2D" uid="uid://ca5otomdb8oem" path="res://Assets/1.png" id="8_l7nfj"]
+[ext_resource type="PackedScene" uid="uid://dmmewy7gjw75" path="res://watch/scene.gltf" id="9_u2kip"]
+[ext_resource type="PackedScene" uid="uid://4sd42nompvfp" path="res://cup/scene.gltf" id="10_cfcbr"]
+[ext_resource type="PackedScene" uid="uid://cp7j7hv6ujwd8" path="res://knife/scene.gltf" id="11_es2t6"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_7c0w5"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_sh0wk"]
+size = Vector2(2, 2)
+
+[sub_resource type="Shader" id="Shader_cfcbr"]
+code = "shader_type spatial;
+render_mode unshaded, cull_disabled;
+
+// Godot'un kendi derinlik ve ekran dokularını alıyoruz
+uniform sampler2D depth_texture : hint_depth_texture, filter_linear_mipmap;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+
+// Ayarlar (Inspector'dan değiştirebilirsin)
+uniform float cizgi_kalinligi : hint_range(0.0, 5.0) = 1.0;
+uniform float hassasiyet : hint_range(0.0, 10.0) = 2.0; // Eşik değeri
+uniform vec4 cizgi_rengi : source_color = vec4(0.0, 0.0, 0.0, 1.0); // Siyah
+uniform vec4 kagit_rengi : source_color = vec4(0.95, 0.95, 0.95, 1.0); // Beyaz Kağıt
+
+void vertex() {
+	// Filtreyi kameranın gözüne yapıştır
+	POSITION = vec4(VERTEX.xy, 1.0, 1.0);
+}
+
+// Derinliği \"Metre\" cinsinden düzgün okumak için matematik fonksiyonu
+float get_depth(vec2 screen_uv, mat4 inv_proj_mat) {
+	float depth = texture(depth_texture, screen_uv).r;
+	vec3 ndc = vec3(screen_uv * 2.0 - 1.0, depth);
+	vec4 view = inv_proj_mat * vec4(ndc, 1.0);
+	view.xyz /= view.w;
+	return -view.z; // Kameradan uzaklık (metre cinsinden)
+}
+
+void fragment() {
+	// 1. Piksel boyutunu al
+	vec2 e = vec2(1.0 / VIEWPORT_SIZE.xy) * cizgi_kalinligi;
+	
+	// 2. Etraftaki 4 noktanın derinliğini ölç (Metre cinsinden)
+	float d_merkez = get_depth(SCREEN_UV, INV_PROJECTION_MATRIX);
+	float d_ust    = get_depth(SCREEN_UV + vec2(0.0, e.y), INV_PROJECTION_MATRIX);
+	float d_alt    = get_depth(SCREEN_UV - vec2(0.0, e.y), INV_PROJECTION_MATRIX);
+	float d_sag    = get_depth(SCREEN_UV + vec2(e.x, 0.0), INV_PROJECTION_MATRIX);
+	float d_sol    = get_depth(SCREEN_UV - vec2(e.x, 0.0), INV_PROJECTION_MATRIX);
+	
+	// 3. Farkları hesapla (Sobel Benzeri)
+	// Eğer yanındaki piksel senden çok daha uzaktaysa orada bir kenar vardır.
+	float fark = abs(d_ust - d_alt) + abs(d_sag - d_sol);
+	
+	// 4. Eşik değerine göre boya
+	// Eğer fark \"hassasiyet\"ten büyükse Siyah, değilse Kağıt Rengi
+	if (fark > hassasiyet * 0.1) { // 0.1 çarpanı ince ayar içindir
+		ALBEDO = cizgi_rengi.rgb;
+	} else {
+		ALBEDO = kagit_rengi.rgb;
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tvibb"]
+render_priority = 0
+shader = SubResource("Shader_cfcbr")
+shader_parameter/cizgi_kalinligi = 5.0
+shader_parameter/hassasiyet = 1.0000000475
+shader_parameter/cizgi_rengi = Color(0, 0, 0, 1)
+shader_parameter/kagit_rengi = Color(0.9490196, 0.9490196, 0.6784314, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2vqy4"]
+size = Vector3(7.7961426, 0.32861328, 12.382065)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_sh0wk"]
+radius = 0.049804688
+height = 0.20355225
+
+[sub_resource type="TubeTrailMesh" id="TubeTrailMesh_sh0wk"]
+radius = 0.02
+section_length = 0.1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tvibb"]
+size = Vector3(26.741516, 53.047897, 26.551134)
+
+[sub_resource type="LabelSettings" id="LabelSettings_l7nfj"]
+font = ExtResource("7_6cp0h")
+font_color = Color(0, 0, 0, 1)
+outline_size = 5
+shadow_size = 5
+shadow_color = Color(1, 1, 1, 1)
+
+[sub_resource type="Shader" id="Shader_es2t6"]
+code = "shader_type canvas_item;
+
+uniform vec4 base_color : source_color;
+uniform vec2 node_resolution;
+
+uniform float factor : hint_range(0.0, 1.0, 0.01) = 0.54;
+uniform float width = 0.4;
+
+group_uniforms gradient;
+uniform sampler2D gradient_texture;
+uniform bool gradient_fixed = false;
+
+group_uniforms shape;
+uniform sampler2D shape_texture;
+uniform float shape_tiling = 32.0;
+uniform float shape_rotation = 0.0;
+uniform vec2 shape_scroll = vec2(0.0);
+uniform float shape_feathering : hint_range(0.0, 1.0, 0.01) = 0.00;
+uniform float shape_treshold : hint_range(0.0, 2.0, 0.01) = 1.0;
+
+float gradient(vec2 uv, vec2 fixed_uv, bool fixed){
+	float value = 0.0;
+	if(fixed){
+		value = texture(gradient_texture, fixed_uv).r;
+	} else {
+		value = texture(gradient_texture, uv).r;
+	}
+	return value;
+}
+
+vec2 rotate(vec2 uv, vec2 pivot, float angle)
+{
+	mat2 rotation = mat2(vec2(sin(angle), -cos(angle)),
+						vec2(cos(angle), sin(angle)));
+	uv -= pivot;
+	uv = uv * rotation;
+	uv += pivot;
+	return uv;
+}
+
+void fragment() {
+	float progress = mix(-width, 1.0, factor);
+	float aspect = node_resolution.y / node_resolution.x;
+
+	vec2 aspect_uv = ((UV-vec2(0.0,0.5)) * vec2(1.0, aspect))+vec2(0.0,0.5);
+
+	float value = clamp((gradient(UV, aspect_uv, gradient_fixed) - progress) / (width), 0.0, 1.0);
+
+	vec2 tiled_uv = rotate(mod((aspect_uv + vec2(TIME)*shape_scroll) * shape_tiling, 1.0), vec2(0.5), radians(shape_rotation));
+	float shape_value = 1.0 - texture(shape_texture, tiled_uv).r;
+
+	shape_value = mix(shape_feathering * 0.5, 1.0 - shape_feathering * 0.5, shape_value);
+	float shaped_gradient = smoothstep(value - (shape_feathering * 0.5), value + (shape_feathering * 0.5), shape_treshold - shape_value);
+
+	COLOR.rgb = vec3(0.0);
+	COLOR.a = shaped_gradient;
+}
+"
+
+[sub_resource type="Gradient" id="Gradient_6cp0h"]
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_rtru8"]
+gradient = SubResource("Gradient_6cp0h")
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_yns1j"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_l7nfj"]
+shader = SubResource("Shader_es2t6")
+shader_parameter/base_color = Color(0, 0, 0, 1)
+shader_parameter/node_resolution = Vector2(0, 0)
+shader_parameter/factor = 0.54
+shader_parameter/width = 0.4
+shader_parameter/gradient_texture = SubResource("GradientTexture2D_rtru8")
+shader_parameter/gradient_fixed = false
+shader_parameter/shape_texture = SubResource("NoiseTexture2D_yns1j")
+shader_parameter/shape_tiling = 32.0
+shader_parameter/shape_rotation = 0.0
+shader_parameter/shape_scroll = Vector2(0, 0)
+shader_parameter/shape_feathering = 0.0
+shader_parameter/shape_treshold = 1.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_u2kip"]
+size = Vector3(268.53543, 134.601, 135.33871)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cfcbr"]
+size = Vector3(1.6828613, 2.2207031, 1.607544)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rtru8"]
+size = Vector3(0.42541504, 0.36572266, 0.5720825)
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_j03r5")]
+script = ExtResource("2_7c0w5")
+
+[node name="Oyuncu" type="CharacterBody3D" parent="." index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.021933496, 0.15141833, -1.352917)
+script = ExtResource("2_2vqy4")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Oyuncu" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.30522037, 0)
+shape = SubResource("CapsuleShape3D_7c0w5")
+
+[node name="Camera3D" type="Camera3D" parent="Oyuncu" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6047709, 0)
+current = true
+fov = 80.0
+near = 0.001
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Oyuncu/Camera3D" index="0"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, -0.01)
+mesh = SubResource("QuadMesh_sh0wk")
+surface_material_override/0 = SubResource("ShaderMaterial_tvibb")
+
+[node name="RayCast3D" type="RayCast3D" parent="Oyuncu/Camera3D" index="1"]
+target_position = Vector3(0, 0, -5)
+collision_mask = 6
+
+[node name="El_Konumu" type="Node3D" parent="Oyuncu/Camera3D" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, -0.2, -0.5)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35058856, -0.2539444)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33698368, -0.33569336, -2.2596054)
+shape = SubResource("BoxShape3D_2vqy4")
+
+[node name="StaticBody3D2" type="StaticBody3D" parent="." index="3"]
+transform = Transform3D(1.9106855e-15, 4.371139e-08, 1, 1, -4.371139e-08, 0, 4.371139e-08, 1, -4.371139e-08, 1.2923048, 0.22052896, -0.15775514)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33698368, -0.33569336, -2.2596054)
+shape = SubResource("BoxShape3D_2vqy4")
+
+[node name="StaticBody3D3" type="StaticBody3D" parent="." index="4"]
+transform = Transform3D(1.9106855e-15, 4.371139e-08, 1, 1, -4.371139e-08, 0, 4.371139e-08, 1, -4.371139e-08, 1.2923048, 0.22052896, -6.0362844)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D3" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33698368, -0.33569336, -2.2596054)
+shape = SubResource("BoxShape3D_2vqy4")
+
+[node name="StaticBody3D4" type="StaticBody3D" parent="." index="5"]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0.90968204, 0.22052896, 3.4606829)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D4" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33698368, -0.33569336, -2.2596054)
+shape = SubResource("BoxShape3D_2vqy4")
+
+[node name="StaticBody3D6" type="StaticBody3D" parent="." index="6"]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 2.0349617, 0.22052896, -8.959807)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D6" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33698368, -0.33569336, -2.2596054)
+shape = SubResource("BoxShape3D_2vqy4")
+
+[node name="StaticBody3D7" type="StaticBody3D" parent="." index="7"]
+transform = Transform3D(1.9106855e-15, 4.371139e-08, 1, 1, -4.371139e-08, 0, 4.371139e-08, 1, -4.371139e-08, 9.639416, 0.22052896, -4.396258)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D7" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33698368, -0.33569336, -2.2596054)
+shape = SubResource("BoxShape3D_2vqy4")
+
+[node name="StaticBody3D5" type="StaticBody3D" parent="." index="8"]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, -1.6032832, 0.22052896, -0.8292742)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D5" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33698368, -0.33569336, -2.2596054)
+shape = SubResource("BoxShape3D_2vqy4")
+
+[node name="Musluk_1" type="StaticBody3D" parent="." index="9"]
+transform = Transform3D(0.9250176, 0, 0.37992442, 0, 1, 0, -0.37992442, 0, 0.9250176, 0.6463031, 0.2245242, 0.35722435)
+collision_layer = 3
+script = ExtResource("4_sh0wk")
+nesne_turu = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Musluk_1" index="0"]
+transform = Transform3D(1, 0, 8.940697e-08, 0, 1, 0, -8.940697e-08, 0, 1, 0.6941206, 0.3453415, -0.067991376)
+shape = SubResource("CapsuleShape3D_sh0wk")
+
+[node name="SuPartikulleri" type="CPUParticles3D" parent="Musluk_1" index="1"]
+transform = Transform3D(0.9250175, 0, -0.3799243, 0, 1, 0, 0.3799243, 0, 0.9250175, 0.61580855, 0.013627529, -0.30379748)
+emitting = false
+amount = 200
+lifetime = 0.5
+preprocess = 0.5
+mesh = SubResource("TubeTrailMesh_sh0wk")
+particle_flag_align_y = true
+gravity = Vector3(0, -15, 0)
+color = Color(0.45028847, 0.7993286, 1, 1)
+
+[node name="Musluk_2" type="StaticBody3D" parent="." index="10"]
+transform = Transform3D(0.9250176, 0, 0.37992442, 0, 1, 0, -0.37992442, 0, 0.9250176, 0.6463031, 0.2245242, 0.35722435)
+collision_layer = 3
+script = ExtResource("4_sh0wk")
+nesne_turu = 0
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Musluk_2" index="0"]
+transform = Transform3D(1, 0, 8.940697e-08, 0, 1, 0, -8.940697e-08, 0, 1, 0.4184094, 0.37224013, -0.17403358)
+shape = SubResource("CapsuleShape3D_sh0wk")
+
+[node name="SuPartikulleri" type="CPUParticles3D" parent="Musluk_2" index="1"]
+transform = Transform3D(0.9250175, 0, -0.3799243, 0, 1, 0, 0.3799243, 0, 0.9250175, 0.41887337, 0.03745252, -0.301045)
+emitting = false
+amount = 200
+lifetime = 0.5
+preprocess = 0.5
+mesh = SubResource("TubeTrailMesh_sh0wk")
+particle_flag_align_y = true
+gravity = Vector3(0, -15, 0)
+color = Color(0.45028847, 0.7993286, 1, 1)
+
+[node name="Musluk_3" type="StaticBody3D" parent="." index="11"]
+transform = Transform3D(0.9250176, 0, 0.37992442, 0, 1, 0, -0.37992442, 0, 0.9250176, 0.6463031, 0.2245242, 0.35722435)
+collision_layer = 3
+script = ExtResource("4_sh0wk")
+nesne_turu = 0
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Musluk_3" index="0"]
+transform = Transform3D(1, 0, 8.940697e-08, 0, 1, 0, -8.940697e-08, 0, 1, 0.17333013, 0.3506897, -0.11322498)
+shape = SubResource("CapsuleShape3D_sh0wk")
+
+[node name="SuPartikulleri" type="CPUParticles3D" parent="Musluk_3" index="1"]
+transform = Transform3D(0.9250175, 0, -0.3799243, 0, 1, 0, 0.3799243, 0, 0.9250175, 0.24063706, 0.03793782, -0.32095754)
+emitting = false
+amount = 200
+lifetime = 0.5
+preprocess = 0.5
+mesh = SubResource("TubeTrailMesh_sh0wk")
+particle_flag_align_y = true
+gravity = Vector3(0, -15, 0)
+color = Color(0.45028847, 0.7993286, 1, 1)
+
+[node name="Musluk_4" type="StaticBody3D" parent="." index="12"]
+transform = Transform3D(0.9250176, 0, 0.37992442, 0, 1, 0, -0.37992442, 0, 0.9250176, 1.5476731, 0.24862123, -0.28973085)
+collision_layer = 3
+script = ExtResource("4_sh0wk")
+nesne_turu = 0
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Musluk_4" index="0"]
+transform = Transform3D(1, 0, 8.940697e-08, 0, 1, 0, -8.940697e-08, 0, 1, 0.21076, 0.34949648, -0.20435762)
+shape = SubResource("CapsuleShape3D_sh0wk")
+
+[node name="SuPartikulleri" type="CPUParticles3D" parent="Musluk_4" index="1"]
+transform = Transform3D(0.9250175, 0, -0.3799243, 0, 1, 0, 0.3799243, 0, 0.9250175, 0.13253677, -0.005714953, -0.2998327)
+emitting = false
+amount = 200
+lifetime = 0.5
+preprocess = 0.5
+mesh = SubResource("TubeTrailMesh_sh0wk")
+particle_flag_align_y = true
+gravity = Vector3(0, -15, 0)
+color = Color(0.45028847, 0.7993286, 1, 1)
+
+[node name="Musluk_5" type="StaticBody3D" parent="." index="13"]
+transform = Transform3D(0.9250176, 0, 0.37992442, 0, 1, 0, -0.37992442, 0, 0.9250176, -1.0846205, 0.22773391, 0.11120327)
+collision_layer = 3
+script = ExtResource("4_sh0wk")
+nesne_turu = 0
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Musluk_5" index="0"]
+transform = Transform3D(1, 0, 8.940697e-08, 0, 1, 0, -8.940697e-08, 0, 1, 0.19535965, 0.3212316, -0.23216385)
+shape = SubResource("CapsuleShape3D_sh0wk")
+
+[node name="SuPartikulleri" type="CPUParticles3D" parent="Musluk_5" index="1"]
+transform = Transform3D(0.9250175, 0, -0.3799243, 0, 1, 0, 0.3799243, 0, 0.9250175, 0.15976655, 0.03162828, -0.12948784)
+emitting = false
+amount = 200
+lifetime = 0.5
+preprocess = 0.5
+mesh = SubResource("TubeTrailMesh_sh0wk")
+particle_flag_align_y = true
+gravity = Vector3(0, -15, 0)
+color = Color(0.45028847, 0.7993286, 1, 1)
+
+[node name="Musluk_6" type="StaticBody3D" parent="." index="14"]
+transform = Transform3D(0.9250176, 0, 0.37992442, 0, 1, 0, -0.37992442, 0, 0.9250176, -1.0881565, 0.22773391, 0.21627147)
+collision_layer = 3
+script = ExtResource("4_sh0wk")
+nesne_turu = 0
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Musluk_6" index="0"]
+transform = Transform3D(1, 0, 8.940697e-08, 0, 1, 0, -8.940697e-08, 0, 1, 0.19395071, 0.342287, -0.23466678)
+shape = SubResource("CapsuleShape3D_sh0wk")
+
+[node name="SuPartikulleri" type="CPUParticles3D" parent="Musluk_6" index="1"]
+transform = Transform3D(0.9250175, 0, -0.3799243, 0, 1, 0, 0.3799243, 0, 0.9250175, 0.26810455, 0.035860658, -0.35489398)
+emitting = false
+amount = 200
+lifetime = 0.5
+preprocess = 0.5
+mesh = SubResource("TubeTrailMesh_sh0wk")
+particle_flag_align_y = true
+gravity = Vector3(0, -15, 0)
+color = Color(0.45028847, 0.7993286, 1, 1)
+
+[node name="Blender" parent="." index="15" instance=ExtResource("5_tvibb")]
+transform = Transform3D(-2.1855694e-10, 0, 0.005, 0, 0.005, 0, -0.005, 0, -2.1855694e-10, -0.7327518, 0.247148, -3.1410043)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Blender" index="1"]
+collision_layer = 2
+script = ExtResource("4_sh0wk")
+nesne_turu = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Blender/StaticBody3D" index="0"]
+transform = Transform3D(1, 0, 3.5527137e-15, 0, 1, 0, -3.5527137e-15, 0, 1, 0.54919434, 25.085842, 0.60713196)
+shape = SubResource("BoxShape3D_tvibb")
+
+[node name="UI" type="CanvasLayer" parent="." index="16"]
+
+[node name="Label" type="Label" parent="UI" index="0"]
+anchors_preset = -1
+anchor_left = 0.50100005
+anchor_top = 0.95900005
+anchor_right = 0.50100005
+anchor_bottom = 0.95900005
+offset_left = -25.152039
+offset_top = -11.432007
+offset_right = 24.847961
+offset_bottom = 11.567993
+grow_horizontal = 2
+grow_vertical = 0
+label_settings = SubResource("LabelSettings_l7nfj")
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="GecisEkrani" type="ColorRect" parent="UI" index="1"]
+material = SubResource("ShaderMaterial_l7nfj")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Nisangah" type="TextureRect" parent="UI" index="2"]
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.52500004
+anchor_right = 0.5
+anchor_bottom = 0.52500004
+offset_left = -52.0
+offset_top = -55.200012
+offset_right = 1948.0
+offset_bottom = 1944.8
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.05, 0.05)
+mouse_filter = 2
+texture = ExtResource("8_l7nfj")
+
+[node name="KapiMarker3D" type="Marker3D" parent="." index="17"]
+transform = Transform3D(-2.1855695e-10, 0, 0.005, 0, 0.005, 0, -0.005, 0, -2.1855695e-10, 2.351478, -0.4499238, -5.6204414)
+
+[node name="Watch" parent="." index="18" instance=ExtResource("9_u2kip")]
+transform = Transform3D(-0.00044125534, 0, -0.00089738163, 0, 0.001, 0, 0.00089738163, 0, -0.00044125534, 1.3875554, 0.3230638, -2.407662)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Watch" index="2"]
+collision_layer = 7
+script = ExtResource("4_sh0wk")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Watch/StaticBody3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1.0000021, 0, 0, 0, 1, -14.996582, 31.144714, -36.077637)
+shape = SubResource("BoxShape3D_u2kip")
+
+[node name="Cup" parent="." index="19" instance=ExtResource("10_cfcbr")]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, -0.6864324, 0.2850112, -2.8836899)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Cup" index="1"]
+collision_layer = 7
+script = ExtResource("4_sh0wk")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Cup/StaticBody3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.29480028, 0.61035156, 0.30377197)
+shape = SubResource("BoxShape3D_cfcbr")
+
+[node name="Knife" parent="." index="20" instance=ExtResource("11_es2t6")]
+transform = Transform3D(0.75126415, -0.6276989, -0.2039517, 0, 0.30901697, -0.95105654, 0.66000164, 0.7144947, 0.23215337, 0.120224476, 0.32293114, -0.28744876)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Knife" index="1"]
+collision_layer = 7
+script = ExtResource("4_sh0wk")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Knife/StaticBody3D" index="0"]
+transform = Transform3D(1, -1.7881393e-07, -1.4901161e-07, -2.9802322e-08, 1.0000043, 1.4901161e-08, 1.4901161e-08, -5.662441e-07, 1.000001, -0.020469032, 0.15286706, 0.25117415)
+shape = SubResource("BoxShape3D_rtru8")

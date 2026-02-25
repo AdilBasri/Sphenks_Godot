@@ -1,0 +1,37 @@
+[gd_scene load_steps=11 format=3 uid="uid://7eln5qfuv1pk"]
+
+[ext_resource type="Script" uid="uid://lcig2p1w37xb" path="res://Scripts/Revolver.gd" id="1_5sh6x"]
+[ext_resource type="Texture2D" uid="uid://pxt1dj81v85q" path="res://Assets/Images/8.png" id="2_4b4yy"]
+[ext_resource type="PackedScene" uid="uid://bx7tdxkq76lis" path="res://Scenes/Items/Mermi.tscn" id="2_et1m5"]
+[ext_resource type="Texture2D" uid="uid://voqebcvvs771" path="res://Assets/Images/1.png" id="3_gx7qc"]
+[ext_resource type="Texture2D" uid="uid://d3ipcbi5gbqxf" path="res://Assets/Images/2.png" id="4_inykn"]
+[ext_resource type="Texture2D" uid="uid://caxxwir67n8id" path="res://Assets/Images/3.png" id="5_nh7w8"]
+[ext_resource type="Texture2D" uid="uid://so35mj37oqm5" path="res://Assets/Images/4.png" id="6_ydqp7"]
+[ext_resource type="Texture2D" uid="uid://csig7h6cqnmwc" path="res://Assets/Images/5.png" id="7_spchu"]
+[ext_resource type="Texture2D" uid="uid://cggbhh6wekaq7" path="res://Assets/Images/6.png" id="8_8y5hn"]
+[ext_resource type="Texture2D" uid="uid://d8nn0cuxn30r" path="res://Assets/Images/7.png" id="9_bmurv"]
+
+[node name="SilahKatmani" type="CanvasLayer" node_paths=PackedStringArray("silah_gorsel", "namlu_ucu")]
+script = ExtResource("1_5sh6x")
+silah_gorsel = NodePath("SilahPivot/SilahGorsel")
+namlu_ucu = NodePath("SilahPivot/SilahGorsel/NamluUcu")
+mermi_sahnesi = ExtResource("2_et1m5")
+animasyon_kareleri = Array[Texture2D]([ExtResource("3_gx7qc"), ExtResource("4_inykn"), ExtResource("5_nh7w8"), ExtResource("6_ydqp7"), ExtResource("7_spchu"), ExtResource("8_8y5hn"), ExtResource("9_bmurv"), ExtResource("2_4b4yy")])
+
+[node name="SilahPivot" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="SilahGorsel" type="TextureRect" parent="SilahPivot"]
+layout_mode = 1
+offset_left = 419.0
+offset_top = 27.0
+offset_right = 1258.0
+offset_bottom = 652.0
+texture = ExtResource("2_4b4yy")
+expand_mode = 1
+
+[node name="NamluUcu" type="Marker2D" parent="SilahPivot/SilahGorsel"]
+position = Vector2(391, 94)

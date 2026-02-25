@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=3 uid="uid://bx7tdxkq76lis"]
+
+[ext_resource type="Script" uid="uid://b5g36jycyfro0" path="res://Scripts/Mermi.gd" id="1_g4e33"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_3wjh3"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g4e33"]
+albedo_color = Color(1, 0.7411765, 0, 1)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1cvtc"]
+radius = 0.5083008
+height = 2.0373535
+
+[node name="Node3D" type="Area3D"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
+collision_layer = 5
+collision_mask = 3
+script = ExtResource("1_g4e33")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_3wjh3")
+surface_material_override/0 = SubResource("StandardMaterial3D_g4e33")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0032958984, 0)
+shape = SubResource("CapsuleShape3D_1cvtc")
