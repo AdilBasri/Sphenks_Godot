@@ -21,6 +21,7 @@ var tur_bitti_mi: bool = false
 var boss_oldu_mu: bool = false 
 var sag_tarafta_mi: bool = false # Sağa alındığında blokların yönünü düzeltmek için
 var dongu_basladi_mi: bool = false # GHOST BUG FIX (Yedekte duruyor)
+var _yer_kontrol_timer: Timer = null
 
 
 signal stok_bitti 
@@ -94,8 +95,28 @@ func baslat_spawn_dongusu() -> void:
 	print("!!! BLOK DAGITICISI TETIKLENDI !!!")
 	# Oyun başladığında (Tabureye oturunca) çağrılacak
 	_spawn_noktalarini_guncelle(true)
+	
+	# Periyodik yer kontrolü timer'ını başlat
+	if _yer_kontrol_timer == null:
+		_yer_kontrol_timer = Timer.new()
+		_yer_kontrol_timer.wait_time = 2.0
+		_yer_kontrol_timer.one_shot = false
+		add_child(_yer_kontrol_timer)
+		_yer_kontrol_timer.timeout.connect(_on_yer_kontrol_timer)
+	_yer_kontrol_timer.start()
+	
 	await get_tree().create_timer(0.5).timeout
 	_stoktan_yeni_parti_ver()
+
+func _on_yer_kontrol_timer():
+	# Her 2 saniyede bir blokların yerleşip yerleşemeyeceğini kontrol et
+	if tur_bitti_mi:
+		if _yer_kontrol_timer: _yer_kontrol_timer.stop()
+		return
+	# Boss aksiyondayken kontrol etme (boss daha taş koyuyor olabilir)
+	if LevelManager and LevelManager.is_boss_acting:
+		return
+	yer_yok_kontrolu_yap()
 
 func _spawn_noktalarini_guncelle(aktif: bool) -> void:
 	for nokta in spawn_noktalari:
@@ -132,6 +153,11 @@ func _stoktan_yeni_parti_ver() -> void:
 	
 	if dagitilacak_adet > 0:
 		spawn_bloklar(dagitilacak_adet)
+	else:
+		# Eğer yeni blok dağıtılmıyorsa (stok bitti ama masada kalan varsa)
+		# Kalan o blokların herhangi bir yere sığıp sığmadığını kontrol et
+		await get_tree().create_timer(0.2).timeout
+		yer_yok_kontrolu_yap()
 
 func _on_blok_yerlesti() -> void:
 	masadaki_aktif_bloklar -= 1
@@ -185,7 +211,8 @@ func _tur_sonu_hesaplamasi() -> void:
 	if "toplam_puan" in arayuz: skor = arayuz.toplam_puan
 	elif "puan" in arayuz: skor = arayuz.puan
 	
-	if skor >= arayuz.hedef_puan:
+	# Kazanma / Kaybetme Durumu
+	if skor >= arayuz.hedef_puan or boss_oldu_mu:
 		_sahne_bitis_animasyonu() 
 	else:
 		_oyun_kaybedildi(arayuz)
@@ -224,6 +251,10 @@ func spawn_bloklar(adet: int) -> void:
 		masadaki_aktif_bloklar += 1
 		_blok_yarat_ve_firlat(hedef_marker)
 		await get_tree().create_timer(0.2).timeout
+
+	# Her şey spawnlandıktan sonra yer var mı kontrol et
+	await get_tree().create_timer(0.5).timeout
+	yer_yok_kontrolu_yap()
 
 func _bos_spawn_noktasi_bul() -> Marker3D:
 	if spawn_noktalari.is_empty():
@@ -291,3 +322,83 @@ func _blok_yarat_ve_firlat(target_marker: Marker3D) -> void:
 	
 	# Rotasyonu Tweenle
 	tween.tween_property(yeni_blok, "rotation", hedef_rotasyon, 0.5)
+
+# --- YER YOK KONTROLÜ ---
+func yer_yok_kontrolu_yap() -> void:
+	if tur_bitti_mi: return
+	if not grid: return
+	
+	# Sahnedeki tüm sürüklenebilir blokları topla
+	var tum_bloklar = get_tree().get_nodes_in_group("Blok")
+	var suruklenebilir_bloklar: Array = []
+	for child in tum_bloklar:
+		if child is BlokSurukle and is_instance_valid(child) and not child.is_queued_for_deletion():
+			# Phantom (hayalet/gizli) blokları engellemek için sadece spawn noktasındakileri veya eldekini al
+			if child.get("tutuluyor") == true or (child.get_parent() in spawn_noktalari):
+				suruklenebilir_bloklar.append(child)
+	
+	# Eğer masada/elde hiç sürüklenebilir blok yoksa VE stok da bittiyse,
+	# oyun zaten _tur_sonu_hesaplamasi ile bitecek. Burada kontrol etmemize gerek yok.
+	if suruklenebilir_bloklar.size() <= 0:
+		if kalan_stok <= 0:
+			if not tur_bitti_mi:
+				_tur_sonu_hesaplamasi()
+		return
+	
+	var en_az_yere_koyulabilen_var_mi = false
+	
+	for child in suruklenebilir_bloklar:
+		var orj_fp = child.footprint
+		for rot in range(4):
+			var test_fp = child._footprint_dondur(orj_fp, rot)
+			for x in range(grid.grid_boyutu.x):
+				for y in range(grid.grid_boyutu.y):
+					if grid.can_place(Vector2i(x, y), test_fp):
+						en_az_yere_koyulabilen_var_mi = true
+						break
+				if en_az_yere_koyulabilen_var_mi: break
+			if en_az_yere_koyulabilen_var_mi: break
+		if en_az_yere_koyulabilen_var_mi: break
+		
+	if not en_az_yere_koyulabilen_var_mi:
+		print(">>> GRID DOLDU! HICBIR BLOK KOYULAMIYOR! OYUN BİTTİ! <<<")
+		
+		# Timer'ı durdur
+		if _yer_kontrol_timer: _yer_kontrol_timer.stop()
+		
+		var arayuz = get_tree().get_first_node_in_group("Arayuz")
+		
+		# Boss eğer saldırma modundaysa anında kes
+		if LevelManager:
+			LevelManager.is_boss_acting = false
+		var boss = get_tree().get_first_node_in_group("Dusman")
+		if boss and is_instance_valid(boss):
+			boss.set_process(false)
+			if boss.has_method("boss_durumu_sifirla"):
+				boss.boss_durumu_sifirla()
+			if "oldu_mu" in boss:
+				boss.oldu_mu = true # Boss'un tüm devam eden rutinlerini durdurur
+		
+		# Kazanma / Kaybetme Durumu:
+		if boss_oldu_mu:
+			# Boss öldüyse ve şimdi yer kalmadıysa bu bir zaferdir, oyuncu kasacağını kastı
+			print(">>> BOSS ÖLMÜŞTÜ VE ŞİMDİ YER KALMADI. KAZANARAK ÇIKIYOR.")
+			if arayuz and arayuz.has_method("bilgi_goster"):
+				arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss"), 5.0)
+		else:
+			# Boss ölmediyse ve yer kalmadıysa kaybetme
+			if arayuz and arayuz.has_method("puan_ekle"):
+				arayuz.puan_ekle(0, "MASADA YER KALMADI - KAYBETTİN")
+			
+		var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+		if oyuncu:
+			# Oyuncunun elindeki bloklar dahil tüm aktif serbest blokları sil
+			get_tree().call_group("Blok", "queue_free")
+			if oyuncu.has_method("stand_up"):
+				oyuncu.stand_up()
+		
+		# Oyun bitirme animasyonuna geç
+		tur_bitti_mi = true
+		_sahne_bitis_animasyonu()
+	else:
+		print(">>> Yer var, oyun devam ediyor.")
