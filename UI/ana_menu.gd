@@ -65,8 +65,10 @@ func _on_oyna_pressed():
 		# GameManager'daki kayıtlı seviyeyi garantiye al
 		GameManager.oyunu_yukle()
 		
-		if GameManager.kayitli_seviye > 0:
-			GameManager.suanki_seviye = GameManager.kayitli_seviye
+		# LEVEL MANAGER UZERINDEN YONLENDIR Kİ PYRO VS KONTROLLERİ YAPILSIN
+		var level_manager = get_node_or_null("/root/LevelManager")
+		if level_manager and level_manager.has_method("oyunu_baslat"):
+			level_manager.oyunu_baslat()
 		else:
 			GameManager.suanki_seviye = 1
 			

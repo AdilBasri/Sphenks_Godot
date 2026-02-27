@@ -81,6 +81,9 @@ func odaya_don_ve_level_atla():
 		GameManager.mantar_modu = false
 		GameManager.silah_cekildi = false # KESİN SİLAH KAPATMA
 		GameManager.pyro_aktif = false    # KESİN PYRO KAPATMA
+		GameManager.yeme_aktif_mi = false
+	
+	is_boss_acting = false # KESİN BOSS KİLİDİ AÇMA
 	
 	# Oyuncunun elde tuttuğu nesneyi/eşya temizle
 	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")

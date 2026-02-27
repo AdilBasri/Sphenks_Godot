@@ -131,6 +131,9 @@ func _ready():
 	call_deferred("_gore_vignette_katmana_tasi")
 	# GoreVignette: bir frame sonra kalıcı intensity uygula (node'lar hazır olsun)
 	call_deferred("_gore_kalici_intensity_uygula")
+	
+	if gore_vignette:
+		gore_vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 func _input(event):
 	if not kamera or oldu_mu: return 
@@ -1350,10 +1353,10 @@ func yeme_tamamlandi():
 		fov_tween.tween_property(kamera, "fov", orijinal_fov, 0.8).set_trans(Tween.TRANS_CUBIC)
 	
 	# --- İYİLEŞME ---
-	if suanki_hp < 10:
-		suanki_hp = 10
-	elif suanki_can_bari < max_can_bari:
+	if suanki_can_bari < max_can_bari:
 		suanki_can_bari += 1
+		suanki_hp = 10
+	elif suanki_hp < 10:
 		suanki_hp = 10
 	
 	if GameManager:
