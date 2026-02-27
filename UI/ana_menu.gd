@@ -70,7 +70,7 @@ func _on_oyna_pressed():
 		else:
 			GameManager.suanki_seviye = 1
 			
-		get_tree().change_scene_to_file(oyun_sahnesi_yolu)
+		LevelManager.oyunu_baslat() # LevelManager doğru sahneyi (Sphenks veya Pyro) otomatik seçecek
 
 	# DURUM B: Yeni Oyuncu (veya save silinmiş) (SIFIRDAN BAŞLIYOR)
 	else:
