@@ -66,13 +66,8 @@ func _on_oyna_pressed():
 		GameManager.oyunu_yukle()
 		
 		# LEVEL MANAGER UZERINDEN YONLENDIR Kİ PYRO VS KONTROLLERİ YAPILSIN
-		var level_manager = get_node_or_null("/root/LevelManager")
-		if level_manager and level_manager.has_method("oyunu_baslat"):
-			level_manager.oyunu_baslat()
-		else:
-			GameManager.suanki_seviye = 1
-			
-		LevelManager.oyunu_baslat() # LevelManager doğru sahneyi (Sphenks veya Pyro) otomatik seçecek
+		if LevelManager:
+			LevelManager.oyunu_baslat()
 
 	# DURUM B: Yeni Oyuncu (veya save silinmiş) (SIFIRDAN BAŞLIYOR)
 	else:
