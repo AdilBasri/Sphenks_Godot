@@ -819,7 +819,6 @@ texture = ExtResource("25_lxn88")
 [node name="Zemin" type="CSGBox3D" parent="." index="16"]
 transform = Transform3D(20, 0, 0, 0, 0.5, 0, 0, 0, 20, -0.0067620277, -0.8497947, -0.0027458668)
 material_override = SubResource("StandardMaterial3D_lxn88")
-material_overlay = SubResource("StandardMaterial3D_offaw")
 use_collision = true
 material = SubResource("StandardMaterial3D_yiyi8")
 
