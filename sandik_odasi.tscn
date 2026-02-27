@@ -1,0 +1,301 @@
+[gd_scene load_steps=17 format=3 uid="uid://cfaplsccb7koj"]
+
+[ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="1_d7n4i"]
+[ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="2_7mg4g"]
+[ext_resource type="Texture2D" uid="uid://dm3cprrc1lljc" path="res://Assets/Images/çerçeve_bar.png" id="3_rw5ek"]
+[ext_resource type="Texture2D" uid="uid://bg20iuynejlup" path="res://Assets/Images/iç_bar.png" id="4_lfnwa"]
+[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="5_e554l"]
+[ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="6_cbsel"]
+[ext_resource type="PackedScene" uid="uid://dlnne4b7iscxy" path="res://Chest/scene.gltf" id="7_7mg4g"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ibgfy"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_orfup"]
+font = ExtResource("2_7mg4g")
+font_color = Color(1, 1, 0, 1)
+shadow_size = 3
+shadow_color = Color(0, 0, 0, 0.84705883)
+
+[sub_resource type="LabelSettings" id="LabelSettings_r4ovc"]
+font = ExtResource("2_7mg4g")
+font_size = 32
+font_color = Color(1, 0, 0, 1)
+shadow_size = 5
+shadow_color = Color(1, 0, 0, 0)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_betet"]
+atlas = ExtResource("3_rw5ek")
+region = Rect2(389.22156, 296.0412, 1253.7622, 1473.935)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lu6xd"]
+atlas = ExtResource("4_lfnwa")
+region = Rect2(375.71313, 280.9171, 1237.1509, 1443.3556)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_h5h5o"]
+shader = ExtResource("6_cbsel")
+shader_parameter/brightness = 1.1
+shader_parameter/contrast = 1.15
+shader_parameter/saturation = 0.6
+shader_parameter/tone_shadow = Color(0.05, 0, 0, 1)
+shader_parameter/tone_crimson = Color(0.55, 0.02, 0.02, 1)
+shader_parameter/tone_ash = Color(0.24, 0.21, 0.19, 1)
+shader_parameter/tone_gold = Color(0.78, 0.6, 0.23, 1)
+shader_parameter/palette_strength = 0.58
+shader_parameter/crimson_bleed = 0.18
+shader_parameter/ca_strength = 0.003
+shader_parameter/grain_amount = 0.06
+shader_parameter/vignette_intensity = 0.3
+shader_parameter/vignette_color = Color(0.04, 0, 0, 1)
+shader_parameter/scanline_intensity = 0.1
+shader_parameter/scanline_count = 300.0
+shader_parameter/dither_amount = 0.025
+
+[sub_resource type="Environment" id="Environment_7mg4g"]
+background_energy_multiplier = 0.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_7mg4g"]
+size = Vector3(1.5, 0.1, 1.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rw5ek"]
+albedo_texture_force_srgb = true
+metallic = 0.1
+
+[node name="Node3D" type="Node3D"]
+
+[node name="sandik_odası" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.593939, 2.5781388, -35.453472)
+use_collision = true
+collision_layer = 255
+size = Vector3(10, 6, 14.0616455)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="sandik_odası"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.3901367)
+operation = 2
+size = Vector3(9.5, 5.6, 16.719727)
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="sandik_odası"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5815582, 0.07639241, 6.415947)
+light_color = Color(0.5411765, 0.011764706, 0.011764706, 1)
+light_energy = 0.5
+light_specular = 16.0
+shadow_enabled = true
+omni_range = 6.0
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="sandik_odası"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18148804, 0.07639241, -6.130024)
+light_color = Color(0.5411765, 0.011764706, 0.011764706, 1)
+light_energy = 0.5
+light_specular = 16.0
+shadow_enabled = true
+omni_range = 6.0
+
+[node name="OmniLight3D4" type="OmniLight3D" parent="sandik_odası"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.4874935, 0.07639241, -0.58210754)
+light_color = Color(0.5411765, 0.011764706, 0.011764706, 1)
+light_energy = 0.5
+light_specular = 16.0
+shadow_enabled = true
+omni_range = 6.0
+
+[node name="OmniLight3D5" type="OmniLight3D" parent="sandik_odası"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.940172, 0.07639241, 0.18653107)
+light_color = Color(0.5411765, 0.011764706, 0.011764706, 1)
+light_energy = 0.5
+light_specular = 16.0
+shadow_enabled = true
+omni_range = 6.0
+
+[node name="Oyuncu" type="CharacterBody3D" parent="." node_paths=PackedStringArray("kamera", "ui_container") groups=["Oyuncu"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.119123, 1.587481, -29.317291)
+script = ExtResource("1_d7n4i")
+kamera = NodePath("Camera3D")
+ui_container = NodePath("CanBarlariContainer")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Oyuncu"]
+shape = SubResource("CapsuleShape3D_ibgfy")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="Oyuncu"]
+
+[node name="EtkilesimYazisi" type="Label" parent="Oyuncu/CanvasLayer"]
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.85
+anchor_right = 0.5
+anchor_bottom = 0.85
+offset_left = -150.0
+offset_top = -20.0
+offset_right = 150.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+label_settings = SubResource("LabelSettings_orfup")
+horizontal_alignment = 1
+
+[node name="HasarYazisi" type="Label" parent="Oyuncu/CanvasLayer"]
+visible = false
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -16.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "HASAR: 0"
+label_settings = SubResource("LabelSettings_r4ovc")
+horizontal_alignment = 1
+
+[node name="CanBarlariContainer" type="HBoxContainer" parent="Oyuncu"]
+anchors_preset = -1
+anchor_left = 0.041
+anchor_top = 0.053000003
+anchor_right = 0.044000003
+anchor_bottom = 0.053000003
+offset_left = -51.232002
+offset_top = -35.344
+offset_right = 4042.312
+offset_bottom = 2012.656
+scale = Vector2(0.07, 0.07)
+theme_override_constants/separation = -200
+
+[node name="Bar1" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+texture_over = SubResource("AtlasTexture_betet")
+texture_progress = SubResource("AtlasTexture_lu6xd")
+
+[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar1"]
+visible = false
+layout_mode = 0
+offset_left = -1059.0
+offset_top = -928.5713
+offset_right = 989.0
+offset_bottom = 1119.4287
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("5_e554l")
+
+[node name="Bar2" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+texture_over = SubResource("AtlasTexture_betet")
+texture_progress = SubResource("AtlasTexture_lu6xd")
+
+[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar2"]
+visible = false
+layout_mode = 0
+offset_left = -1059.0
+offset_top = -928.5713
+offset_right = 989.0
+offset_bottom = 1119.4287
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("5_e554l")
+
+[node name="Bar3" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+texture_over = SubResource("AtlasTexture_betet")
+texture_progress = SubResource("AtlasTexture_lu6xd")
+
+[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar3"]
+visible = false
+layout_mode = 0
+offset_left = -1059.0
+offset_top = -928.5713
+offset_right = 989.0
+offset_bottom = 1119.4287
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("5_e554l")
+
+[node name="Bar4" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+fill_mode = 3
+texture_over = SubResource("AtlasTexture_betet")
+texture_progress = SubResource("AtlasTexture_lu6xd")
+
+[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar4"]
+visible = false
+layout_mode = 0
+offset_left = -1059.0
+offset_top = -928.5713
+offset_right = 989.0
+offset_bottom = 1119.4287
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("5_e554l")
+
+[node name="Camera3D" type="Camera3D" parent="Oyuncu" groups=["OyuncuKamera"]]
+physics_interpolation_mode = 2
+transform = Transform3D(0.99888355, -0.024378376, -0.040465526, 0.01922809, 0.9922066, -0.12311137, 0.043151416, 0.12219585, 0.9915675, -0.045120563, 0.83062285, 0.014348984)
+current = true
+
+[node name="RayCast3D" type="RayCast3D" parent="Oyuncu/Camera3D"]
+target_position = Vector3(0, 0, -2.5)
+collision_mask = 15
+
+[node name="GlobalFiltre" type="CanvasLayer" parent="Oyuncu/Camera3D"]
+layer = 100
+
+[node name="ColorRect" type="ColorRect" parent="Oyuncu/Camera3D/GlobalFiltre"]
+material = SubResource("ShaderMaterial_h5h5o")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="sandık1" parent="." instance=ExtResource("7_7mg4g")]
+transform = Transform3D(0.5472565, 0, -0.83696496, 0, 1, 0, 0.83696496, 0, 0.5472565, 21, 0.3, -40)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_7mg4g")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.586811, 3.373688, -33.35241)
+light_color = Color(0.18039216, 0.03137255, 0.32941177, 1)
+light_energy = 2.5
+shadow_enabled = true
+omni_range = 6.0
+
+[node name="Node3D" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4775848, -0.5599737, 0.541111)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.384, 0.6, -33.785)
+size = Vector3(0.2, 0.6, 0.2)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.338, 0.6, -33.785)
+size = Vector3(0.2, 0.6, 0.2)
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.338, 0.6, -32.692)
+size = Vector3(0.2, 0.6, 0.2)
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.396, 0.6, -32.692)
+size = Vector3(0.2, 0.6, 0.2)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.8425, 0.8637693, -33.239662)
+mesh = SubResource("BoxMesh_7mg4g")
+surface_material_override/0 = SubResource("StandardMaterial3D_rw5ek")
+
+[node name="sandık2" parent="." instance=ExtResource("7_7mg4g")]
+transform = Transform3D(0.7119893, 0, 0.70219034, 0, 1, 0, -0.70219034, 0, 0.7119893, 16, 0.3, -38)
+
+[node name="sandık3" parent="." instance=ExtResource("7_7mg4g")]
+transform = Transform3D(0.7036304, 0, 0.71056616, 0, 1, 0, -0.71056616, 0, 0.7036304, 16, 0.3, -36)
+
+[node name="sandık4" parent="." instance=ExtResource("7_7mg4g")]
+transform = Transform3D(0.9107702, 0, 0.41291368, 0, 1, 0, -0.41291368, 0, 0.9107702, 16, 0.3, -40)
+
+[node name="sandık5" parent="." instance=ExtResource("7_7mg4g")]
+transform = Transform3D(0.5696812, 0, -0.82186574, 0, 1, 0, 0.82186574, 0, 0.5696812, 21, 0.3, -38)
+
+[node name="sandık6" parent="." instance=ExtResource("7_7mg4g")]
+transform = Transform3D(0.541268, 0, -0.8408501, 0, 1, 0, 0.8408501, 0, 0.541268, 21, 0.3, -36)
