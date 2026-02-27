@@ -1,0 +1,11 @@
+Model Information:
+* title:	Rusted Medieval Chandelier
+* source:	https://sketchfab.com/3d-models/rusted-medieval-chandelier-0b116d7adcdb4427a9a30b28f86e7051
+* author:	matthew.baldini (https://sketchfab.com/matthew.baldini)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Rusted Medieval Chandelier" (https://sketchfab.com/3d-models/rusted-medieval-chandelier-0b116d7adcdb4427a9a30b28f86e7051) by matthew.baldini (https://sketchfab.com/matthew.baldini) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

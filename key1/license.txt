@@ -1,0 +1,11 @@
+Model Information:
+* title:	KEY
+* source:	https://sketchfab.com/3d-models/key-aeb6b20f890a4ea68b9720c213995984
+* author:	spooneystone (https://sketchfab.com/spooneystone)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "KEY" (https://sketchfab.com/3d-models/key-aeb6b20f890a4ea68b9720c213995984) by spooneystone (https://sketchfab.com/spooneystone) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
