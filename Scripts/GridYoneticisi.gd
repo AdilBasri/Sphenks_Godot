@@ -347,8 +347,21 @@ func _gelismis_puan_hesapla(satir, bloklar, mantar_ekstra = 0.0):
 	# Sinyal Gönder
 	emit_signal("puan_kazanildi", int(p))
 	
+	# --- YENİ GOLD KAZANMA SİSTEMİ ---
+	var kazanilan_altin = 0
+	if satir == 1: kazanilan_altin = 3
+	elif satir == 2: kazanilan_altin = 7
+	elif satir >= 3: kazanilan_altin = 12
+	
+	if kazanilan_altin > 0 and GameManager:
+		GameManager.toplam_altin += kazanilan_altin
+		GameManager.emit_signal("altin_guncellendi", GameManager.toplam_altin)
+	
 	# Arayüzde Gösterim
 	var mesaj = "KOMBO x" + str(kombo_carpani)
+	if kazanilan_altin > 0:
+		mesaj += " (+" + str(kazanilan_altin) + " GOLD)"
+		
 	if GameManager.puan_carpani > 1.0:
 		mesaj += " (GÜÇ x1.3)" # Oyuncu iksirin çalıştığını görsün
 	if mantar_ekstra > 0.0:

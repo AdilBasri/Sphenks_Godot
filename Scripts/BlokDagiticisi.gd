@@ -110,7 +110,7 @@ func baslat_spawn_dongusu() -> void:
 
 func _on_yer_kontrol_timer():
 	# Her 2 saniyede bir blokların yerleşip yerleşemeyeceğini kontrol et
-	if tur_bitti_mi or boss_oldu_mu:
+	if tur_bitti_mi:
 		if _yer_kontrol_timer: _yer_kontrol_timer.stop()
 		return
 	# Boss aksiyondayken kontrol etme (boss daha taş koyuyor olabilir)
@@ -211,7 +211,8 @@ func _tur_sonu_hesaplamasi() -> void:
 	if "toplam_puan" in arayuz: skor = arayuz.toplam_puan
 	elif "puan" in arayuz: skor = arayuz.puan
 	
-	if skor >= arayuz.hedef_puan:
+	# Kazanma / Kaybetme Durumu
+	if skor >= arayuz.hedef_puan or boss_oldu_mu:
 		_sahne_bitis_animasyonu() 
 	else:
 		_oyun_kaybedildi(arayuz)
@@ -324,7 +325,7 @@ func _blok_yarat_ve_firlat(target_marker: Marker3D) -> void:
 
 # --- YER YOK KONTROLÜ ---
 func yer_yok_kontrolu_yap() -> void:
-	if tur_bitti_mi or boss_oldu_mu: return
+	if tur_bitti_mi: return
 	if not grid: return
 	
 	# Sahnedeki tüm sürüklenebilir blokları topla
@@ -366,9 +367,7 @@ func yer_yok_kontrolu_yap() -> void:
 		if _yer_kontrol_timer: _yer_kontrol_timer.stop()
 		
 		var arayuz = get_tree().get_first_node_in_group("Arayuz")
-		if arayuz and arayuz.has_method("puan_ekle"):
-			arayuz.puan_ekle(0, "MASADA YER KALMADI - KAYBETTİN")
-			
+		
 		# Boss eğer saldırma modundaysa anında kes
 		if LevelManager:
 			LevelManager.is_boss_acting = false
@@ -379,6 +378,17 @@ func yer_yok_kontrolu_yap() -> void:
 				boss.boss_durumu_sifirla()
 			if "oldu_mu" in boss:
 				boss.oldu_mu = true # Boss'un tüm devam eden rutinlerini durdurur
+		
+		# Kazanma / Kaybetme Durumu:
+		if boss_oldu_mu:
+			# Boss öldüyse ve şimdi yer kalmadıysa bu bir zaferdir, oyuncu kasacağını kastı
+			print(">>> BOSS ÖLMÜŞTÜ VE ŞİMDİ YER KALMADI. KAZANARAK ÇIKIYOR.")
+			if arayuz and arayuz.has_method("bilgi_goster"):
+				arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss"), 5.0)
+		else:
+			# Boss ölmediyse ve yer kalmadıysa kaybetme
+			if arayuz and arayuz.has_method("puan_ekle"):
+				arayuz.puan_ekle(0, "MASADA YER KALMADI - KAYBETTİN")
 			
 		var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
 		if oyuncu:
