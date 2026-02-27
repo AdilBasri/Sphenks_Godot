@@ -14,10 +14,28 @@ var islem_mesgul: bool = false
 var flash_rect: ColorRect = null
 var oyuncu_ref: Node = null
 
+# --- SES ---
+var sfx_inspect: AudioStreamPlayer
+var sfx_blank: AudioStreamPlayer
+var sfx_fire: AudioStreamPlayer
+
 func _ready():
 	# Başlangıçta silahı gizle
 	visible = false
 	GameManager.silah_cekildi = false  # Başlangıçta silah kesinlikle gizli
+	
+	sfx_inspect = AudioStreamPlayer.new()
+	sfx_inspect.stream = load("res://Sesler/gun_inspect.mp3")
+	add_child(sfx_inspect)
+	
+	sfx_blank = AudioStreamPlayer.new()
+	sfx_blank.stream = load("res://Sesler/gun_blank.mp3")
+	add_child(sfx_blank)
+	
+	sfx_fire = AudioStreamPlayer.new()
+	sfx_fire.stream = load("res://Sesler/gun_fire.mp3")
+	add_child(sfx_fire)
+	
 	if silah_gorsel:
 		orjinal_pos = silah_gorsel.position
 		if animasyon_kareleri.size() > 0:
@@ -51,6 +69,7 @@ func _input(event):
 
 	# --- F TUŞU: İNCELEME (Sadece Silah Çekiliyse) ---
 	if GameManager.silah_cekildi and event.is_action_pressed("incele") and not islem_mesgul:
+		sfx_inspect.play()
 		_animasyon_oynat_incele()
 
 func _silah_durumunu_degistir():
@@ -92,6 +111,7 @@ func _animasyon_oynat_incele():
 	islem_mesgul = false
 
 func _animasyon_oynat_ates():
+	sfx_fire.play()
 	islem_mesgul = true
 	silah_gorsel.texture = animasyon_kareleri[7]
 	var tween = create_tween()
@@ -162,6 +182,8 @@ func _mermi_olustur():
 	mermi.baslat(hedef_yonu)
 
 func _mermi_yok_uyarisi():
+	if not sfx_blank.playing:
+		sfx_blank.play()
 	var tween = create_tween()
 	tween.tween_property(silah_gorsel, "modulate", Color.RED, 0.1)
 	tween.tween_property(silah_gorsel, "modulate", Color.WHITE, 0.1)

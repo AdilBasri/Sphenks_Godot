@@ -147,6 +147,11 @@ omni_range = 6.0
 [node name="WorldEnvironment" type="WorldEnvironment" parent="sandik_odası"]
 environment = SubResource("Environment_7mg4g")
 
+[node name="CSGBox3D2" type="CSGBox3D" parent="sandik_odası"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.10178375, -1.7096252, -7.293232)
+operation = 2
+size = Vector3(1.514389, 3.1246948, 0.92663574)
+
 [node name="Oyuncu" type="CharacterBody3D" parent="." node_paths=PackedStringArray("kamera", "ui_container") groups=["Oyuncu"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.532042, 1.1089067, -29.317291)
 script = ExtResource("1_d7n4i")
@@ -370,10 +375,8 @@ transform = Transform3D(0.5472565, 0, -0.83696496, 0, 1, 0, 0.83696496, 0, 0.547
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Masa_Sandik/sandık1/Sketchfab_model/Collada visual scene group/g/defaultMaterial/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_f4ifs")
 
-[node name="KapiSistemi" parent="." node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("9_e554l")]
+[node name="KapiSistemi" parent="." instance=ExtResource("9_e554l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.252293, 0.9280957, -42.407173)
-kapi_isigi = NodePath("")
-gecit_efektleri = NodePath("")
 
 [node name="OnYuz" parent="KapiSistemi/Govde" index="0"]
 transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)

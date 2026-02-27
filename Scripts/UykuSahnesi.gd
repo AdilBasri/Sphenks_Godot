@@ -6,6 +6,7 @@ extends Node3D
 var sandik_hedef_z = -26.5
 var mesafe_kapanacak = false
 var kapanis_basladi = false
+var sfx_drag: AudioStreamPlayer3D
 
 class ChestInteract extends StaticBody3D:
 	var ana_sahne: Node = null
@@ -22,6 +23,13 @@ class ChestInteract extends StaticBody3D:
 func _ready():
 	var crunch_shader_path = "res://Materials_Shaders/texture_crunch.gdshader"
 	_remove_crunch_from_all_meshes(self, crunch_shader_path)
+	
+	sfx_drag = AudioStreamPlayer3D.new()
+	var d_stream = load("res://Sesler/chest_dragging.mp3")
+	if d_stream and "loop" in d_stream: d_stream.loop = true
+	sfx_drag.stream = d_stream
+	sfx_drag.bus = "Master"
+	chest.add_child(sfx_drag)
 	
 	# Global filtreyi de ilk rüyada kapatalım (tüm oyunda olan global.gdshader)
 	if oyuncu and oyuncu.has_node("Camera3D/GlobalFiltre"):
@@ -52,12 +60,16 @@ func _ready():
 		$KapiSistemi.hedef_tipi = 1 # SONRAKI_LEVEL
 
 func _process(delta):
-	if kapanis_basladi: return
+	if kapanis_basladi:
+		if sfx_drag and sfx_drag.playing: sfx_drag.stop()
+		return
 	
 	var dist = oyuncu.global_position.distance_to(chest.global_position)
+	var is_moving = false
 	
 	if not mesafe_kapanacak:
 		if dist < 6.0 and chest.position.z > sandik_hedef_z:
+			is_moving = true
 			var speed = 4.5
 			if Input.is_action_pressed("kosma"):
 				speed = 7.5
@@ -68,6 +80,13 @@ func _process(delta):
 				mesafe_kapanacak = true
 		elif dist <= 3.5 and chest.position.z <= sandik_hedef_z:
 			mesafe_kapanacak = true
+			
+	if is_moving:
+		if sfx_drag and not sfx_drag.playing:
+			sfx_drag.play()
+	else:
+		if sfx_drag and sfx_drag.playing:
+			sfx_drag.stop()
 
 func sandik_acildi():
 	if kapanis_basladi: return

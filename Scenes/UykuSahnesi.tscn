@@ -5,9 +5,9 @@
 [ext_resource type="PackedScene" uid="uid://665m2jm2rk2w" path="res://Chest/ChestEfekt/demon_skull/scene.gltf" id="3_rsd1s"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="4_cg10u"]
 [ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="5_oeie3"]
-[ext_resource type="Texture2D" uid="uid://5oxpd5ppfsmg" path="res://Assets/Images/çerçeve_bar.png" id="6_0fgoa"]
+[ext_resource type="Texture2D" uid="uid://ncorow4carpw" path="res://Assets/Images/çerçeve_bar.png" id="6_0fgoa"]
 [ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://Assets/Images/iç_bar.png" id="7_p4lah"]
-[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="8_rssxq"]
+[ext_resource type="Texture2D" uid="uid://b5k4ffrdw2m3u" path="res://Assets/carpi.png" id="8_rssxq"]
 [ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="9_701ws"]
 [ext_resource type="PackedScene" uid="uid://btckn4ob1oifj" path="res://Chest/ChestEfekt/kol/scene.gltf" id="10_cg10u"]
 [ext_resource type="PackedScene" uid="uid://bcaphl238c1gj" path="res://Scenes/Kafa.tscn" id="11_oeie3"]
@@ -47,12 +47,19 @@ shader = ExtResource("9_701ws")
 shader_parameter/brightness = 1.1
 shader_parameter/contrast = 1.15
 shader_parameter/saturation = 0.6
-shader_parameter/shadow_color = Color(0.08, 0.1, 0.15, 1)
-shader_parameter/highlight_color = Color(0.9, 0.85, 0.7, 1)
-shader_parameter/tint_blend = 0.45
+shader_parameter/tone_shadow = Color(0.05, 0, 0, 1)
+shader_parameter/tone_crimson = Color(0.55, 0.02, 0.02, 1)
+shader_parameter/tone_ash = Color(0.24, 0.21, 0.19, 1)
+shader_parameter/tone_gold = Color(0.78, 0.6, 0.23, 1)
+shader_parameter/palette_strength = 0.58
+shader_parameter/crimson_bleed = 0.18
 shader_parameter/ca_strength = 0.003
 shader_parameter/grain_amount = 0.06
 shader_parameter/vignette_intensity = 0.3
+shader_parameter/vignette_color = Color(0.04, 0, 0, 1)
+shader_parameter/scanline_intensity = 0.1
+shader_parameter/scanline_count = 300.0
+shader_parameter/dither_amount = 0.025
 
 [node name="UykuSahnesi1" type="Node3D"]
 script = ExtResource("1_x8xa3")

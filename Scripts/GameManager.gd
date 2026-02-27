@@ -61,8 +61,41 @@ var ghost_canvas: CanvasLayer = null
 func _ready():
 	print("GameManager Başlatıldı.")
 	_setup_gamepad()
+	_init_audio()
 	# Sadece intro durumunu yükle — oyun state'i her açılışta sıfır başlar
 	_intro_durumu_yukle()
+
+var bgm_player: AudioStreamPlayer
+var suanki_muzik: int = 1
+
+func _init_audio():
+	bgm_player = AudioStreamPlayer.new()
+	bgm_player.volume_db = -10.0
+	bgm_player.bus = "Master"
+	add_child(bgm_player)
+	
+	bgm_player.finished.connect(_sonraki_muzige_gec)
+	_sonraki_muzige_gec()
+
+func _sonraki_muzige_gec():
+	var muzik_yolu = "res://Sesler/background_music_1.mp3"
+	if suanki_muzik == 2:
+		muzik_yolu = "res://Sesler/background_music_2.mp3"
+		suanki_muzik = 1
+	else:
+		suanki_muzik = 2
+		
+	var stream = load(muzik_yolu)
+	
+	# Döngüyü Kapat ki bittiğinde finished sinyali tetiklensin
+	if stream and stream is AudioStreamWAV:
+		stream.loop_mode = AudioStreamWAV.LOOP_DISABLED
+	elif stream and stream is AudioStreamMP3:
+		stream.loop = false
+		
+	bgm_player.stream = stream
+	bgm_player.play()
+
 
 func _setup_gamepad():
 	# Sol Tik (A)

@@ -17,6 +17,18 @@ var cards_resolved: bool = false # KART SEÇİMİ VE KAPI ETKİLEŞİMİ DÜZELT
 func _ready():
 	_kartlari_olustur()
 	
+	var kampates = get_node_or_null("KampAtesi")
+	if kampates:
+		var sfx = AudioStreamPlayer3D.new()
+		var stream = load("res://Sesler/campfire.mp3")
+		if stream and stream is AudioStream:
+			if stream.has_method("set_loop"): stream.set_loop(true)
+			elif "loop" in stream: stream.loop = true
+		sfx.stream = stream
+		sfx.bus = "Master"
+		sfx.autoplay = true
+		kampates.add_child(sfx)
+	
 	# Campfire kapısını bul ve kilitli başlat
 	var sahne_koku = get_tree().current_scene
 	if sahne_koku:

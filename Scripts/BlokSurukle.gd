@@ -291,11 +291,25 @@ func _birak() -> void:
 				grid.satirlari_kontrol_et()
 			if hayalet: hayalet.visible = false
 			
+			var sfx = AudioStreamPlayer.new()
+			sfx.stream = load("res://Sesler/place_block.mp3")
+			sfx.bus = "Master"
+			get_tree().current_scene.add_child(sfx)
+			sfx.play()
+			sfx.finished.connect(sfx.queue_free)
+			
 			emit_signal("blok_yerlesti")
 			GameManager.blok_yerlestirildi.emit()
 			queue_free() 
 
 	if not basarili:
+		var err_sfx = AudioStreamPlayer.new()
+		err_sfx.stream = load("res://Sesler/ErrorSound.mp3")
+		err_sfx.bus = "Master"
+		get_tree().current_scene.add_child(err_sfx)
+		err_sfx.play()
+		err_sfx.finished.connect(err_sfx.queue_free)
+		
 		_eve_don()
 
 func _eve_don() -> void:

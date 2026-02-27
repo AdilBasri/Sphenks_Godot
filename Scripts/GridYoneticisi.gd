@@ -153,12 +153,6 @@ func tek_hucre_doldur(cell: Vector2i, item: Node3D) -> void:
 	if is_inside_tree():
 		if kamera_sarsinti_scripti and kamera_sarsinti_scripti.has_method("shake"):
 			kamera_sarsinti_scripti.shake(0.2)
-		if koyma_sesi:
-			var as_player = AudioStreamPlayer.new()
-			as_player.stream = koyma_sesi
-			add_child(as_player)
-			as_player.play()
-			as_player.finished.connect(as_player.queue_free)
 		if toz_efekti_sahnesi and item:
 			var toz = toz_efekti_sahnesi.instantiate()
 			add_child(toz)

@@ -49,8 +49,19 @@ var _saldiri_resume_ediliyor: bool = false
 # HAZIRLIK
 # ==========================================
 
+var sfx_snore: AudioStreamPlayer3D
+
 func _ready():
 	add_to_group("Dusman")
+	
+	sfx_snore = AudioStreamPlayer3D.new()
+	var s_stream = load("res://Sesler/snoring.mp3")
+	if s_stream and s_stream is AudioStream:
+		if s_stream.has_method("set_loop"): s_stream.set_loop(true)
+		elif "loop" in s_stream: s_stream.loop = true
+	sfx_snore.stream = s_stream
+	sfx_snore.bus = "Master"
+	add_child(sfx_snore)
 
 	# Dış referansları bul
 	grid = get_tree().current_scene.find_child("GridYoneticisi", true, false)
@@ -428,6 +439,8 @@ func uyuklamaya_basla():
 
 	if not uyuklama_anim_adi.is_empty() and is_instance_valid(anim_player) and anim_player.has_animation(uyuklama_anim_adi):
 		anim_player.play(uyuklama_anim_adi)
+		if sfx_snore and not sfx_snore.playing:
+			sfx_snore.play()
 		print("💤 Canavar uyuklamaya başladı.")
 	else:
 		print("⚠️ Uyuklama animasyonu bulunamadı veya boş!")
@@ -500,6 +513,9 @@ func saldiri_baslat():
 
 	# 2. Eğer uyukluyorsa → ayağa kalk (oturma animasyonu TERSTEN)
 	if suanki_durum == "UYUKLAMA":
+		if sfx_snore and sfx_snore.playing:
+			sfx_snore.stop()
+		
 		_animasyonu_durdur()
 
 		var uyanma_basarili = await _guvenli_anim_oynat(oturma_anim_adi, -1.0, true)
@@ -565,6 +581,17 @@ func saldiri_baslat():
 		_kamerayi_oyuncuya_ver()
 		saldiri_tamamlandi.emit()
 		return
+
+	# Attack release sound with 450ms delay
+	var a_sfx = AudioStreamPlayer.new()
+	a_sfx.stream = load("res://Sesler/attack_release.mp3")
+	a_sfx.bus = "Master"
+	add_child(a_sfx)
+	get_tree().create_timer(0.45).timeout.connect(func():
+		if is_instance_valid(a_sfx):
+			a_sfx.play()
+			a_sfx.finished.connect(a_sfx.queue_free)
+	)
 
 	# 6. Saldırıyı uygula
 	match saldiri_tipi:
@@ -661,6 +688,13 @@ func _telegraph_baslat(tip: String):
 
 	if arayuz and arayuz.has_method("bilgi_goster"):
 		arayuz.bilgi_goster(boss_adi + ": " + mesaj, 2.0)
+
+	var w_sfx = AudioStreamPlayer.new()
+	w_sfx.stream = load("res://Sesler/while_attack.mp3")
+	w_sfx.bus = "Master"
+	add_child(w_sfx)
+	w_sfx.play()
+	w_sfx.finished.connect(w_sfx.queue_free)
 
 	print("⚔️ Boss saldırısı: ", tip, " — ", mesaj)
 

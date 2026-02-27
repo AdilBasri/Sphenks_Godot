@@ -17,11 +17,29 @@ var oyuncu = null
 var suanki_durum = 0 # 0: Kosu, 1: Saldiri, 99: Olum
 var kemik_on_eki = "" 
 
+var sfx_chase: AudioStreamPlayer3D
+var sfx_bite: AudioStreamPlayer3D
+
 func _ready():
 	add_to_group("Dusman")
 	oyuncu = get_tree().get_first_node_in_group("Oyuncu")
 	if not oyuncu: 
 		oyuncu = get_tree().current_scene.find_child("Oyuncu", true, false)
+		
+	sfx_chase = AudioStreamPlayer3D.new()
+	var c_stream = load("res://Sesler/pyro_boss.mp3")
+	if c_stream and c_stream is AudioStream:
+		if c_stream.has_method("set_loop"): c_stream.set_loop(true)
+		elif "loop" in c_stream: c_stream.loop = true
+	sfx_chase.stream = c_stream
+	sfx_chase.bus = "Master"
+	add_child(sfx_chase)
+	sfx_chase.play()
+	
+	sfx_bite = AudioStreamPlayer3D.new()
+	sfx_bite.stream = load("res://Sesler/pyro_bite.mp3")
+	sfx_bite.bus = "Master"
+	add_child(sfx_bite)
 	
 	if iskelet:
 		var ilk_kemik = iskelet.get_bone_name(0)
@@ -91,6 +109,8 @@ func _saldiri_animasyonunu_baslat():
 			var mesafe = global_position.distance_to(oyuncu.global_position)
 			if mesafe <= 2.2:
 				if oyuncu.has_method("hasar_al"):
+					if sfx_bite and not sfx_bite.playing:
+						sfx_bite.play()
 					oyuncu.hasar_al(10) # Tam 1 Bar Can Götürür
 					print("⚔️ Vuruş gerçekleşti!")
 		
@@ -104,6 +124,9 @@ func _saldiri_animasyonunu_baslat():
 func olum_efekti():
 	if suanki_durum == 99: return
 	suanki_durum = 99 # Durum anında ölüye çekildi
+	
+	if sfx_chase and sfx_chase.playing:
+		sfx_chase.stop()
 	
 	# --- YENİ EKLENEN: KANLI ÇİVİ DÜŞME ŞANSI (Ölüm anında) ---
 	if GameManager and not GameManager.get("kanli_civi_aktif"):

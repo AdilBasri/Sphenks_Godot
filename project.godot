@@ -24,6 +24,10 @@ DilYoneticisi="*res://Scripts/DilYoneticisi.gd"
 PauseMenu="*res://UI/PauseMenu.tscn"
 TutorialManager="*res://Scenes/TutorialManager.tscn"
 
+[audio]
+
+buses/default_bus_layout="res://default_bus_layout.tres"
+
 [display]
 
 window/size/mode=3

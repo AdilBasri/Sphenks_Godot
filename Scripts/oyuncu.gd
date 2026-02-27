@@ -80,7 +80,17 @@ var _lt_basildi = false
 # --- QTE ANTI-SPAM DEGISKENI ---
 var son_sag_tik_zamani: float = 0.0
 
+# --- SES ---
+var walking_player: AudioStreamPlayer
+
 func _ready():
+	walking_player = AudioStreamPlayer.new()
+	var w_stream = load("res://Sesler/walking.mp3")
+	if w_stream and "loop" in w_stream: w_stream.loop = true
+	walking_player.stream = w_stream
+	walking_player.bus = "Master"
+	add_child(walking_player)
+	
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if not kamera: return
 	
@@ -266,6 +276,13 @@ func _physics_process(delta):
 		velocity.z = move_toward(velocity.z, 0, speed)
 
 	move_and_slide()
+	
+	if is_on_floor() and direction.length_squared() > 0.01 and not is_sitting:
+		if not walking_player.playing:
+			walking_player.play()
+	else:
+		if walking_player.playing:
+			walking_player.stop()
 	
 	# --- JOYPAD KAMERA KONTROLU (Sürekli) ---
 	var cam_dir = Input.get_vector("kamera_sol", "kamera_sag", "kamera_yukari", "kamera_asagi")
@@ -455,6 +472,13 @@ func satin_al(urun_node):
 		
 		var basarili = market.satin_almaya_calis(veri.fiyat, veri)
 		if basarili:
+			var sfx = AudioStreamPlayer.new()
+			sfx.stream = load("res://Sesler/buy.mp3")
+			sfx.bus = "Master"
+			get_tree().current_scene.add_child(sfx)
+			sfx.play()
+			sfx.finished.connect(sfx.queue_free)
+			
 			var tween = create_tween()
 			tween.tween_property(urun_node, "scale", Vector3(0.01, 0.01, 0.01), 0.2)
 			tween.tween_callback(urun_node.queue_free)
@@ -466,6 +490,13 @@ func esyayi_ele_al(urun_node):
 	
 	eldeki_ozel_esya = urun_node
 	ozel_esya_verisi = urun_node.get("esya_verisi")
+	
+	var h_sfx = AudioStreamPlayer.new()
+	h_sfx.stream = load("res://Sesler/handing_item.mp3")
+	h_sfx.bus = "Master"
+	get_tree().current_scene.add_child(h_sfx)
+	h_sfx.play()
+	h_sfx.finished.connect(h_sfx.queue_free)
 	
 	if eldeki_ozel_esya is RigidBody3D:
 		eldeki_ozel_esya.freeze = true

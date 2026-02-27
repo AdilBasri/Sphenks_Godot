@@ -221,6 +221,7 @@ func mantar_efekti_yonet(aktif: bool):
 		
 	if efekt_node:
 		efekt_node.visible = aktif
+		efekt_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		if efekt_node.material:
 			var guc = 0.02 if aktif else 0.0
 			efekt_node.material.set_shader_parameter("strength", guc)
