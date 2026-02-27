@@ -194,25 +194,12 @@ func _on_boss_oldu():
 	boss_uyandi_mi = false
 	boss_tamamen_oldu = true
 	
-	# --- MASA SİSTEMİNİ KÜÇÜLT VE YOK ET ---
-	var masa_sistemi = get_parent().find_child("TumMasaSistemi", true, false)
-	if masa_sistemi:
-		var tween = create_tween()
-		tween.tween_property(masa_sistemi, "scale", Vector3(0.01, 0.01, 0.01), 1.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
-		tween.tween_callback(masa_sistemi.queue_free)
+	# Boss ölse bile oyuncu blok koymaya / gold kasmaya devam eder.
+	# Masa gitmez, kapı hemen açılmaz. Oyun ancak stok bitince veya yer kalmayınca biter.
 	
-	# --- OYUNCUYU AYAĞA KALDIR ---
-	if oyuncu and oyuncu.has_method("stand_up"):
-		# Biraz bekle sonra kaldır (Dramatik etki)
-		await get_tree().create_timer(1.0).timeout
-		oyuncu.stand_up()
-		
-		# Arayüze mesaj gönder
-		var arayuz = get_tree().get_first_node_in_group("Arayuz")
-		if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss"), 5.0)
-
-	# --- KAPIYI AÇ ---
-	_kapiyi_ac()
+	# Arayüze mesaj gönder
+	var arayuz = get_tree().get_first_node_in_group("Arayuz")
+	if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss") + "\nBlokların bitene kadar kazanmaya devam et!", 5.0)
 
 func _kapiyi_ac():
 	# KapiSistemi arayalım (MezarOdasi'nin komşusu)
@@ -366,3 +353,13 @@ func tur_sonrasi_islemler():
 		if boss.suanki_durum != "UYUKLAMA" and boss.suanki_durum != str(boss.DURUM_OLDU):
 			print("⚠️ Boss UYUKLAMA değil, sıfırlanıyor...")
 			boss.boss_durumu_sifirla()
+
+	# YER YOK KONTROLÜ (Boss kayalari/asitleri koyduktan sonra)
+	var dagitici = null
+	if has_node("../TumMasaSistemi/MasaUstuEsyalar/BlokDagiticisi"):
+		dagitici = get_node("../TumMasaSistemi/MasaUstuEsyalar/BlokDagiticisi")
+	else:
+		dagitici = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
+	
+	if dagitici and dagitici.has_method("yer_yok_kontrolu_yap"):
+		dagitici.yer_yok_kontrolu_yap()

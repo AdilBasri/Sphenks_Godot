@@ -199,6 +199,7 @@ func _input(event):
 
 	# --- KAMERA ROTASYONU ---
 	if not mouse_serbest_modu and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		if active_tween and active_tween.is_valid() and active_tween.is_running(): return
 		if event is InputEventMouseMotion:
 			rotate_y(-event.relative.x * mouse_sensitivity)
 			var dikey_hareket = -event.relative.y * mouse_sensitivity
@@ -1080,30 +1081,24 @@ func stand_up():
 	mouse_serbest_modu = false
 	
 	# Kamerayı eski yerine (veya çıkış noktasına) taşı
-	if current_stool and current_stool.exit_position_marker:
+	if current_stool and is_instance_valid(current_stool) and current_stool.exit_position_marker:
 		var exit_pos = current_stool.exit_position_marker.global_position
-		# Yere yapıştırmak için Y'yi biraz daha aşağı çekebiliriz veya olduğu gibi bırakırız.
-		# Kullanıcı "havada asılı kalıyor" dedi, Y=1.23 çok yüksek olabilir.
-		# Güvenlik: Y'yi karakter boyuna göre ayarla (Örn: 1.0)
-		# Ama Marker'a güvenmek en iyisi, marker'ı sahnede düzeltmeliyiz.
-		# Şimdilik velocity'yi sıfırlayalım.
 		velocity = Vector3.ZERO
 		global_position = exit_pos
 		
 		# TABURENİN ARKASINDAN GRİDE (MERKEZE) BAK
-		# ExitPos zaten Tabure'ye bağlı olduğu için tabure ile dönüyor.
-		# Sadece oyuncunun rotasyonunu merkeze (0,0,0) çevirelim.
-		# Y ekseninde (yerde) dönelim ki yukarı/aşağı bakmasın.
 		var look_target = Vector3(0, global_position.y, 0)
 		look_at(look_target, Vector3.UP)
 		
-		# Kameranın local transformunu resetle (kafa hizası)
 		kamera.position = Vector3(0, 0.6, 0)
 		kamera.rotation = Vector3.ZERO
 		x_rotasyonu = 0.0
 	else:
+		# Fallback if table already deleted (game over)
 		var tween = create_tween()
+		active_tween = tween
 		tween.tween_property(kamera, "global_transform", original_camera_transform, 1.0)
+		tween.tween_callback(func(): x_rotasyonu = kamera.rotation.x)
 	
 	current_stool = null
 	print("🚶 Tabureden kalkıldı.")
