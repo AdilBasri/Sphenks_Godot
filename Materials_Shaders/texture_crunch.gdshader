@@ -19,6 +19,7 @@ render_mode diffuse_lambert, specular_disabled;
 // quantized UV sampling below to simulate it in-shader.
 uniform sampler2D albedo_texture : source_color, filter_nearest;
 uniform vec4 albedo_tint : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform vec2 uv_scale = vec2(1.0, 1.0);
 
 // ─── POSTERIZATION ────────────────────────────────────────────
 // Quantize RGB into N flat color steps. 3-5 is the sweet spot
@@ -99,9 +100,11 @@ float scratches(vec2 uv, float intensity) {
 
 
 void fragment() {
+	vec2 base_uv = UV * uv_scale;
+	
 	// ── 1. UV QUANTIZATION ──────────────────────────────────────
 	// Snap UVs to a pixel grid to enforce hard-pixel look
-	vec2 snapped_uv = floor(UV * pixel_grid_size) / pixel_grid_size;
+	vec2 snapped_uv = floor(base_uv * pixel_grid_size) / pixel_grid_size;
 
 	// ── 2. SAMPLE TEXTURE (with snapped UVs) ────────────────────
 	vec4 tex = texture(albedo_texture, snapped_uv) * albedo_tint;
@@ -119,7 +122,7 @@ void fragment() {
 
 	// ── 5. FBM DIRT OVERLAY ─────────────────────────────────────
 	// Two layers of organic noise for deep, layered grime
-	vec2 dirt_uv = UV * dirt_scale;
+	vec2 dirt_uv = base_uv * dirt_scale;
 	float dirt_layer1 = fbm(dirt_uv);
 	float dirt_layer2 = fbm(dirt_uv * 2.3 + vec2(7.1, 3.7));
 	// Multiply layers for concentrated dark spots
@@ -131,12 +134,12 @@ void fragment() {
 
 	// ── 6. EDGE DIRT (UV-SEAM ACCUMULATION) ─────────────────────
 	// Darken pixels near UV edges (0 and 1) — seam grime
-	vec2 edge_dist = min(UV, 1.0 - UV); // 0 at edges, 0.5 at center
+	vec2 edge_dist = min(base_uv, 1.0 - base_uv); // 0 at edges, 0.5 at center
 	float edge_factor = 1.0 - smoothstep(0.0, 0.08, min(edge_dist.x, edge_dist.y));
 	color = mix(color, dirt_color, edge_factor * edge_dirt);
 
 	// ── 7. SCRATCH / DAMAGE LINES ───────────────────────────────
-	float scratch = scratches(UV, scratch_intensity);
+	float scratch = scratches(base_uv, scratch_intensity);
 	color = mix(color, vec3(0.9, 0.85, 0.7), scratch * 0.6); // Light scratches
 	color = mix(color, vec3(0.0), scratch * 0.4);              // Dark scratch depth
 

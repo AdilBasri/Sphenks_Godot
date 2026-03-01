@@ -1353,10 +1353,10 @@ func yeme_tamamlandi():
 		fov_tween.tween_property(kamera, "fov", orijinal_fov, 0.8).set_trans(Tween.TRANS_CUBIC)
 	
 	# --- İYİLEŞME ---
-	if suanki_can_bari < max_can_bari:
-		suanki_can_bari += 1
+	if suanki_hp < 10:
 		suanki_hp = 10
-	elif suanki_hp < 10:
+	elif suanki_can_bari < max_can_bari:
+		suanki_can_bari += 1
 		suanki_hp = 10
 	
 	if GameManager:

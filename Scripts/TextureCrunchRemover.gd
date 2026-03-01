@@ -78,6 +78,11 @@ func _remove_crunch_from_mesh(mesh_instance: MeshInstance3D, shader: Shader) -> 
 				if original_texture and original_texture is Texture2D:
 					var std_mat := StandardMaterial3D.new()
 					std_mat.albedo_texture = original_texture
+					
+					var saved_scale = sm.get_shader_parameter("uv_scale")
+					if saved_scale != null and typeof(saved_scale) == TYPE_VECTOR2:
+						std_mat.uv1_scale = Vector3(saved_scale.x, saved_scale.y, 1.0)
+						
 					mesh_instance.set_surface_override_material(surface_idx, std_mat)
 					print("    Restored albedo texture on " + mesh_instance.name + " (" + str(surface_idx) + ")")
 				else:

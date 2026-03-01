@@ -107,6 +107,11 @@ func _apply_crunch_to_mesh(mesh_instance: MeshInstance3D, shader: Shader) -> voi
 			crunch_mat.set_shader_parameter("albedo_tint", original_color)
 			print("    Surface " + str(surface_idx) + ": OK — no texture, using color tint")
 
+		# Apply uv1_scale if original is BaseMaterial3D
+		if current_mat is BaseMaterial3D:
+			var scale_uv = current_mat.uv1_scale
+			crunch_mat.set_shader_parameter("uv_scale", Vector2(scale_uv.x, scale_uv.y))
+
 		# Apply shader material to the surface override slot
 		mesh_instance.set_surface_override_material(surface_idx, crunch_mat)
 		_processed += 1

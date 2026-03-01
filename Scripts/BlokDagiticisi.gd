@@ -219,6 +219,10 @@ func _tur_sonu_hesaplamasi() -> void:
 
 func _sahne_bitis_animasyonu() -> void:
 	set_process_input(false)
+	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+	if oyuncu and oyuncu.has_method("stand_up"):
+		oyuncu.stand_up()
+		
 	var tween = create_tween()
 	tween.set_parallel(true)
 	
@@ -334,7 +338,9 @@ func yer_yok_kontrolu_yap() -> void:
 	for child in tum_bloklar:
 		if child is BlokSurukle and is_instance_valid(child) and not child.is_queued_for_deletion():
 			# Phantom (hayalet/gizli) blokları engellemek için sadece spawn noktasındakileri veya eldekini al
-			if child.get("tutuluyor") == true or (child.get_parent() in spawn_noktalari):
+			if child.get("tutuluyor") == true:
+				suruklenebilir_bloklar.append(child)
+			elif child.get_parent() is Marker3D and child.get_parent() in spawn_noktalari:
 				suruklenebilir_bloklar.append(child)
 	
 	# Eğer masada/elde hiç sürüklenebilir blok yoksa VE stok da bittiyse,

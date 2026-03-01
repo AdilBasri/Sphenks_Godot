@@ -461,8 +461,8 @@ func activate_ghost_move():
 	get_tree().current_scene.add_child(ghost_canvas)
 	
 	# Disable Enemy processing and RETURN CAMERA TO PLAYER
-	get_tree().call_group("Dusman", "set_process_mode", Node.PROCESS_MODE_DISABLED)
 	get_tree().call_group("Dusman", "_kamerayi_oyuncuya_ver")
+	get_tree().call_group("Dusman", "set_process_mode", Node.PROCESS_MODE_DISABLED)
 	
 	var sayac = 5
 	for i in range(5):
