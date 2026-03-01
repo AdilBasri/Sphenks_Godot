@@ -64,6 +64,11 @@ func _ready():
 	_init_audio()
 	# Sadece intro durumunu yükle — oyun state'i her açılışta sıfır başlar
 	_intro_durumu_yukle()
+	boss_oldu.connect(_on_boss_oldu_gm)
+
+func _on_boss_oldu_gm():
+	if ghost_move_active:
+		end_ghost_move()
 
 var bgm_player: AudioStreamPlayer
 var suanki_muzik: int = 1
@@ -491,7 +496,14 @@ func end_ghost_move():
 	ghost_move_active = false
 	
 	if LevelManager:
-		LevelManager.is_boss_acting = true # Re-lock turn and hide cursor
+		var boss = get_tree().get_first_node_in_group("Dusman")
+		var boss_dead = false
+		if not is_instance_valid(boss): boss_dead = true
+		elif boss.get("oldu_mu") != null and boss.oldu_mu == true: boss_dead = true
+		
+		# Sadece boss yasiyorsa sirayi geri ver
+		if not boss_dead:
+			LevelManager.is_boss_acting = true # Re-lock turn and hide cursor
 	
 	if is_instance_valid(ghost_canvas):
 		ghost_canvas.queue_free()

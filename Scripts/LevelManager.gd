@@ -171,6 +171,13 @@ func zar_at_animasyonunu_baslat():
 	if isleme_alindi_mi: return 
 	isleme_alindi_mi = true
 
+	var sfx_dice = AudioStreamPlayer.new()
+	sfx_dice.stream = load("res://Sesler/dice_roll.mp3")
+	sfx_dice.bus = "Master"
+	add_child(sfx_dice)
+	sfx_dice.play()
+	sfx_dice.finished.connect(sfx_dice.queue_free)
+
 	if GameManager and GameManager.pelerin_korumasi_var_mi():
 		GameManager.pelerin_hak_dus()
 		await get_tree().create_timer(1.5).timeout

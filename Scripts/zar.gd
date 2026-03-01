@@ -16,7 +16,7 @@ func firlat(yon_ve_guc: Vector3, tork: Vector3):
 	linear_velocity = yon_ve_guc
 	angular_velocity = tork # Dönme hareketi
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if not atildi_mi or durdu_mu: return
 	
 	# Hızımız çok azaldıysa ve dönmemiz bittiyse "Durduk" diyelim

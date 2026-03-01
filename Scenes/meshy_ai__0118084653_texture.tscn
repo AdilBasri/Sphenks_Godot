@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://Scripts/sphenks.gd" id="2_qc7j8"]
 [ext_resource type="PackedScene" uid="uid://d23veo8v7bk73" path="res://Scenes/Blocks/block_l.tscn" id="3_nvr63"]
 [ext_resource type="PackedScene" uid="uid://bq8mjuugdsa8p" path="res://Scenes/Blocks/block_tek.tscn" id="4_s73ny"]
-[ext_resource type="Texture2D" uid="uid://bb1jydfo2s3uh" path="res://Assets/Images/duvar_tiles.png" id="5_m4y2v"]
+[ext_resource type="Texture2D" uid="uid://btas4blpjv33o" path="res://Assets/Images/duvar_tiles.png" id="5_m4y2v"]
 [ext_resource type="Script" uid="uid://bf27q5gmgymlx" path="res://Scripts/oyun_odasi.gd" id="6_n8xls"]
 [ext_resource type="PackedScene" uid="uid://bafdowoddcpqw" path="res://Scenes/zar.tscn" id="7_a6gvj"]
 [ext_resource type="PackedScene" uid="uid://5wga44lwetiq" path="res://Scenes/oyun_sonu.tscn" id="8_am1ge"]
