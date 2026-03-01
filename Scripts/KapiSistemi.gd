@@ -71,6 +71,14 @@ func kapiyi_ac():
 
 	# 2. Kapıyı Aç
 	print(">>> KAPI AÇILIYOR... TİP: ", hedef_tipi)
+	
+	var sfx_door = AudioStreamPlayer3D.new()
+	sfx_door.stream = load("res://Sesler/door.mp3")
+	sfx_door.bus = "Master"
+	add_child(sfx_door)
+	sfx_door.play()
+	sfx_door.finished.connect(sfx_door.queue_free)
+	
 	acik_mi = true
 	kapi_acildi.emit() # Odaya haber ver (Diğer kapıyı kilitlesin diye)
 	

@@ -26,7 +26,11 @@ func _ready():
 	
 	sfx_drag = AudioStreamPlayer3D.new()
 	var d_stream = load("res://Sesler/chest_dragging.mp3")
-	if d_stream and "loop" in d_stream: d_stream.loop = true
+	if d_stream: 
+		if d_stream is AudioStreamMP3 or d_stream is AudioStreamWAV:
+			d_stream.loop = true
+		elif "loop" in d_stream:
+			d_stream.loop = true
 	sfx_drag.stream = d_stream
 	sfx_drag.bus = "Master"
 	chest.add_child(sfx_drag)
@@ -78,10 +82,12 @@ func _process(delta):
 			if chest.position.z <= sandik_hedef_z:
 				chest.position.z = sandik_hedef_z
 				mesafe_kapanacak = true
+				is_moving = false
 		elif dist <= 3.5 and chest.position.z <= sandik_hedef_z:
 			mesafe_kapanacak = true
+			is_moving = false
 			
-	if is_moving:
+	if is_moving and not mesafe_kapanacak:
 		if sfx_drag and not sfx_drag.playing:
 			sfx_drag.play()
 	else:

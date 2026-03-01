@@ -8,7 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://7np2smabsf7e" path="res://AtesAnimasyonu/kare0005.png" id="6_v38la"]
 [ext_resource type="Texture2D" uid="uid://dwp7wkwemm5j8" path="res://AtesAnimasyonu/kare0006.png" id="7_8leu4"]
 [ext_resource type="Texture2D" uid="uid://d4givl4slili0" path="res://AtesAnimasyonu/kare0007.png" id="8_4ced7"]
-[ext_resource type="Script" uid="uid://campfireroom_uid" path="res://Scripts/CampfireRoom.gd" id="9_campfire"]
+[ext_resource type="Script" path="res://Scripts/CampfireRoom.gd" id="9_campfire"]
 [ext_resource type="Texture2D" path="res://Assets/Images/card_gold.png" id="10_gold"]
 [ext_resource type="Texture2D" path="res://Assets/Images/card_sleep.png" id="11_sleep"]
 [sub_resource type="SpriteFrames" id="SpriteFrames_or45s"]

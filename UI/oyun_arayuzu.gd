@@ -73,7 +73,7 @@ func _ready() -> void:
 	if LevelManager:
 		katman_yazisi_goster(LevelManager.suanki_katman)
 
-func _process(delta):
+func _process(_delta):
 	# Sürekli sahne ağacında arama yapmasın, değişkenler üzerinden baksın
 	if not GameManager: return
 

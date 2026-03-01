@@ -321,8 +321,12 @@ func _physics_process(delta):
 	_hedef_gosterge_guncelle()
 	check_ui_text()
 
+var _cached_grid: Node3D = null
+
 func _hedef_gosterge_guncelle():
-	var grid = get_tree().current_scene.find_child("GridYoneticisi", true, false)
+	if not is_instance_valid(_cached_grid):
+		_cached_grid = get_tree().current_scene.find_child("GridYoneticisi", true, false)
+	var grid = _cached_grid
 	if not grid: return
 
 	if not eldeki_ozel_esya or not ozel_esya_verisi:
@@ -995,7 +999,7 @@ func _update_orbit_camera():
 	if not current_stool: return
 	
 	# Masa Merkezi (Grid'in olduğu yer)
-	var pivot = Vector3(0, 0, 0)
+	var _pivot = Vector3(0, 0, 0)
 	
 	# Taburenin masaya olan uzaklığı (Radius)
 	var radius = 1.7
@@ -1191,6 +1195,8 @@ func _revive_ile_kalkis():
 # --- UZUV YEME MEKANİĞİ (Violent Bite System) ---
 # ============================================================
 
+var sfx_eat: AudioStreamPlayer = null
+
 func yeme_baslat():
 	"""R tuşuna basılınca ve KopanUzuv tutuluyorsa çağrılır.
 	Timer-driven ısırık döngüsünü başlatır."""
@@ -1225,9 +1231,9 @@ func yeme_baslat():
 
 			# 3. Yazılı Mesaj (Toast)
 			# EtkilesimYazisi'ni geçici olarak kullan veya yeni bir Label
-			var etkilesim_label = $CanvasLayer/EtkilesimYazisi
+			etkilesim_label = $CanvasLayer/EtkilesimYazisi
 			if etkilesim_label:
-				var eski_text = etkilesim_label.text
+				var _eski_text = etkilesim_label.text
 				etkilesim_label.text = DilYoneticisi.metin_al("daha_fazla_yemek")
 				etkilesim_label.modulate = Color(1, 0, 0) # Kırmızı
 				
@@ -1245,6 +1251,17 @@ func yeme_baslat():
 	
 	print("🩸 UZUV YEME BAŞLADI — Violent Bite System")
 	is_eating = true
+	
+	if not sfx_eat:
+		sfx_eat = AudioStreamPlayer.new()
+		sfx_eat.bus = "Master"
+		add_child(sfx_eat)
+	var eat_stream = load("res://Sesler/eat.mp3")
+	if eat_stream is AudioStreamMP3:
+		eat_stream.loop = true
+	sfx_eat.stream = eat_stream
+	sfx_eat.play()
+	
 	if GameManager: GameManager.yeme_aktif_mi = true
 	trauma = 0.0
 	velocity = Vector3.ZERO
@@ -1331,6 +1348,8 @@ func yeme_iptal():
 	
 	print("❌ Yeme iptal edildi!")
 	is_eating = false
+	if sfx_eat:
+		sfx_eat.stop()
 	if GameManager: GameManager.yeme_aktif_mi = false
 	
 	# Timer durdur
@@ -1364,6 +1383,8 @@ func yeme_tamamlandi():
 	
 	print("✅ UZUV YENDİ! Final travması uygulanıyor...")
 	is_eating = false
+	if sfx_eat:
+		sfx_eat.stop()
 	if GameManager: GameManager.yeme_aktif_mi = false
 	
 	# Timer durdur
