@@ -354,6 +354,9 @@ func tur_sonrasi_islemler():
 			print("⚠️ Boss UYUKLAMA değil, sıfırlanıyor...")
 			boss.boss_durumu_sifirla()
 
+	# ─ KAHİN GÖZÜ: Bir sonraki turun saldırı ikonunu göster ───
+	_kahin_gozu_ikon_goster()
+
 	# YER YOK KONTROLÜ (Boss kayalari/asitleri koyduktan sonra)
 	var dagitici = null
 	if has_node("../TumMasaSistemi/MasaUstuEsyalar/BlokDagiticisi"):
@@ -363,3 +366,22 @@ func tur_sonrasi_islemler():
 	
 	if dagitici and dagitici.has_method("yer_yok_kontrolu_yap"):
 		dagitici.yer_yok_kontrolu_yap()
+
+func _kahin_gozu_ikon_goster():
+	"""Kahin Gözü perk aktifse sıradaki boss saldırı tipini UI'da ufak ikon ile gösterir."""
+	if not GameManager or not GameManager.kahin_gozu_aktif: return
+	var sonraki = GameManager.sonraki_boss_saldirisi
+	if sonraki.is_empty(): return
+
+	var ikon_metni = ""
+	match sonraki:
+		"TAS":  ikon_metni = "🪨 Sıra: KAYA"
+		"ASIT": ikon_metni = "🧪 Sıra: ASİT"
+		"ZAR":  ikon_metni = "🎲 Sıra: ZAR"
+
+	# Arayüz grubuna bilgi göster (var olan bilgi_goster mekanizması)
+	var arayuz = get_tree().get_first_node_in_group("Arayuz")
+	if arayuz and arayuz.has_method("bilgi_goster"):
+		# Ayrı ikon etiketi oluştur (CanvasLayer üzerinde küçük, kalcı birkaç sn)
+		arayuz.bilgi_goster("👁️ KAHİN GÖZÜ \u2022 " + ikon_metni, 5.0)
+	print("👁️ Kahin Gözü gösterdi: ", ikon_metni)

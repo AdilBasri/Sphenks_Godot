@@ -38,6 +38,10 @@ var mantar_modu: bool = false
 var tek_zar_modu: bool = false
 var fener_aktif: bool = false
 var kanli_civi_aktif: bool = false
+var kahin_gozu_aktif: bool = false   # Pasif: boss'un sıradaki hamlesi gösterilir
+var curuk_temel_aktif: bool = false  # Tek kullanımlık: grid'i temizle (wand)
+var kanli_indirim_aktif: bool = false # Pasif: market %50 indir, -3 HP giriş bedeli
+var sonraki_boss_saldirisi: String = "" # Kahin Gözü tarafından doldurulur
 
 # --- 🫁 MİDE SİSTEMİ ---
 var mide_kapasite: int = 1   # (Eski logic - UI için tutulabilir veya get_stomach_capacity() ile değiştirilir)
@@ -245,10 +249,14 @@ func verileri_sifirla():
 	uyku_sahnesi_giris_sayisi = 0
 	mermi_sayisi = 10
 	pyro_aktif = false
-	silah_cekildi = false 
+	silah_cekildi = false
 	envanter.clear()
 	bolum_bufflarini_sifirla()
 	zar_atlama_hakki = 0
+	kahin_gozu_aktif = false
+	curuk_temel_aktif = false
+	kanli_indirim_aktif = false
+	sonraki_boss_saldirisi = ""
 	
 	mide_doluluk = 0
 	limbs_eaten_this_round = 0
@@ -311,6 +319,11 @@ func bolum_bufflarini_sifirla():
 	fener_aktif = false
 	kanli_civi_aktif = false
 	glitch_face_aktif = false
+	# NOT: kahin_gozu_aktif, curuk_temel_aktif ve kanli_indirim_aktif bölüm sıfırlamada temizlenmez
+	# çünkü bunlar sandık odası perkleridir. Yeni oyunda verileri_sifirla() siler onları.
+	curuk_temel_aktif = false   # Çürük Temel tek kullanımlık — her bölümde sıfırla
+	kanli_indirim_aktif = false  # Kanlı İndirim her bölümde sıfırlanır
+	sonraki_boss_saldirisi = ""
 
 func oyunu_kaydet():
 	var config = ConfigFile.new()
@@ -327,6 +340,7 @@ func oyunu_kaydet():
 	config.set_value("Bufflar", "ZamanYavas", pyro_yavaslatma)
 	config.set_value("Bufflar", "KanliCiviAktif", kanli_civi_aktif)
 	config.set_value("Bufflar", "GlitchFaceAktif", glitch_face_aktif)
+	config.set_value("Bufflar", "KahinGozuAktif", kahin_gozu_aktif)
 	
 	var esya_yollari = []
 	for esya in envanter:
@@ -355,6 +369,7 @@ func oyunu_yukle():
 		fener_aktif = config.get_value("Bufflar", "FenerAktif", false)
 		pyro_yavaslatma = config.get_value("Bufflar", "ZamanYavas", false)
 		kanli_civi_aktif = config.get_value("Bufflar", "KanliCiviAktif", false)
+		kahin_gozu_aktif = config.get_value("Bufflar", "KahinGozuAktif", false)
 		
 		envanter.clear()
 		var esya_yollari = config.get_value("Oyun", "Envanter", [])

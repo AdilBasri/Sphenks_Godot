@@ -1,0 +1,11 @@
+Model Information:
+* title:	Nails
+* source:	https://sketchfab.com/3d-models/nails-25e37bf365ce44a7b1a6e64802fe4888
+* author:	Kroko.blend (https://sketchfab.com/jaromir.ternavskiy)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Nails" (https://sketchfab.com/3d-models/nails-25e37bf365ce44a7b1a6e64802fe4888) by Kroko.blend (https://sketchfab.com/jaromir.ternavskiy) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

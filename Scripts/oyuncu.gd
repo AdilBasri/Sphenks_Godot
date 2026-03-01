@@ -473,6 +473,16 @@ func esya_kullan():
 				basarili = true
 				if TutorialManager: TutorialManager.eylemi_dogrula("mantar_yeme")
 		"magnet": if grid: grid.miknatis_etkisi(); basarili = true
+		"curuk_temel":
+			if grid:
+				# Tüm kilitli hücreleri temizle
+				var kilitli_kopya = grid.kilitli_hucreler.duplicate()
+				for hucre in kilitli_kopya.keys():
+					grid.kilit_kir(hucre)
+				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				if arayuz: arayuz.bilgi_goster("🪧 Çürük Temel: Grid temizlendi!", 3.0)
+				print("🪧 Çürük Temel kullanıldı, grid temizlendi.")
+				basarili = true
 		_: print("Tanımsız Eşya: ", id); basarili = true
 
 	if basarili:
@@ -772,6 +782,17 @@ func check_ui_text():
 					etkilesim_label.text = DilYoneticisi.metin_al("oynamak_icin_otur")
 			return
 		
+		# SANDIK ODASI: E ETKİLEŞİM KONTROLU
+		if nesne.is_in_group("SandikGrubu"):
+			var sandik_yoneticisi = get_tree().current_scene.get_node_or_null("Sandik_Odasi")
+			if not sandik_yoneticisi:
+				sandik_yoneticisi = get_tree().current_scene
+			if sandik_yoneticisi and "acilan_sandiklar" in sandik_yoneticisi:
+				var sandik = sandik_yoneticisi._sandik_bul(nesne) if sandik_yoneticisi.has_method("_sandik_bul") else null
+				if sandik and sandik.name not in sandik_yoneticisi.acilan_sandiklar:
+					etkilesim_label.text = "(E) Etkilesim"
+					return
+		
 		# 3. KART SEÇİMİ VEYA FİZİKSEL NESNE TUTMA
 		if nesne.is_in_group("CampfireKart"):
 			var ad = nesne.get_parent().name
@@ -832,8 +853,18 @@ func etkilesime_gir(is_mouse_click: bool = false):
 		bulunan_etkilesim.interact(self)
 		return
 
+	# SANDIK ODASI: E tuşu ile sandık aç
+	if nesne.is_in_group("SandikGrubu"):
+		var sandik_yoneticisi = get_tree().current_scene.get_node_or_null("Sandik_Odasi")
+		if sandik_yoneticisi and sandik_yoneticisi.has_method("sandik_ac"):
+			var sandik = sandik_yoneticisi._sandik_bul(nesne) if sandik_yoneticisi.has_method("_sandik_bul") else null
+			if sandik:
+				sandik_yoneticisi.sandik_ac(sandik)
+		return
+
 	if nesne is RigidBody3D:
 		nesne_tut(nesne)
+
 
 func kedi_al(kedi: Node3D):
 	eldeki_kedi = kedi

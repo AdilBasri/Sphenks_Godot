@@ -30,6 +30,7 @@ var glitch_ui_rect: TextureRect = null
 const DURUM_OLDU = 99
 var suanki_durum: String = "BASLANGIC"
 var oldu_mu: bool = false
+var sonraki_saldiri_tipi: String = ""   # Kahin Gözü için bir tur önceden belirlenir
 
 # --- ANİMASYON İSİMLERİ (Otomatik keşfedilecek) ---
 var oturma_anim_adi: String = ""
@@ -564,15 +565,23 @@ func saldiri_baslat():
 
 	# 4. Saldırı tipi seç
 	suanki_durum = "SALDIRI"
-	var sans = randf()
 	var saldiri_tipi: String
 
-	if sans < 0.35:
-		saldiri_tipi = "TAS"
-	elif sans < 0.70:
-		saldiri_tipi = "ASIT"
+	# Önceki turda Kahin Gözü için belirlendiyse onu kullan
+	if sonraki_saldiri_tipi != "":
+		saldiri_tipi = sonraki_saldiri_tipi
+		sonraki_saldiri_tipi = ""
 	else:
-		saldiri_tipi = "ZAR"
+		var sans = randf()
+		if sans < 0.35:
+			saldiri_tipi = "TAS"
+		elif sans < 0.70:
+			saldiri_tipi = "ASIT"
+		else:
+			saldiri_tipi = "ZAR"
+
+	# Bir sonraki tur için sıradaki saldırı tipini şimdi belirle ve GameManager'a yaz
+	_bir_sonraki_saldiriyi_belirle()
 
 	# 5. Telegraph efekti + UI bildirimi
 	await _telegraph_baslat(saldiri_tipi)
@@ -700,6 +709,23 @@ func _telegraph_baslat(tip: String):
 
 	# Kısa bekleme süresi (telegraph)
 	await get_tree().create_timer(1.5).timeout
+
+
+# ─── KAHİN GÖZÜ: BİR SONRAKİ SALDIRIYI BELİRLE ─────────────────────────────
+func _bir_sonraki_saldiriyi_belirle():
+	"""Bir sonraki turun saldırı tipini önceden belirler (Kahin Gözü için)."""
+	var sans = randf()
+	if sans < 0.35:
+		sonraki_saldiri_tipi = "TAS"
+	elif sans < 0.70:
+		sonraki_saldiri_tipi = "ASIT"
+	else:
+		sonraki_saldiri_tipi = "ZAR"
+
+	if GameManager:
+		GameManager.sonraki_boss_saldirisi = sonraki_saldiri_tipi
+
+	print("👁️ Kahin Gözü: Sıradaki saldırı = ", sonraki_saldiri_tipi)
 
 
 # ==========================================

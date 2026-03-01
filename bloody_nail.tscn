@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://buos5eeqfqps3"]
+
+[ext_resource type="PackedScene" uid="uid://by1b88gq8pv34" path="res://bloody_nail/scene.gltf" id="1_xw284"]
+
+[node name="bloody_nail" type="Node3D"]
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_xw284")]
+transform = Transform3D(0.0069459276, -0.039392304, 0, 0.027854564, 0.0049115126, 0.028284267, -0.027854564, -0.0049115126, 0.028284267, 0.5460367, 0.6468348, 0)

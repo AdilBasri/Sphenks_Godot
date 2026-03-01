@@ -134,4 +134,12 @@ func kilitle():
 
 func _on_static_body_3d_input_event(_camera, event, _position, _normal, _shape_idx):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if kilitli_mi:
+			# Sandık odasındaysak falan uyar, ama KAPIYI AÇMA
+			print("KAPI KİLİTLİ, TIKLAYARAK AÇILMAZ.")
+			var arayuz = get_tree().get_first_node_in_group("Arayuz")
+			if arayuz and get_tree().current_scene.name == "Sandik_Odasi":
+				arayuz.bilgi_goster("Kilitli (Çıkış Anahtarı Lazım)", 2.0)
+			return
+			
 		kapiyi_ac()

@@ -31,8 +31,13 @@ func _ready():
 			giris_sensoru.body_exited.connect(_on_giris_sensoru_body_exited)
 
 func satin_almaya_calis(fiyat: int, urun_verisi: ItemData) -> bool:
+	# Kanlı İndirim: %50 indirim uygula
+	var gercek_fiyat = fiyat
+	if GameManager and GameManager.get("kanli_indirim_aktif") and GameManager.kanli_indirim_aktif:
+		gercek_fiyat = int(fiyat * 0.5)
+		print("💩 Kanlı İndirim: Fiyat %50 düştü %d → %d" % [fiyat, gercek_fiyat])
 	# 1. GameManager'a sor: "Yeterli para var mı?"
-	if GameManager.altin_harca(fiyat):
+	if GameManager.altin_harca(gercek_fiyat):
 		# 2. Para düştü, şimdi eşyayı envantere eklemeye çalış
 		var envantere_sigdi = false
 		if GameManager.envanter.size() < GameManager.max_totem_sayisi:
@@ -70,6 +75,15 @@ func _on_giris_sensoru_body_entered(body):
 		iceride_mi = true
 		if market_ui:
 			market_ui.visible = true
+
+		# ─ KANLI İNDİRİM: Girince 3 HP kaybet (bir kere) ─
+		if GameManager and GameManager.get("kanli_indirim_aktif") and GameManager.kanli_indirim_aktif:
+			if body.has_method("hasar_al"):
+				body.hasar_al(3)
+			var arayuz = get_tree().get_first_node_in_group("Arayuz")
+			if arayuz and arayuz.has_method("bilgi_goster"):
+				arayuz.bilgi_goster("💩 KAN bedeli ödendi: -3 HP! Ama her şey %50 indirimli!", 4.0)
+			print("💩 Kanlı İndirim: Oyuncu 3 HP kaybetti.")
 
 		# Kolu kaldır (Kamerayı bul)
 		var kamera = body.find_child("Camera3D", true, false)

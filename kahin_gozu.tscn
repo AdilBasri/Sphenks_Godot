@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3 uid="uid://cbumd808v8bv2"]
+
+[ext_resource type="PackedScene" uid="uid://cmfokgehyu4ao" path="res://kahin_gozu/scene.gltf" id="1_aiaos"]
+
+[node name="kahin_gozu" type="Node3D"]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0.04846804, 0.26647395)
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_aiaos")]
+transform = Transform3D(-4.3711387e-10, 0.01, -1.192488e-10, 0, 1.192488e-10, 0.01, 0.01, 4.3711387e-10, -5.2125303e-18, 0, 0, 0)
+
+[node name="eye_apple_low_002" parent="Sketchfab_Scene/Sketchfab_model/monster_eye_low_anima_v1_fbx/Object_2/RootNode" index="1"]
+transform = Transform3D(0.9999994, -0.0007224977, -0.0008414691, 0.0008435233, 0.002847749, 0.9999956, -0.0007200837, -0.9999957, 0.0028483567, 0, 0, 0)
+
+[node name="Skeleton3D" parent="Sketchfab_Scene/Sketchfab_model/monster_eye_low_anima_v1_fbx/Object_2/RootNode/Armature_011/Object_12" index="0"]
+bones/1/rotation = Quaternion(0.8688591, -0.13014972, -0.06128493, 0.4736974)
+bones/3/rotation = Quaternion(0.8703457, 0.119805396, 0.07459772, 0.4717842)
+bones/5/rotation = Quaternion(0.8093369, 0.34180212, 0.19460306, 0.43620485)
+bones/7/rotation = Quaternion(0.70635635, 0.52241343, 0.29165554, 0.378262)
+bones/9/rotation = Quaternion(0.54638326, 0.68798286, 0.37991136, 0.28950372)
+bones/11/rotation = Quaternion(0.3441865, 0.8083259, 0.44312403, 0.1782866)
+bones/13/rotation = Quaternion(0.1223031, 0.8694285, 0.47525313, 0.057188544)
+bones/15/rotation = Quaternion(-0.092185624, 0.8731357, 0.47493553, -0.059768267)
+bones/17/rotation = Quaternion(-0.3160693, 0.81972873, 0.44213364, -0.18072869)
+bones/19/rotation = Quaternion(-0.5435154, 0.6902508, 0.3692777, -0.30295032)
+bones/21/rotation = Quaternion(0.68789583, -0.54649276, -0.28956422, 0.37986523)
+bones/23/rotation = Quaternion(0.805214, -0.3514051, -0.1822441, 0.44151106)
+
+[editable path="Sketchfab_Scene"]
