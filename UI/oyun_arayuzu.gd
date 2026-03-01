@@ -150,6 +150,14 @@ func perde_ac():
 
 func perde_kapat(sure: float = 1.0):
 	if not perde: return
+	
+	var sfx_gecis = AudioStreamPlayer.new()
+	sfx_gecis.stream = load("res://Sesler/sahne_gecis.mp3")
+	sfx_gecis.bus = "Master"
+	add_child(sfx_gecis)
+	sfx_gecis.play()
+	sfx_gecis.finished.connect(sfx_gecis.queue_free)
+	
 	var tween = create_tween()
 	tween.tween_property(perde, "color:a", 1.0, sure) 
 	await tween.finished 

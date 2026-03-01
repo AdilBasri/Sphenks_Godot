@@ -621,6 +621,14 @@ func bar_kirildi():
 	yere_dustu_mu = true
 	tutulan_nesne = null 
 	
+	# Ses Eklemesi: Fall Ses Efekti
+	var sfx_fall = AudioStreamPlayer.new()
+	sfx_fall.stream = load("res://Sesler/fall.mp3")
+	sfx_fall.bus = "Master"
+	add_child(sfx_fall)
+	sfx_fall.play()
+	sfx_fall.finished.connect(sfx_fall.queue_free)
+	
 	# Yere Düşme Animasyonu
 	var tween = create_tween()
 	tween.parallel().tween_property(kamera, "rotation:z", deg_to_rad(80.0), 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
@@ -659,6 +667,14 @@ func _on_kalkis_tamamlandi():
 func game_over():
 	oldu_mu = true 
 	yere_dustu_mu = true 
+	
+	var sfx_death = AudioStreamPlayer.new()
+	sfx_death.stream = load("res://Sesler/death.mp3")
+	sfx_death.bus = "Master"
+	add_child(sfx_death)
+	sfx_death.play()
+	sfx_death.finished.connect(sfx_death.queue_free)
+	
 	set_physics_process(false)
 	# Clear held items so they don't float during scene transition
 	if tutulan_nesne: birak_veya_firlat()
