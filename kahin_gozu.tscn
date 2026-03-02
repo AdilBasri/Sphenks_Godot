@@ -3,10 +3,10 @@
 [ext_resource type="PackedScene" uid="uid://cmfokgehyu4ao" path="res://kahin_gozu/scene.gltf" id="1_aiaos"]
 
 [node name="kahin_gozu" type="Node3D"]
-transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0.04846804, 0.26647395)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04846804, 0.26647395)
 
 [node name="Sketchfab_Scene" parent="." instance=ExtResource("1_aiaos")]
-transform = Transform3D(-4.3711387e-10, 0.01, -1.192488e-10, 0, 1.192488e-10, 0.01, 0.01, 4.3711387e-10, -5.2125303e-18, 0, 0, 0)
+transform = Transform3D(-0.21213204, -0.21213204, -9.272586e-09, 0, -1.3113417e-08, 0.3, -0.21213204, 0.21213204, 9.272586e-09, 0, 0, 0)
 
 [node name="eye_apple_low_002" parent="Sketchfab_Scene/Sketchfab_model/monster_eye_low_anima_v1_fbx/Object_2/RootNode" index="1"]
 transform = Transform3D(0.9999994, -0.0007224977, -0.0008414691, 0.0008435233, 0.002847749, 0.9999956, -0.0007200837, -0.9999957, 0.0028483567, 0, 0, 0)
