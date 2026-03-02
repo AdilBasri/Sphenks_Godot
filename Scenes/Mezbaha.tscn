@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://bmnkhybfuav44"]
+[gd_scene load_steps=34 format=3 uid="uid://bmnkhybfuav44"]
 
 [ext_resource type="PackedScene" uid="uid://vciob085o73p" path="res://Mezbaha/scene.gltf" id="1_382uv"]
 [ext_resource type="PackedScene" uid="uid://bs1arqtq02oyv" path="res://Mezbaha_wheelbarrow/scene.gltf" id="3_vlofk"]
@@ -13,6 +13,11 @@
 [ext_resource type="PackedScene" uid="uid://c61t5hwda60u4" path="res://Mezbaha_Pipe2/scene.gltf" id="12_xqoek"]
 [ext_resource type="PackedScene" uid="uid://bk6qivaqi7ytq" path="res://Mezbaha_PipeBent/scene.gltf" id="13_lsqav"]
 [ext_resource type="PackedScene" uid="uid://sklud1w45hi7" path="res://Mezbaha_man/Meshy_AI_T_Pose_0302121916_texture.fbx" id="13_s5w65"]
+[ext_resource type="Script" uid="uid://cceo8vsmdiw2v" path="res://Scripts/MezbahaArabasi.gd" id="scr_mez_arab"]
+[ext_resource type="Script" uid="uid://rsom2y6swcly" path="res://Scripts/MezbahaAx.gd" id="scr_mez_ax"]
+[ext_resource type="Script" uid="uid://broerh0k6q4a1" path="res://Scripts/MezbahaMan.gd" id="scr_mez_man"]
+[ext_resource type="Script" uid="uid://cs7i0uyfyo86i" path="res://Scripts/MezbahaManager.gd" id="scr_mez_mgr"]
+[ext_resource type="Script" uid="uid://0c73trm6a7b4" path="res://Scripts/MezbahaMixer.gd" id="scr_mez_mix"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_s5w65"]
 size = Vector3(1.1510162, 0.035671234, 0.6342163)
@@ -94,6 +99,7 @@ transform = Transform3D(50.000004, 0, 0, 0, -6.516826e-07, 50.000004, 0, -3.9999
 transform = Transform3D(0.06968217, -0.002433355, 0.79695576, 0.027919596, 0.7995127, 0, -0.79647034, 0.027813355, 0.06972464, -0.98337936, 0.09982818, -0.4102671)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="El_arabasi" index="1"]
+script = ExtResource("scr_mez_arab")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="El_arabasi/StaticBody3D" index="0"]
 transform = Transform3D(1, 5.9604645e-08, 2.3841858e-07, 0, 1, 4.1211024e-08, 2.2351742e-08, -1.3969839e-09, 1, -0.31852654, 0.538807, -0.031311512)
@@ -123,6 +129,7 @@ shape = SubResource("BoxShape3D_xqoek")
 transform = Transform3D(-2.1855695e-07, -0.17449749, -4.996954, 0, 4.996954, -0.17449749, 5, -7.627527e-09, -2.184238e-07, 4.414839, 1.5813496, -0.4618171)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Ax" index="1"]
+script = ExtResource("scr_mez_ax")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ax/StaticBody3D" index="0"]
 transform = Transform3D(0.99999976, 0, 0, -3.5083048e-14, 1, 6.664135e-17, -3.5527137e-15, 6.664134e-17, 1, -0.0029169545, 0.12906021, 0.031475604)
@@ -327,6 +334,7 @@ light_angular_distance = 1.0
 transform = Transform3D(-0.8433915, 0, -0.5372996, 0, 1, 0, 0.5372996, 0, -0.8433915, 3.1256766, 0.0909424, 2.6399455)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Mixer" index="1"]
+script = ExtResource("scr_mez_mix")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Mixer/StaticBody3D" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.10928464, 1.3345337, -0.1146853)
@@ -354,9 +362,13 @@ transform = Transform3D(0.28, 0, 0, 0, -0.024403615, -0.2789345, 0, 0.2789345, -
 transform = Transform3D(-1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, 8.742278e-08, 1, 4.371139e-08, -2.5569582, 0.71770823, -0.12874071)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Mezbaha_man" index="1"]
+script = ExtResource("scr_mez_man")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Mezbaha_man/StaticBody3D" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.016052246, -0.010849014, -0.12588501)
 shape = SubResource("BoxShape3D_7kjth")
+
+[node name="MezbahaManager" type="Node" parent="." index="18"]
+script = ExtResource("scr_mez_mgr")
 
 [editable path="Mezbaha_man"]

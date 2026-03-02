@@ -24,6 +24,10 @@ func _on_body_entered(body):
 			kan.position.y += 0.05
 			kan.rotation.y = randf() * PI 
 
+func get_etkilesim_yazisi() -> String:
+	if gravity_scale == 0.0: # Held by player
+		return ""
+	return "[E] Uzuvu Al"
 
 # --- TUTMA SİSTEMİ ---
 func tutuldu():
