@@ -1,0 +1,11 @@
+Model Information:
+* title:	Ax with skull
+* source:	https://sketchfab.com/3d-models/ax-with-skull-ad828dd9728e4ee6b8a2d7b985fd4b3e
+* author:	LOLONI (https://sketchfab.com/loloni)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Ax with skull" (https://sketchfab.com/3d-models/ax-with-skull-ad828dd9728e4ee6b8a2d7b985fd4b3e) by LOLONI (https://sketchfab.com/loloni) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
