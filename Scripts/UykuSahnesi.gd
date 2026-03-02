@@ -7,6 +7,7 @@ var sandik_hedef_z = -26.5
 var mesafe_kapanacak = false
 var kapanis_basladi = false
 var sfx_drag: AudioStreamPlayer
+var ses_zamani: float = 0.0
 
 class ChestInteract extends StaticBody3D:
 	var ana_sahne: Node = null
@@ -34,8 +35,8 @@ func _ready():
 	sfx_drag.stream = d_stream
 	sfx_drag.bus = "Master"
 	sfx_drag.volume_db = -80.0 # Başlangıçta sessiz
-	sfx_drag.play() # En baştan çalmaya başlasın, arkada dönsün
 	chest.add_child(sfx_drag)
+	sfx_drag.play() # En baştan çalmaya başlasın, arkada dönsün
 	
 	# Global filtreyi de ilk rüyada kapatalım (tüm oyunda olan global.gdshader)
 	if oyuncu and oyuncu.has_node("Camera3D/GlobalFiltre"):
@@ -90,13 +91,18 @@ func _process(delta):
 			is_moving = false
 			
 	if is_moving and not mesafe_kapanacak:
-		if sfx_drag:
-			sfx_drag.volume_db = 10.0
+		ses_zamani = 0.15 # 150ms tolerans ekledik
+		
+	if sfx_drag:
+		if ses_zamani > 0:
+			ses_zamani -= delta
 			if not sfx_drag.playing: 
 				sfx_drag.play()
-	else:
-		if sfx_drag:
-			sfx_drag.volume_db = -80.0
+			# Ses pürüzsüzce açılsın
+			sfx_drag.volume_db = lerp(sfx_drag.volume_db, 10.0, 15.0 * delta)
+		else:
+			# Ses pürüzsüzce kapansın
+			sfx_drag.volume_db = lerp(sfx_drag.volume_db, -80.0, 15.0 * delta)
 
 func sandik_acildi():
 	if kapanis_basladi: return
