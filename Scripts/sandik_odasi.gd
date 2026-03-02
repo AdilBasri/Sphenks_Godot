@@ -262,6 +262,7 @@ func _etkilesim_kontrol():
 				# Kapı kilitli değil, normal açılır
 				if etkilesim_label: etkilesim_label.text = "(E) Kapıyı Aç"
 				if Input.is_action_just_pressed("etkilesim"):
+					kapi_node.set("hedef_tipi", 1) # HedefTipi.SONRAKI_LEVEL
 					if kapi_node.has_method("kapiyi_ac"):
 						kapi_node.kapiyi_ac()
 		return
@@ -287,6 +288,7 @@ func _etkilesim_kontrol():
 
 func _kapiyi_kilit_ac(hedef_kapi):
 	hedef_kapi.set("kilitli_mi", false)
+	hedef_kapi.set("hedef_tipi", 1) # HedefTipi.SONRAKI_LEVEL
 	if hedef_kapi.has_method("kapiyi_ac"):
 		hedef_kapi.kapiyi_ac()
 	
