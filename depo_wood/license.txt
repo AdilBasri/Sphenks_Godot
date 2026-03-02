@@ -1,0 +1,11 @@
+Model Information:
+* title:	Wood Pallet
+* source:	https://sketchfab.com/3d-models/wood-pallet-ac59c8b27da84f34b91f47187d819601
+* author:	cooper (https://sketchfab.com/cooper)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Wood Pallet" (https://sketchfab.com/3d-models/wood-pallet-ac59c8b27da84f34b91f47187d819601) by cooper (https://sketchfab.com/cooper) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

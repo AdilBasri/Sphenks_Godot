@@ -1,0 +1,11 @@
+Model Information:
+* title:	Floor_Parquet_Relax
+* source:	https://sketchfab.com/3d-models/floor-parquet-relax-555f9b9eaf7340fdb4d1b8dd9f35da5d
+* author:	jamesdeantv1 (https://sketchfab.com/jamesdeantv1)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Floor_Parquet_Relax" (https://sketchfab.com/3d-models/floor-parquet-relax-555f9b9eaf7340fdb4d1b8dd9f35da5d) by jamesdeantv1 (https://sketchfab.com/jamesdeantv1) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
