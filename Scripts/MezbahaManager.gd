@@ -16,6 +16,7 @@ var blood_tween: Tween
 var anim_player: AnimationPlayer
 
 var wheelbarrow_pieces = 0
+var can_swing: bool = true
 
 func _ready():
 	_create_ui()
@@ -75,11 +76,16 @@ func axe_picked_up():
 		visual_axe.name = "MezbahaVisualAxe"
 
 func _process(delta):
-	if axe_equipped and Input.is_action_just_pressed("sol_tik"):
+	if axe_equipped and can_swing and Input.is_action_just_pressed("sol_tik"):
 		_swing_axe()
 
 func _swing_axe():
 	if not player or not player.kamera: return
+	
+	# Cooldown başlatıyoruz
+	can_swing = false
+	get_tree().create_timer(0.75).timeout.connect(func(): can_swing = true)
+	
 	var pivot = player.kamera.get_node_or_null("AxePivot")
 	if pivot:
 		var tw = create_tween()
@@ -129,11 +135,18 @@ func meat_hit(meat_node):
 			meat_node.collision_layer = 0
 			meat_node.collision_mask = 0
 		spawn_pieces(meat_node.global_position)
-		label_main.text = "Parçaları el arabasına yerleştir (0/4)"
+		label_main.text = "Baltayı yerine as"
 		var ls = label_main.label_settings
 		ls.font_size = 20
 		label_main.show()
 		_shake_label(label_main, false)
+		
+		var sec_axe = get_tree().current_scene.find_child("Axe", true, false)
+		if sec_axe:
+			var static_b = sec_axe.get_node_or_null("StaticBody3D")
+			if static_b:
+				static_b.set("asilabilir_mi", true)
+				static_b.collision_layer = 1 # Oyuncu hedef alabilsin diye çarpışmayı geri açıyoruz
 
 func _splash_blood():
 	label_blood.color = Color(0.6, 0.0, 0.0, 0.8) # Stronger red
@@ -160,12 +173,13 @@ func spawn_pieces(pos: Vector3):
 	for i in range(4):
 		var p = piece_scene.instantiate()
 		get_parent().call_deferred("add_child", p)
-		p.global_position = pos + Vector3(randf_range(-0.5, 0.5), randf_range(1.0, 2.5), randf_range(-0.5, 0.5))
-		p.scale = Vector3(1, 1, 1) * 0.1 # Even smaller pieces constraint to basket
+		# Sadece masanın yakın bölgelerine düşsün, alan çok daraldı
+		p.global_position = pos + Vector3(randf_range(-0.1, 0.1), randf_range(0.2, 0.5), randf_range(-0.2, 0.2))
 		
-		# Give it throwing force
-		if p is RigidBody3D:
-			p.linear_velocity = Vector3(randf_range(-2, 2), randf_range(2, 4), randf_range(-2, 2))
+		# Saçma uzak konumlara fırlamaması için kuvvetleri de minimize ettik, neredeyse masaya pıt diye düşecek.
+		var rb = p.get_node_or_null("KopanUzuv")
+		if rb and rb is RigidBody3D:
+			rb.linear_velocity = Vector3(randf_range(-0.3, 0.3), randf_range(0.5, 1.5), randf_range(-0.3, 0.3))
 
 func piece_placed_in_wheelbarrow():
 	wheelbarrow_pieces += 1
@@ -183,3 +197,14 @@ func piece_placed_in_wheelbarrow():
 func show_mixer_prompt():
 	if wheelbarrow_pieces >= 4:
 		label_main.text = "Parçaları yüklemek için R basılı tut"
+
+func axe_returned():
+	axe_equipped = false
+	label_main.text = "Parçaları el arabasına yerleştir (0/4)"
+	if wheelbarrow_pieces > 0:
+		label_main.text = "Parçaları el arabasına yerleştir (%d/4)" % wheelbarrow_pieces
+		
+	if player and player.kamera:
+		var visual_axe = player.kamera.get_node_or_null("AxePivot")
+		if visual_axe:
+			visual_axe.queue_free()

@@ -946,7 +946,7 @@ func etkilesime_gir(is_mouse_click: bool = false):
 	var bulunan_etkilesim = _bul_etkilesim_nesnesi(nesne)
 	
 	if bulunan_etkilesim:
-		if bulunan_etkilesim.get("kilitli_mi") == true:
+		if bulunan_etkilesim.get("kilitli_mi") == true and bulunan_etkilesim.get("asilabilir_mi") != true:
 			return
 		if bulunan_etkilesim.has_method("kapiyi_ac") and bulunan_etkilesim.get("hedef_tipi") == 1:
 			var cf = null
