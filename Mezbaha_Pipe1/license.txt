@@ -1,0 +1,11 @@
+Model Information:
+* title:	pipe
+* source:	https://sketchfab.com/3d-models/pipe-6d10930858aa40f3ae2b175937f0eae5
+* author:	Ogunyemi.Yusuf.Oyesola (https://sketchfab.com/Ogunyemi.Yusuf.Oyesola)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "pipe" (https://sketchfab.com/3d-models/pipe-6d10930858aa40f3ae2b175937f0eae5) by Ogunyemi.Yusuf.Oyesola (https://sketchfab.com/Ogunyemi.Yusuf.Oyesola) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

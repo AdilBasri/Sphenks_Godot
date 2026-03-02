@@ -1,0 +1,11 @@
+Model Information:
+* title:	Single-Use Mixer
+* source:	https://sketchfab.com/3d-models/single-use-mixer-2e9f708bad834b0097d607c20a71386e
+* author:	koshkinevgeny (https://sketchfab.com/koshkinevgeny)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Single-Use Mixer" (https://sketchfab.com/3d-models/single-use-mixer-2e9f708bad834b0097d607c20a71386e) by koshkinevgeny (https://sketchfab.com/koshkinevgeny) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

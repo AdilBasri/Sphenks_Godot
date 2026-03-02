@@ -1,0 +1,11 @@
+Model Information:
+* title:	Leichenhalle
+* source:	https://sketchfab.com/3d-models/leichenhalle-1087bbd5bc0643988a545d74311cd175
+* author:	Jonas André (https://sketchfab.com/bingiz)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Leichenhalle" (https://sketchfab.com/3d-models/leichenhalle-1087bbd5bc0643988a545d74311cd175) by Jonas André (https://sketchfab.com/bingiz) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

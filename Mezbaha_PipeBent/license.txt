@@ -1,0 +1,11 @@
+Model Information:
+* title:	Pipe Bent
+* source:	https://sketchfab.com/3d-models/pipe-bent-ad17ef7161874f4890b4a89abb0850c2
+* author:	paethon (https://sketchfab.com/paethon)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Pipe Bent" (https://sketchfab.com/3d-models/pipe-bent-ad17ef7161874f4890b4a89abb0850c2) by paethon (https://sketchfab.com/paethon) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
