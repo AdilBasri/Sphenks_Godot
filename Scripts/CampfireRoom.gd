@@ -17,18 +17,6 @@ var cards_resolved: bool = false # KART SEÇİMİ VE KAPI ETKİLEŞİMİ DÜZELT
 func _ready():
 	_kartlari_olustur()
 	
-	var kampates = get_node_or_null("KampAtesi")
-	if kampates:
-		var sfx = AudioStreamPlayer3D.new()
-		var stream = load("res://Sesler/campfire.mp3")
-		if stream and stream is AudioStream:
-			if stream.has_method("set_loop"): stream.set_loop(true)
-			elif "loop" in stream: stream.loop = true
-		sfx.stream = stream
-		sfx.bus = "Master"
-		sfx.autoplay = true
-		kampates.add_child(sfx)
-	
 	# Campfire kapısını bul ve kilitli başlat
 	var sahne_koku = get_tree().current_scene
 	if sahne_koku:
@@ -42,7 +30,7 @@ func _ready():
 	var gecis_area = _gecis_alanini_bul()
 	if gecis_area:
 		# Sadece bir kere tetiklenmesi için one_shot bağlantı yapıyoruz (Auto-Door Close Bug)
-		gecis_area.body_entered.connect(_oyuncu_girdi, CONNECT_ONE_SHOT)
+		gecis_area.body_entered.connect(_oyuncu_girdi)
 		print("✅ CampfireOdasi: Geçiş alanı bağlandı.")
 	else:
 		print("⚠️ CampfireOdasi: Geçiş Alan3D bulunamadı!")
@@ -52,7 +40,7 @@ func _gecis_alanini_bul() -> Area3D:
 	var gecis_area2 = Area3D.new()
 	var col2 = CollisionShape3D.new()
 	var shp2 = BoxShape3D.new()
-	shp2.size = Vector3(10.0, 6.0, 10.0)
+	shp2.size = Vector3(35.0, 15.0, 35.0) # Alanı tüm odayı kaplayacak ama taşmayacak makul bir seviyeye getirdik
 	col2.shape = shp2
 	gecis_area2.add_child(col2)
 	var kmp2 = get_node_or_null("KampAtesi")
@@ -80,7 +68,7 @@ func _kart_olustur(texture: Texture2D, konum: Vector3, ad: String) -> Node3D:
 
 	# Görsel (Sprite3D)
 	var sprite = Sprite3D.new()
-	sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sprite.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y
 	sprite.pixel_size = 0.003
 	if texture: sprite.texture = texture
 	sprite.alpha_cut = 2
@@ -92,7 +80,7 @@ func _kart_olustur(texture: Texture2D, konum: Vector3, ad: String) -> Node3D:
 	sb.input_ray_pickable = true  # ← Kritik! Godot 4'te tıklama için şart
 	var col = CollisionShape3D.new()
 	var shp = BoxShape3D.new()
-	shp.size = Vector3(1.4, 2.0, 0.15)
+	shp.size = Vector3(2.8, 4.0, 1) # 2 katı büyütüldü: (1.4, 2.0, 0.15) -> (2.8, 4.0, 0.3)
 	col.shape = shp
 	sb.add_child(col)
 	kart_kok.add_child(sb)
@@ -146,6 +134,21 @@ func _oyuncu_girdi(body):
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_nisangahi_goster()
 	_kartlari_ac()
+	
+	# Ateş sesini odaya girince başlatma
+	var kampates = get_node_or_null("KampAtesi")
+	if kampates and not kampates.has_node("CampfireSfxPlayer"):
+		var sfx = AudioStreamPlayer3D.new()
+		sfx.name = "CampfireSfxPlayer"
+		var stream = load("res://Sesler/campfire.mp3")
+		if stream and stream is AudioStream:
+			if stream.has_method("set_loop"): stream.set_loop(true)
+			elif "loop" in stream: stream.loop = true
+		sfx.stream = stream
+		sfx.bus = "Master"
+		sfx.autoplay = true
+		kampates.add_child(sfx)
+
 
 # ─────────── KART ANİMASYONU ───────────
 func _kartlari_ac():
