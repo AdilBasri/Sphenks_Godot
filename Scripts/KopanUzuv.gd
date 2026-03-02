@@ -8,21 +8,42 @@ func _ready():
 	max_contacts_reported = 2
 	add_to_group("KopanUzuv")
 	
+	# Boyutu eski halinin tam olarak yarısına indirelim
+	scale = Vector3(0.5, 0.5, 0.5)
+	
 	body_entered.connect(_on_body_entered)
+	
+	# Doğar doğmaz kanlı (kırmızı) görünüme kavuşsun
+	call_deferred("_renk_ayarla")
+
+func _renk_ayarla():
+	if has_node("MeshInstance3D"):
+		var mesh_instance = $MeshInstance3D
+		# Albedo rengini kırmızıya çevirerek kanlı görünüm ver
+		mesh_instance.set_instance_shader_parameter("albedo", Color(0.6, 0.0, 0.0))
+		# Eğer material_override varsa onun rengini değiştir
+		if mesh_instance.material_override:
+			if mesh_instance.material_override is StandardMaterial3D:
+				var mat = mesh_instance.material_override.duplicate()
+				mat.albedo_color = Color(0.6, 0.0, 0.0)
+				mesh_instance.material_override = mat
 
 func _on_body_entered(body):
 	if yere_degdi: return
 	
-	if body is StaticBody3D or body is CSGShape3D:
+	# Sadece 8. collision layer'a (katmana) sahip olan objelere çarpınca dur ve kan bırak
+	if body is CollisionObject3D and body.get_collision_layer_value(8):
 		yere_degdi = true
 		freeze = true
-		
-		if kan_havuzu_sahnesi:
-			var kan = kan_havuzu_sahnesi.instantiate()
-			get_tree().current_scene.add_child(kan)
-			kan.global_position = global_position
-			kan.position.y += 0.05
-			kan.rotation.y = randf() * PI 
+		_kan_lekesi_birak()
+
+func _kan_lekesi_birak():
+	if kan_havuzu_sahnesi:
+		var kan = kan_havuzu_sahnesi.instantiate()
+		get_tree().current_scene.add_child(kan)
+		kan.global_position = global_position
+		kan.position.y += 0.05
+		kan.rotation.y = randf() * PI
 
 func get_etkilesim_yazisi() -> String:
 	if gravity_scale == 0.0: # Held by player
