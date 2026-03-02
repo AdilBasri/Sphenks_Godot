@@ -49,7 +49,7 @@ func _build_multimesh():
 		for iz in range(count_z_side):
 			var pos_z = base_z + (iz * spacing)
 			var t = Transform3D()
-			t.basis = Basis.from_euler(Vector3(0, PI/2.0, 0))
+			t.basis = Basis.from_euler(Vector3(PI/2.0, PI/2.0, 0))
 			t.basis = t.basis.scaled(Vector3(piece_scale, piece_scale, piece_scale))
 			t.origin = Vector3(-extents_x + 0.5, pos_y, pos_z)
 			mm.set_instance_transform(idx, t * mesh_offset)
@@ -59,7 +59,7 @@ func _build_multimesh():
 		for iz in range(count_z_side):
 			var pos_z = base_z + (iz * spacing)
 			var t = Transform3D()
-			t.basis = Basis.from_euler(Vector3(0, -PI/2.0, 0))
+			t.basis = Basis.from_euler(Vector3(PI/2.0, -PI/2.0, 0))
 			t.basis = t.basis.scaled(Vector3(piece_scale, piece_scale, piece_scale))
 			t.origin = Vector3(extents_x - 0.5, pos_y, pos_z)
 			mm.set_instance_transform(idx, t * mesh_offset)
@@ -69,7 +69,7 @@ func _build_multimesh():
 		for ix in range(count_x_side):
 			var pos_x = base_x + (ix * spacing)
 			var t = Transform3D()
-			t.basis = Basis.from_euler(Vector3(0, 0, 0))
+			t.basis = Basis.from_euler(Vector3(PI/2.0, 0, 0))
 			t.basis = t.basis.scaled(Vector3(piece_scale, piece_scale, piece_scale))
 			t.origin = Vector3(pos_x, pos_y, center_z - extents_z + 0.5)
 			mm.set_instance_transform(idx, t * mesh_offset)
@@ -79,7 +79,7 @@ func _build_multimesh():
 		for ix in range(count_x_side):
 			var pos_x = base_x + (ix * spacing)
 			var t = Transform3D()
-			t.basis = Basis.from_euler(Vector3(0, PI, 0))
+			t.basis = Basis.from_euler(Vector3(PI/2.0, PI, 0))
 			t.basis = t.basis.scaled(Vector3(piece_scale, piece_scale, piece_scale))
 			t.origin = Vector3(pos_x, pos_y, center_z + extents_z - 0.5)
 			mm.set_instance_transform(idx, t * mesh_offset)

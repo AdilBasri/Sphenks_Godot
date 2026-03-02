@@ -1,15 +1,32 @@
-[gd_scene load_steps=18 format=3 uid="uid://dpavffiqg5scc"]
+[gd_scene load_steps=26 format=3 uid="uid://dpavffiqg5scc"]
 
 [ext_resource type="PackedScene" uid="uid://dh5w3gifjmsp4" path="res://depo_cliff/scene.gltf" id="1_5pl20"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="2_xhdv7"]
-[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="3_tj17k"]
-[ext_resource type="Texture2D" uid="uid://ncorow4carpw" path="res://Assets/Images/çerçeve_bar.png" id="4_tgb18"]
-[ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://Assets/Images/iç_bar.png" id="5_qduyw"]
-[ext_resource type="Texture2D" uid="uid://b5k4ffrdw2m3u" path="res://Assets/carpi.png" id="6_5b14w"]
+[ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="3_tj17k"]
+[ext_resource type="Texture2D" uid="uid://dm3cprrc1lljc" path="res://Assets/Images/çerçeve_bar.png" id="4_tgb18"]
+[ext_resource type="Texture2D" uid="uid://bg20iuynejlup" path="res://Assets/Images/iç_bar.png" id="5_qduyw"]
+[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="6_5b14w"]
 [ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="7_f21yi"]
+[ext_resource type="PackedScene" uid="uid://b0br8qhx17fq3" path="res://depo_hand.tscn" id="8_y265j"]
 [ext_resource type="Script" uid="uid://cjn3f6j05p6of" path="res://Scripts/DepoTavan.gd" id="9_tavan"]
 [ext_resource type="Script" uid="uid://btp8umnmx0jnq" path="res://Scripts/DepoZemin.gd" id="10_zemin"]
+[ext_resource type="PackedScene" uid="uid://bcgr0lpnjw7pf" path="res://depo_dog/scene.gltf" id="11_5b14w"]
 [ext_resource type="Script" uid="uid://c20ci2totrbkl" path="res://Scripts/DepoDuvar.gd" id="11_duvar"]
+[ext_resource type="Animation" uid="uid://dalqd4owr0rsl" path="res://barking.res" id="12_f21yi"]
+[ext_resource type="Script" uid="uid://bqy48o5uvrvto" path="res://Scripts/DepoRoot.gd" id="99_deporoot"]
+[ext_resource type="Shader" uid="uid://qeoevmq3pnei" path="res://Shaders/DepoAmbians.gdshader" id="100_shader"]
+
+[sub_resource type="Environment" id="Environment_fog"]
+background_mode = 1
+background_color = Color(0.01, 0.02, 0.04, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.02, 0.05, 0.1, 1)
+ambient_light_energy = 0.1
+tonemap_mode = 2
+glow_enabled = true
+fog_enabled = true
+fog_light_color = Color(0.01, 0.02, 0.05, 1)
+fog_density = 0.025
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y265j"]
 albedo_color = Color(0.3372549, 0.4627451, 0.57254905, 1)
@@ -56,7 +73,23 @@ shader_parameter/scanline_intensity = 0.1
 shader_parameter/scanline_count = 300.0
 shader_parameter/dither_amount = 0.025
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_depo"]
+shader = ExtResource("100_shader")
+shader_parameter/vignette_intensity = 0.8
+shader_parameter/vignette_opacity = 0.8
+shader_parameter/cold_tint = Color(0.05, 0.15, 0.3, 1)
+shader_parameter/darkness_multiplier = 1.8
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_y265j"]
+_data = {
+&"barking": ExtResource("12_f21yi")
+}
+
 [node name="Node3D" type="Node3D"]
+script = ExtResource("99_deporoot")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_fog")
 
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8.56665)
@@ -68,21 +101,6 @@ material = SubResource("StandardMaterial3D_y265j")
 [node name="CSGBox3D2" type="CSGBox3D" parent="CSGBox3D"]
 operation = 2
 size = Vector3(18, 4.5, 58)
-
-[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_5pl20")]
-transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 2.627666)
-
-[node name="Sketchfab_Scene2" parent="." instance=ExtResource("1_5pl20")]
-transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 0.33444476)
-
-[node name="Sketchfab_Scene3" parent="." instance=ExtResource("1_5pl20")]
-transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, -1.8929832)
-
-[node name="Sketchfab_Scene4" parent="." instance=ExtResource("1_5pl20")]
-transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, -4.323432)
-
-[node name="Sketchfab_Scene5" parent="." instance=ExtResource("1_5pl20")]
-transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 4.9169564)
 
 [node name="Oyuncu" type="CharacterBody3D" parent="." node_paths=PackedStringArray("kamera", "ui_container") groups=["Oyuncu"]]
 transform = Transform3D(-0.7660445, 0, 0.6427876, 0, 1, 0, -0.6427876, 0, -0.7660445, 7.1637163, -0.7038536, -8.615265)
@@ -125,6 +143,7 @@ label_settings = SubResource("LabelSettings_6xi48")
 horizontal_alignment = 1
 
 [node name="CanBarlariContainer" type="HBoxContainer" parent="Oyuncu"]
+visible = false
 anchors_preset = -1
 anchor_left = 0.041
 anchor_top = 0.053000003
@@ -227,11 +246,15 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="Node3D" parent="Oyuncu/Camera3D" instance=ExtResource("8_y265j")]
+transform = Transform3D(1, -3.3527613e-08, -2.9802322e-08, 0, 0.9999995, 5.9604645e-08, 0, 3.3527613e-08, 1, -0.24334908, -0.25564027, -0.14969826)
+
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
-light_color = Color(2.2140146e-06, 0.64234596, 0.6429974, 1)
-light_indirect_energy = 10.0
-light_volumetric_fog_energy = 16.0
-omni_range = 16.0
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0461016, 9.37428)
+light_color = Color(0.1, 0.3, 0.5, 1)
+light_energy = 0.5
+light_indirect_energy = 0.5
+omni_range = 50.0
 
 [node name="TavanKaplama" type="Node3D" parent="."]
 script = ExtResource("9_tavan")
@@ -242,3 +265,255 @@ piece_scale = 1.0
 
 [node name="DuvarKaplama" type="Node3D" parent="."]
 script = ExtResource("11_duvar")
+
+[node name="KaranlikFiltre" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="ColorRect" type="ColorRect" parent="KaranlikFiltre"]
+material = SubResource("ShaderMaterial_depo")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Etler" type="Node3D" parent="."]
+
+[node name="Sketchfab_Scene" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 2.627666)
+
+[node name="Sketchfab_Scene2" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 0.33444476)
+
+[node name="Sketchfab_Scene3" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, -1.8929832)
+
+[node name="Sketchfab_Scene4" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, -4.323432)
+
+[node name="Sketchfab_Scene5" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 4.9169564)
+
+[node name="Sketchfab_Scene6" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 7.2993073)
+
+[node name="Sketchfab_Scene7" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 9.9970455)
+
+[node name="Sketchfab_Scene8" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 12.391308)
+
+[node name="Sketchfab_Scene9" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 14.860314)
+
+[node name="Sketchfab_Scene10" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 17.730999)
+
+[node name="Sketchfab_Scene11" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 20.095888)
+
+[node name="Sketchfab_Scene12" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 22.669231)
+
+[node name="Sketchfab_Scene13" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 25.245096)
+
+[node name="Sketchfab_Scene14" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 27.497166)
+
+[node name="Sketchfab_Scene15" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 30.25583)
+
+[node name="Sketchfab_Scene16" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 32.73713)
+
+[node name="Sketchfab_Scene17" parent="Etler" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 35.47302)
+
+[node name="Etler2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.149124, 0, 0)
+
+[node name="Sketchfab_Scene" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 2.627666)
+
+[node name="Sketchfab_Scene2" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 0.33444476)
+
+[node name="Sketchfab_Scene3" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, -1.8929832)
+
+[node name="Sketchfab_Scene4" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, -4.323432)
+
+[node name="Sketchfab_Scene5" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 4.9169564)
+
+[node name="Sketchfab_Scene6" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 7.2993073)
+
+[node name="Sketchfab_Scene7" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 9.9970455)
+
+[node name="Sketchfab_Scene8" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 12.391308)
+
+[node name="Sketchfab_Scene9" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 14.860314)
+
+[node name="Sketchfab_Scene10" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 17.730999)
+
+[node name="Sketchfab_Scene11" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 20.095888)
+
+[node name="Sketchfab_Scene12" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 22.669231)
+
+[node name="Sketchfab_Scene13" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 25.245096)
+
+[node name="Sketchfab_Scene14" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 27.497166)
+
+[node name="Sketchfab_Scene15" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 30.25583)
+
+[node name="Sketchfab_Scene16" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 32.73713)
+
+[node name="Sketchfab_Scene17" parent="Etler2" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 35.47302)
+
+[node name="Etler3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.393774, 0, 0)
+
+[node name="Sketchfab_Scene" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 2.627666)
+
+[node name="Sketchfab_Scene2" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 0.33444476)
+
+[node name="Sketchfab_Scene3" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, -1.8929832)
+
+[node name="Sketchfab_Scene4" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, -4.323432)
+
+[node name="Sketchfab_Scene5" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 4.9169564)
+
+[node name="Sketchfab_Scene6" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 7.2993073)
+
+[node name="Sketchfab_Scene7" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 9.9970455)
+
+[node name="Sketchfab_Scene8" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 12.391308)
+
+[node name="Sketchfab_Scene9" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 14.860314)
+
+[node name="Sketchfab_Scene10" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 17.730999)
+
+[node name="Sketchfab_Scene11" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 20.095888)
+
+[node name="Sketchfab_Scene12" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 22.669231)
+
+[node name="Sketchfab_Scene13" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 25.245096)
+
+[node name="Sketchfab_Scene14" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 27.497166)
+
+[node name="Sketchfab_Scene15" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 30.25583)
+
+[node name="Sketchfab_Scene16" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 32.73713)
+
+[node name="Sketchfab_Scene17" parent="Etler3" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 35.47302)
+
+[node name="Etler4" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.637385, 0, 0)
+
+[node name="Sketchfab_Scene" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 2.627666)
+
+[node name="Sketchfab_Scene2" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 0.33444476)
+
+[node name="Sketchfab_Scene3" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, -1.8929832)
+
+[node name="Sketchfab_Scene4" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, -4.323432)
+
+[node name="Sketchfab_Scene5" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 4.9169564)
+
+[node name="Sketchfab_Scene6" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 7.2993073)
+
+[node name="Sketchfab_Scene7" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 9.9970455)
+
+[node name="Sketchfab_Scene8" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 12.391308)
+
+[node name="Sketchfab_Scene9" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 14.860314)
+
+[node name="Sketchfab_Scene10" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 17.730999)
+
+[node name="Sketchfab_Scene11" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 20.095888)
+
+[node name="Sketchfab_Scene12" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 22.669231)
+
+[node name="Sketchfab_Scene13" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 25.245096)
+
+[node name="Sketchfab_Scene14" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 27.497166)
+
+[node name="Sketchfab_Scene15" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 30.25583)
+
+[node name="Sketchfab_Scene16" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 32.73713)
+
+[node name="Sketchfab_Scene17" parent="Etler4" instance=ExtResource("1_5pl20")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 35.47302)
+
+[node name="dog" parent="." instance=ExtResource("11_5b14w")]
+transform = Transform3D(-2.1855694e-08, 0, -0.5, 0, 0.5, 0, 0.5, 0, -2.1855694e-08, 1.8183062, -1.4734869, 35.758316)
+
+[node name="Skeleton3D" parent="dog/Sketchfab_model/6831a762046f4f5e9c0f22a119264944_fbx/Object_2/RootNode/metarig/Object_5" index="0"]
+bones/2/rotation = Quaternion(-0.07659362, -0.12510896, 0.9810142, -0.12685613)
+bones/3/rotation = Quaternion(-0.4135919, 0.024631308, 0.101515025, 0.90444994)
+bones/4/rotation = Quaternion(0.1270398, -0.0074259355, 0.04617285, 0.99079454)
+bones/5/rotation = Quaternion(0.26583377, -0.0004856221, 0.0003330052, 0.96401876)
+bones/11/rotation = Quaternion(0.020911263, 3.3709549e-07, -1.608368e-08, 0.99978137)
+bones/12/rotation = Quaternion(-0.100931615, 3.962839e-10, 1.2137093e-08, 0.9948934)
+bones/13/rotation = Quaternion(-0.6329194, -3.3145056e-08, 1.0145129e-07, 0.7742177)
+bones/14/rotation = Quaternion(0.7184799, 5.037353e-07, 4.425875e-07, 0.69554776)
+bones/15/rotation = Quaternion(0.0018449273, -4.4721708e-07, 2.4438174e-09, 0.99999833)
+bones/16/rotation = Quaternion(-0.0029284486, 7.3344154e-08, -2.785051e-09, 0.9999957)
+bones/18/rotation = Quaternion(0.7289167, -7.793346e-09, -1.6809948e-07, 0.6846024)
+bones/26/rotation = Quaternion(0.43734425, -0.13446331, 0.04922251, 0.88782144)
+
+[node name="AnimationPlayer" parent="dog" index="1"]
+libraries = {
+&"": SubResource("AnimationLibrary_y265j")
+}
+autoplay = "barking"
+
+[editable path="dog"]

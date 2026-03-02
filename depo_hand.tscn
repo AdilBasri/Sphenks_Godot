@@ -1,0 +1,40 @@
+[gd_scene load_steps=5 format=3 uid="uid://b0br8qhx17fq3"]
+
+[ext_resource type="PackedScene" uid="uid://br6t2ff7qhmsb" path="res://depo_hand/scene.gltf" id="1_1k4wn"]
+[ext_resource type="PackedScene" uid="uid://cscpsfup540wt" path="res://depo_fener/scene.gltf" id="2_sgplb"]
+[ext_resource type="Script" uid="uid://b1a6oqygmoqa7" path="res://Scripts/depo_hand.gd" id="3_hand_script"]
+[ext_resource type="PackedScene" uid="uid://bq8mjuugdsa8p" path="res://Scenes/Blocks/block_tek.tscn" id="4_3w55m"]
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("3_hand_script")
+
+[node name="BlokTek" parent="." instance=ExtResource("4_3w55m")]
+transform = Transform3D(0.07999999, -3.7252903e-09, -9.313226e-10, 0, 0.08, 1.8626451e-09, 9.313226e-10, 1.8626451e-09, 0.08, 0.45258677, 0.13115776, -0.21319391)
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_1k4wn")]
+transform = Transform3D(0.08677655, 0.029070873, -0.04030776, 0, 0.08110639, 0.058495767, 0.049697395, -0.05076061, 0.07038132, 0, 0, 0)
+
+[node name="Sketchfab_Scene2" parent="Sketchfab_Scene" instance=ExtResource("2_sgplb")]
+transform = Transform3D(-1.6422706, -14.861269, -1.2023393, 5.107317, -1.6971531, 14.00125, -14.007792, 1.1235399, 5.2458935, 0.6024449, 2.7025783, -0.053455204)
+
+[node name="Sketchfab_Scene3" parent="." instance=ExtResource("1_1k4wn")]
+transform = Transform3D(0.08433192, -0.020880228, 0.049519133, 0.05374099, 0.032447185, -0.077840135, -0.00018563271, -0.09225614, -0.038584575, 0.5117538, 0, 0.013311774)
+
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, -0.15, -0.45)
+light_color = Color(0.85, 0.95, 1, 1)
+light_energy = 15.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 25.0
+shadow_enabled = true
+distance_fade_enabled = true
+distance_fade_begin = 30.0
+spot_range = 50.0
+spot_angle = 35.0
+
+[node name="PlayerRimLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, -0.13426214, 0)
+light_color = Color(0.4, 0.55, 0.7, 1)
+light_energy = 0.8
+omni_range = 4.0
+omni_attenuation = 2.0

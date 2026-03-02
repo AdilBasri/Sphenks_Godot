@@ -13,11 +13,11 @@
 [ext_resource type="PackedScene" uid="uid://c61t5hwda60u4" path="res://Mezbaha_Pipe2/scene.gltf" id="12_xqoek"]
 [ext_resource type="PackedScene" uid="uid://bk6qivaqi7ytq" path="res://Mezbaha_PipeBent/scene.gltf" id="13_lsqav"]
 [ext_resource type="PackedScene" uid="uid://sklud1w45hi7" path="res://Mezbaha_man/Meshy_AI_T_Pose_0302121916_texture.fbx" id="13_s5w65"]
-[ext_resource type="Script" path="res://Scripts/MezbahaArabasi.gd" id="scr_mez_arab"]
+[ext_resource type="Script" uid="uid://cceo8vsmdiw2v" path="res://Scripts/MezbahaArabasi.gd" id="scr_mez_arab"]
 [ext_resource type="Script" uid="uid://rsom2y6swcly" path="res://Scripts/MezbahaAx.gd" id="scr_mez_ax"]
-[ext_resource type="Script" path="res://Scripts/MezbahaMan.gd" id="scr_mez_man"]
+[ext_resource type="Script" uid="uid://broerh0k6q4a1" path="res://Scripts/MezbahaMan.gd" id="scr_mez_man"]
 [ext_resource type="Script" uid="uid://cs7i0uyfyo86i" path="res://Scripts/MezbahaManager.gd" id="scr_mez_mgr"]
-[ext_resource type="Script" path="res://Scripts/MezbahaMixer.gd" id="scr_mez_mix"]
+[ext_resource type="Script" uid="uid://0c73trm6a7b4" path="res://Scripts/MezbahaMixer.gd" id="scr_mez_mix"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_s5w65"]
 size = Vector3(1.1510162, 0.035671234, 0.6342163)
@@ -151,6 +151,7 @@ mesh = SubResource("BoxMesh_6toyb")
 
 [node name="Oyuncu" type="CharacterBody3D" parent="." index="4" node_paths=PackedStringArray("kamera", "ui_container") groups=["Oyuncu"]]
 transform = Transform3D(0.6347305, 0, -0.77273357, 0, 1, 0, 0.77273357, 0, 0.6347305, -3.4377995, 1.2893381, 3.7352352)
+collision_layer = 3967
 script = ExtResource("5_xqoek")
 kamera = NodePath("Camera3D")
 ui_container = NodePath("CanBarlariContainer")
@@ -340,15 +341,19 @@ light_indirect_energy = 4.0
 light_volumetric_fog_energy = 5.0
 light_angular_distance = 1.0
 
-[node name="Mixer" parent="." index="12" instance=ExtResource("11_s5w65")]
+[node name="Mixer" type="Node3D" parent="." index="12"]
 transform = Transform3D(-0.8433915, 0, -0.5372996, 0, 1, 0, 0.5372996, 0, -0.8433915, 3.1256766, 0.0909424, 2.6399455)
 
-[node name="StaticBody3D" type="StaticBody3D" parent="Mixer" index="1"]
+[node name="StaticBody3D" type="StaticBody3D" parent="Mixer" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.7111096, 0, 2.8164005)
 script = ExtResource("scr_mez_mix")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Mixer/StaticBody3D" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.10928464, 1.3345337, -0.1146853)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6156898, 1.3345337, -2.6134663)
 shape = SubResource("BoxShape3D_ussfh")
+
+[node name="Sketchfab_Scene" parent="Mixer" index="1" instance=ExtResource("11_s5w65")]
+transform = Transform3D(0.9438009, 0, -0.3305144, 0, 1, 0, 0.3305144, 0, 0.9438009, 0.19048119, 0, 0.4270594)
 
 [node name="Pipe1" parent="." index="13" instance=ExtResource("12_xqoek")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.0383537, 3.3000286, 0.621588)
