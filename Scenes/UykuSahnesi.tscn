@@ -1,13 +1,13 @@
-[gd_scene load_steps=21 format=3 uid="uid://cfmhdr4eyebqd"]
+[gd_scene load_steps=22 format=3 uid="uid://cfmhdr4eyebqd"]
 
 [ext_resource type="Script" uid="uid://c2h4u7catxpt" path="res://Scripts/UykuSahnesi.gd" id="1_x8xa3"]
 [ext_resource type="PackedScene" uid="uid://dlnne4b7iscxy" path="res://Chest/scene.gltf" id="2_mshbd"]
 [ext_resource type="PackedScene" uid="uid://665m2jm2rk2w" path="res://Chest/ChestEfekt/demon_skull/scene.gltf" id="3_rsd1s"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="4_cg10u"]
-[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="5_oeie3"]
-[ext_resource type="Texture2D" uid="uid://ncorow4carpw" path="res://Assets/Images/çerçeve_bar.png" id="6_0fgoa"]
-[ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://Assets/Images/iç_bar.png" id="7_p4lah"]
-[ext_resource type="Texture2D" uid="uid://b5k4ffrdw2m3u" path="res://Assets/carpi.png" id="8_rssxq"]
+[ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="5_oeie3"]
+[ext_resource type="Texture2D" uid="uid://dm3cprrc1lljc" path="res://Assets/Images/çerçeve_bar.png" id="6_0fgoa"]
+[ext_resource type="Texture2D" uid="uid://bg20iuynejlup" path="res://Assets/Images/iç_bar.png" id="7_p4lah"]
+[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="8_rssxq"]
 [ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="9_701ws"]
 [ext_resource type="PackedScene" uid="uid://btckn4ob1oifj" path="res://Chest/ChestEfekt/kol/scene.gltf" id="10_cg10u"]
 [ext_resource type="PackedScene" uid="uid://bcaphl238c1gj" path="res://Scenes/Kafa.tscn" id="11_oeie3"]
@@ -60,6 +60,9 @@ shader_parameter/vignette_color = Color(0.04, 0, 0, 1)
 shader_parameter/scanline_intensity = 0.1
 shader_parameter/scanline_count = 300.0
 shader_parameter/dither_amount = 0.025
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6u8gf"]
+size = Vector3(2.6532898, 1.5733643, 1)
 
 [node name="UykuSahnesi1" type="Node3D"]
 script = ExtResource("1_x8xa3")
@@ -261,6 +264,13 @@ visible = false
 [node name="YeniSandık" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -26.182108)
 visible = false
+
+[node name="StaticBody3D" type="StaticBody3D" parent="YeniSandık"]
+collision_layer = 255
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="YeniSandık/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 2.9802326e-08, 0, -2.9802326e-08, 1, 0.022841513, 0.28668076, -0.036518097)
+shape = SubResource("BoxShape3D_6u8gf")
 
 [node name="Sketchfab_Scene3" parent="YeniSandık" instance=ExtResource("10_cg10u")]
 transform = Transform3D(0.05595027, -0.7045806, -0.70741487, 0.20771568, 0.70123637, -0.6819984, 0.9765878, -0.108783185, 0.1855868, -0.735309, -0.08560589, -0.19558144)

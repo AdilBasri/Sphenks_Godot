@@ -6,7 +6,7 @@ extends Node3D
 var sandik_hedef_z = -26.5
 var mesafe_kapanacak = false
 var kapanis_basladi = false
-var sfx_drag: AudioStreamPlayer3D
+var sfx_drag: AudioStreamPlayer
 
 class ChestInteract extends StaticBody3D:
 	var ana_sahne: Node = null
@@ -24,7 +24,7 @@ func _ready():
 	var crunch_shader_path = "res://Materials_Shaders/texture_crunch.gdshader"
 	_remove_crunch_from_all_meshes(self, crunch_shader_path)
 	
-	sfx_drag = AudioStreamPlayer3D.new()
+	sfx_drag = AudioStreamPlayer.new()
 	var d_stream = load("res://Sesler/chest_dragging.mp3")
 	if d_stream: 
 		if d_stream is AudioStreamMP3 or d_stream is AudioStreamWAV:
@@ -33,6 +33,8 @@ func _ready():
 			d_stream.loop = true
 	sfx_drag.stream = d_stream
 	sfx_drag.bus = "Master"
+	sfx_drag.volume_db = -80.0 # Başlangıçta sessiz
+	sfx_drag.play() # En baştan çalmaya başlasın, arkada dönsün
 	chest.add_child(sfx_drag)
 	
 	# Global filtreyi de ilk rüyada kapatalım (tüm oyunda olan global.gdshader)
@@ -88,11 +90,13 @@ func _process(delta):
 			is_moving = false
 			
 	if is_moving and not mesafe_kapanacak:
-		if sfx_drag and not sfx_drag.playing:
-			sfx_drag.play()
+		if sfx_drag:
+			sfx_drag.volume_db = 10.0
+			if not sfx_drag.playing: 
+				sfx_drag.play()
 	else:
-		if sfx_drag and sfx_drag.playing:
-			sfx_drag.stop()
+		if sfx_drag:
+			sfx_drag.volume_db = -80.0
 
 func sandik_acildi():
 	if kapanis_basladi: return
