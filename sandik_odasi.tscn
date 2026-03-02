@@ -101,7 +101,7 @@ shadow_enabled = true
 omni_range = 6.0
 
 [node name="OmniLight3D3" type="OmniLight3D" parent="sandik_odası"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18148804, 2.4349618, -5.493805)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.02248764, 2.4349618, -5.493805)
 light_color = Color(0.5411765, 0.011764706, 0.011764706, 1)
 light_energy = 0.5
 light_specular = 16.0
@@ -297,6 +297,18 @@ use_collision = true
 collision_layer = 15
 size = Vector3(0.2, 0.6, 0.2)
 
+[node name="CSGBox3D" type="CSGBox3D" parent="Masa_Sandik"]
+transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, 16.383999, 0.6, -33.785)
+use_collision = true
+collision_layer = 15
+size = Vector3(0.2, 0.6, 0.2)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="Masa_Sandik"]
+transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, 17.337997, 0.6, -33.785)
+use_collision = true
+collision_layer = 15
+size = Vector3(0.2, 0.6, 0.2)
+
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Masa_Sandik"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.842384, 1.1537039, -33.238716)
 mesh = SubResource("BoxMesh_7mg4g")
@@ -312,18 +324,6 @@ transform = Transform3D(1, 1.7763568e-15, 0, 0, 1, 5.3290705e-15, 0, -1.7763568e
 shape = SubResource("BoxShape3D_betet")
 
 [node name="Marker3D" type="Marker3D" parent="Masa_Sandik/sandık2"]
-
-[node name="CSGBox3D" type="CSGBox3D" parent="Masa_Sandik"]
-transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, 16.383999, 0.6, -33.785)
-use_collision = true
-collision_layer = 15
-size = Vector3(0.2, 0.6, 0.2)
-
-[node name="CSGBox3D2" type="CSGBox3D" parent="Masa_Sandik"]
-transform = Transform3D(1, 0, 0, 0, 2, 0, 0, 0, 1, 17.337997, 0.6, -33.785)
-use_collision = true
-collision_layer = 15
-size = Vector3(0.2, 0.6, 0.2)
 
 [node name="sandık3" parent="Masa_Sandik" instance=ExtResource("7_7mg4g")]
 transform = Transform3D(0.7036304, 0, 0.71056616, 0, 1, 0, -0.71056616, 0, 0.7036304, 14.185704, 0.8599737, -36.54111)
