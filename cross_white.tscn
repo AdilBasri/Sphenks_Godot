@@ -5,7 +5,7 @@
 [node name="cross_white" type="Node3D"]
 
 [node name="Sketchfab_Scene" parent="." instance=ExtResource("1_xape4")]
-transform = Transform3D(-2.828427, -2.828427, 0, 2.828427, -2.828427, 0, 0, 0, 4, 0, 0, 0)
+transform = Transform3D(-1.9999998, -1.9999998, -2.828427, 2.8284268, -2.8284268, 0, -1.9999998, -1.9999998, 2.828427, 0, 0, 0)
 
 [node name="Object_4" parent="Sketchfab_Scene/Sketchfab_model/root/GLTF_SceneRootNode/Simple_Kryss_0" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1553209, -0.21339193, 1.3339448)

@@ -41,6 +41,8 @@ var x_rotasyonu: float = 0.0
 
 var raycast: RayCast3D = null
 var etkilesim_label: Label = null
+var perk_isim_label: Label = null
+var perk_aciklama_label: Label = null
 var tutulan_nesne: RigidBody3D = null 
 var tutma_noktasi: Node3D = null 
 var mouse_serbest_modu: bool = false 
@@ -134,6 +136,44 @@ func _ready():
 	
 	if gore_vignette:
 		gore_vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		
+	# --- PERK LABEL YARATMA ---
+	if has_node("CanvasLayer"):
+		var canvas = $CanvasLayer
+		
+		perk_isim_label = Label.new()
+		perk_isim_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		perk_isim_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+		perk_isim_label.add_theme_font_size_override("font_size", 28)
+		perk_isim_label.add_theme_color_override("font_color", Color(1.0, 0.8, 0.2))
+		
+		var isim_outline = LabelSettings.new()
+		isim_outline.font_size = 28
+		isim_outline.font_color = Color(1.0, 0.8, 0.2)
+		isim_outline.outline_size = 4
+		isim_outline.outline_color = Color.BLACK
+		perk_isim_label.label_settings = isim_outline
+		
+		canvas.add_child(perk_isim_label)
+		perk_isim_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+		perk_isim_label.offset_top = 60
+		perk_isim_label.offset_bottom = 120
+		
+		perk_aciklama_label = Label.new()
+		perk_aciklama_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		perk_aciklama_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+		
+		var acik_outline = LabelSettings.new()
+		acik_outline.font_size = 24
+		acik_outline.font_color = Color.WHITE
+		acik_outline.outline_size = 4
+		acik_outline.outline_color = Color.BLACK
+		perk_aciklama_label.label_settings = acik_outline
+		
+		canvas.add_child(perk_aciklama_label)
+		perk_aciklama_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+		perk_aciklama_label.offset_top = -180
+		perk_aciklama_label.offset_bottom = -60
 
 func _input(event):
 	if not kamera or oldu_mu: return 
@@ -748,6 +788,63 @@ func check_ui_text():
 	if not etkilesim_label: return
 	etkilesim_label.text = ""
 	
+	if perk_isim_label:
+		perk_isim_label.text = ""
+	if perk_aciklama_label:
+		perk_aciklama_label.text = ""
+		
+	# --- PERK EKRAN KONTROLÜ (Geniş Açılı Algılama) ---
+	# Raycast'ten bağımsız çalışır, çünkü perklerin çarpışmaları kapalı
+	var sandik_yoneticisi = get_tree().current_scene.get_node_or_null("Sandik_Odasi")
+	if not sandik_yoneticisi:
+		sandik_yoneticisi = get_tree().current_scene.find_child("Sandik_Odasi", true, false)
+	if not sandik_yoneticisi:
+		sandik_yoneticisi = get_tree().current_scene # Fallback: Ana sahnenin kendisi yöneticiyse
+		
+	if sandik_yoneticisi and "acilan_sandiklar" in sandik_yoneticisi:
+		var en_yakin_sandik = null
+		var min_dist_to_ray = 1.5 # 1.5 birim yarıçapında devasa bir silindir görüş, esnek algılama
+		
+		for acilan in sandik_yoneticisi.acilan_sandiklar:
+			var s = sandik_yoneticisi.sandik_node_map.get(acilan, null)
+			if s:
+				# Sandık ile perk arasındaki nokta referansı (model havaya 1.8 yükseldiği için)
+				var sandik_merkez = s.global_position + Vector3(0, 1.8, 0)
+				var v = sandik_merkez - kamera.global_position
+				var ray_dir = -kamera.global_transform.basis.z
+				var proj = v.dot(ray_dir)
+				
+				# Kamera 0.0 ile 3.0 birim uzağa bakıyorsa (Normal chest'ten 1 tık daha uzak)
+				if proj > 0.0 and proj < 3.0:
+					# Çizgiye (baktığımız yöne) olan en kısa uzaklık bulma
+					var dist_to_ray = (v - ray_dir * proj).length()
+					if dist_to_ray < min_dist_to_ray:
+						min_dist_to_ray = dist_to_ray
+						en_yakin_sandik = s
+						
+		if en_yakin_sandik:
+			var icerik = sandik_yoneticisi.sandik_icerikleri.get(en_yakin_sandik.name, null)
+			if icerik != null and perk_isim_label and perk_aciklama_label:
+				var p_id = icerik["id"]
+				var p_isim = ""
+				var p_acik = ""
+				match p_id:
+					"kahin_gozu":
+						p_isim = "Kahin'in Gözü"
+						p_acik = "Boss'un bir sonraki turda ne yapacağını\nturun başında gösterir."
+					"curuk_temel":
+						p_isim = "Çürük Temel"
+						p_acik = "Tek seferlik panik butonu, masadaki tüm\nasitleri ve taşları temizler."
+					"discount":
+						p_isim = "Kanlı İndirim"
+						p_acik = "Marketteki her şey %50 indirimli ama\nmarkete girdiğin an 3 HP kaybedersin."
+					"bloody_nail":
+						p_isim = "Kanlı Çivi"
+						p_acik = "Bu özellik masada çapraz\neşleştirmeyi de aktif kılar."
+				
+				perk_isim_label.text = p_isim
+				perk_aciklama_label.text = p_acik
+				
 	if eldeki_kedi:
 		etkilesim_label.text = "[SOL TIK] Kediyi Bırak"
 		return
@@ -802,16 +899,6 @@ func check_ui_text():
 					etkilesim_label.text = DilYoneticisi.metin_al("oynamak_icin_otur")
 			return
 		
-		# SANDIK ODASI: E ETKİLEŞİM KONTROLU
-		if nesne.is_in_group("SandikGrubu"):
-			var sandik_yoneticisi = get_tree().current_scene.get_node_or_null("Sandik_Odasi")
-			if not sandik_yoneticisi:
-				sandik_yoneticisi = get_tree().current_scene
-			if sandik_yoneticisi and "acilan_sandiklar" in sandik_yoneticisi:
-				var sandik = sandik_yoneticisi._sandik_bul(nesne) if sandik_yoneticisi.has_method("_sandik_bul") else null
-				if sandik and sandik.name not in sandik_yoneticisi.acilan_sandiklar:
-					etkilesim_label.text = "(E) Etkilesim"
-					return
 		
 		# 3. KART SEÇİMİ VEYA FİZİKSEL NESNE TUTMA
 		if nesne.is_in_group("CampfireKart"):
