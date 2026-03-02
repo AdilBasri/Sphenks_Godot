@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3 uid="uid://hihgi2020kla"]
+
+[ext_resource type="PackedScene" uid="uid://iawfvtay0cq" path="res://Scenes/KopanUzuv.tscn" id="1_33tsr"]
+[ext_resource type="Texture2D" uid="uid://bmsmny30j02i2" path="res://Canavar/Meshy_AI_texture_0.png" id="2_5v4ed"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qf2xo"]
+albedo_texture = ExtResource("2_5v4ed")
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_rtwsf"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="KopanUzuv" parent="." instance=ExtResource("1_33tsr")]
+transform = Transform3D(0.4, 0, 0, 0, 0.5, 0, 0, 0, 0.3, 0, 0, 0)
+
+[node name="MeshInstance3D" parent="KopanUzuv" index="0"]
+material_override = SubResource("StandardMaterial3D_qf2xo")
+mesh = SubResource("CapsuleMesh_rtwsf")
+
+[editable path="KopanUzuv"]
