@@ -53,13 +53,25 @@ func axe_picked_up():
 	label_main.show()
 	_shake_label(label_main, true)
 	
+	if not player:
+		player = get_tree().get_first_node_in_group("Oyuncu")
+	
 	# Spawn visual axe in player camera
 	if player and player.kamera:
+		# Yeni Pivot nodunu oluşturuyoruz: bu nod sapın alt (tutuş) noktasını kapsayacak
+		var pivot = Node3D.new()
+		pivot.name = "AxePivot"
+		# Sapın dip noktası ekran altında sabit kalsın ve el tutuyormuş gibi dursun
+		pivot.position = Vector3(0.35, -1.0, -0.35)
+		player.kamera.add_child(pivot)
+		
 		var visual_axe = preload("res://Mezbaha_axe/scene.gltf").instantiate()
-		player.kamera.add_child(visual_axe)
-		visual_axe.position = Vector3(0.4, -0.2, -1.0) # Pulled significantly forward to avoid near clip
-		visual_axe.rotation_degrees = Vector3(0, 180, 0) # Rotate to face player normally
-		visual_axe.scale = Vector3(1, 1, 1) * 0.015 # Even smaller scale to fit view
+		pivot.add_child(visual_axe)
+		# Modeli Pivot'a göre yukarı iterken, bilek noktasını baltanın en dibine çekmiş oluyoruz
+		visual_axe.position = Vector3(0.0, 0.5, 0.0) 
+		# Sola 45 derece eğik (çapraz) durması için rotasyon (Euler X ile sola yatırılır, Y=80 ileri bakar)
+		visual_axe.rotation_degrees = Vector3(0, 100, 0) 
+		visual_axe.scale = Vector3(3.0, 3.0, 3.0) 
 		visual_axe.name = "MezbahaVisualAxe"
 
 func _process(delta):
@@ -68,11 +80,15 @@ func _process(delta):
 
 func _swing_axe():
 	if not player or not player.kamera: return
-	var v_axe = player.kamera.get_node_or_null("MezbahaVisualAxe")
-	if v_axe:
+	var pivot = player.kamera.get_node_or_null("AxePivot")
+	if pivot:
 		var tw = create_tween()
-		tw.tween_property(v_axe, "rotation_degrees:x", -60.0, 0.15).set_trans(Tween.TRANS_SINE)
-		tw.tween_property(v_axe, "rotation_degrees:x", 0.0, 0.4).set_trans(Tween.TRANS_SPRING).set_delay(0.15)
+		# Hamleyi Pivot üzerinden sadece açısal (ileri eğilmek) yapıyoruz.
+		# Baltayı z ekseninde itmiyoruz (position sabittir), böylece sap kısmı ekranın altına çakılı kalıyor ve taşmıyor.
+		tw.tween_property(pivot, "rotation_degrees:x", -70.0, 0.15).set_trans(Tween.TRANS_SINE)
+		
+		# Hamle bitince geri eski açısına (0.0) dönüyor
+		tw.tween_property(pivot, "rotation_degrees:x", 0.0, 0.4).set_trans(Tween.TRANS_SPRING)
 	
 	# Raycast to hit meat
 	var space_state = player.get_world_3d().direct_space_state
