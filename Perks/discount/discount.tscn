@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dhupijec3uqx0"]
 
-[ext_resource type="PackedScene" uid="uid://c64r2l1diwdjo" path="res://discount/scene.gltf" id="1_fy10g"]
+[ext_resource type="PackedScene" uid="uid://c64r2l1diwdjo" path="res://Perks/discount/scene.gltf" id="1_fy10g"]
 
 [node name="discount" type="Node3D"]
 

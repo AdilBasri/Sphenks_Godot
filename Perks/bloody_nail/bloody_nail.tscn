@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://buos5eeqfqps3"]
 
-[ext_resource type="PackedScene" uid="uid://by1b88gq8pv34" path="res://bloody_nail/scene.gltf" id="1_xw284"]
+[ext_resource type="PackedScene" uid="uid://by1b88gq8pv34" path="res://Perks/bloody_nail/scene.gltf" id="1_xw284"]
 
 [node name="bloody_nail" type="Node3D"]
 

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cbumd808v8bv2"]
 
-[ext_resource type="PackedScene" uid="uid://cmfokgehyu4ao" path="res://kahin_gozu/scene.gltf" id="1_aiaos"]
+[ext_resource type="PackedScene" uid="uid://cmfokgehyu4ao" path="res://Perks/kahin_gozu/scene.gltf" id="1_aiaos"]
 
 [node name="kahin_gozu" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04846804, 0.26647395)
