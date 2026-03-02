@@ -280,8 +280,9 @@ func _etkilesim_kontrol():
 			if Input.is_action_just_pressed("etkilesim"):
 				sandik_ac(sandik_ana)
 		else:
-			if etkilesim_label:
-				etkilesim_label.text = "Kilitli - Masadan Anahtarı Al"
+			if acilan_pozitif_sayisi < 2:
+				if etkilesim_label:
+					etkilesim_label.text = "Kilitli - Masadan Anahtarı Al"
 		return
 
 func _kapiyi_kilit_ac(hedef_kapi):
@@ -348,6 +349,19 @@ func sandik_ac(sandik: Node3D):
 		model.global_position = sandik.global_position + Vector3(0, 0.3, 0)
 		model.scale = Vector3.ONE * 0.8
 		
+		# Animasyon varsa oynat (özellikle kahin_gozu için)
+		var anim_player = model.find_child("AnimationPlayer", true, false)
+		if anim_player:
+			var anim_list = anim_player.get_animation_list()
+			for ani in anim_list:
+				if ani != "RESET":
+					anim_player.play(ani)
+					# Döngüye al
+					var cur_anim = anim_player.get_animation(ani)
+					if cur_anim:
+						cur_anim.loop_mode = Animation.LOOP_LINEAR
+					break
+		
 		# Çarparak itmesini/oyuncuyu ittirmesini engellemek için collision kapat:
 		_collision_kapat_model(model)
 		
@@ -369,11 +383,17 @@ func sandik_ac(sandik: Node3D):
 		# Işığı modelin merkezine al
 		isik.position = Vector3.ZERO
 		
+		var rot_ek = 0.0
+		if sandik.name in ["sandık2", "sandık3", "sandık4"]:
+			rot_ek = deg_to_rad(90) # Y eksenine sadece 90 derece ekliyoruz
+			
+		model.rotation.y = rot_ek
+		var rot_hedef = rot_ek + TAU
+		
 		var tween = create_tween().set_parallel(true)
 		tween.tween_property(model, "global_position:y",
-
 			sandik.global_position.y + 1.8, 0.8).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		tween.tween_property(model, "rotation:y", TAU, 0.8).set_trans(Tween.TRANS_SINE)
+		tween.tween_property(model, "rotation:y", rot_hedef, 0.8).set_trans(Tween.TRANS_SINE)
 		items_in_room.append(model)
 
 
