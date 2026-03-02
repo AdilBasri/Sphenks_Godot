@@ -50,9 +50,9 @@ func _ready():
 	
 	var collision = CollisionShape3D.new()
 	var shape = BoxShape3D.new()
-	shape.size = Vector3(1.5, 1.5, 1.5) # Sandık boyutuna uygun
+	shape.size = Vector3(2.2, 2.2, 2.2) # Yazı anında çıkmasın diye önceki kadar devasa olmaktan çıkarıldı, ama yeterince büyük.
 	collision.shape = shape
-	collision.position = Vector3(0, 0.75, 0)
+	collision.position = Vector3(0, 1.0, 0.2) # Hafif bir pay bırakıldı, yaklaşmak gerekecek.
 	static_body.add_child(collision)
 	
 	# Initial states for 2nd run
