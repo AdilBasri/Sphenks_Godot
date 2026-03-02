@@ -3,10 +3,10 @@ extends Node3D
 ## sandik_odasi.tscn kök düğümüne (Sandik_Odasi) eklenmiştir.
 
 # ─── SAHNELER ────────────────────────────────────────────────────────────────
-const KAHIN_GOZU_SAHNE   = preload("res://kahin_gozu.tscn")
-const WAND_SAHNE         = preload("res://wand.tscn")
-const DISCOUNT_SAHNE     = preload("res://discount.tscn")
-const BLOODY_NAIL_SAHNE  = preload("res://bloody_nail.tscn")
+const KAHIN_GOZU_SAHNE   = preload("res://Perks/kahin_gozu/kahin_gozu.tscn")
+const WAND_SAHNE         = preload("res://Perks/wand/wand.tscn")
+const DISCOUNT_SAHNE     = preload("res://Perks/discount/discount.tscn")
+const BLOODY_NAIL_SAHNE  = preload("res://Perks/bloody_nail/bloody_nail.tscn")
 const CROSS_WHITE_SAHNE  = preload("res://cross_white.tscn")
 
 # ─── SANDIK ADI → NODE YOLU ──────────────────────────────────────────────────
@@ -227,9 +227,11 @@ func _etkilesim_kontrol():
 				tmp = tmp.get_parent()
 				continue
 			if tmp != elde_tutulan_anahtar:
-				if etkilesim_label: etkilesim_label.text = "(E) Anahtarı Al"
-				if Input.is_action_just_pressed("etkilesim"):
-					_anahtar_al(tmp)
+				var mesafe_anahtar = oyuncu_node.global_position.distance_to(tmp.global_position)
+				if mesafe_anahtar <= 3.0:
+					if etkilesim_label: etkilesim_label.text = "(E) Anahtarı Al"
+					if Input.is_action_just_pressed("etkilesim"):
+						_anahtar_al(tmp)
 				return
 		tmp = tmp.get_parent()
 
@@ -244,27 +246,24 @@ func _etkilesim_kontrol():
 				kapi_carpti = true
 				break
 			check = check.get_parent()
-		# Eğer collision yakalanmadıysa mesafe ile de kontrol et
-		if not kapi_carpti:
-			var mesafe = oyuncu_node.global_position.distance_to(kapi_node.global_position)
-			if mesafe < 3.0:
-				kapi_carpti = true
 	
 	if kapi_carpti:
-		var kilitli = kapi_node.get("kilitli_mi")
-		if kilitli == true:
-			if elde_tutulan_anahtar and elde_tutulan_anahtar.name == "door_key":
+		var mesafe = oyuncu_node.global_position.distance_to(kapi_node.global_position)
+		if mesafe <= 3.0:
+			var kilitli = kapi_node.get("kilitli_mi")
+			if kilitli == true:
+				if elde_tutulan_anahtar and elde_tutulan_anahtar.name == "door_key":
+					if etkilesim_label: etkilesim_label.text = "(E) Kapıyı Aç"
+					if Input.is_action_just_pressed("etkilesim"):
+						_kapiyi_kilit_ac(kapi_node)
+				else:
+					if etkilesim_label: etkilesim_label.text = "Kilitli - Kapı Anahtarı Lazım"
+			else:
+				# Kapı kilitli değil, normal açılır
 				if etkilesim_label: etkilesim_label.text = "(E) Kapıyı Aç"
 				if Input.is_action_just_pressed("etkilesim"):
-					_kapiyi_kilit_ac(kapi_node)
-			else:
-				if etkilesim_label: etkilesim_label.text = "Kilitli - Kapı Anahtarı Lazım"
-		else:
-			# Kapı kilitli değil, normal açılır
-			if etkilesim_label: etkilesim_label.text = "(E) Kapıyı Aç"
-			if Input.is_action_just_pressed("etkilesim"):
-				if kapi_node.has_method("kapiyi_ac"):
-					kapi_node.kapiyi_ac()
+					if kapi_node.has_method("kapiyi_ac"):
+						kapi_node.kapiyi_ac()
 		return
 
 	# 3. SANDIK KONTROLÜ (Mesafe ve Anahtar Şartlı)
@@ -272,7 +271,6 @@ func _etkilesim_kontrol():
 	if sandik_ana and not sandik_ana.name in acilan_sandiklar:
 		# Sandığa yeterince yakın mıyız? (mesafe kontrolü)
 		if oyuncu_node.global_position.distance_to(sandik_ana.global_position) > 3.0:
-			if etkilesim_label: etkilesim_label.text = "Çok Uzak"
 			return
 			
 		# Sandık SADECE chest_key elimizdeyken açılabilir
@@ -281,7 +279,9 @@ func _etkilesim_kontrol():
 				etkilesim_label.text = "(E) Sandığı Aç"
 			if Input.is_action_just_pressed("etkilesim"):
 				sandik_ac(sandik_ana)
-		# else: Anahtar yoksa hiçbir şey gösterme
+		else:
+			if etkilesim_label:
+				etkilesim_label.text = "Kilitli - Masadan Anahtarı Al"
 		return
 
 func _kapiyi_kilit_ac(hedef_kapi):
