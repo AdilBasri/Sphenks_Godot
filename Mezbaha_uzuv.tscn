@@ -3,5 +3,6 @@
 [ext_resource type="PackedScene" uid="uid://iawfvtay0cq" path="res://Scenes/KopanUzuv.tscn" id="1_33tsr"]
 
 [node name="Node3D" type="Node3D"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 
 [node name="KopanUzuv" parent="." instance=ExtResource("1_33tsr")]

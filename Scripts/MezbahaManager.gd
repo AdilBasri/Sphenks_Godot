@@ -66,7 +66,7 @@ func axe_picked_up():
 		pivot.position = Vector3(0.35, -1.0, -0.35)
 		player.kamera.add_child(pivot)
 		
-		var visual_axe = preload("res://Mezbaha_axe/scene.gltf").instantiate()
+		var visual_axe = preload("res://Mezbaha/Mezbaha_axe/scene.gltf").instantiate()
 		pivot.add_child(visual_axe)
 		# Modeli Pivot'a göre yukarı iterken, bilek noktasını baltanın en dibine çekmiş oluyoruz
 		visual_axe.position = Vector3(0.0, 0.5, 0.0) 
