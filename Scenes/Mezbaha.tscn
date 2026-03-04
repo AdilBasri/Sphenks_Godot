@@ -82,7 +82,7 @@ shader_parameter/scanline_count = 300.0
 shader_parameter/dither_amount = 0.025
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ussfh"]
-size = Vector3(2.6055298, 3.6690674, 2.6973877)
+size = Vector3(2.6055298, 3.6690674, 3.0825806)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_3as5s"]
 radius = 0.12695313
@@ -351,7 +351,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.7111096, 0, 2.8164005)
 script = ExtResource("scr_mez_mix")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Mixer/StaticBody3D" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6156898, 1.3345337, -2.6134663)
+transform = Transform3D(0.9886596, 0, 0.15017381, 0, 1, 0, -0.15017381, 0, 0.9886596, -2.6156893, 1.3345337, -2.4208698)
 shape = SubResource("BoxShape3D_ussfh")
 
 [node name="Sketchfab_Scene" parent="Mixer" index="1" instance=ExtResource("11_s5w65")]
@@ -371,6 +371,16 @@ transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 3.03
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Pipe3/StaticBody3D" index="0"]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
 shape = SubResource("CapsuleShape3D_3as5s")
+
+[node name="Marker3D" type="Marker3D" parent="Pipe3" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.2141217)
+
+[node name="Camera3D" type="Camera3D" parent="Pipe3" index="3"]
+transform = Transform3D(2.2904151e-08, 0.5239859, -0.8517269, 1, -4.371139e-08, 0, -3.7230166e-08, -0.8517269, -0.5239859, -1.7986656, 0, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Pipe3" index="4"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0.9822602)
+light_color = Color(0.16470589, 0.11372549, 1, 1)
 
 [node name="Pipe_Bent" parent="." index="12" instance=ExtResource("13_lsqav")]
 transform = Transform3D(0.28, 0, 0, 0, -0.024403615, -0.2789345, 0, 0.2789345, -0.024403615, 3.0456405, 3.1767542, -2.3041618)

@@ -20,6 +20,11 @@ var wheelbarrow_pieces = 0
 var can_swing: bool = true
 var driving_wheelbarrow = false
 
+var loading_zone_active = false
+var is_mixing = false
+var mixer_loaded_pieces = 0
+var r_hold_time = 0.0
+
 func _ready():
 	_create_ui()
 	player = get_tree().get_first_node_in_group("Oyuncu")
@@ -39,7 +44,7 @@ func _create_ui():
 	var ls = LabelSettings.new()
 	ls.font = font
 	ls.font_size = 28
-	ls.font_color = Color(1, 0, 0, 1)
+	ls.font_color = Color(1.0, 1.0, 0.0, 1.0) # Yellow static text
 	ls.shadow_color = Color.BLACK
 	ls.shadow_size = 4
 	label_main.label_settings = ls
@@ -47,12 +52,15 @@ func _create_ui():
 	label_main.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	label_main.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 	label_main.offset_top = 80
-	label_main.hide()
+	label_main.text = "Baltayı eline al"
+	label_main.show()
 	gui_layer.add_child(label_main)
 
 func axe_picked_up():
 	axe_equipped = true
 	label_main.text = "Eti parçala"
+	var ls = label_main.label_settings
+	ls.font_color = Color(1, 0, 0, 1) # Red dynamic text
 	label_main.show()
 	_shake_label(label_main, true)
 	
@@ -80,6 +88,29 @@ func axe_picked_up():
 func _process(delta):
 	if axe_equipped and can_swing and Input.is_action_just_pressed("sol_tik"):
 		_swing_axe()
+		
+	if loading_zone_active and not is_mixing:
+		if wheelbarrow_pieces > 0:
+			if Input.is_physical_key_pressed(KEY_R):
+				r_hold_time += delta
+				if r_hold_time > 0.4:
+					r_hold_time = 0.0
+					mixer_loaded_pieces += 1
+					wheelbarrow_pieces -= 1
+					
+					var ab = get_parent().get_node_or_null("El_arabasi")
+					if ab:
+						for child in ab.get_children():
+							if child.is_in_group("KopanUzuv"):
+								child.queue_free()
+								break
+					
+					label_main.text = "Yükleniyor... (%d/4)" % mixer_loaded_pieces
+					if mixer_loaded_pieces >= 4 and wheelbarrow_pieces == 0:
+						_start_mixer()
+			else:
+				r_hold_time = 0.0
+				label_main.text = "Parçaları yüklemek için\n[R] basılı tut"
 
 func _swing_axe():
 	if not player or not player.kamera: return
@@ -197,7 +228,7 @@ func piece_placed_in_wheelbarrow():
 	if wheelbarrow_pieces < 4:
 		label_main.text = "Parçaları el arabasına\nyerleştir (%d/4)" % wheelbarrow_pieces
 	else:
-		label_main.text = "El arabasını hareket ettir"
+		label_main.text = "El arabasını et\nparçalayıcısına sürükle"
 		
 		# Unlock wheelbarrow
 		var ab = get_parent().get_node_or_null("El_arabasi")
@@ -210,9 +241,62 @@ func piece_removed_from_wheelbarrow():
 		wheelbarrow_pieces -= 1
 		label_main.text = "Parçaları el arabasına\nyerleştir (%d/4)" % wheelbarrow_pieces
 
+func _start_mixer():
+	is_mixing = true
+	loading_zone_active = false
+	label_main.text = "Karıştırılıyor..."
+	_shake_label(label_main, true)
+	
+	var mixer = get_parent().get_node_or_null("Mezbaha_Mixer")
+	if not mixer: 
+		mixer = get_tree().current_scene.find_child("*Mixer*", true, false)
+	
+	if mixer:
+		var orig_pos = mixer.global_position
+		var tw = create_tween()
+		for i in range(25):
+			tw.tween_property(mixer, "global_position", orig_pos + Vector3(randf_range(-0.1, 0.1), 0, randf_range(-0.1, 0.1)), 0.1)
+			tw.tween_property(mixer, "global_position", orig_pos, 0.1)
+		tw.tween_callback(func(): _finish_mixing(mixer))
+	else:
+		_finish_mixing(null)
+
+func _finish_mixing(mixer: Node):
+	label_main.hide()
+	stop_shake_label()
+	
+	var pipe = get_tree().current_scene.find_child("*Pipe3*", true, false)
+	var marker = null
+	if pipe:
+		marker = pipe.find_child("Marker3D*", true, false)
+	
+	var spawn_pos = Vector3.ZERO
+	if marker:
+		spawn_pos = marker.global_position
+	elif mixer:
+		spawn_pos = mixer.global_position + Vector3(0, 3, 0)
+		
+	var block_scene = preload("res://Scenes/Blocks/block_tek.tscn")
+	var idx = [0]
+	var timer = Timer.new()
+	timer.wait_time = 0.5
+	timer.autostart = true
+	add_child(timer)
+	timer.timeout.connect(func():
+		var b = block_scene.instantiate()
+		get_tree().current_scene.add_child(b)
+		b.global_position = spawn_pos
+		if b is RigidBody3D:
+			b.linear_velocity = Vector3(randf_range(-1, 1), 0, randf_range(-1, 1))
+		
+		idx[0] += 1
+		if idx[0] >= 4:
+			timer.queue_free()
+	)
+
 func show_mixer_prompt():
-	if wheelbarrow_pieces >= 4:
-		label_main.text = "Parçaları yüklemek için R basılı tut"
+	if wheelbarrow_pieces >= 4 and not is_mixing:
+		label_main.text = "Parçaları yüklemek için\n[R] basılı tut"
 
 func axe_returned():
 	axe_equipped = false

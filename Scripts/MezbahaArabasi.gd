@@ -36,6 +36,12 @@ func interact(oyuncu: Node):
 		pc = oyuncu
 		manager.driving_wheelbarrow = follows_player
 		
+		var p_root = get_parent()
+		if p_root is CollisionObject3D and pc is CollisionObject3D:
+			if follows_player:
+				pc.add_collision_exception_with(p_root)
+			else:
+				pc.remove_collision_exception_with(p_root)
 func _get_manager() -> Node:
 	return get_tree().current_scene.find_child("MezbahaManager", true, false)
 

@@ -1,18 +1,27 @@
 extends Node
 
 func _ready():
-	var area = Area3D.new()
-	var coll = CollisionShape3D.new()
-	var shape = BoxShape3D.new()
-	shape.size = Vector3(10, 8, 10) # increase trigger
-	coll.shape = shape
-	area.add_child(coll)
-	get_parent().call_deferred("add_child", area)
-	
-	area.body_entered.connect(_on_body_entered)
+	pass
 
-func _on_body_entered(body: Node3D):
-	if body.is_in_group("Oyuncu") or body.name == "El_arabasi" or (body.get_parent() and body.get_parent().name == "El_arabasi"):
-		var m = get_tree().current_scene.find_child("MezbahaManager", true, false)
-		if m:
-			m.show_mixer_prompt()
+func _process(_delta):
+	var m = get_tree().current_scene.find_child("MezbahaManager", true, false)
+	if not m or m.is_mixing or m.wheelbarrow_pieces < 4:
+		return
+		
+	var arabasi = get_tree().current_scene.find_child("El_arabasi", true, false)
+	var mixer = self
+	if not mixer is Node3D:
+		mixer = get_parent()
+		if not mixer is Node3D:
+			mixer = get_tree().current_scene.find_child("*Mixer*", true, false)
+			
+	if arabasi and mixer and mixer is Node3D and arabasi is Node3D:
+		var dist = arabasi.global_position.distance_to(mixer.global_position)
+		if dist <= 4.0:
+			if not m.loading_zone_active:
+				m.loading_zone_active = true
+				m.show_mixer_prompt()
+		else:
+			if m.loading_zone_active:
+				m.loading_zone_active = false
+				m.label_main.text = "El arabasını et\nparçalayıcısına sürükle"

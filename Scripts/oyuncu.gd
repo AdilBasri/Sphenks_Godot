@@ -989,6 +989,8 @@ func etkilesime_gir(is_mouse_click: bool = false):
 			
 			if cf and "cards_resolved" in cf and not cf.cards_resolved:
 				return
+		if is_mouse_click and bulunan_etkilesim.has_method("unlock_movement"):
+			return
 		bulunan_etkilesim.interact(self)
 		return
 
