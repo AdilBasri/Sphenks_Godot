@@ -98,12 +98,11 @@ func _process(delta):
 					mixer_loaded_pieces += 1
 					wheelbarrow_pieces -= 1
 					
-					var ab = get_parent().get_node_or_null("El_arabasi")
-					if ab:
-						for child in ab.get_children():
-							if child.is_in_group("KopanUzuv"):
-								child.queue_free()
-								break
+					var uzuvlar = get_tree().get_nodes_in_group("KopanUzuv")
+					for u in uzuvlar:
+						if u.get("arabaya_kondu_mu") == true:
+							u.queue_free()
+							break
 					
 					label_main.text = "Yükleniyor... (%d/4)" % mixer_loaded_pieces
 					if mixer_loaded_pieces >= 4 and wheelbarrow_pieces == 0:
@@ -244,7 +243,7 @@ func piece_removed_from_wheelbarrow():
 func _start_mixer():
 	is_mixing = true
 	loading_zone_active = false
-	label_main.text = "Karıştırılıyor..."
+	label_main.text = "Öğütülüyor..." # Changed from Karıştırılıyor...
 	_shake_label(label_main, true)
 	
 	var mixer = get_parent().get_node_or_null("Mezbaha_Mixer")
@@ -266,6 +265,14 @@ func _finish_mixing(mixer: Node):
 	stop_shake_label()
 	
 	var pipe = get_tree().current_scene.find_child("*Pipe3*", true, false)
+	if pipe:
+		var cam = pipe.find_child("*Camera3D*", true, false)
+		if cam and cam is Camera3D:
+			cam.current = true
+		var light = pipe.find_child("*DirectionalLight3D*", true, false)
+		if light and light is Node3D:
+			light.visible = true
+	
 	var marker = null
 	if pipe:
 		marker = pipe.find_child("Marker3D*", true, false)
@@ -286,12 +293,39 @@ func _finish_mixing(mixer: Node):
 		var b = block_scene.instantiate()
 		get_tree().current_scene.add_child(b)
 		b.global_position = spawn_pos
-		if b is RigidBody3D:
-			b.linear_velocity = Vector3(randf_range(-1, 1), 0, randf_range(-1, 1))
+		
+		# Yere doğru ne kadar düşeceğini bul
+		var target_pos = spawn_pos + Vector3(randf_range(-0.5, 0.5), -1.8, randf_range(-0.5, 0.5))
+		var space_state = b.get_world_3d().direct_space_state
+		var query = PhysicsRayQueryParameters3D.create(spawn_pos, spawn_pos + Vector3(0, -10, 0))
+		query.collision_mask = 1
+		var res = space_state.intersect_ray(query)
+		if res:
+			target_pos = res.position
+			target_pos.y += 0.2 # Bloğun yarısı havada kalsın ki yere girmesin
+			target_pos.x += randf_range(-0.5, 0.5)
+			target_pos.z += randf_range(-0.5, 0.5)
+		
+		# Bloğu hafif rastgele eksende döndürerek düşür
+		b.rotation = Vector3(randf_range(-0.5, 0.5), randf_range(-0.5, 0.5), randf_range(-0.5, 0.5))
+		
+		var tw_b = create_tween()
+		tw_b.tween_property(b, "global_position", target_pos, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tw_b.parallel().tween_property(b, "rotation", Vector3(0, randf_range(0, TAU), 0), 0.4)
 		
 		idx[0] += 1
 		if idx[0] >= 4:
 			timer.queue_free()
+			
+			# Bir süre sonra oyuncu kamerasına geri dön
+			get_tree().create_timer(2.0).timeout.connect(func():
+				if player and player.kamera:
+					player.kamera.current = true
+				if pipe:
+					var l = pipe.find_child("*DirectionalLight3D*", true, false)
+					if l and l is Node3D:
+						l.visible = false
+			)
 	)
 
 func show_mixer_prompt():
