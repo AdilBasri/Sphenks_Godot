@@ -19,6 +19,9 @@
 [ext_resource type="Script" uid="uid://cs7i0uyfyo86i" path="res://Scripts/MezbahaManager.gd" id="scr_mez_mgr"]
 [ext_resource type="Script" uid="uid://0c73trm6a7b4" path="res://Scripts/MezbahaMixer.gd" id="scr_mez_mix"]
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_382uv"]
+size = Vector3(11.033264, 1.6202393, 11.61084)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_s5w65"]
 size = Vector3(1.1510162, 0.035671234, 0.6342163)
 
@@ -78,9 +81,6 @@ shader_parameter/scanline_intensity = 0.1
 shader_parameter/scanline_count = 300.0
 shader_parameter/dither_amount = 0.025
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_382uv"]
-size = Vector3(11.033264, 1.6202393, 11.61084)
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_ussfh"]
 size = Vector3(2.6055298, 3.6690674, 2.6973877)
 
@@ -101,11 +101,48 @@ size = Vector3(0.93774414, 1.6677246, 0.16369629)
 [node name="Leichenbare" parent="Sketchfab_model/4e63ef8706fd401b808d8becfc0b4851_fbx/RootNode" index="5"]
 transform = Transform3D(50.000004, 0, 0, 0, -6.516826e-07, 50.000004, 0, -3.9999995, -8.146035e-06, -268.95117, 39.354073, 0)
 
-[node name="El_arabasi" parent="." index="1" instance=ExtResource("3_vlofk")]
+[node name="Duvarlar" type="Node3D" parent="." index="1"]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Duvarlar" index="0"]
+collision_layer = 127
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Duvarlar/StaticBody3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.09463501, -0.71917725, 0.35327148)
+shape = SubResource("BoxShape3D_382uv")
+
+[node name="StaticBody3D2" type="StaticBody3D" parent="Duvarlar" index="1"]
+collision_layer = 127
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Duvarlar/StaticBody3D2" index="0"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -0.09463501, -0.71917725, -5.433266)
+shape = SubResource("BoxShape3D_382uv")
+
+[node name="StaticBody3D3" type="StaticBody3D" parent="Duvarlar" index="2"]
+collision_layer = 127
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Duvarlar/StaticBody3D3" index="0"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -0.09463501, -0.71917725, 5.2796674)
+shape = SubResource("BoxShape3D_382uv")
+
+[node name="StaticBody3D4" type="StaticBody3D" parent="Duvarlar" index="3"]
+collision_layer = 127
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Duvarlar/StaticBody3D4" index="0"]
+transform = Transform3D(-4.371139e-08, 0.99999994, -4.3711385e-08, 0, -4.3711385e-08, -0.99999994, -1, -4.3711385e-08, 1.9106853e-15, -5.2821198, -0.71917725, -1.0125902)
+shape = SubResource("BoxShape3D_382uv")
+
+[node name="StaticBody3D5" type="StaticBody3D" parent="Duvarlar" index="4"]
+collision_layer = 127
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Duvarlar/StaticBody3D5" index="0"]
+transform = Transform3D(-4.371139e-08, 0.99999994, -4.3711385e-08, 0, -4.3711385e-08, -0.99999994, -1, -4.3711385e-08, 1.9106853e-15, 5.2751617, -0.71917725, -1.0125902)
+shape = SubResource("BoxShape3D_382uv")
+
+[node name="El_arabasi" parent="." index="2" instance=ExtResource("3_vlofk")]
 transform = Transform3D(0.06968217, -0.002433355, 0.79695576, 0.027919596, 0.7995127, 0, -0.79647034, 0.027813355, 0.06972464, -0.98337936, 0.09982818, -0.4102671)
 
 [node name="TabanıYapıştırılabilirKısım" type="StaticBody3D" parent="El_arabasi" index="0"]
-transform = Transform3D(1, 3.7252903e-09, 7.450581e-09, 0, 1, 0, 7.450581e-09, 0, 1, 0, 0, 0)
+transform = Transform3D(1.012857, 1.4901161e-08, 2.2351742e-08, -1.1175871e-08, 0.999551, -1.1641532e-09, 3.7252903e-08, -4.656613e-10, 1.147046, -0.055532724, 0.0019392595, 0.06384337)
 collision_layer = 129
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="El_arabasi/TabanıYapıştırılabilirKısım" index="0"]
@@ -128,14 +165,14 @@ transform = Transform3D(-2.3841858e-07, 1.0000025, -5.9604645e-08, -6.7520887e-0
 shape = SubResource("BoxShape3D_s5w65")
 
 [node name="CollisionShape3D5" type="CollisionShape3D" parent="El_arabasi/StaticBody3D" index="3"]
-transform = Transform3D(-2.3841858e-07, 1.0000025, -5.9604645e-08, -6.9849193e-09, -4.0978193e-08, -1, -1, -4.4703484e-08, 4.656613e-10, -0.96941674, 0.40995562, 0.07353306)
+transform = Transform3D(-2.3841858e-07, 1.0000025, -5.9604645e-08, -4.1211024e-08, -4.0978193e-08, -1, -1, -4.4703484e-08, 4.656613e-10, -0.9694167, 0.40995562, 0.07353306)
 shape = SubResource("BoxShape3D_s5w65")
 
 [node name="kulp" type="CollisionShape3D" parent="El_arabasi/StaticBody3D" index="4"]
 transform = Transform3D(1, 5.9604645e-08, 2.3841858e-07, 0, 1, 4.1211024e-08, 2.2351742e-08, -1.3969839e-09, 1, 0.6643069, 0.65942395, 0)
 shape = SubResource("BoxShape3D_xqoek")
 
-[node name="Axe" parent="." index="2" instance=ExtResource("4_s5w65")]
+[node name="Axe" parent="." index="3" instance=ExtResource("4_s5w65")]
 transform = Transform3D(-2.1855695e-07, -0.17449749, -4.996954, 0, 4.996954, -0.17449749, 5, -7.627527e-09, -2.184238e-07, 4.414839, 1.5813496, -0.4618171)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Axe" index="1"]
@@ -145,11 +182,11 @@ script = ExtResource("scr_mez_ax")
 transform = Transform3D(0.99999976, 0, 0, -3.5083048e-14, 1, 6.664135e-17, -3.5527137e-15, 6.664134e-17, 1, -0.0029169545, 0.12906021, 0.031475604)
 shape = SubResource("BoxShape3D_lsqav")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." index="3"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." index="4"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 4.4244623, 2.199132, -0.46169865)
 mesh = SubResource("BoxMesh_6toyb")
 
-[node name="Oyuncu" type="CharacterBody3D" parent="." index="4" node_paths=PackedStringArray("kamera", "ui_container") groups=["Oyuncu"]]
+[node name="Oyuncu" type="CharacterBody3D" parent="." index="5" node_paths=PackedStringArray("kamera", "ui_container") groups=["Oyuncu"]]
 transform = Transform3D(0.6347305, 0, -0.77273357, 0, 1, 0, 0.77273357, 0, 0.6347305, -3.4377995, 1.2893381, 3.7352352)
 collision_layer = 3967
 script = ExtResource("5_xqoek")
@@ -293,55 +330,20 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="StaticBody3D" type="StaticBody3D" parent="." index="5"]
-collision_layer = 127
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.09463501, -0.71917725, 0.35327148)
-shape = SubResource("BoxShape3D_382uv")
-
-[node name="StaticBody3D2" type="StaticBody3D" parent="." index="6"]
-collision_layer = 127
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D2" index="0"]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -0.09463501, -0.71917725, -5.433266)
-shape = SubResource("BoxShape3D_382uv")
-
-[node name="StaticBody3D3" type="StaticBody3D" parent="." index="7"]
-collision_layer = 127
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D3" index="0"]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -0.09463501, -0.71917725, 5.2796674)
-shape = SubResource("BoxShape3D_382uv")
-
-[node name="StaticBody3D4" type="StaticBody3D" parent="." index="8"]
-collision_layer = 127
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D4" index="0"]
-transform = Transform3D(-4.371139e-08, 0.99999994, -4.3711385e-08, 0, -4.3711385e-08, -0.99999994, -1, -4.3711385e-08, 1.9106853e-15, -5.2821198, -0.71917725, -1.0125902)
-shape = SubResource("BoxShape3D_382uv")
-
-[node name="StaticBody3D5" type="StaticBody3D" parent="." index="9"]
-collision_layer = 127
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D5" index="0"]
-transform = Transform3D(-4.371139e-08, 0.99999994, -4.3711385e-08, 0, -4.3711385e-08, -0.99999994, -1, -4.3711385e-08, 1.9106853e-15, 5.2751617, -0.71917725, -1.0125902)
-shape = SubResource("BoxShape3D_382uv")
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." index="10"]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." index="6"]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0.054388165, 4.7237678, 0.14379025)
 light_color = Color(0.6378432, 0.6378432, 0.63784313, 1)
 light_energy = 5.0
 light_volumetric_fog_energy = 5.0
 
-[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="." index="11"]
+[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="." index="7"]
 transform = Transform3D(0.42735788, 0.63928294, -0.63928294, 0, 0.7071068, 0.7071068, 0.90408254, -0.30218768, 0.30218768, 2.7649722, 3.8594542, 0.2325216)
 light_color = Color(0.6378432, 0.6378432, 0.63784313, 1)
 light_indirect_energy = 4.0
 light_volumetric_fog_energy = 5.0
 light_angular_distance = 1.0
 
-[node name="Mixer" type="Node3D" parent="." index="12"]
+[node name="Mixer" type="Node3D" parent="." index="8"]
 transform = Transform3D(-0.8433915, 0, -0.5372996, 0, 1, 0, 0.5372996, 0, -0.8433915, 3.1256766, 0.0909424, 2.6399455)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Mixer" index="0"]
@@ -355,13 +357,13 @@ shape = SubResource("BoxShape3D_ussfh")
 [node name="Sketchfab_Scene" parent="Mixer" index="1" instance=ExtResource("11_s5w65")]
 transform = Transform3D(0.9438009, 0, -0.3305144, 0, 1, 0, 0.3305144, 0, 0.9438009, 0.19048119, 0, 0.4270594)
 
-[node name="Pipe1" parent="." index="13" instance=ExtResource("12_xqoek")]
+[node name="Pipe1" parent="." index="9" instance=ExtResource("12_xqoek")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.0383537, 3.3000286, 0.621588)
 
-[node name="Pipe2" parent="." index="14" instance=ExtResource("12_xqoek")]
+[node name="Pipe2" parent="." index="10" instance=ExtResource("12_xqoek")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.0383537, 3.3000286, -1.3801057)
 
-[node name="Pipe3" parent="." index="15" instance=ExtResource("12_xqoek")]
+[node name="Pipe3" parent="." index="11" instance=ExtResource("12_xqoek")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 3.0383537, 2.1999176, -2.487722)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Pipe3" index="1"]
@@ -370,10 +372,10 @@ transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 3.03
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
 shape = SubResource("CapsuleShape3D_3as5s")
 
-[node name="Pipe_Bent" parent="." index="16" instance=ExtResource("13_lsqav")]
+[node name="Pipe_Bent" parent="." index="12" instance=ExtResource("13_lsqav")]
 transform = Transform3D(0.28, 0, 0, 0, -0.024403615, -0.2789345, 0, 0.2789345, -0.024403615, 3.0456405, 3.1767542, -2.3041618)
 
-[node name="Mezbaha_man" parent="." index="17" instance=ExtResource("13_s5w65")]
+[node name="Mezbaha_man" parent="." index="13" instance=ExtResource("13_s5w65")]
 transform = Transform3D(-1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, 8.742278e-08, 1, 4.371139e-08, -2.5569582, 0.71770823, -0.12874071)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Mezbaha_man" index="1"]
@@ -383,10 +385,10 @@ script = ExtResource("scr_mez_man")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.027015686, -0.010849044, -0.12588501)
 shape = SubResource("BoxShape3D_7kjth")
 
-[node name="MezbahaManager" type="Node" parent="." index="18"]
+[node name="MezbahaManager" type="Node" parent="." index="14"]
 script = ExtResource("scr_mez_mgr")
 
-[node name="YatakCollision" type="StaticBody3D" parent="." index="19"]
+[node name="YatakCollision" type="StaticBody3D" parent="." index="15"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5155451, -0.057448506, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="YatakCollision" index="0"]

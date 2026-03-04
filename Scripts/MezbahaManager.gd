@@ -14,6 +14,7 @@ var axe_equipped = false
 var blood_tween: Tween
 
 var anim_player: AnimationPlayer
+var shake_tween: Tween
 
 var wheelbarrow_pieces = 0
 var can_swing: bool = true
@@ -137,9 +138,10 @@ func meat_hit(meat_node):
 		spawn_pieces(meat_node.global_position)
 		label_main.text = "Baltayı yerine as"
 		var ls = label_main.label_settings
-		ls.font_size = 20
+		ls.font_size = 28
+		ls.font_color = Color(1.0, 1.0, 0.0, 1.0) # Normal Yellow
 		label_main.show()
-		_shake_label(label_main, false)
+		stop_shake_label()
 		
 		var sec_axe = get_tree().current_scene.find_child("Axe", true, false)
 		if sec_axe:
@@ -156,16 +158,24 @@ func _splash_blood():
 
 func _shake_label(lbl: Label, extreme: bool):
 	if anim_player and anim_player.is_playing(): anim_player.stop()
+	if shake_tween: shake_tween.kill()
 	
-	var tw = create_tween().set_loops()
+	shake_tween = create_tween().set_loops()
 	var amt = 4.0 if extreme else 1.0 # Less extreme shake
 	var spd = 0.06 if extreme else 0.1
 	var orig_y = 50.0 if not extreme else 80.0
 	
 	for i in range(4):
-		tw.tween_property(lbl, "position:x", randf_range(-amt, amt), spd)
-		tw.tween_property(lbl, "position:y", orig_y + randf_range(-amt, amt), spd)
-	tw.tween_property(lbl, "position", Vector2(0, orig_y), spd)
+		shake_tween.tween_property(lbl, "position:x", randf_range(-amt, amt), spd)
+		shake_tween.tween_property(lbl, "position:y", orig_y + randf_range(-amt, amt), spd)
+	shake_tween.tween_property(lbl, "position", Vector2(0, orig_y), spd)
+
+func stop_shake_label():
+	if shake_tween:
+		shake_tween.kill()
+		shake_tween = null
+	if label_main:
+		label_main.position.x = 0
 
 func spawn_pieces(pos: Vector3):
 	var piece_scene = preload("res://Mezbaha_uzuv.tscn")
@@ -184,7 +194,7 @@ func spawn_pieces(pos: Vector3):
 func piece_placed_in_wheelbarrow():
 	wheelbarrow_pieces += 1
 	if wheelbarrow_pieces < 4:
-		label_main.text = "Parçaları el arabasına yerleştir (%d/4)" % wheelbarrow_pieces
+		label_main.text = "Parçaları el arabasına\nyerleştir (%d/4)" % wheelbarrow_pieces
 	else:
 		label_main.text = "El arabasını hareket ettir"
 		
@@ -194,15 +204,20 @@ func piece_placed_in_wheelbarrow():
 			if ab.has_method("unlock_movement"):
 				ab.unlock_movement()
 
+func piece_removed_from_wheelbarrow():
+	if wheelbarrow_pieces > 0:
+		wheelbarrow_pieces -= 1
+		label_main.text = "Parçaları el arabasına\nyerleştir (%d/4)" % wheelbarrow_pieces
+
 func show_mixer_prompt():
 	if wheelbarrow_pieces >= 4:
 		label_main.text = "Parçaları yüklemek için R basılı tut"
 
 func axe_returned():
 	axe_equipped = false
-	label_main.text = "Parçaları el arabasına yerleştir (0/4)"
+	label_main.text = "Parçaları el arabasına\nyerleştir (0/4)"
 	if wheelbarrow_pieces > 0:
-		label_main.text = "Parçaları el arabasına yerleştir (%d/4)" % wheelbarrow_pieces
+		label_main.text = "Parçaları el arabasına\nyerleştir (%d/4)" % wheelbarrow_pieces
 		
 	if player and player.kamera:
 		var visual_axe = player.kamera.get_node_or_null("AxePivot")

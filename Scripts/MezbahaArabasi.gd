@@ -1,7 +1,7 @@
 extends Node
 
 @export var kilitli_mi: bool = false
-@export var etkilesim_yazisi: String = "[E] Uzuvu Yerlestir"
+@export var etkilesim_yazisi: String = ""
 
 var follows_player = false
 var pc: Node = null
@@ -15,7 +15,7 @@ func get_etkilesim_yazisi() -> String:
 	var m = _get_manager()
 	if not m: return etkilesim_yazisi
 	if m.wheelbarrow_pieces < 4:
-		return "[E] Uzuvu Yerlestir"
+		return ""
 	else:
 		return "[E] Arabayi Sur/Birak"
 
@@ -27,10 +27,18 @@ func interact(oyuncu: Node):
 	
 	if manager.wheelbarrow_pieces < 4:
 		# Check if player is holding a piece
-		if oyuncu.tutulan_nesne and oyuncu.tutulan_nesne.is_in_group("MezbahaUzuv"):
+		if oyuncu.tutulan_nesne and (oyuncu.tutulan_nesne.is_in_group("MezbahaUzuv") or oyuncu.tutulan_nesne.is_in_group("KopanUzuv")):
 			var uzuv = oyuncu.tutulan_nesne
 			oyuncu.esya_birak()
 			
+			if uzuv.get("arabaya_kondu_mu") != null:
+				if uzuv.arabaya_kondu_mu == true:
+					pass # Zaten konduysa sayma
+				else:
+					uzuv.arabaya_kondu_mu = true
+					manager.piece_placed_in_wheelbarrow()
+			else:
+				manager.piece_placed_in_wheelbarrow()
 			
 			# Parent to wheelbarrow safely
 			uzuv.freeze = true
@@ -61,4 +69,8 @@ func _physics_process(delta):
 		var target_rot = pc.global_rotation
 		target_rot.x = 0
 		target_rot.z = 0
-		p_root.global_rotation.y = lerp_angle(p_root.global_rotation.y, target_rot.y, 5.0 * delta)
+		
+		# Offset by -90 degrees because the model is rotated 90 degrees to the left
+		var target_y = target_rot.y - deg_to_rad(90.0)
+		
+		p_root.global_rotation.y = lerp_angle(p_root.global_rotation.y, target_y, 5.0 * delta)

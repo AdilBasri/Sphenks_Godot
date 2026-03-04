@@ -2,14 +2,12 @@ extends RigidBody3D
 
 var kan_havuzu_sahnesi = preload("res://Scenes/KanHavuzu.tscn")
 var yere_degdi = false
+var arabaya_kondu_mu = false
 
 func _ready():
 	contact_monitor = true
 	max_contacts_reported = 2
 	add_to_group("KopanUzuv")
-	
-	# Boyutu eski halinin tam olarak yarısına indirelim
-	scale = Vector3(0.5, 0.5, 0.5)
 	
 	body_entered.connect(_on_body_entered)
 	
@@ -19,22 +17,39 @@ func _ready():
 func _renk_ayarla():
 	if has_node("MeshInstance3D"):
 		var mesh_instance = $MeshInstance3D
-		# Albedo rengini kırmızıya çevirerek kanlı görünüm ver
-		mesh_instance.set_instance_shader_parameter("albedo", Color(0.6, 0.0, 0.0))
-		# Eğer material_override varsa onun rengini değiştir
+		var mat = null
+		
 		if mesh_instance.material_override:
-			if mesh_instance.material_override is StandardMaterial3D:
-				var mat = mesh_instance.material_override.duplicate()
-				mat.albedo_color = Color(0.6, 0.0, 0.0)
-				mesh_instance.material_override = mat
+			mat = mesh_instance.material_override.duplicate()
+		elif mesh_instance.mesh:
+			var prim_mat = mesh_instance.mesh.get("material")
+			var surf_mat = mesh_instance.mesh.surface_get_material(0) if mesh_instance.mesh.get_surface_count() > 0 else null
+			
+			if prim_mat:
+				mat = prim_mat.duplicate()
+			elif surf_mat:
+				mat = surf_mat.duplicate()
+		
+		if mat == null:
+			mat = StandardMaterial3D.new()
+			
+		if mat is StandardMaterial3D:
+			mat.albedo_color = Color(0.8, 0.0, 0.0)
+			
+		mesh_instance.material_override = mat
 
 func _on_body_entered(body):
+	if body is CollisionObject3D and body.get_collision_layer_value(8) and not arabaya_kondu_mu:
+		var m = get_tree().current_scene.find_child("MezbahaManager", true, false)
+		if m and m.wheelbarrow_pieces < 4:
+			arabaya_kondu_mu = true
+			m.piece_placed_in_wheelbarrow()
+			
 	if yere_degdi: return
 	
-	# Sadece 8. collision layer'a (katmana) sahip olan objelere çarpınca dur ve kan bırak
-	if body is CollisionObject3D and body.get_collision_layer_value(8):
+	# Sadece 1. collision layer'a (katmana) sahip olan objelere çarpınca 1 seferlik kan bırak
+	if body is CollisionObject3D and body.get_collision_layer_value(1):
 		yere_degdi = true
-		freeze = true
 		_kan_lekesi_birak()
 
 func _kan_lekesi_birak():
@@ -47,6 +62,9 @@ func _kan_lekesi_birak():
 
 func get_etkilesim_yazisi() -> String:
 	if gravity_scale == 0.0: # Held by player
+		return ""
+	var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
+	if manager and manager.get("axe_equipped") == true:
 		return ""
 	return "[E] Uzuvu Al"
 

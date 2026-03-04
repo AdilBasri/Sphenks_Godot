@@ -740,6 +740,11 @@ func ui_guncelle():
 			if carpi: carpi.visible = true 
 
 func nesne_tut(nesne: RigidBody3D):
+	if nesne.is_in_group("KopanUzuv"):
+		var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
+		if manager and manager.get("axe_equipped") == true:
+			return
+
 	# Donmuş nesneyi çöz (KopanUzuv yere düşünce freeze oluyor)
 	if nesne.freeze:
 		nesne.freeze = false
@@ -760,7 +765,8 @@ func birak_veya_firlat():
 		else:
 			tutulan_nesne.gravity_scale = 1.0
 		
-		tutulan_nesne.apply_central_impulse(-kamera.global_transform.basis.z * firlatma_gucu)
+		if not tutulan_nesne.is_in_group("KopanUzuv"):
+			tutulan_nesne.apply_central_impulse(-kamera.global_transform.basis.z * firlatma_gucu)
 		tutulan_nesne = null
 
 func hide_weapon():
@@ -849,73 +855,92 @@ func check_ui_text():
 		etkilesim_label.text = "[SOL TIK] Kediyi Bırak"
 		return
 	
-	if raycast and raycast.is_colliding():
-		var nesne = raycast.get_collider()
-		if not nesne: return 
+	var nesne = null
+	if raycast:
+		var col = raycast.get_collider()
+		if col:
+			nesne = col
+	
+	var genis_uzuv = _uzuv_bul_genis(nesne)
+	if genis_uzuv:
+		nesne = genis_uzuv
 		
-		# 1. MARKET EŞYASI KONTROLÜ
-		var veri = nesne.get("esya_verisi")
-		var market_modu = nesne.get("market_modu")
-		
-		if veri:
-			if market_modu == true:
-				etkilesim_label.text = DilYoneticisi.metin_al("satin_al") % [veri.esya_adi, veri.fiyat]
-			else:
-				etkilesim_label.text = DilYoneticisi.metin_al("al") % [veri.esya_adi]
-			return
+	if not nesne: return 
+	
+	# 1. MARKET EŞYASI KONTROLÜ
+	var veri = nesne.get("esya_verisi")
+	var market_modu = nesne.get("market_modu")
+	
+	if veri:
+		if market_modu == true:
+			etkilesim_label.text = DilYoneticisi.metin_al("satin_al") % [veri.esya_adi, veri.fiyat]
+		else:
+			etkilesim_label.text = DilYoneticisi.metin_al("al") % [veri.esya_adi]
+		return
 
-		# 2. KEDİ KONTROLÜ
-		if nesne.is_in_group("Kedi") or (nesne.get_parent() and nesne.get_parent().is_in_group("Kedi")):
-			var dist = kamera.global_position.distance_to(raycast.get_collision_point())
-			if dist <= 2.5:
-				etkilesim_label.text = "[SOL TIK] Kediyi Eline Al"
-			return
+	# 2. KEDİ KONTROLÜ
+	if nesne.is_in_group("Kedi") or (nesne.get_parent() and nesne.get_parent().is_in_group("Kedi")):
+		var dist = kamera.global_position.distance_to(raycast.get_collision_point())
+		if dist <= 2.5:
+			etkilesim_label.text = "[SOL TIK] Kediyi Eline Al"
+		return
 
-		# 3. INTERACT METODU KONTROLÜ (Gelişmiş Arama)
-		var bulunan_etkilesim = _bul_etkilesim_nesnesi(nesne)
-		
-		if bulunan_etkilesim:
-			# KAPI İSE FARKLI YAZI
-			if "Kapi" in bulunan_etkilesim.name or "Door" in bulunan_etkilesim.name or bulunan_etkilesim.has_method("kapiyi_ac"):
-				# KAPI KİLİTLİYSE VEYA KARTLAR SEÇİLMEDİYSE ETKİLEŞİM YAZMA
-				if bulunan_etkilesim.get("kilitli_mi") == true:
-					return
-				if bulunan_etkilesim.get("hedef_tipi") == 1: # SONRAKI_LEVEL
-					var cf = null
-					if "Campfire" in get_tree().current_scene.name:
-						cf = get_tree().current_scene
-					else:
-						cf = get_tree().current_scene.find_child("*Campfire*", true, false)
-					
-					if cf and "cards_resolved" in cf and not cf.cards_resolved:
-						return
-				
-				etkilesim_label.text = DilYoneticisi.metin_al("kapiyi_ac")
-			# TABURE VEYA DİĞERLERİ
-			else:
-				if bulunan_etkilesim.has_method("get_etkilesim_yazisi"):
-					etkilesim_label.text = bulunan_etkilesim.get_etkilesim_yazisi()
+	# 3. INTERACT METODU KONTROLÜ (Gelişmiş Arama)
+	var bulunan_etkilesim = _bul_etkilesim_nesnesi(nesne)
+	
+	if bulunan_etkilesim:
+		# KAPI İSE FARKLI YAZI
+		if "Kapi" in bulunan_etkilesim.name or "Door" in bulunan_etkilesim.name or bulunan_etkilesim.has_method("kapiyi_ac"):
+			# KAPI KİLİTLİYSE VEYA KARTLAR SEÇİLMEDİYSE ETKİLEŞİM YAZMA
+			if bulunan_etkilesim.get("kilitli_mi") == true:
+				return
+			if bulunan_etkilesim.get("hedef_tipi") == 1: # SONRAKI_LEVEL
+				var cf = null
+				if "Campfire" in get_tree().current_scene.name:
+					cf = get_tree().current_scene
 				else:
-					etkilesim_label.text = DilYoneticisi.metin_al("oynamak_icin_otur")
-			return
-		
-		
-		# 3. KART SEÇİMİ VEYA FİZİKSEL NESNE TUTMA
-		if nesne.is_in_group("CampfireKart"):
-			var ad = nesne.get_parent().name
-			if "Gold" in ad:
-				etkilesim_label.text = "[E] Altın Kart"
-			else:
-				etkilesim_label.text = "[E] Uyku Kartı"
-			return
+					cf = get_tree().current_scene.find_child("*Campfire*", true, false)
+				
+				if cf and "cards_resolved" in cf and not cf.cards_resolved:
+					return
 			
-		if nesne is RigidBody3D and not tutulan_nesne:
-			etkilesim_label.text = DilYoneticisi.metin_al("tut")
+			etkilesim_label.text = DilYoneticisi.metin_al("kapiyi_ac")
+		# TABURE VEYA DİĞERLERİ
+		else:
+			if bulunan_etkilesim.has_method("get_etkilesim_yazisi"):
+				etkilesim_label.text = bulunan_etkilesim.get_etkilesim_yazisi()
+			else:
+				etkilesim_label.text = DilYoneticisi.metin_al("oynamak_icin_otur")
+		return
+	
+	
+	# 3. KART SEÇİMİ VEYA FİZİKSEL NESNE TUTMA
+	if nesne.is_in_group("CampfireKart"):
+		var ad = nesne.get_parent().name
+		if "Gold" in ad:
+			etkilesim_label.text = "[E] Altın Kart"
+		else:
+			etkilesim_label.text = "[E] Uyku Kartı"
+		return
+		
+	if nesne is RigidBody3D and not tutulan_nesne:
+		if nesne.is_in_group("KopanUzuv"):
+			var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
+			if manager and manager.get("axe_equipped") == true:
+				return
+		etkilesim_label.text = DilYoneticisi.metin_al("tut")
 
-# --- ETKİLEŞİME GİR ---
 func etkilesime_gir(is_mouse_click: bool = false):
-	if not raycast or not raycast.is_colliding(): return
-	var nesne = raycast.get_collider()
+	var nesne = null
+	if raycast:
+		var col = raycast.get_collider()
+		if col:
+			nesne = col
+	
+	var genis_uzuv = _uzuv_bul_genis(nesne)
+	if genis_uzuv:
+		nesne = genis_uzuv
+		
 	if not nesne: return
 
 	var veri = nesne.get("esya_verisi")
@@ -972,6 +997,31 @@ func etkilesime_gir(is_mouse_click: bool = false):
 	if nesne is RigidBody3D:
 		nesne_tut(nesne)
 
+
+func _uzuv_bul_genis(mevcut_nesne: Node) -> Node:
+	if mevcut_nesne and mevcut_nesne.is_in_group("KopanUzuv"):
+		return mevcut_nesne
+		
+	var en_iyi_uzuv = null
+	var en_iyi_fark = 0.85 # Min dot product for cone angle
+	
+	var uzuvlar = get_tree().get_nodes_in_group("KopanUzuv")
+	for u in uzuvlar:
+		if u.global_position.distance_to(kamera.global_position) < 3.5:
+			var to_u = (u.global_position - kamera.global_position).normalized()
+			var look_dir = -kamera.global_transform.basis.z.normalized()
+			var dist = u.global_position.distance_to(kamera.global_position)
+			
+			var h_dot = look_dir.dot(to_u)
+			
+			# Çok yakındaysa açıyı daha yumuşak yap
+			var threshold = 0.85 if dist > 1.5 else 0.70
+			
+			if h_dot > threshold and h_dot > en_iyi_fark:
+				en_iyi_fark = h_dot
+				en_iyi_uzuv = u
+				
+	return en_iyi_uzuv
 
 func kedi_al(kedi: Node3D):
 	eldeki_kedi = kedi
