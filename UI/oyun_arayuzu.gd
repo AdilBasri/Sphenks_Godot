@@ -138,6 +138,11 @@ func bilgi_goster(mesaj: String, sure: float = 2.0):
 	bilgi_label.modulate.a = 1.0 
 	bilgi_label.position.y = 100 
 	
+	# ZORLA SARI VE PARLAK YAP
+	bilgi_label.add_theme_color_override("font_color", Color(1.0, 1.0, 0.2))
+	bilgi_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	bilgi_label.add_theme_constant_override("outline_size", 8)
+	
 	bilgi_tween = create_tween()
 	bilgi_tween.tween_property(bilgi_label, "position:y", 80.0, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	bilgi_tween.tween_interval(sure) 

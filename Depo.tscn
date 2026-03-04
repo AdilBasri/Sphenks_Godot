@@ -1,11 +1,11 @@
-[gd_scene load_steps=26 format=3 uid="uid://dpavffiqg5scc"]
+[gd_scene load_steps=30 format=3 uid="uid://dpavffiqg5scc"]
 
 [ext_resource type="PackedScene" uid="uid://dh5w3gifjmsp4" path="res://depo_cliff/scene.gltf" id="1_5pl20"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="2_xhdv7"]
-[ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="3_tj17k"]
-[ext_resource type="Texture2D" uid="uid://dm3cprrc1lljc" path="res://Assets/Images/çerçeve_bar.png" id="4_tgb18"]
-[ext_resource type="Texture2D" uid="uid://bg20iuynejlup" path="res://Assets/Images/iç_bar.png" id="5_qduyw"]
-[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="6_5b14w"]
+[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="3_tj17k"]
+[ext_resource type="Texture2D" uid="uid://ncorow4carpw" path="res://Assets/Images/çerçeve_bar.png" id="4_tgb18"]
+[ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://Assets/Images/iç_bar.png" id="5_qduyw"]
+[ext_resource type="Texture2D" uid="uid://b5k4ffrdw2m3u" path="res://Assets/carpi.png" id="6_5b14w"]
 [ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="7_f21yi"]
 [ext_resource type="PackedScene" uid="uid://b0br8qhx17fq3" path="res://depo_hand.tscn" id="8_y265j"]
 [ext_resource type="Script" uid="uid://cjn3f6j05p6of" path="res://Scripts/DepoTavan.gd" id="9_tavan"]
@@ -13,6 +13,10 @@
 [ext_resource type="PackedScene" uid="uid://bcgr0lpnjw7pf" path="res://depo_dog/scene.gltf" id="11_5b14w"]
 [ext_resource type="Script" uid="uid://c20ci2totrbkl" path="res://Scripts/DepoDuvar.gd" id="11_duvar"]
 [ext_resource type="Animation" uid="uid://dalqd4owr0rsl" path="res://barking.res" id="12_f21yi"]
+[ext_resource type="PackedScene" uid="uid://c0g6rd2ejnmf" path="res://depo_skelton/scene.gltf" id="16_6bm3k"]
+[ext_resource type="PackedScene" uid="uid://bqqrhsklplfjo" path="res://talk.tscn" id="17_j7yni"]
+[ext_resource type="PackedScene" uid="uid://bq1l76ying2yg" path="res://depo_paper/scene.gltf" id="18_lu6b8"]
+[ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Scenes/Items/Kapi.tscn" id="19_lu6b8"]
 [ext_resource type="Script" uid="uid://bqy48o5uvrvto" path="res://Scripts/DepoRoot.gd" id="99_deporoot"]
 [ext_resource type="Shader" uid="uid://qeoevmq3pnei" path="res://Shaders/DepoAmbians.gdshader" id="100_shader"]
 
@@ -494,7 +498,7 @@ transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636
 transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 3.716474, -1.7023636, 35.47302)
 
 [node name="dog" parent="." instance=ExtResource("11_5b14w")]
-transform = Transform3D(-2.1855694e-08, 0, -0.5, 0, 0.5, 0, 0.5, 0, -2.1855694e-08, 1.8183062, -1.4734869, 35.758316)
+transform = Transform3D(0.24999996, 0, -0.43301272, 0, 0.5, 0, 0.43301272, 0, 0.24999996, 1.8183062, -1.4734869, 35.758316)
 
 [node name="Skeleton3D" parent="dog/Sketchfab_model/6831a762046f4f5e9c0f22a119264944_fbx/Object_2/RootNode/metarig/Object_5" index="0"]
 bones/2/rotation = Quaternion(-0.07659362, -0.12510896, 0.9810142, -0.12685613)
@@ -516,4 +520,46 @@ libraries = {
 }
 autoplay = "barking"
 
+[node name="skelton" parent="." instance=ExtResource("16_6bm3k")]
+transform = Transform3D(-0.7065177, -1.3231905, -5.783849e-08, 0, -6.556708e-08, 1.5, -1.3231905, 0.7065177, 3.088287e-08, 2.5715163, -2.1373925, 34.393017)
+
+[node name="anubis_talk" parent="." instance=ExtResource("17_j7yni")]
+transform = Transform3D(-1.7320508, 0, -1.0000001, 0, 2, 0, 1.0000001, 0, -1.7320508, 1.8923736, -2.4369407, 36.036354)
+visible = false
+
+[node name="Skeleton3D" parent="anubis_talk/Armature" index="0"]
+bones/0/position = Vector3(-0.00088366464, 0.0033788322, 0.94264275)
+bones/0/rotation = Quaternion(-0.70210445, 0.7032075, -0.087840065, 0.06951866)
+bones/1/rotation = Quaternion(0.40861988, -0.55107707, -0.5452991, 0.48165625)
+bones/2/rotation = Quaternion(0.25577432, 0.016727421, -0.0067738285, 0.9665681)
+bones/3/rotation = Quaternion(-0.5508063, 0.005424682, 0.11075963, 0.8272336)
+bones/4/rotation = Quaternion(-0.45044595, -0.029058302, 0.0065709334, 0.89230657)
+bones/5/rotation = Quaternion(0.48279622, -0.39115515, -0.2757148, 0.7334077)
+bones/6/rotation = Quaternion(0.2483911, -0.005832131, 0.014972745, 0.96852654)
+bones/7/rotation = Quaternion(-0.5561722, 0.044493157, -0.09019978, 0.82495874)
+bones/9/rotation = Quaternion(0.62670696, -0.36781362, 0.4785885, -0.4928536)
+bones/10/rotation = Quaternion(0.08619125, -0.003912308, -0.010744733, 0.99621296)
+bones/11/rotation = Quaternion(-0.059873164, 0.005967946, -0.007912757, 0.9981568)
+bones/12/rotation = Quaternion(0.5871115, 0.49427643, -0.45050415, 0.45611066)
+bones/13/rotation = Quaternion(0.53565675, 0.12311594, -0.021663927, 0.8351317)
+bones/14/rotation = Quaternion(-0.09616753, -0.08263096, 0.117845595, 0.9849043)
+bones/15/rotation = Quaternion(0.022199312, -0.033706576, -0.09104969, 0.99502814)
+bones/16/rotation = Quaternion(-0.6198037, 0.45502958, -0.47604612, -0.42681575)
+bones/17/rotation = Quaternion(0.52105576, -0.14130211, 0.0086895, 0.8417002)
+bones/18/rotation = Quaternion(-0.12827337, 0.11298899, -0.09833162, 0.98036236)
+bones/19/rotation = Quaternion(-0.05728535, -0.34161586, -0.014134733, 0.9379857)
+bones/20/rotation = Quaternion(-0.08051579, 0.017862, 0.030497672, 0.99612653)
+bones/21/rotation = Quaternion(0.5386885, 0.029016644, -0.014109026, 0.84188706)
+
+[node name="paper" parent="." instance=ExtResource("18_lu6b8")]
+transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, 0.92328215, -1.914289, 35.26262)
+
+[node name="Kapi" parent="." instance=ExtResource("19_lu6b8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.74290544, -0.7483185, -20.236525)
+
+[node name="OnYuz" parent="Kapi/Govde" index="0"]
+transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
+
 [editable path="dog"]
+[editable path="anubis_talk"]
+[editable path="Kapi"]

@@ -1,9 +1,9 @@
 extends Node3D
 
 @export var wall_scene: PackedScene = preload("res://depo_duvar/scene.gltf")
-@export var extents_x: float = 9.0     # Half of 18 width
+@export var extents_x: float = 9.8     # Half of 18 width + a bit to be outside
 @export var center_z: float = 8.566    # Offset center of the room in Z
-@export var extents_z: float = 29.0    # Half of 58 depth
+@export var extents_z: float = 29.8    # Half of 58 depth + a bit to be outside
 @export var spacing: float = 1.6       # Width of the wall piece
 @export var piece_scale: float = 1.0   
 
@@ -51,7 +51,7 @@ func _build_multimesh():
 			var t = Transform3D()
 			t.basis = Basis.from_euler(Vector3(PI/2.0, PI/2.0, 0))
 			t.basis = t.basis.scaled(Vector3(piece_scale, piece_scale, piece_scale))
-			t.origin = Vector3(-extents_x + 0.5, pos_y, pos_z)
+			t.origin = Vector3(-extents_x + 0.1, pos_y, pos_z)
 			mm.set_instance_transform(idx, t * mesh_offset)
 			idx += 1
 			
@@ -61,7 +61,7 @@ func _build_multimesh():
 			var t = Transform3D()
 			t.basis = Basis.from_euler(Vector3(PI/2.0, -PI/2.0, 0))
 			t.basis = t.basis.scaled(Vector3(piece_scale, piece_scale, piece_scale))
-			t.origin = Vector3(extents_x - 0.5, pos_y, pos_z)
+			t.origin = Vector3(extents_x - 0.1, pos_y, pos_z)
 			mm.set_instance_transform(idx, t * mesh_offset)
 			idx += 1
 			

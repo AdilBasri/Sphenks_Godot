@@ -1,0 +1,11 @@
+Model Information:
+* title:	Floor: White Tile 2x2 (meters)
+* source:	https://sketchfab.com/3d-models/floor-white-tile-2x2-meters-3c2e0059dc6f42aaa7959e25eda6d88c
+* author:	Pichael Productions (https://sketchfab.com/Pichael3000)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Floor: White Tile 2x2 (meters)" (https://sketchfab.com/3d-models/floor-white-tile-2x2-meters-3c2e0059dc6f42aaa7959e25eda6d88c) by Pichael Productions (https://sketchfab.com/Pichael3000) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

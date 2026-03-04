@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://dirwdu0wr4bq4"]
+
+[ext_resource type="PackedScene" uid="uid://xc2kddsxs6ot" path="res://demo_tiles/scene.gltf" id="1_cwecb"]
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_cwecb")]
+
+[node name="1x1 Floor White Tile_ Asset0" parent="Sketchfab_model/6212189abc4e4edaa5375719644174e6_fbx/RootNode" index="0"]
+transform = Transform3D(100, 0, 0, 0, -4.371139e-06, 100, 0, -100, -4.371139e-06, 1460.095, 136.91425, -950.35535)
+
+[node name="1x1 Floor White Tile_ Asset0_White Tile 001_0" parent="Sketchfab_model/6212189abc4e4edaa5375719644174e6_fbx/RootNode/1x1 Floor White Tile_ Asset0" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.568702, -9.439673, -1.5497208e-06)
