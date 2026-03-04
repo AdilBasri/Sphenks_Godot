@@ -44,6 +44,7 @@ func _on_body_entered(body):
 		if m and m.wheelbarrow_pieces < 4:
 			arabaya_kondu_mu = true
 			m.piece_placed_in_wheelbarrow()
+			call_deferred("_arabaya_yapistir", body)
 			
 	if yere_degdi: return
 	
@@ -60,13 +61,17 @@ func _kan_lekesi_birak():
 		kan.position.y += 0.05
 		kan.rotation.y = randf() * PI
 
+func _arabaya_yapistir(hedef_body):
+	freeze = true
+	var old_gt = global_transform
+	var p = get_parent()
+	if p:
+		p.remove_child(self)
+	hedef_body.add_child(self)
+	global_transform = old_gt
+
 func get_etkilesim_yazisi() -> String:
-	if gravity_scale == 0.0: # Held by player
-		return ""
-	var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
-	if manager and manager.get("axe_equipped") == true:
-		return ""
-	return "[E] Uzuvu Al"
+	return ""
 
 # --- TUTMA SİSTEMİ ---
 func tutuldu():
@@ -74,6 +79,19 @@ func tutuldu():
 	freeze = false
 	yere_degdi = false
 	gravity_scale = 0.0
+	
+	if arabaya_kondu_mu:
+		arabaya_kondu_mu = false
+		var m = get_tree().current_scene.find_child("MezbahaManager", true, false)
+		if m:
+			m.piece_removed_from_wheelbarrow()
+	
+	var scene = get_tree().current_scene
+	if get_parent() != scene:
+		var old_gt = global_transform
+		get_parent().remove_child(self)
+		scene.add_child(self)
+		global_transform = old_gt
 
 func birakildi():
 	"""Oyuncu tarafından bırakıldığında/fırlatıldığında çağrılır."""

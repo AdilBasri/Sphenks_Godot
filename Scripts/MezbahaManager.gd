@@ -18,6 +18,7 @@ var shake_tween: Tween
 
 var wheelbarrow_pieces = 0
 var can_swing: bool = true
+var driving_wheelbarrow = false
 
 func _ready():
 	_create_ui()

@@ -926,8 +926,11 @@ func check_ui_text():
 	if nesne is RigidBody3D and not tutulan_nesne:
 		if nesne.is_in_group("KopanUzuv"):
 			var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
-			if manager and manager.get("axe_equipped") == true:
-				return
+			if manager:
+				if manager.get("axe_equipped") == true or manager.get("driving_wheelbarrow") == true:
+					return
+			etkilesim_label.text = "[SOL TIK] Tut"
+			return
 		etkilesim_label.text = DilYoneticisi.metin_al("tut")
 
 func etkilesime_gir(is_mouse_click: bool = false):
@@ -939,7 +942,11 @@ func etkilesime_gir(is_mouse_click: bool = false):
 	
 	var genis_uzuv = _uzuv_bul_genis(nesne)
 	if genis_uzuv:
-		nesne = genis_uzuv
+		var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
+		if manager and manager.get("driving_wheelbarrow") == true:
+			pass # Araba sürerken uzuvları tamamen görmezden gel
+		else:
+			nesne = genis_uzuv
 		
 	if not nesne: return
 
@@ -995,6 +1002,12 @@ func etkilesime_gir(is_mouse_click: bool = false):
 		return
 
 	if nesne is RigidBody3D:
+		if nesne.is_in_group("KopanUzuv"):
+			var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
+			if manager and manager.get("driving_wheelbarrow") == true:
+				return
+			if not is_mouse_click:
+				return
 		nesne_tut(nesne)
 
 
@@ -1007,7 +1020,7 @@ func _uzuv_bul_genis(mevcut_nesne: Node) -> Node:
 	
 	var uzuvlar = get_tree().get_nodes_in_group("KopanUzuv")
 	for u in uzuvlar:
-		if u.global_position.distance_to(kamera.global_position) < 3.5:
+		if u.global_position.distance_to(kamera.global_position) < 1.15:
 			var to_u = (u.global_position - kamera.global_position).normalized()
 			var look_dir = -kamera.global_transform.basis.z.normalized()
 			var dist = u.global_position.distance_to(kamera.global_position)
@@ -1015,7 +1028,7 @@ func _uzuv_bul_genis(mevcut_nesne: Node) -> Node:
 			var h_dot = look_dir.dot(to_u)
 			
 			# Çok yakındaysa açıyı daha yumuşak yap
-			var threshold = 0.85 if dist > 1.5 else 0.70
+			var threshold = 0.85 if dist > 0.5 else 0.70
 			
 			if h_dot > threshold and h_dot > en_iyi_fark:
 				en_iyi_fark = h_dot

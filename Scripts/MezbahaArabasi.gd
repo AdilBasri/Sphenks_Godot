@@ -17,7 +17,10 @@ func get_etkilesim_yazisi() -> String:
 	if m.wheelbarrow_pieces < 4:
 		return ""
 	else:
-		return "[E] Arabayi Sur/Birak"
+		if follows_player:
+			return "[E] Sürmeyi Bırak"
+		else:
+			return "[E] El Arabasını Sür"
 
 func interact(oyuncu: Node):
 	if kilitli_mi: return
@@ -25,31 +28,13 @@ func interact(oyuncu: Node):
 	var manager = _get_manager()
 	if not manager: return
 	
-	if manager.wheelbarrow_pieces < 4:
-		# Check if player is holding a piece
-		if oyuncu.tutulan_nesne and (oyuncu.tutulan_nesne.is_in_group("MezbahaUzuv") or oyuncu.tutulan_nesne.is_in_group("KopanUzuv")):
-			var uzuv = oyuncu.tutulan_nesne
-			oyuncu.esya_birak()
-			
-			if uzuv.get("arabaya_kondu_mu") != null:
-				if uzuv.arabaya_kondu_mu == true:
-					pass # Zaten konduysa sayma
-				else:
-					uzuv.arabaya_kondu_mu = true
-					manager.piece_placed_in_wheelbarrow()
-			else:
-				manager.piece_placed_in_wheelbarrow()
-			
-			# Parent to wheelbarrow safely
-			uzuv.freeze = true
-			uzuv.get_parent().remove_child(uzuv)
-			get_parent().add_child(uzuv)
-			uzuv.position = Vector3(0, 5, 0) # Adjust relative to wheelbarrow model
-			
-			manager.piece_placed_in_wheelbarrow()
-	else:
+	if oyuncu.tutulan_nesne and oyuncu.tutulan_nesne.is_in_group("KopanUzuv"):
+		return
+	
+	if manager.wheelbarrow_pieces >= 4:
 		follows_player = not follows_player
 		pc = oyuncu
+		manager.driving_wheelbarrow = follows_player
 		
 func _get_manager() -> Node:
 	return get_tree().current_scene.find_child("MezbahaManager", true, false)
@@ -62,7 +47,7 @@ func _physics_process(delta):
 		# Very naive follow logic: move the root wheelbarrow to match player pos
 		# Since the root wheelbarrow is a Mesh/Node3D, we can just tween or lerp it.
 		var p_root = get_parent()
-		var target_pos = pc.global_position - (pc.global_transform.basis.z * 1.0) # Pulled closer
+		var target_pos = pc.global_position - (pc.global_transform.basis.z * 1.8) # Pulled further
 		target_pos.y = p_root.global_position.y
 		p_root.global_position = p_root.global_position.lerp(target_pos, 5.0 * delta)
 		
