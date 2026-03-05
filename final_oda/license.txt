@@ -1,0 +1,11 @@
+Model Information:
+* title:	Backroom (This Model Will Give You Nightmare)
+* source:	https://sketchfab.com/3d-models/backroom-this-model-will-give-you-nightmare-ebfd6a8354724acaa9f5ab6dde58ef65
+* author:	Blender Studio (https://sketchfab.com/Blend_GUY)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Backroom (This Model Will Give You Nightmare)" (https://sketchfab.com/3d-models/backroom-this-model-will-give-you-nightmare-ebfd6a8354724acaa9f5ab6dde58ef65) by Blender Studio (https://sketchfab.com/Blend_GUY) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
