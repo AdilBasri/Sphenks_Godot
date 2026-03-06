@@ -385,15 +385,27 @@ func oyunu_yukle():
 
 		intro_tamamlandi = config.get_value("Oyun", "IntroTamamlandi", false)
 		tutorial_tamamlandi = config.get_value("Oyun", "TutorialTamamlandi", false)
-		uyku_sahnesi_giris_sayisi = config.get_value("Oyun", "UykuSahnesiGirisSayisi", 0)
+		# Boş veya hatalı değere karşı güvenli yükleme (tip kontrolü ile)
+		var _uyku_raw = config.get_value("Oyun", "UykuSahnesiGirisSayisi", 0)
+		if typeof(_uyku_raw) == TYPE_STRING:
+			uyku_sahnesi_giris_sayisi = int(_uyku_raw) if _uyku_raw != "" else 0
+		elif _uyku_raw != null:
+			uyku_sahnesi_giris_sayisi = int(_uyku_raw)
+		else:
+			uyku_sahnesi_giris_sayisi = 0
+		
+		# suanki_seviye'yi de senkronize et ki LevelManager doğru okusun
+		suanki_seviye = kayitli_seviye
 
 		# Corrupt save fix: HP sıfırsa tam sağlığa döndür
 		if oyuncu_kalan_bar <= 0 or oyuncu_suanki_hp <= 0:
 			print("⚠️ Yükleme: Corrupt HP tespit edildi, tam sağlığa sıfırlanıyor.")
 			oyuncu_kalan_bar = oyuncu_max_bar
 			oyuncu_suanki_hp = 10
+		print("✅ oyunu_yukle: intro=%s, kayitli_seviye=%d" % [str(intro_tamamlandi), kayitli_seviye])
 	else:
 		kayitli_seviye = 1
+		print("⚠️ oyunu_yukle: save yüklenemedi, seviye 1'e sıfırlandı.")
 
 
 func _intro_durumu_yukle():
