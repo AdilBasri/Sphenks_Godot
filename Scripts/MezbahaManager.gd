@@ -331,21 +331,17 @@ func _finish_mixing(mixer: Node):
 		b_visual.scale = Vector3(0.209, 0.209, 0.209)
 		rb.add_child(b_visual)
 		
-		_bloklari_saydam_yap(b_visual)
-		
-		# Kan Decal'i (Projeksiyon)
-		var kan_decal = Decal.new()
-		var blood_tex = null
-		if ResourceLoader.exists("res://Assets/Images/KAN.png"):
-			blood_tex = load("res://Assets/Images/KAN.png")
-		if blood_tex:
-			kan_decal.texture_albedo = blood_tex
-			# Bloğun boyutlarına göre ufak bir yama (patch) gibi görünmesi için boyutu küçültüldü
-			kan_decal.size = Vector3(0.15, 0.15, 0.15) 
-			kan_decal.modulate = Color(0.8, 0.0, 0.0, 0.9)
-			# Bloğun üzerinde rastgele bir yere yapıştır
-			kan_decal.position = Vector3(randf_range(-0.15, 0.15), randf_range(0.0, 0.2), randf_range(-0.15, 0.15))
-			rb.add_child(kan_decal)
+		# Sadece üzerinde kan lekesi olsun (eski saydamlık kaldırıldı, KanHavuzu decal'ı kullanıldı)
+		if ResourceLoader.exists("res://Scenes/KanHavuzu.tscn"):
+			var kan_havuzu = preload("res://Scenes/KanHavuzu.tscn").instantiate()
+			# Decal'in bloğun etrafında küçük bir yama gibi görünmesi için yeniden boyutlandır:
+			kan_havuzu.size = Vector3(0.15, 0.15, 0.15) 
+			kan_havuzu.modulate = Color(0.8, 0.0, 0.0, 0.9)
+			# Bloğun mesh'ine göre rastgele bir konuma koy
+			kan_havuzu.position = Vector3(randf_range(-0.15, 0.15), randf_range(0.0, 0.2), randf_range(-0.15, 0.15))
+			# Yüzeyin üstüne tam yapışması için decallerin default -Y doğrultusunu rastgele rotate edebiliriz
+			kan_havuzu.rotation = Vector3(randf_range(-PI, PI), randf_range(-PI, PI), randf_range(-PI, PI))
+			rb.add_child(kan_havuzu)
 		
 		var col = CollisionShape3D.new()
 		var extents = BoxShape3D.new()
@@ -374,23 +370,6 @@ func _finish_mixing(mixer: Node):
 						l.visible = false
 			)
 	)
-
-func _bloklari_saydam_yap(node: Node):
-	if node is MeshInstance3D:
-		var secilen_mat = null
-		if node.material_override: secilen_mat = node.material_override
-		elif node.get_surface_override_material(0): secilen_mat = node.get_surface_override_material(0)
-		elif node.mesh and node.mesh.get_surface_count() > 0: secilen_mat = node.mesh.surface_get_material(0)
-		
-		if secilen_mat:
-			var mat = secilen_mat.duplicate()
-			if mat is StandardMaterial3D:
-				mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-				mat.albedo_color.a = 0.5 # Saydamlık derecesi (Grid deki bloklara benzesin diye)
-			node.material_override = mat
-
-	for child in node.get_children():
-		_bloklari_saydam_yap(child)
 
 func show_mixer_prompt():
 	if wheelbarrow_pieces >= 4 and not is_mixing:

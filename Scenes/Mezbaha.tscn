@@ -85,7 +85,7 @@ shader_parameter/dither_amount = 0.025
 size = Vector3(2.4370422, 3.6690674, 2.8113098)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_6toyb"]
-size = Vector3(2.2823486, 1.6287842, 1.922699)
+size = Vector3(2.0912476, 1.6287842, 1.7007294)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_3as5s"]
 radius = 0.12695313
@@ -103,6 +103,9 @@ size = Vector3(0.93774414, 1.6677246, 0.16369629)
 
 [node name="Leichenbare" parent="Sketchfab_model/4e63ef8706fd401b808d8becfc0b4851_fbx/RootNode" index="5"]
 transform = Transform3D(50.000004, 0, 0, 0, -6.516826e-07, 50.000004, 0, -3.9999995, -8.146035e-06, -268.95117, 39.354073, 0)
+
+[node name="Raum_Room_001_0" parent="Sketchfab_model/4e63ef8706fd401b808d8becfc0b4851_fbx/RootNode/Raum" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, -2.220446e-16, 0, 9.094947e-13, 0.99999994, 3.678538e-05, -0.0002222769, 0.030197144)
 
 [node name="Duvarlar" type="Node3D" parent="." index="1"]
 
@@ -149,14 +152,14 @@ transform = Transform3D(1.012857, 1.4901161e-08, 2.2351742e-08, -1.1175871e-08, 
 collision_layer = 129
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="El_arabasi/TabanıYapıştırılabilirKısım" index="0"]
-transform = Transform3D(1, 5.2154064e-08, 2.2351742e-07, 0, 1, 4.1211024e-08, 1.4901161e-08, -1.3969839e-09, 1, -0.31852657, 0.538807, -0.031311512)
+transform = Transform3D(1.0000001, 5.2154064e-08, 2.2351742e-07, 0, 1, 4.0745363e-08, 1.4901161e-08, -9.313226e-10, 1, -0.3208368, 0.4717703, -0.031311512)
 shape = SubResource("BoxShape3D_s5w65")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="El_arabasi" index="2"]
 script = ExtResource("scr_mez_arab")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="El_arabasi/StaticBody3D" index="0"]
-transform = Transform3D(1, 7.972121e-07, -1.4901161e-08, 0, -5.5646524e-08, -1, 2.2351742e-08, 1.0000025, -4.400499e-08, -0.36055118, 0.54027456, -0.4340552)
+transform = Transform3D(1, 7.972121e-07, -1.4901161e-08, 0, -5.5646524e-08, -1, 2.2351742e-08, 1.0000025, -4.400499e-08, -0.36055112, 0.54027456, -0.4340552)
 shape = SubResource("BoxShape3D_s5w65")
 
 [node name="CollisionShape3D3" type="CollisionShape3D" parent="El_arabasi/StaticBody3D" index="1"]
@@ -168,7 +171,7 @@ transform = Transform3D(-2.3841858e-07, 1.0000025, -5.9604645e-08, -6.7520887e-0
 shape = SubResource("BoxShape3D_s5w65")
 
 [node name="CollisionShape3D5" type="CollisionShape3D" parent="El_arabasi/StaticBody3D" index="3"]
-transform = Transform3D(-2.3841858e-07, 1.0000025, -5.9604645e-08, -4.1211024e-08, -4.0978193e-08, -1, -1, -4.4703484e-08, 4.656613e-10, -0.9694167, 0.40995562, 0.07353306)
+transform = Transform3D(-2.3841858e-07, 1.0000025, -5.9604645e-08, -4.1211024e-08, -4.0978193e-08, -1, -1, -4.4703484e-08, 4.656613e-10, -0.98333216, 0.41044158, -0.085618615)
 shape = SubResource("BoxShape3D_s5w65")
 
 [node name="kulp" type="CollisionShape3D" parent="El_arabasi/StaticBody3D" index="4"]
@@ -354,7 +357,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.7111096, 0, 2.8164005)
 script = ExtResource("scr_mez_mix")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Mixer/StaticBody3D" index="0"]
-transform = Transform3D(0.9971062, 0, 0.076022804, 0, 1, 0, -0.076022804, 0, 0.9971062, -2.5591502, 1.3345337, -2.570192)
+transform = Transform3D(0.9971062, 0, 0.076022804, 0, 1, 0, -0.076022804, 0, 0.9971062, -2.4113588, 1.3345337, -2.8021781)
 shape = SubResource("BoxShape3D_ussfh")
 
 [node name="Sketchfab_Scene" parent="Mixer" index="1" instance=ExtResource("11_s5w65")]
@@ -365,7 +368,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2083334, 0, 1.8967032)
 collision_layer = 256
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Mixer/ElArabasiBosalt" index="0"]
-transform = Transform3D(0.8426593, 0, -0.53844714, 0, 1, 0, 0.53844714, 0, 0.8426593, 0.560084, 0.3143921, 0.31426346)
+transform = Transform3D(0.8426593, 0, -0.53844714, 0, 1, 0, 0.53844714, 0, 0.8426593, 0.539327, 0.3143921, 0.16929221)
 shape = SubResource("BoxShape3D_6toyb")
 
 [node name="Pipe1" parent="." index="9" instance=ExtResource("12_xqoek")]
