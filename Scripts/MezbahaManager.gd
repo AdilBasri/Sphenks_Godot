@@ -363,14 +363,14 @@ func _finish_mixing(mixer: Node):
 		if idx[0] >= 12:
 			timer.queue_free()
 			
-			# Bir süre sonra oyuncu kamerasına geri dön
-			get_tree().create_timer(2.0).timeout.connect(func():
-				if player and player.kamera:
-					player.kamera.current = true
-				if pipe:
-					var l = pipe.find_child("*DirectionalLight3D*", true, false)
-					if l and l is Node3D:
-						l.visible = false
+			# Kamera bloklara fokuslu kalsın, 1.5 saniye bekle, sonraki bölüme geç
+			print("🎬 Mezbaha: Tüm bloklar döküldü. 1.5s sonra sonraki bölüme geçiliyor...")
+			get_tree().create_timer(2.5).timeout.connect(func():
+				print("➡️ Mezbaha: Sonraki bölüme geçiliyor...")
+				if LevelManager:
+					LevelManager.odaya_don_ve_level_atla()
+				else:
+					get_tree().change_scene_to_file("res://Scenes/Sphenks.tscn")
 			)
 	)
 

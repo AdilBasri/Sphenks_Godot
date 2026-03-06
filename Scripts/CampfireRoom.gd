@@ -234,19 +234,28 @@ func _uyku_secildi():
 	# Yeni bölüme geç (Uyku sahnesine git ya da hak bittiyse/uygun değilse direkt atla)
 	var direkt_atla = false
 	var ucuncu_ruyaya_git = false
+	var mezbahaya_git = false
 	if GameManager:
-		if GameManager.uyku_sahnesi_giris_sayisi >= 3:
+		if GameManager.uyku_sahnesi_giris_sayisi >= 4:
 			direkt_atla = true
+		elif GameManager.uyku_sahnesi_giris_sayisi == 3:
+			# Sandık odası görüldükten sonra sıradaki uyku: Mezbaha
+			mezbahaya_git = true
 		elif GameManager.uyku_sahnesi_giris_sayisi == 2:
 			ucuncu_ruyaya_git = true
 		elif GameManager.uyku_sahnesi_giris_sayisi == 1:
 			# 3'ün katı olan Pyro bölümüne girmeden önceyse 2. rüyayı ertele
 			if LevelManager and (LevelManager.suanki_katman + 1) % 3 == 0:
 				direkt_atla = true
-				
+			
 	if direkt_atla:
 		if LevelManager:
 			LevelManager.odaya_don_ve_level_atla()
+	elif mezbahaya_git:
+		if GameManager:
+			GameManager.uyku_sahnesi_giris_sayisi += 1
+			GameManager.oyunu_kaydet()
+		get_tree().change_scene_to_file("res://Scenes/Mezbaha.tscn")
 	elif ucuncu_ruyaya_git:
 		if GameManager: GameManager.uyku_sahnesi_giris_sayisi += 1
 		get_tree().change_scene_to_file("res://sandik_odasi.tscn")
