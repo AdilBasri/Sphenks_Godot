@@ -975,6 +975,10 @@ func check_ui_text():
 	if not etkilesim_label: return
 	etkilesim_label.text = ""
 	
+	if tutulan_nesne:
+		etkilesim_label.text = "[Sol Tık] Bırak"
+		return
+		
 	# Arabayı sürüyorsak her şeyden bağımsız olarak E yazısını göster
 	var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
 	if manager and manager.get("driving_wheelbarrow") == true:

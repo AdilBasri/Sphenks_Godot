@@ -43,6 +43,11 @@ func _on_body_entered(body):
 		var m = get_tree().current_scene.find_child("MezbahaManager", true, false)
 		if m and m.wheelbarrow_pieces < 4:
 			arabaya_kondu_mu = true
+			
+			var oyuncular = get_tree().get_nodes_in_group("Oyuncu")
+			if oyuncular.size() > 0 and oyuncular[0].get("tutulan_nesne") == self:
+				oyuncular[0].set("tutulan_nesne", null)
+				
 			m.piece_placed_in_wheelbarrow()
 			call_deferred("_arabaya_yapistir", body)
 			

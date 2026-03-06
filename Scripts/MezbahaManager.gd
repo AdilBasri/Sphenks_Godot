@@ -148,6 +148,14 @@ func _swing_axe():
 	if result and result.collider:
 		var hit_node = _find_mezbaha_man(result.collider)
 		if hit_node:
+			# Balta cesede değdi — kan sesi çal
+			var blood_sfx = AudioStreamPlayer3D.new()
+			blood_sfx.stream = preload("res://Sesler/BloodSplatter.mp3")
+			blood_sfx.bus = "Master"
+			get_tree().current_scene.add_child(blood_sfx)
+			blood_sfx.global_position = result.position
+			blood_sfx.play()
+			blood_sfx.finished.connect(blood_sfx.queue_free)
 			meat_hit(hit_node)
 
 func _find_mezbaha_man(node: Node) -> Node:
@@ -287,17 +295,30 @@ func _start_mixer():
 	label_main.text = "Öğütülüyor..." # Changed from Karıştırılıyor...
 	_shake_label(label_main, true)
 	
+	var sfx = AudioStreamPlayer3D.new()
+	sfx.stream = preload("res://Sesler/Grinder.mp3")
+	sfx.name = "MixerSFX"
+	sfx.bus = "Master"
+	add_child(sfx)
+	
 	var mixer = get_parent().get_node_or_null("Mezbaha_Mixer")
 	if not mixer: 
 		mixer = get_tree().current_scene.find_child("*Mixer*", true, false)
 	
 	if mixer:
+		sfx.global_position = mixer.global_position
+		sfx.play()
+		
 		var orig_pos = mixer.global_position
 		var tw = create_tween()
 		for i in range(25):
 			tw.tween_property(mixer, "global_position", orig_pos + Vector3(randf_range(-0.1, 0.1), 0, randf_range(-0.1, 0.1)), 0.1)
 			tw.tween_property(mixer, "global_position", orig_pos, 0.1)
-		tw.tween_callback(func(): _finish_mixing(mixer))
+		tw.tween_callback(func(): 
+			_finish_mixing(mixer)
+			if has_node("MixerSFX"):
+				get_node("MixerSFX").queue_free()
+		)
 	else:
 		_finish_mixing(null)
 

@@ -65,40 +65,59 @@ func unlock_movement():
 
 func _physics_process(delta):
 	if follows_player and pc:
-		# Very naive follow logic: move the root wheelbarrow to match player pos
-		# Since the root wheelbarrow is a Mesh/Node3D, we can just tween or lerp it.
 		var p_root = get_parent()
-		var target_pos = pc.global_position - (pc.global_transform.basis.z * 1.5) # Biraz daha yakına çekildi (1.8'den 1.5'e düştü)
-		target_pos.y = p_root.global_position.y
+		var arab_pos = p_root.global_position
 		
-		# Fizik testi ile layer 9 (256) dışındaki şeylere çarpmasını sağla
+		# Hedef: oyuncunun ÖNÜNDEki sabit nokta (baktığı yön × 1.5 birim)
+		# Mouse döndüğünde bu hedef oyuncunun etrafında döner → araba da onu kovalayarak rekonumlanır
+		var ileri = -pc.global_transform.basis.z
+		ileri.y = 0.0
+		if ileri.length_squared() > 0.001:
+			ileri = ileri.normalized()
+		else:
+			ileri = Vector3(0, 0, -1)
+		
+		var hedef = pc.global_position + ileri * 1.5
+		hedef.y = arab_pos.y  # Y sabit — araba uçmasın
+		
+		var motion = hedef - arab_pos
+		var dist = motion.length()
+		
+		# Hız hesabı: oyuncudan ne kadar uzaktaysak o kadar hızlı koş
+		# Minimum 2.0 birim/sn sabit çekim (böylece mouse döngüsünde de takip eder)
+		var oyuncu_hizi = 0.0
+		if pc.get("velocity") != null:
+			oyuncu_hizi = Vector3(pc.velocity.x, 0.0, pc.velocity.z).length()
+		var hiz = max(oyuncu_hizi * 1.2 + 1.5, 2.5)  # Daima en az 2.5 birim/sn
+		
+		var hareket = motion.normalized() * min(dist, hiz * delta)
+		
+		if hareket.length() < 0.002:
+			# Sadece rotasyon güncelle
+			var target_rot_y = pc.global_rotation.y - deg_to_rad(90.0)
+			p_root.global_rotation.y = lerp_angle(p_root.global_rotation.y, target_rot_y, 7.0 * delta)
+			return
+		
+		# Duvar testi: Layer 9 hariç her duvar bloklasın, oyuncu dışlansın (itme yok)
 		var space_state = p_root.get_world_3d().direct_space_state
-		var motion = target_pos - p_root.global_position
-		
 		var q = PhysicsShapeQueryParameters3D.new()
 		var box = BoxShape3D.new()
-		box.size = Vector3(1.0, 1.0, 1.0) # Arabanın çarpışma tarama boyutu (Daraltıldı ki kapılara rahat girsin)
+		box.size = Vector3(0.8, 0.7, 0.8)
 		q.shape = box
-		q.transform = p_root.global_transform
-		q.transform.origin.y += 0.5 # Arabanın gövdesini ortalayıp yerden kurtarmak için
-		q.motion = motion
-		q.collision_mask = 4294967295 ^ 256 # Tüm katmanlar - 256 (Layer 9 hariç)
-		q.exclude = [pc.get_rid()] # Oyuncuyu dışla
+		q.transform = Transform3D(Basis.IDENTITY, arab_pos + Vector3(0, 0.4, 0))
+		q.motion = hareket
+		q.collision_mask = 0xFFFFFFFF ^ 256  # Layer 9 (ElArabasiBosalt) hariç
+		q.exclude = [pc.get_rid()]
 		for child in p_root.get_children():
 			if child is CollisionObject3D:
-				q.exclude.append(child.get_rid()) # Arabanın kendi parçalarını dışla ki kendine çarpıp durmasın
+				q.exclude.append(child.get_rid())
 		
 		var res = space_state.cast_motion(q)
-		var safe_move = motion * res[0]
+		p_root.global_position += hareket * res[0]
 		
-		var final_pos = p_root.global_position + safe_move
-		p_root.global_position = p_root.global_position.lerp(final_pos, 8.0 * delta)
-		
-		var target_rot = pc.global_rotation
-		target_rot.x = 0
-		target_rot.z = 0
-		
-		# Offset by -90 degrees because the model is rotated 90 degrees to the left
-		var target_y = target_rot.y - deg_to_rad(90.0)
-		
-		p_root.global_rotation.y = lerp_angle(p_root.global_rotation.y, target_y, 5.0 * delta)
+		# Rotasyon: oyuncunun baktığı yöne hizala (hızlı)
+		var target_rot_y = pc.global_rotation.y - deg_to_rad(90.0)
+		p_root.global_rotation.y = lerp_angle(p_root.global_rotation.y, target_rot_y, 7.0 * delta)
+
+
+
