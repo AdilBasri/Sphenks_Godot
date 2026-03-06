@@ -96,6 +96,11 @@ var son_sag_tik_zamani: float = 0.0
 # --- SES ---
 var walking_player: AudioStreamPlayer
 
+# --- HEAD BOBBING ---
+var t_bob: float = 0.0
+var bob_freq: float = 2.0
+var bob_amp: float = 0.035
+
 func _ready():
 	walking_player = AudioStreamPlayer.new()
 	var w_stream = load("res://Sesler/walking.mp3")
@@ -356,6 +361,53 @@ func _physics_process(delta):
 	else:
 		if walking_player.playing:
 			walking_player.stop()
+			
+	if is_on_floor() and direction.length_squared() > 0.01 and not is_sitting:
+		if not walking_player.playing:
+			walking_player.play()
+	else:
+		if walking_player.playing:
+			walking_player.stop()
+			
+	# YENİ EKLENEN SATIR:
+	_head_bob_guncelle(delta)
+	
+func _head_bob_guncelle(delta: float):
+	# Otururken, yemek yerken veya kamera yoksa iptal et
+	if not is_instance_valid(kamera) or is_sitting or is_eating or yere_dustu_mu or oldu_mu:
+		return
+
+	# Karakterin yatayda gerçekten hareket edip etmediğini kontrol et
+	var yatay_hiz = Vector2(velocity.x, velocity.z).length()
+
+	# Karakter yerdeyse ve hareket ediyorsa kafa salla
+	if is_on_floor() and yatay_hiz > 0.5:
+		# Dinamik Frekans ve Genlik Ayarı
+		if comelen_mi:
+			bob_freq = 1.5
+			bob_amp = 0.015 # Çömelirken çok sarsılmaz
+		elif speed > 4.0: # Koşma durumu (speed 5.25)
+			bob_freq = 2.5
+			bob_amp = 0.055 # Koşarken sarsıntı artar
+		else: # Normal Yürüme
+			bob_freq = 2.0
+			bob_amp = 0.035
+
+		# Zamanı hıza göre akıt (Durunca kafa havada asılı kalmasın diye)
+		t_bob += delta * yatay_hiz * bob_freq
+		
+		# Sonsuzluk işareti (Figure-8) algoritması: Y tam tur atarken, X yarım tur atar
+		var hedef_y = sin(t_bob) * bob_amp
+		var hedef_x = cos(t_bob * 0.5) * (bob_amp * 0.5)
+
+		# lerp ile yumuşak geçiş (Mide bulantısını engeller)
+		kamera.v_offset = lerp(kamera.v_offset, hedef_y, delta * 12.0)
+		kamera.h_offset = lerp(kamera.h_offset, hedef_x, delta * 12.0)
+	else:
+		# Karakter durduğunda veya havadayken kamerayı yumuşakça merkeze al
+		t_bob = 0.0
+		kamera.v_offset = lerp(kamera.v_offset, 0.0, delta * 8.0)
+		kamera.h_offset = lerp(kamera.h_offset, 0.0, delta * 8.0)	
 	
 	# --- JOYPAD KAMERA KONTROLU (Sürekli) ---
 	var cam_dir = Input.get_vector("kamera_sol", "kamera_sag", "kamera_yukari", "kamera_asagi")

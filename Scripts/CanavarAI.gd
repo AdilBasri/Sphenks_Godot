@@ -41,6 +41,21 @@ var son_pozisyon: Vector3 = Vector3.ZERO
 var takilma_sayaci: float = 0.0
 
 func _ready() -> void:
+	# "Anti-Gravity" (Ucma/Takilma Onleme) Ayarlari
+	floor_snap_length = 0.5
+	floor_max_angle = deg_to_rad(45.0)
+
+	# GODOT MOTORU HASAR KORUMASI: CharacterBody3D boyutlandırılırsa (Scale) 
+	# yerin altına girer ve hareketleri (Velocity) 0'a kilitlenir. 
+	# Eğer siz Editör'den 1.55 yaptıysanız, kod bunu otomatik alt dallara (Mesh ve Collider'a) paylaştırır:
+	if scale != Vector3.ONE:
+		var s = scale
+		scale = Vector3.ONE
+		for child in get_children():
+			if child is Node3D and not child is NavigationAgent3D:
+				child.scale *= s
+				child.position = child.position * s
+
 	await get_tree().process_frame
 	oyuncu = get_tree().get_first_node_in_group("Oyuncu")
 	if not oyuncu:
@@ -48,9 +63,9 @@ func _ready() -> void:
 		return
 
 	if nav_agent:
-		nav_agent.path_desired_distance = 1.5
-		nav_agent.target_desired_distance = 1.5
-		nav_agent.path_max_distance = 3.0
+		nav_agent.path_desired_distance = 0.5
+		nav_agent.target_desired_distance = 1.0
+		nav_agent.path_max_distance = 2.0
 
 	# Eger navmesh sahnede otomatik bake olmadiysa:
 	var nav = get_node_or_null("../NavigationRegion3D")
@@ -77,24 +92,15 @@ func _physics_process(delta: float) -> void:
 			pass
 
 	# --- TAKILMA KONTROLU (STUCK DETECTION) ---
-	var gercek_hiz = (global_position - son_pozisyon).length() / delta
-	if suanki_durum != Durum.SALDIRI and velocity.length_squared() > 0.1:
-		# Oyuncuya saldırmak icin dipdibeysek patinaj cekmesi normaldir, iptal etme.
-		var oyuncu_dibinde_mi = is_instance_valid(oyuncu) and global_position.distance_to(oyuncu.global_position) < 2.5
-		
-		if gercek_hiz < 0.2 and not oyuncu_dibinde_mi:
-			takilma_sayaci += delta
-			if takilma_sayaci > 1.5:
-				takilma_sayaci = 0.0
-				if suanki_durum == Durum.DEVRIYE:
-					_yeni_devriye_hedefi()
-				elif suanki_durum == Durum.KOS:
-					_devriyeye_gec() # Pes et ve devriyeye dön
-		else:
-			takilma_sayaci -= delta * 2.0
-			if takilma_sayaci < 0.0: takilma_sayaci = 0.0
-
-	son_pozisyon = global_position
+	if velocity.length() < 0.1 and suanki_durum == Durum.KOS:
+		takilma_sayaci += delta
+		if takilma_sayaci > 1.0: # 1 saniye boyunca milim oynamadıysa
+			# Hafifçe oyuncudan uzağa veya rastgele bir yöne "itme" kuvveti ver
+			velocity = (global_position - oyuncu.global_position).normalized() * 2.0
+			move_and_slide()
+			takilma_sayaci = 0.0
+	else:
+		takilma_sayaci = 0.0
 
 # ============================================================
 # DEVRIYE
@@ -119,12 +125,15 @@ func _devriye_guncelle(delta: float) -> void:
 	velocity.z = yon.z * yurume_hizi
 	if not is_on_floor():
 		velocity.y -= yercekimi * delta
+	else:
+		velocity.y = 0.0
 		
 	move_and_slide()
 	
-	yon.y = 0.0
-	if yon.length_squared() > 0.01:
-		_bak(yon, delta * 5.0)
+	if velocity.length() > 0.1:
+		var hedef_yon = Vector2(velocity.x, velocity.z).angle()
+		var hedef_rot = -hedef_yon + PI/2 
+		global_rotation.y = lerp_angle(global_rotation.y, hedef_rot, delta * 5.0)
 
 func _yeni_devriye_hedefi() -> void:
 	# Bir sonraki devriye noktasina gec
@@ -153,23 +162,28 @@ func _kos_guncelle(delta: float) -> void:
 
 	# 2) NavMesh ile kovalama (Duvara dümdüz takilmayi önler)
 	nav_agent.target_position = oyuncu.global_position
-	var hedef = nav_agent.get_next_path_position()
-	hedef.y = global_position.y
 	
-	var yon = (hedef - global_position).normalized()
+	var sonraki_nokta = nav_agent.get_next_path_position()
+	var suanki_pozisyon = global_transform.origin
+	sonraki_nokta.y = suanki_pozisyon.y
 	
-	velocity.x = yon.x * kos_hizi
-	velocity.z = yon.z * kos_hizi
+	var yeni_velocity = (sonraki_nokta - suanki_pozisyon).normalized() * kos_hizi
+	
+	velocity.x = yeni_velocity.x
+	velocity.z = yeni_velocity.z
+	
 	if not is_on_floor():
 		velocity.y -= yercekimi * delta
+	else:
+		velocity.y = 0.0
 		
 	move_and_slide()
 
-	# Oyuncuyu kovalarken dogrudan hedefe (oyuncuya) bakmali, gitmekte oldugu nav_path noktasina degil
-	var oyuncuya_yon = (oyuncu.global_position - global_position).normalized()
-	oyuncuya_yon.y = 0.0
-	if oyuncuya_yon.length_squared() > 0.01:
-		_bak(oyuncuya_yon, delta * 12.0)
+	# Dönüş yumuşatması (Yürüme yönüne bak)
+	if velocity.length() > 0.1:
+		var hedef_yon = Vector2(velocity.x, velocity.z).angle()
+		var hedef_rot = -hedef_yon + PI/2 
+		global_rotation.y = lerp_angle(global_rotation.y, hedef_rot, delta * 10.0)
 
 	var mesafe = global_position.distance_to(oyuncu.global_position)
 	if mesafe <= saldiri_mesafesi:
@@ -228,11 +242,12 @@ func _fener_kontrol(delta: float) -> void:
 		var sorgu = PhysicsRayQueryParameters3D.create(
 			kamera.global_position,
 			global_position + Vector3.UP * 1.0,
-			0xFFFFFFFF
+			1 # Sadece 1. katmana (genelde duvarlar/zemin) çarpmasını sağla
 		)
-		sorgu.exclude = [oyuncu]
+		sorgu.exclude = [oyuncu, self]
 		var sonuc = space_state.intersect_ray(sorgu)
-		if sonuc and (sonuc.collider == self or _canavar_mi(sonuc.collider)):
+		# Eğer canavar ve oyuncu yoksayıldığında hiçbir şeye çarpmazsa, arada engel yoktur!
+		if not sonuc:
 			_kovalama_baslat()
 
 func _oyuncuyu_goruyor_mu() -> bool:
@@ -243,17 +258,17 @@ func _oyuncuyu_goruyor_mu() -> bool:
 	var sorgu = PhysicsRayQueryParameters3D.create(
 		global_position + Vector3(0, 1.2, 0),
 		oyuncu.global_position + Vector3(0, 1.2, 0),
-		0xFFFFFFFF
+		1 # Sadece 1. katmana (genelde duvarlar/zemin) çarpmasını sağla
 	)
-	sorgu.exclude = [self]
+	sorgu.exclude = [self, oyuncu]
 	var sonuc = space_state.intersect_ray(sorgu)
-	if sonuc and sonuc.collider == oyuncu: return true
+	if not sonuc: return true # Engel yoksa görüyor demektir
 	
 	# Gövdeden Gövdeye (Alternatif görüş, bariyer arkasından eğilmeler vs için)
 	sorgu.from = global_position + Vector3(0, 0.5, 0)
 	sorgu.to = oyuncu.global_position + Vector3(0, 0.5, 0)
 	sonuc = space_state.intersect_ray(sorgu)
-	if sonuc and sonuc.collider == oyuncu: return true
+	if not sonuc: return true # Engel yoksa görüyor demektir
 
 	return false
 
@@ -299,15 +314,6 @@ func _animasyon_oynat(isim: String, hiz: float = 1.0) -> void:
 	var anim = animasyon.get_animation(gercek_isim)
 	if anim:
 		anim.loop_mode = Animation.LOOP_LINEAR
-
-func _bak(yon: Vector3, agirlik: float) -> void:
-	if yon.length_squared() < 0.001: return
-	
-	# Sadece yatay (Y ekseni) dönüsü alalim. Modeli siz duzelttiginiz icin artik -yon (ters) yapmamiza gerek yok.
-	var aci = atan2(yon.x, yon.z)
-	var suanki_aci = global_rotation.y
-	
-	global_rotation.y = lerp_angle(suanki_aci, aci, clamp(agirlik, 0.0, 1.0))
 
 # Dis sistem cagrisina izin ver (örn. ses sistemi)
 func uyar() -> void:
