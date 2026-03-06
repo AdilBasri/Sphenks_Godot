@@ -52,9 +52,11 @@ func dusmanlari_baslat():
 		
 	# Kaç düşman çıkacak? (LevelManager'dan veya kafadan ver)
 	var dusman_sayisi = 3 
+	GameManager.pyro_dogacak_dusman = dusman_sayisi
 	
 	for i in range(dusman_sayisi):
 		spawn_et()
+		GameManager.pyro_dogacak_dusman -= 1
 		# Her düşman arasında biraz bekle
 		await get_tree().create_timer(2.0).timeout
 
@@ -103,3 +105,4 @@ func spawn_et():
 func _exit_tree():
 	GameManager.pyro_aktif = false
 	GameManager.silah_cekildi = false
+	GameManager.pyro_dogacak_dusman = 0

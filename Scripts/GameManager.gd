@@ -55,6 +55,7 @@ var mermi_sayisi: int = 10
 var max_mermi: int = 40
 var silah_cekildi: bool = false 
 var yeme_aktif_mi: bool = false  # Oyuncu uzuv yerken true — pyro_filtresi gizlenir
+var pyro_dogacak_dusman: int = 0 # Pyro modunda doğması beklenen düşman sayısı
 
 # --- 👁️ GLITCH PARRY SİSTEMİ ---
 var glitch_face_aktif: bool = false

@@ -137,6 +137,15 @@ func _muzzle_flash_goster():
 	)
 
 func _dusman_kontrol():
+	# Kısa bir süre bekle (vurulma animasyonları vb. için)
+	await get_tree().create_timer(0.2).timeout
+	
+	if not GameManager.silah_cekildi: return
+
+	# Eğer hala doğacak düşman varsa silahı asla kaldırma!
+	if GameManager.pyro_dogacak_dusman > 0:
+		return
+
 	# Pyro düşmanları bitince silahı otomatik kaldır
 	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
 	# Ölmemiş düşman var mı?
@@ -145,7 +154,9 @@ func _dusman_kontrol():
 		if is_instance_valid(d) and d.get("suanki_durum") != 99:
 			hayatta_kalan = true
 			break
-	if not hayatta_kalan and dusmanlar.size() > 0:
+
+	# Eğer hayatta kalan düşman kalmadıysa silahı kaldır
+	if not hayatta_kalan:
 		_silahi_kaldir()
 
 func _silahi_kaldir():
