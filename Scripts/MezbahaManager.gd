@@ -186,6 +186,39 @@ func _splash_blood():
 	if blood_tween: blood_tween.kill()
 	blood_tween = create_tween()
 	blood_tween.tween_property(label_blood, "color:a", 0.0, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	
+	# Rastgele 3-4 kan lekesi TextureRect spawn et
+	var blood_tex = null
+	if ResourceLoader.exists("res://Assets/Images/KAN.png"):
+		blood_tex = load("res://Assets/Images/KAN.png")
+	if not blood_tex: return
+	
+	for i in range(randi_range(3, 4)):
+		var tex_rect = TextureRect.new()
+		tex_rect.texture = blood_tex
+		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		
+		var size = randf_range(200, 500)
+		tex_rect.custom_minimum_size = Vector2(size, size)
+		tex_rect.size = Vector2(size, size)
+		
+		var viewport_size = get_viewport().get_visible_rect().size
+		tex_rect.position = Vector2(
+			randf_range(-100, viewport_size.x - size + 100),
+			randf_range(-100, viewport_size.y - size + 100)
+		)
+		
+		tex_rect.rotation = randf() * TAU
+		tex_rect.pivot_offset = Vector2(size / 2, size / 2)
+		
+		tex_rect.modulate = Color(0.8, 0.0, 0.0, 1.0) 
+		tex_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		
+		gui_layer.add_child(tex_rect)
+		
+		var tw = create_tween()
+		tw.tween_property(tex_rect, "modulate:a", 0.0, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		tw.tween_callback(tex_rect.queue_free)
 
 func _shake_label(lbl: Label, extreme: bool):
 	if anim_player and anim_player.is_playing(): anim_player.stop()
@@ -283,38 +316,40 @@ func _finish_mixing(mixer: Node):
 	elif mixer:
 		spawn_pos = mixer.global_position + Vector3(0, 3, 0)
 		
-	var block_scene = preload("res://Scenes/Blocks/block_tek.tscn")
 	var idx = [0]
 	var timer = Timer.new()
-	timer.wait_time = 0.5
+	timer.wait_time = 0.15
 	timer.autostart = true
 	add_child(timer)
 	timer.timeout.connect(func():
-		var b = block_scene.instantiate()
-		get_tree().current_scene.add_child(b)
-		b.global_position = spawn_pos
+		var rb = RigidBody3D.new()
+		rb.collision_layer = 1
+		rb.collision_mask = 3
+		rb.mass = 0.5
 		
-		# Yere doğru ne kadar düşeceğini bul
-		var target_pos = spawn_pos + Vector3(randf_range(-0.5, 0.5), -1.8, randf_range(-0.5, 0.5))
-		var space_state = b.get_world_3d().direct_space_state
-		var query = PhysicsRayQueryParameters3D.create(spawn_pos, spawn_pos + Vector3(0, -10, 0))
-		query.collision_mask = 1
-		var res = space_state.intersect_ray(query)
-		if res:
-			target_pos = res.position
-			target_pos.y += 0.2 # Bloğun yarısı havada kalsın ki yere girmesin
-			target_pos.x += randf_range(-0.5, 0.5)
-			target_pos.z += randf_range(-0.5, 0.5)
+		var b_visual = preload("res://Scenes/Blocks/block.tscn").instantiate()
+		b_visual.scale = Vector3(0.209, 0.209, 0.209)
+		rb.add_child(b_visual)
 		
-		# Bloğu hafif rastgele eksende döndürerek düşür
-		b.rotation = Vector3(randf_range(-0.5, 0.5), randf_range(-0.5, 0.5), randf_range(-0.5, 0.5))
+		var mat = StandardMaterial3D.new()
+		mat.albedo_color = Color(0.7, 0.0, 0.0) # Kan efekti
+		_kan_materyali_uygula(b_visual, mat)
 		
-		var tw_b = create_tween()
-		tw_b.tween_property(b, "global_position", target_pos, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-		tw_b.parallel().tween_property(b, "rotation", Vector3(0, randf_range(0, TAU), 0), 0.4)
+		var col = CollisionShape3D.new()
+		var extents = BoxShape3D.new()
+		extents.size = Vector3(2.0, 2.0, 1.5) * 0.209
+		col.shape = extents
+		rb.add_child(col)
+		
+		get_tree().current_scene.add_child(rb)
+		rb.global_position = spawn_pos + Vector3(randf_range(-0.1, 0.1), 0, randf_range(-0.1, 0.1))
+		
+		# Hafif fırlatarak pipe'tan dökülüyormuş gibi dağıt
+		rb.linear_velocity = Vector3(randf_range(-2.0, 2.0), randf_range(-1.0, 2.0), randf_range(-2.0, 2.0))
+		rb.angular_velocity = Vector3(randf_range(-4, 4), randf_range(-4, 4), randf_range(-4, 4))
 		
 		idx[0] += 1
-		if idx[0] >= 4:
+		if idx[0] >= 12:
 			timer.queue_free()
 			
 			# Bir süre sonra oyuncu kamerasına geri dön
@@ -327,6 +362,12 @@ func _finish_mixing(mixer: Node):
 						l.visible = false
 			)
 	)
+
+func _kan_materyali_uygula(node: Node, mat: Material):
+	if node is MeshInstance3D:
+		node.material_override = mat
+	for child in node.get_children():
+		_kan_materyali_uygula(child, mat)
 
 func show_mixer_prompt():
 	if wheelbarrow_pieces >= 4 and not is_mixing:
