@@ -118,6 +118,14 @@ func _swing_axe():
 	can_swing = false
 	get_tree().create_timer(0.75).timeout.connect(func(): can_swing = true)
 	
+	var swing_sfx = AudioStreamPlayer3D.new()
+	swing_sfx.stream = preload("res://Sesler/swinging-axe.mp3")
+	swing_sfx.bus = "Master"
+	player.add_child(swing_sfx)
+	swing_sfx.global_position = player.global_position
+	swing_sfx.play()
+	swing_sfx.finished.connect(swing_sfx.queue_free)
+	
 	var pivot = player.kamera.get_node_or_null("AxePivot")
 	if pivot:
 		var tw = create_tween()
@@ -322,33 +330,7 @@ func _finish_mixing(mixer: Node):
 	timer.autostart = true
 	add_child(timer)
 	timer.timeout.connect(func():
-		var rb = RigidBody3D.new()
-		rb.collision_layer = 1
-		rb.collision_mask = 3
-		rb.mass = 0.5
-		
-		var b_visual = preload("res://Scenes/Blocks/block.tscn").instantiate()
-		b_visual.scale = Vector3(0.209, 0.209, 0.209)
-		rb.add_child(b_visual)
-		
-		# Sadece üzerinde kan lekesi olsun (eski saydamlık kaldırıldı, KanHavuzu decal'ı kullanıldı)
-		if ResourceLoader.exists("res://Scenes/KanHavuzu.tscn"):
-			var kan_havuzu = preload("res://Scenes/KanHavuzu.tscn").instantiate()
-			# Decal'in bloğun etrafında küçük bir yama gibi görünmesi için yeniden boyutlandır:
-			kan_havuzu.size = Vector3(0.15, 0.15, 0.15) 
-			kan_havuzu.modulate = Color(0.8, 0.0, 0.0, 0.9)
-			# Bloğun mesh'ine göre rastgele bir konuma koy
-			kan_havuzu.position = Vector3(randf_range(-0.15, 0.15), randf_range(0.0, 0.2), randf_range(-0.15, 0.15))
-			# Yüzeyin üstüne tam yapışması için decallerin default -Y doğrultusunu rastgele rotate edebiliriz
-			kan_havuzu.rotation = Vector3(randf_range(-PI, PI), randf_range(-PI, PI), randf_range(-PI, PI))
-			rb.add_child(kan_havuzu)
-		
-		var col = CollisionShape3D.new()
-		var extents = BoxShape3D.new()
-		extents.size = Vector3(2.0, 2.0, 1.5) * 0.209
-		col.shape = extents
-		rb.add_child(col)
-		
+		var rb = preload("res://Scenes/Blocks/Block_kanli.tscn").instantiate()
 		get_tree().current_scene.add_child(rb)
 		rb.global_position = spawn_pos + Vector3(randf_range(-0.1, 0.1), 0, randf_range(-0.1, 0.1))
 		

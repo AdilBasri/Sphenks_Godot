@@ -1,0 +1,58 @@
+[gd_scene load_steps=7 format=3 uid="uid://bra105a4eknja"]
+
+[ext_resource type="Script" uid="uid://bnmxktemkijbe" path="res://Scripts/BlokSurukle.gd" id="1_5qd32"]
+[ext_resource type="PackedScene" uid="uid://cfk5b1431kbbh" path="res://Scenes/Blocks/block.tscn" id="2_a7e7m"]
+[ext_resource type="Material" uid="uid://d2gy67gtklkkk" path="res://Materials_Shaders/Hayalet_Mat.tres" id="3_5fq7k"]
+[ext_resource type="PackedScene" uid="uid://cqna4pxhg04b0" path="res://Scenes/KanHavuzu.tscn" id="4_kanhv"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rb"]
+size = Vector3(1.0440674, 1.0482788, 1.0558777)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0rorx"]
+size = Vector3(1.0079956, 1.0025692, 1.0301056)
+
+[node name="Block_kanli" type="RigidBody3D" node_paths=PackedStringArray("hayalet")]
+transform = Transform3D(0.209, 0, 0, 0, 0.209, 0, 0, 0, 0.209, 0, 0, 0)
+collision_mask = 3
+mass = 0.5
+script = ExtResource("1_5qd32")
+hayalet = NodePath("Hayalet")
+tekli_blok_sahnesi = ExtResource("2_a7e7m")
+
+[node name="CollisionShape3D_rb" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
+shape = SubResource("BoxShape3D_rb")
+
+[node name="Area3D" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.9999998, -1.1920929e-07, 0, 1.1920929e-07, 0.9999998, -0.36811852, -0.26202726, -0.12780666)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, -4.4703498e-08, 0, 4.4703498e-08, 0.3, 0.36141968, 0.2584811, 0.12767795)
+shape = SubResource("BoxShape3D_0rorx")
+
+[node name="Gorsel" type="Node3D" parent="."]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
+
+[node name="Node3D" parent="Gorsel" instance=ExtResource("2_a7e7m")]
+
+[node name="Hayalet" type="Node3D" parent="."]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, 0, 0)
+
+[node name="Node3D" parent="Hayalet" instance=ExtResource("2_a7e7m")]
+
+[node name="MeshInstance3D" parent="Hayalet/Node3D/Run_Tasi" index="1"]
+surface_material_override/0 = ExtResource("3_5fq7k")
+
+[node name="KanHavuzu" parent="." instance=ExtResource("4_kanhv")]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -0.038314085, 0.10503258, -0.019987145)
+size = Vector3(2.8895936, 3, 2.980658)
+modulate = Color(0.8, 0, 0, 0.9)
+
+[node name="KanHavuzu2" parent="." instance=ExtResource("4_kanhv")]
+transform = Transform3D(0.2811846, 9.1419405e-09, -0.10457162, 0, -0.3, -2.6226836e-08, -0.10457162, 2.458194e-08, -0.2811846, 0.016980896, -0.17087379, 0.03353341)
+size = Vector3(3.386969, 3.1445313, 2.8351777)
+modulate = Color(0.8, 0, 0, 0.9)
+
+[connection signal="input_event" from="Area3D" to="." method="_on_area_3d_input_event"]
+
+[editable path="Hayalet/Node3D"]

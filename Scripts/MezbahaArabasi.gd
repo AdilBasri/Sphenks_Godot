@@ -49,11 +49,14 @@ func interact(oyuncu: Node):
 				manager.label_main.text = "El arabasını et\nparçalayıcısına sürükle"
 		
 		var p_root = get_parent()
-		if p_root is CollisionObject3D and pc is CollisionObject3D:
-			if follows_player:
-				pc.add_collision_exception_with(p_root)
-			else:
-				pc.remove_collision_exception_with(p_root)
+		if pc is CollisionObject3D:
+			for child in p_root.get_children():
+				if child is CollisionObject3D:
+					if follows_player:
+						pc.add_collision_exception_with(child)
+					else:
+						pc.remove_collision_exception_with(child)
+
 func _get_manager() -> Node:
 	return get_tree().current_scene.find_child("MezbahaManager", true, false)
 
@@ -65,9 +68,31 @@ func _physics_process(delta):
 		# Very naive follow logic: move the root wheelbarrow to match player pos
 		# Since the root wheelbarrow is a Mesh/Node3D, we can just tween or lerp it.
 		var p_root = get_parent()
-		var target_pos = pc.global_position - (pc.global_transform.basis.z * 1.8) # Pulled further
+		var target_pos = pc.global_position - (pc.global_transform.basis.z * 1.5) # Biraz daha yakına çekildi (1.8'den 1.5'e düştü)
 		target_pos.y = p_root.global_position.y
-		p_root.global_position = p_root.global_position.lerp(target_pos, 5.0 * delta)
+		
+		# Fizik testi ile layer 9 (256) dışındaki şeylere çarpmasını sağla
+		var space_state = p_root.get_world_3d().direct_space_state
+		var motion = target_pos - p_root.global_position
+		
+		var q = PhysicsShapeQueryParameters3D.new()
+		var box = BoxShape3D.new()
+		box.size = Vector3(1.0, 1.0, 1.0) # Arabanın çarpışma tarama boyutu (Daraltıldı ki kapılara rahat girsin)
+		q.shape = box
+		q.transform = p_root.global_transform
+		q.transform.origin.y += 0.5 # Arabanın gövdesini ortalayıp yerden kurtarmak için
+		q.motion = motion
+		q.collision_mask = 4294967295 ^ 256 # Tüm katmanlar - 256 (Layer 9 hariç)
+		q.exclude = [pc.get_rid()] # Oyuncuyu dışla
+		for child in p_root.get_children():
+			if child is CollisionObject3D:
+				q.exclude.append(child.get_rid()) # Arabanın kendi parçalarını dışla ki kendine çarpıp durmasın
+		
+		var res = space_state.cast_motion(q)
+		var safe_move = motion * res[0]
+		
+		var final_pos = p_root.global_position + safe_move
+		p_root.global_position = p_root.global_position.lerp(final_pos, 8.0 * delta)
 		
 		var target_rot = pc.global_rotation
 		target_rot.x = 0
