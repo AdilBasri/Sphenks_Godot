@@ -36,6 +36,18 @@ func interact(oyuncu: Node):
 		pc = oyuncu
 		manager.driving_wheelbarrow = follows_player
 		
+		# Sürerken üstteki yazıyı gizle, bırakınca geri getir
+		if follows_player:
+			if manager.loading_zone_active:
+				manager.show_mixer_prompt()
+			else:
+				manager.label_main.text = ""
+		else:
+			if manager.loading_zone_active:
+				manager.show_mixer_prompt()
+			else:
+				manager.label_main.text = "El arabasını et\nparçalayıcısına sürükle"
+		
 		var p_root = get_parent()
 		if p_root is CollisionObject3D and pc is CollisionObject3D:
 			if follows_player:

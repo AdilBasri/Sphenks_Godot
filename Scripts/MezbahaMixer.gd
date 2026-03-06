@@ -17,11 +17,18 @@ func _process(_delta):
 			
 	if arabasi and mixer and mixer is Node3D and arabasi is Node3D:
 		var dist = arabasi.global_position.distance_to(mixer.global_position)
-		if dist <= 4.0:
+		
+		# Araba yeterince yakınsa uyarıyı göster (sürülse de sürülmese de)
+		if dist <= 2.2:
 			if not m.loading_zone_active:
 				m.loading_zone_active = true
 				m.show_mixer_prompt()
 		else:
 			if m.loading_zone_active:
 				m.loading_zone_active = false
-				m.label_main.text = "El arabasını et\nparçalayıcısına sürükle"
+				
+				# Eğer araba sürülüyorsa farklı mesaj, sürülmüyorsa farklı mesaj
+				if m.driving_wheelbarrow == true:
+					m.label_main.text = "" 
+				else:
+					m.label_main.text = "El arabasını et\nparçalayıcısına sürükle"

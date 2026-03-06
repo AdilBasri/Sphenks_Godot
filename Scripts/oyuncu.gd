@@ -975,6 +975,12 @@ func check_ui_text():
 	if not etkilesim_label: return
 	etkilesim_label.text = ""
 	
+	# Arabayı sürüyorsak her şeyden bağımsız olarak E yazısını göster
+	var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
+	if manager and manager.get("driving_wheelbarrow") == true:
+		etkilesim_label.text = "[E] Sürmeyi Bırak"
+		return
+	
 	if perk_isim_label:
 		perk_isim_label.text = ""
 	if perk_aciklama_label:
@@ -1106,7 +1112,7 @@ func check_ui_text():
 		
 	if nesne is RigidBody3D and not tutulan_nesne:
 		if nesne.is_in_group("KopanUzuv"):
-			var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
+			var mm = get_tree().current_scene.find_child("MezbahaManager", true, false)
 			if manager:
 				if manager.get("axe_equipped") == true or manager.get("driving_wheelbarrow") == true:
 					return
@@ -1115,6 +1121,17 @@ func check_ui_text():
 		etkilesim_label.text = DilYoneticisi.metin_al("tut")
 
 func etkilesime_gir(is_mouse_click: bool = false):
+	# Arabayı sürüyorsak ve sadece E ye basıldıysa (mouse değil), bırakmamıza izin ver
+	if not is_mouse_click:
+		var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
+		if manager and manager.get("driving_wheelbarrow") == true:
+			var mezbaha_arabasi = get_tree().current_scene.find_child("El_arabasi", true, false)
+			if mezbaha_arabasi:
+				for child in mezbaha_arabasi.get_children():
+					if "follows_player" in child and child.has_method("interact"):
+						child.interact(self)
+						return
+
 	var nesne = null
 	if raycast:
 		var col = raycast.get_collider()
@@ -1123,8 +1140,8 @@ func etkilesime_gir(is_mouse_click: bool = false):
 	
 	var genis_uzuv = _uzuv_bul_genis(nesne)
 	if genis_uzuv:
-		var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
-		if manager and manager.get("driving_wheelbarrow") == true:
+		var mm = get_tree().current_scene.find_child("MezbahaManager", true, false)
+		if mm and mm.get("driving_wheelbarrow") == true:
 			pass # Araba sürerken uzuvları tamamen görmezden gel
 		else:
 			nesne = genis_uzuv
