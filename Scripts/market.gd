@@ -31,6 +31,13 @@ func _ready():
 			giris_sensoru.body_exited.connect(_on_giris_sensoru_body_exited)
 
 func satin_almaya_calis(fiyat: int, urun_verisi: ItemData) -> bool:
+	# 0. ÖNCE ENVANTERI KONTROL ET — para kesmeden
+	if GameManager.envanter.size() >= GameManager.max_totem_sayisi:
+		print("❌ Envanter Dolu! (" + str(GameManager.envanter.size()) + "/" + str(GameManager.max_totem_sayisi) + ") Alınamıyor.")
+		_hata_sesi_cal()
+		red_efekti_oynat()
+		return false
+
 	# Kanlı İndirim: %50 indirim uygula
 	var gercek_fiyat = fiyat
 	if GameManager and GameManager.get("kanli_indirim_aktif") and GameManager.kanli_indirim_aktif:
@@ -38,34 +45,41 @@ func satin_almaya_calis(fiyat: int, urun_verisi: ItemData) -> bool:
 		print("💩 Kanlı İndirim: Fiyat %50 düştü %d → %d" % [fiyat, gercek_fiyat])
 	# 1. GameManager'a sor: "Yeterli para var mı?"
 	if GameManager.altin_harca(gercek_fiyat):
-		# 2. Para düştü, şimdi eşyayı envantere eklemeye çalış
-		var envantere_sigdi = false
-		if GameManager.envanter.size() < GameManager.max_totem_sayisi:
-			GameManager.envanter.append(urun_verisi)
-			GameManager.envanter_guncellendi.emit()
-			envantere_sigdi = true
-
-		if envantere_sigdi:
-			print("✅ Satın alma başarılı: " + urun_verisi.esya_adi)
-			# True döndürdüğümüzde Oyuncu.gd tezgahtaki nesneyi silecek
-			return true
-		else:
-			# Eğer envanter doluysa parayı iade et (Haksızlık olmasın)
-			GameManager.altin_ekle(fiyat)
-			print("❌ Envanter Dolu! Para iade edildi.")
-			return false
+		# 2. Para düştü, şimdi eşyayı envantere ekle
+		GameManager.envanter.append(urun_verisi)
+		GameManager.envanter_guncellendi.emit()
+		print("✅ Satın alma başarılı: " + urun_verisi.esya_adi)
+		return true
 	else:
-		print("❌ Yetersiz Bakiye! Gereken: " + str(fiyat))
-		# Arayüz varsa "Yetersiz Bakiye" uyarısı gösterebiliriz
+		print("❌ Yetersiz Bakiye! Gereken: " + str(gercek_fiyat))
+		_hata_sesi_cal()
 		var arayuz = get_tree().get_first_node_in_group("Arayuz")
 		if arayuz and arayuz.has_method("bilgi_goster"):
 			arayuz.bilgi_goster("Yetersiz Bakiye!")
 		return false
 
 func red_efekti_oynat():
-	print("Çanta Dolu!")
-	if market_ui:
+	print("Envanter Dolu!")
+	if market_ui and market_ui.has_method("hata_ver"):
 		market_ui.hata_ver()
+
+func _hata_sesi_cal():
+	var sfx = AudioStreamPlayer.new()
+	var stream = load("res://Sesler/ErrorSound.mp3")
+	if not stream:
+		# Dosya ismi farklıysa dene
+		stream = load("res://Sesler/Error.mp3")
+	if not stream:
+		stream = load("res://Sesler/error.mp3")
+	if stream:
+		sfx.stream = stream
+		sfx.bus = "Master"
+		add_child(sfx)
+		sfx.play()
+		sfx.finished.connect(sfx.queue_free)
+		print("🔊 Hata sesi çalındı.")
+	else:
+		print("⚠️ ErrorSound.mp3 bulunamadı!")
 
 # --- SENSÖR VE ANİMASYONLAR ---
 func _on_giris_sensoru_body_entered(body):

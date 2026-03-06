@@ -553,6 +553,11 @@ func altin_harca(miktar: int) -> bool:
 func pelerin_korumasi_var_mi() -> bool:
 	return zar_atlama_hakki > 0
 
+func pelerin_aktif_et():
+	"""Pelerin kullanılınca 3 tur zar koruma hakkı verir."""
+	zar_atlama_hakki = 3
+	print("🛡️ Pelerin Aktif! zar_atlama_hakki = ", zar_atlama_hakki)
+
 func pelerin_hak_dus():
 	if zar_atlama_hakki > 0:
 		zar_atlama_hakki -= 1
