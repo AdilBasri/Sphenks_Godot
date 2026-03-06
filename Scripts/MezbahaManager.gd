@@ -209,7 +209,7 @@ func stop_shake_label():
 		label_main.position.x = 0
 
 func spawn_pieces(pos: Vector3):
-	var piece_scene = preload("res://Mezbaha_uzuv.tscn")
+	var piece_scene = preload("res://Scenes/Mezbaha_uzuv.tscn")
 	if not piece_scene: return
 	for i in range(4):
 		var p = piece_scene.instantiate()
@@ -218,7 +218,7 @@ func spawn_pieces(pos: Vector3):
 		p.global_position = pos + Vector3(randf_range(-0.1, 0.1), randf_range(0.2, 0.5), randf_range(-0.2, 0.2))
 		
 		# Saçma uzak konumlara fırlamaması için kuvvetleri de minimize ettik, neredeyse masaya pıt diye düşecek.
-		var rb = p.get_node_or_null("KopanUzuv")
+		var rb = p
 		if rb and rb is RigidBody3D:
 			rb.linear_velocity = Vector3(randf_range(-0.3, 0.3), randf_range(0.5, 1.5), randf_range(-0.3, 0.3))
 
