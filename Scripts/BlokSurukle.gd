@@ -294,10 +294,12 @@ func _birak() -> void:
 				grid.satirlari_kontrol_et()
 			if hayalet: hayalet.visible = false
 			
-			var sfx = AudioStreamPlayer.new()
+			var sfx = AudioStreamPlayer3D.new()
 			sfx.stream = load("res://Sesler/place_block.mp3")
 			sfx.bus = "Master"
+			sfx.max_distance = 15.0
 			get_tree().current_scene.add_child(sfx)
+			sfx.global_position = global_position
 			sfx.play()
 			sfx.finished.connect(sfx.queue_free)
 			
@@ -306,10 +308,12 @@ func _birak() -> void:
 			queue_free() 
 
 	if not basarili:
-		var err_sfx = AudioStreamPlayer.new()
+		var err_sfx = AudioStreamPlayer3D.new()
 		err_sfx.stream = load("res://Sesler/ErrorSound.mp3")
 		err_sfx.bus = "Master"
+		err_sfx.max_distance = 15.0
 		get_tree().current_scene.add_child(err_sfx)
+		err_sfx.global_position = global_position
 		err_sfx.play()
 		err_sfx.finished.connect(err_sfx.queue_free)
 		

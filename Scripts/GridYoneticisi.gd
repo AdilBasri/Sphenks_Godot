@@ -229,10 +229,6 @@ func hucreyi_kilitle(hedef: Vector2i, tip: String = "TAS"):
 func kilit_kir(hucre: Vector2i):
 	if kilitli_hucreler.has(hucre):
 		var engel = kilitli_hucreler[hucre]
-		if patlama_efekti_sahnesi:
-			var efekt = patlama_efekti_sahnesi.instantiate()
-			add_child(efekt)
-			efekt.global_position = engel.global_position
 		engel.queue_free()
 		kilitli_hucreler.erase(hucre)
 		print("✅ Engel Kırıldı!")
@@ -283,16 +279,11 @@ func satirlari_kontrol_et() -> void:
 			for i in range(min_b): _komsulari_kontrol_et_ve_kir(Vector2i(i, grid_boyutu.y - 1 - i))
 
 	if patlayacak_hucreler.size() > 0:
-		Engine.time_scale = 0.05
-		get_tree().create_timer(0.1, true, false, true).timeout.connect(func(): Engine.time_scale = 1.0)
+		# Eski yavaşlatma ve kağıt patlama sesini kapatıyoruz (Kanlı vahşet eklendi)
+		# Engine.time_scale = 0.05
+		# get_tree().create_timer(0.1, true, false, true).timeout.connect(func(): Engine.time_scale = 1.0)
 		
-		if kamera_sarsinti_scripti and kamera_sarsinti_scripti.has_method("shake"): kamera_sarsinti_scripti.shake(1.0)
-		if patlama_sesi:
-			var as_player = AudioStreamPlayer.new()
-			as_player.stream = patlama_sesi
-			add_child(as_player)
-			as_player.play()
-			as_player.finished.connect(as_player.queue_free)
+		if kamera_sarsinti_scripti and kamera_sarsinti_scripti.has_method("shake"): kamera_sarsinti_scripti.shake(0.3)
 			
 		var mantar_ekstra = 0.0
 		if GameManager and GameManager.mantar_modu:
@@ -309,7 +300,7 @@ func satirlari_kontrol_et() -> void:
 			if max_renk > 0:
 				mantar_ekstra = 160.0 * pow(1.2, float(max_renk - 1))
 				
-		_bloklari_yok_et(patlayacak_hucreler)
+		_bloklari_yok_et_kanli(patlayacak_hucreler)
 		kombo_carpani += 1; kombo_suresi = max_kombo_suresi
 		_gelismis_puan_hesapla(patlayan_satir_sayisi, patlayacak_hucreler, mantar_ekstra)
 		GameManager.satir_patladi.emit()
@@ -320,15 +311,112 @@ func _komsulari_kontrol_et_ve_kir(merkez: Vector2i):
 		var hedef = merkez + yon
 		if kilitli_hucreler.has(hedef): kilit_kir(hedef)
 
-func _bloklari_yok_et(hucreler: Array) -> void:
+func _bloklari_yok_et_kanli(hucreler: Array) -> void:
+	var blok_nodelari = []
 	for h in hucreler:
 		if grid_verisi.has(h):
 			var blok = grid_verisi[h]
-			if patlama_efekti_sahnesi and blok:
-				var efekt = patlama_efekti_sahnesi.instantiate()
-				add_child(efekt)
-				efekt.global_position = blok.global_position
-			grid_verisi.erase(h); if blok: blok.queue_free()
+			blok_nodelari.append(blok)
+			# Grid'den hemen sil ki yenileri üstüne düşebilsin veya etkileşim kopsun
+			grid_verisi.erase(h)
+			
+	if blok_nodelari.size() == 0: return
+	
+	# 1. Kan Yüklenme Sesi (load)
+	var sfx_load = AudioStreamPlayer3D.new()
+	sfx_load.stream = load("res://Sesler/blood_load.mp3")
+	sfx_load.max_distance = 25.0
+	sfx_load.pitch_scale = randf_range(0.9, 1.1)
+	add_child(sfx_load)
+	sfx_load.global_position = blok_nodelari[0].global_position
+	sfx_load.play()
+	sfx_load.finished.connect(sfx_load.queue_free)
+	
+	# 2. Şişme ve Deformasyon Animasyonu (1.5 Saniye)
+	var tween = create_tween()
+	tween.set_parallel(true)
+	for blok in blok_nodelari:
+		if is_instance_valid(blok):
+			var current_scale = blok.scale
+			var target_scale = current_scale * 1.6 # %60 şişir
+			target_scale.y *= 1.2 # Yukarı daha çok şişsin (karelikten çıksın)
+			
+			tween.tween_property(blok, "scale", target_scale, 0.8).set_trans(Tween.TRANS_SINE)
+			
+			var rand_rot = Vector3(
+				randf_range(-0.5, 0.5),
+				randf_range(-0.5, 0.5),
+				randf_range(-0.5, 0.5)
+			)
+			tween.tween_property(blok, "rotation", blok.rotation + rand_rot, 0.8).set_trans(Tween.TRANS_BOUNCE)
+			
+	# Kanın dolmasını bekle
+	await get_tree().create_timer(0.85).timeout
+	
+	# 3. PATLAMA VE KAN SAÇILMA
+	var sfx_splash = AudioStreamPlayer3D.new()
+	sfx_splash.stream = load("res://Sesler/blood_splash.mp3")
+	sfx_splash.max_distance = 30.0
+	sfx_splash.pitch_scale = randf_range(0.85, 1.1)
+	add_child(sfx_splash)
+	if blok_nodelari.size() > 0 and is_instance_valid(blok_nodelari[0]):
+		sfx_splash.global_position = blok_nodelari[0].global_position
+	sfx_splash.play()
+	sfx_splash.finished.connect(sfx_splash.queue_free)
+	
+	if kamera_sarsinti_scripti and kamera_sarsinti_scripti.has_method("shake"):
+		kamera_sarsinti_scripti.shake(0.8)
+		
+	for blok in blok_nodelari:
+		if is_instance_valid(blok):
+			_kan_partikulleri_yarat(blok.global_position)
+			blok.queue_free()
+
+func _kan_partikulleri_yarat(pos: Vector3):
+	var cpu_particles = CPUParticles3D.new()
+	cpu_particles.amount = 40
+	cpu_particles.one_shot = true
+	cpu_particles.lifetime = 1.0
+	cpu_particles.explosiveness = 0.95
+	cpu_particles.randomness = 0.5
+	
+	# Havaya ve etrafa sıçrama
+	cpu_particles.direction = Vector3(0, 1, 0)
+	cpu_particles.spread = 60.0
+	cpu_particles.initial_velocity_min = 4.0
+	cpu_particles.initial_velocity_max = 8.0
+	
+	cpu_particles.gravity = Vector3(0, -15.0, 0)
+	cpu_particles.damping_min = 2.0
+	cpu_particles.damping_max = 4.0
+	
+	var mesh = QuadMesh.new()
+	mesh.size = Vector2(0.4, 0.4)
+	var mat = StandardMaterial3D.new()
+	mat.albedo_color = Color(0.5, 0.0, 0.0)
+	mat.roughness = 0.1
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	
+	var tex = load("res://Assets/Images/KAN.png") # Kandamlası texture'u varsa kullan
+	if tex:
+		mat.albedo_texture = tex
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mesh.surface_set_material(0, mat)
+	
+	cpu_particles.mesh = mesh
+	
+	var curve = Curve.new()
+	curve.add_point(Vector2(0, 1.0))
+	curve.add_point(Vector2(0.8, 0.8))
+	curve.add_point(Vector2(1, 0.0))
+	cpu_particles.scale_amount_curve = curve
+	
+	add_child(cpu_particles)
+	cpu_particles.global_position = pos
+	cpu_particles.emitting = true
+	
+	get_tree().create_timer(1.2).timeout.connect(cpu_particles.queue_free)
+
 
 func _gelismis_puan_hesapla(satir, bloklar, mantar_ekstra = 0.0):
 	# 1. Kombo Çarpanı

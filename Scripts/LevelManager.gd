@@ -9,9 +9,9 @@ var is_boss_acting: bool = false:
 		if value:
 			Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 		else:
-			if oyuncu_ref and "mouse_serbest_modu" in oyuncu_ref and oyuncu_ref.mouse_serbest_modu:
+			if is_instance_valid(oyuncu_ref) and "mouse_serbest_modu" in oyuncu_ref and oyuncu_ref.mouse_serbest_modu:
 				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-			elif not oyuncu_ref:
+			elif not is_instance_valid(oyuncu_ref):
 				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 			else:
 				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -60,7 +60,7 @@ func konumlari_kaydet(p1: Vector3, p2: Vector3, p3: Vector3, oyuncu: CharacterBo
 
 func _oyuncuyu_baslangica_isinla():
 	if is_instance_valid(oyuncu_ref):
-		oyuncu_ref.global_position = start_pos
+		oyuncu_ref.global_position = start_pos + Vector3(0, 0.5, 0)
 		oyuncu_ref.velocity = Vector3.ZERO
 
 func odaya_don_ve_level_atla():

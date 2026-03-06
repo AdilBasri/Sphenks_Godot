@@ -6,7 +6,7 @@ extends Node3D
 var sandik_hedef_z = -26.5
 var mesafe_kapanacak = false
 var kapanis_basladi = false
-var sfx_drag: AudioStreamPlayer
+var sfx_drag: AudioStreamPlayer3D
 var ses_zamani: float = 0.0
 
 class ChestInteract extends StaticBody3D:
@@ -25,7 +25,7 @@ func _ready():
 	var crunch_shader_path = "res://Materials_Shaders/texture_crunch.gdshader"
 	_remove_crunch_from_all_meshes(self, crunch_shader_path)
 	
-	sfx_drag = AudioStreamPlayer.new()
+	sfx_drag = AudioStreamPlayer3D.new()
 	var d_stream = load("res://Sesler/chest_dragging.mp3")
 	if d_stream: 
 		if d_stream is AudioStreamMP3 or d_stream is AudioStreamWAV:
@@ -35,6 +35,8 @@ func _ready():
 	sfx_drag.stream = d_stream
 	sfx_drag.bus = "Master"
 	sfx_drag.volume_db = -80.0 # Başlangıçta sessiz
+	sfx_drag.max_distance = 15.0 # Sesin duyulabileceği maksimum mesafe
+	sfx_drag.attenuation_filter_cutoff_hz = 5000.0
 	chest.add_child(sfx_drag)
 	sfx_drag.play() # En baştan çalmaya başlasın, arkada dönsün
 	

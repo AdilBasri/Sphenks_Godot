@@ -592,9 +592,10 @@ func saldiri_baslat():
 		return
 
 	# Attack release sound with 450ms delay
-	var a_sfx = AudioStreamPlayer.new()
+	var a_sfx = AudioStreamPlayer3D.new()
 	a_sfx.stream = load("res://Sesler/attack_release.mp3")
 	a_sfx.bus = "Master"
+	a_sfx.max_distance = 20.0
 	add_child(a_sfx)
 	get_tree().create_timer(0.45).timeout.connect(func():
 		if is_instance_valid(a_sfx):
@@ -656,8 +657,9 @@ func pre_attack() -> bool:
 		# TIKLADI! (oyuncu.gd is_parry_window_open'ı false yaptı)
 		# Ses Çalar
 		if kirik_cam_sesi:
-			var as_player = AudioStreamPlayer.new()
+			var as_player = AudioStreamPlayer3D.new()
 			as_player.stream = kirik_cam_sesi
+			as_player.max_distance = 15.0
 			add_child(as_player)
 			as_player.play()
 			as_player.finished.connect(as_player.queue_free)
@@ -698,9 +700,10 @@ func _telegraph_baslat(tip: String):
 	if arayuz and arayuz.has_method("bilgi_goster"):
 		arayuz.bilgi_goster(boss_adi + ": " + mesaj, 2.0)
 
-	var w_sfx = AudioStreamPlayer.new()
+	var w_sfx = AudioStreamPlayer3D.new()
 	w_sfx.stream = load("res://Sesler/while_attack.mp3")
 	w_sfx.bus = "Master"
+	w_sfx.max_distance = 25.0
 	add_child(w_sfx)
 	w_sfx.play()
 	w_sfx.finished.connect(w_sfx.queue_free)

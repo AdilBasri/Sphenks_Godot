@@ -4,16 +4,20 @@ extends CharacterBody3D
 signal oyuncu_oldu 
 
 # --- AYARLAR ---
-var speed = 3.0
-var mouse_sensitivity = 0.003
-var gravity = 9.8
-var firlatma_gucu = 8.0 
+@export var base_speed: float = 3.0
+@export var sprint_speed: float = 5.25
+@export var crouch_speed: float = 1.6
+@export var mouse_sensitivity: float = 0.003
+@export var gravity: float = 9.8
+@export var firlatma_gucu: float = 8.0 
+
+var suanki_speed: float = 3.0
 
 # --- CAN SİSTEMİ ---
-var max_can_bari = 4        
-var suanki_can_bari = 4     
-var bar_hp = 10             
-var suanki_hp = 10          
+@export var max_can_bari: int = 4        
+var suanki_can_bari: int = 4     
+var bar_hp: int = 10             
+var suanki_hp: int = 10          
 
 var yere_dustu_mu: bool = false 
 var oldu_mu: bool = false        
@@ -29,8 +33,6 @@ var fener_tween: Tween = null
 
 # --- ÇÖMELME (C TUŞU) ---
 var comelen_mi: bool = false
-var normal_speed: float = 3.0
-var cömelme_speed: float = 1.6
 var cömelme_tween: Tween = null
 
 # --- ÖZEL EŞYA ---
@@ -100,6 +102,26 @@ var walking_player: AudioStreamPlayer
 var t_bob: float = 0.0
 var bob_freq: float = 2.0
 var bob_amp: float = 0.035
+
+# --- YENİ EKLENEN CACHE SİSTEMLERİ (OPTİMİZASYON) ---
+var _cached_arayuz: Node = null
+var _cached_dusman: Node = null
+var _cached_silah_katmani: Node = null
+
+func _get_arayuz() -> Node:
+	if not is_instance_valid(_cached_arayuz):
+		_cached_arayuz = get_tree().get_first_node_in_group("Arayuz")
+	return _cached_arayuz
+
+func _get_dusman() -> Node:
+	if not is_instance_valid(_cached_dusman):
+		_cached_dusman = get_tree().get_first_node_in_group("Dusman")
+	return _cached_dusman
+
+func _get_silah_katmani() -> Node:
+	if not is_instance_valid(_cached_silah_katmani):
+		_cached_silah_katmani = get_tree().get_first_node_in_group("SilahKatmani")
+	return _cached_silah_katmani
 
 func _ready():
 	walking_player = AudioStreamPlayer.new()
@@ -229,9 +251,9 @@ func _input(event):
 			etkilesime_gir(false)
 			
 	if event.is_action_pressed("kosma"):
-		speed = 5.25
+		suanki_speed = sprint_speed
 	elif event.is_action_released("kosma"):
-		speed = cömelme_speed if comelen_mi else 3.0
+		suanki_speed = crouch_speed if comelen_mi else base_speed
 
 	# --- FENER AÇMA/KAPAMA (V TUŞU) ---
 	if event.is_action_pressed("fener_toggle"):
@@ -243,7 +265,7 @@ func _input(event):
 			
 	if event.is_action_pressed("sag_tik"):
 		if GameManager and GameManager.is_parry_window_open:
-			var boss = get_tree().get_first_node_in_group("Dusman")
+			var boss = _get_dusman()
 			if boss and boss.has_method("glitch_yuzu_kapat"):
 				boss.glitch_yuzu_kapat()
 			GameManager.activate_ghost_move()
@@ -347,11 +369,11 @@ func _physics_process(delta):
 	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
 	if direction:
-		velocity.x = direction.x * speed
-		velocity.z = direction.z * speed
+		velocity.x = direction.x * suanki_speed
+		velocity.z = direction.z * suanki_speed
 	else:
-		velocity.x = move_toward(velocity.x, 0, speed)
-		velocity.z = move_toward(velocity.z, 0, speed)
+		velocity.x = move_toward(velocity.x, 0, suanki_speed)
+		velocity.z = move_toward(velocity.z, 0, suanki_speed)
 
 	move_and_slide()
 	
@@ -386,7 +408,7 @@ func _head_bob_guncelle(delta: float):
 		if comelen_mi:
 			bob_freq = 1.5
 			bob_amp = 0.015 # Çömelirken çok sarsılmaz
-		elif speed > 4.0: # Koşma durumu (speed 5.25)
+		elif suanki_speed > 4.0: # Koşma durumu
 			bob_freq = 2.5
 			bob_amp = 0.055 # Koşarken sarsıntı artar
 		else: # Normal Yürüme
@@ -502,14 +524,14 @@ func esya_kullan():
 		"dice": 
 			if GameManager:
 				GameManager.tek_zar_modu = true
-				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				var arayuz = _get_arayuz()
 				if arayuz: arayuz.bilgi_goster("Zar Kırıcı: Düşman Tek Zar Atacak!")
 				basarili = true
 
 		"cloak": 
 			if GameManager:
 				GameManager.pelerin_aktif_et()
-				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				var arayuz = _get_arayuz()
 				if arayuz: arayuz.bilgi_goster("Pelerin Aktif: 3 Tur Koruma!")
 				basarili = true
 
@@ -529,12 +551,12 @@ func esya_kullan():
 					# Kayıttan sonra oyun esnasında bug olmaması için eski haline al
 					GameManager.suanki_seviye = aktif_seviye
 					
-					var arayuz = get_tree().get_first_node_in_group("Arayuz")
+					var arayuz = _get_arayuz()
 					if arayuz: arayuz.bilgi_goster("Kedi Beslendi! Oyun Kaydedildi.")
 					print("😺 Kedi beslendi ve oyun kaydedildi!")
 					basarili = true
 			else:
-				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				var arayuz = _get_arayuz()
 				if arayuz: arayuz.bilgi_goster("Bunu sadece Kedi yiyebilir!")
 				print("❌ Bu bir kedi değil!")
 
@@ -550,7 +572,7 @@ func esya_kullan():
 				GameManager.puan_carpani = 1.3
 				
 				# --- BURASI DEĞİŞTİ: Daha havalı bilgilendirme ---
-				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				var arayuz = _get_arayuz()
 				if arayuz: 
 					# Ekranda 3 saniye kalacak net bir mesaj
 					arayuz.bilgi_goster("🧪 GÜÇ İKSİRİ İÇİLDİ! (Puanlar x1.3)", 3.0)
@@ -561,7 +583,7 @@ func esya_kullan():
 			if GameManager:
 				GameManager.revive_aktif = true
 				
-				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				var arayuz = _get_arayuz()
 				if arayuz: 
 					arayuz.bilgi_goster("😇 REVIVE AKTİF! (Ölürsen Canlanırsın)", 3.0)
 					
@@ -571,7 +593,7 @@ func esya_kullan():
 			if GameManager:
 				GameManager.fener_aktif = true
 				
-				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				var arayuz = _get_arayuz()
 				if arayuz: 
 					arayuz.bilgi_goster("🔦 FENER AÇILDI! (Yarasalar Dondu)", 3.0)
 					
@@ -581,7 +603,7 @@ func esya_kullan():
 			if GameManager:
 				GameManager.pyro_yavaslatma = true
 				
-				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				var arayuz = _get_arayuz()
 				if arayuz: 
 					arayuz.bilgi_goster("⏳ ZAMAN YAVAŞLADI! (Düşmanlar %50 Yavaş)", 3.0)
 					
@@ -604,7 +626,7 @@ func esya_kullan():
 				var kilitli_kopya = grid.kilitli_hucreler.duplicate()
 				for hucre in kilitli_kopya.keys():
 					grid.kilit_kir(hucre)
-				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				var arayuz = _get_arayuz()
 				if arayuz: arayuz.bilgi_goster("🪧 Çürük Temel: Grid temizlendi!", 3.0)
 				print("🪧 Çürük Temel kullanıldı, grid temizlendi.")
 				basarili = true
@@ -720,7 +742,7 @@ func _ozel_animasyon_oynat(tip: String):
 
 func _ekran_bozma_efekti(aktif: bool):
 	# Arayüz grubundaki ilk elemanı bul (OyunArayuzu)
-	var arayuz = get_tree().get_first_node_in_group("Arayuz")
+	var arayuz = _get_arayuz()
 	
 	if arayuz and arayuz.has_method("mantar_efekti_yonet"):
 		arayuz.mantar_efekti_yonet(aktif)
@@ -857,7 +879,7 @@ func _cömelme_toggle() -> void:
 	
 	if comelen_mi:
 		# Çömel: kamerayı aşağı indir, hızı azalt
-		speed = cömelme_speed
+		suanki_speed = crouch_speed
 		cömelme_tween.parallel().tween_property(kamera, "position:y", 0.2, 0.3).set_trans(Tween.TRANS_CUBIC)
 		cömelme_tween.parallel().tween_property(self, "scale:y", 0.65, 0.3).set_trans(Tween.TRANS_CUBIC)
 		# Pyro modunda nişangahı 1/3 küçült
@@ -865,14 +887,14 @@ func _cömelme_toggle() -> void:
 	else:
 		# Kalk: kamerayı eski konumuna getir
 		if not Input.is_action_pressed("kosma"):
-			speed = 3.0
+			suanki_speed = base_speed
 		cömelme_tween.parallel().tween_property(kamera, "position:y", 0.6, 0.3).set_trans(Tween.TRANS_CUBIC)
 		cömelme_tween.parallel().tween_property(self, "scale:y", 1.0, 0.3).set_trans(Tween.TRANS_CUBIC)
 		_cömelme_nisangah_guncelle(false)
 
 func _cömelme_nisangah_guncelle(cömeldi: bool) -> void:
 	# Nisangahı (crosshair) Pyro/silah modunda küçült
-	var nisangah = get_tree().get_first_node_in_group("Arayuz")
+	var nisangah = _get_arayuz()
 	if not nisangah: return
 	var ns = nisangah.get_node_or_null("Nisangah")
 	if not ns: return
@@ -930,14 +952,14 @@ func birak_veya_firlat():
 
 func hide_weapon():
 	weapon_input_disabled = true
-	var silah = get_tree().get_first_node_in_group("SilahKatmani")
+	var silah = _get_silah_katmani()
 	if not silah:
 		silah = get_tree().current_scene.find_child("SilahKatmani", true, false)
 	if silah: 
 		silah.visible = false
 		silah.process_mode = Node.PROCESS_MODE_DISABLED
 	
-	var revolver = get_tree().get_first_node_in_group("Arayuz")
+	var revolver = _get_arayuz()
 	if revolver:
 		if revolver.has_method("_silahi_kaldir"):
 			revolver._silahi_kaldir()
@@ -1406,7 +1428,7 @@ func _update_orbit_camera():
 		var target_spawner_rot_y = final_stool_rot_y - deg_to_rad(90)
 		var spawner_saga_gecsin_mi = false
 		
-		var boss = get_tree().get_first_node_in_group("Dusman")
+		var boss = _get_dusman()
 		if boss:
 			# Boss'un bana göre hangi tarafta olduğunu bul (Kamera / Tabure açısına göre)
 			var to_boss = (boss.global_position - target_pos).normalized()
@@ -1493,7 +1515,7 @@ func _revive_ile_kalkis():
 	GameManager.revive_aktif = false
 	
 	# 2. Mesaj Ver
-	var arayuz = get_tree().get_first_node_in_group("Arayuz")
+	var arayuz = _get_arayuz()
 	if arayuz: arayuz.bilgi_goster("😇 ÖLÜMDEN DÖNDÜN! (Revive Kullanıldı)", 3.0)
 	
 	# 3. ÖZEL KALKIŞ ANİMASYONU (Standart kalkis_baslat'ı kullanmıyoruz!)
@@ -1605,7 +1627,7 @@ func yeme_baslat():
 	_gore_vignette_ayarla(true, 0.0)
 	
 	# --- ISIRIK TIMER BAŞLAT ---
-	if bite_timer:
+	if bite_timer and is_instance_valid(bite_timer):
 		bite_timer.queue_free()
 	
 	bite_timer = Timer.new()
@@ -1619,7 +1641,7 @@ func yeme_baslat():
 	_take_bite()
 	
 	# UI bilgi
-	var arayuz = get_tree().get_first_node_in_group("Arayuz")
+	var arayuz = _get_arayuz()
 	if arayuz and arayuz.has_method("bilgi_goster"):
 		arayuz.bilgi_goster("🩸 YİYOR... [R bırak = İptal]", 5.0)
 
@@ -1682,7 +1704,8 @@ func yeme_iptal():
 	# Timer durdur
 	if bite_timer:
 		bite_timer.stop()
-		bite_timer.queue_free()
+		if is_instance_valid(bite_timer):
+			bite_timer.queue_free()
 		bite_timer = null
 	
 	# Vignette kapat
@@ -1717,7 +1740,8 @@ func yeme_tamamlandi():
 	# Timer durdur
 	if bite_timer:
 		bite_timer.stop()
-		bite_timer.queue_free()
+		if is_instance_valid(bite_timer):
+			bite_timer.queue_free()
 		bite_timer = null
 	
 	# FINAL TRAVMASI — Son yutkunma şoku
@@ -1748,7 +1772,7 @@ func yeme_tamamlandi():
 	tutulan_nesne = null
 	
 	# UI mesajı
-	var arayuz = get_tree().get_first_node_in_group("Arayuz")
+	var arayuz = _get_arayuz()
 	if arayuz and arayuz.has_method("bilgi_goster"):
 		arayuz.bilgi_goster("🩸 İYİLEŞTİN! Uzuv tüketildi.", 2.0)
 	

@@ -116,7 +116,8 @@ func _on_yer_kontrol_timer():
 	# Boss aksiyondayken kontrol etme (boss daha taş koyuyor olabilir)
 	if LevelManager and LevelManager.is_boss_acting:
 		return
-	yer_yok_kontrolu_yap()
+	# YER KONTROLÜ (Ağır bir işlem olduğu için asenkron veya basit hale getirdik)
+	call_deferred("yer_yok_kontrolu_yap")
 
 func _spawn_noktalarini_guncelle(aktif: bool) -> void:
 	for nokta in spawn_noktalari:
@@ -356,9 +357,16 @@ func yer_yok_kontrolu_yap() -> void:
 	for child in suruklenebilir_bloklar:
 		var orj_fp = child.footprint
 		for rot in range(4):
+			# Eğer 2 saniyede bir tam gridi iteratif tarıyorsak bu zayıf PC'lerde
+			# 1-saniyelik takılmalara (CPU spike) neden olur.
+			# Şimdilik sadece her 2 adımdaki bir hücreye bakarak optimizasyon sağlıyoruz.
 			var test_fp = child._footprint_dondur(orj_fp, rot)
-			for x in range(grid.grid_boyutu.x):
-				for y in range(grid.grid_boyutu.y):
+			
+			var adim_x = 1 if grid.grid_boyutu.x < 10 else 2
+			var adim_y = 1 if grid.grid_boyutu.y < 10 else 2
+			
+			for x in range(0, grid.grid_boyutu.x, adim_x):
+				for y in range(0, grid.grid_boyutu.y, adim_y):
 					if grid.can_place(Vector2i(x, y), test_fp):
 						en_az_yere_koyulabilen_var_mi = true
 						break
