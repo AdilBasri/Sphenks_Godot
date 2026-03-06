@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://o710bqqg24oe"]
+[gd_scene load_steps=35 format=3 uid="uid://o710bqqg24oe"]
 
 [ext_resource type="PackedScene" uid="uid://dvgdletyw5qn0" path="res://final_oda/scene.gltf" id="1_sr50d"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="2_4jfkq"]
@@ -63,10 +63,6 @@ shader_parameter/scanline_intensity = 0.1
 shader_parameter/scanline_count = 300.0
 shader_parameter/dither_amount = 0.025
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_cnvr1"]
-radius = 0.4
-height = 1.8
-
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_wicwg"]
 _data = {
 &"koşu": ExtResource("12_re4p6"),
@@ -109,19 +105,6 @@ agent_height = 2.0
 agent_radius = 0.4
 agent_max_climb = 0.4
 filter_walkable_low_height_spans = true
-
-[sub_resource type="Environment" id="Environment_dark"]
-background_mode = 1
-background_color = Color(0.02, 0.015, 0.015, 1)
-ambient_light_source = 2
-ambient_light_color = Color(0.06, 0.05, 0.05, 1)
-ambient_light_energy = 0.8
-tonemap_mode = 2
-glow_enabled = true
-glow_intensity = 0.4
-fog_enabled = true
-fog_light_color = Color(0.06, 0.05, 0.05, 1)
-fog_density = 0.02
 
 [node name="final_oda" instance=ExtResource("1_sr50d")]
 
@@ -166,7 +149,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0669446, -0.3468895, -0.635
 shape = SubResource("BoxShape3D_wicwg")
 
 [node name="Oyuncu" type="CharacterBody3D" parent="." index="1" node_paths=PackedStringArray("kamera", "ui_container") groups=["Oyuncu"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5723672, 0.96656346, 8.954859)
+transform = Transform3D(-0.7660445, 0, 0.6427876, 0, 1, 0, -0.6427876, 0, -0.7660445, 7.1637163, 0.96656346, -8.615265)
 script = ExtResource("2_4jfkq")
 kamera = NodePath("Camera3D")
 ui_container = NodePath("CanBarlariContainer")
@@ -323,19 +306,11 @@ spot_attenuation = 0.8
 spot_angle = 38.0
 spot_angle_attenuation = 0.5
 
-[node name="canavar" type="CharacterBody3D" parent="." index="2"]
-transform = Transform3D(1.55, 0, 0, 0, 1.55, 0, 0, 0, 1.55, 10.117381, 0.06913066, -10.5491295)
-collision_layer = 4
-collision_mask = 3
+[node name="canavar" parent="." index="2" instance=ExtResource("9_uc2wd")]
+transform = Transform3D(1.55, 0, 0, 0, 1.55, 0, 0, 0, 1.55, 0, 0.06913066, 0)
 script = ExtResource("13_canavr")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="canavar" index="0"]
-transform = Transform3D(0.645, 0, 0, 0, 0.645, 0, 0, 0, 0.645, 0, 0.9, 0)
-shape = SubResource("CapsuleShape3D_cnvr1")
-
-[node name="canavar_mesh" parent="canavar" index="1" instance=ExtResource("9_uc2wd")]
-
-[node name="Skeleton3D" parent="canavar/canavar_mesh/Armature" index="0"]
+[node name="Skeleton3D" parent="canavar/Armature" index="0"]
 bones/0/position = Vector3(3.3972473, 84.81902, 9.493673)
 bones/0/rotation = Quaternion(0.8155774, 0.4689061, 0.060701277, -0.33358058)
 bones/1/position = Vector3(2.844725, 12.319293, -4.544033)
@@ -385,7 +360,7 @@ bones/22/rotation = Quaternion(-0.28847465, 8.134769e-08, -0.0136424145, 0.95739
 bones/23/position = Vector3(-0.3670503, 13.783414, 7.7614045)
 bones/23/rotation = Quaternion(0.25356838, 1.680787e-07, 0.0119917905, 0.96724313)
 
-[node name="AnimationPlayer" parent="canavar/canavar_mesh" index="1"]
+[node name="AnimationPlayer" parent="canavar" index="1"]
 libraries = {
 &"": SubResource("AnimationLibrary_wicwg")
 }
@@ -468,7 +443,4 @@ navigation_mesh = SubResource("NavigationMesh_navmesh")
 [node name="FinalOdaYoneticisi" type="Node" parent="." index="15"]
 script = ExtResource("14_foda")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." index="16"]
-environment = SubResource("Environment_dark")
-
-[editable path="canavar/canavar_mesh"]
+[editable path="canavar"]

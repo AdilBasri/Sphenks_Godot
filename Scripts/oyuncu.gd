@@ -22,6 +22,17 @@ var oldu_mu: bool = false
 var weapon_input_disabled: bool = false
 var state: String = "Normal"
 
+# --- FENER (V TUŞU) ---
+var fener_acik: bool = true   # FENERI ACIK BASLAT
+var fener_node: SpotLight3D = null
+var fener_tween: Tween = null
+
+# --- ÇÖMELME (C TUŞU) ---
+var comelen_mi: bool = false
+var normal_speed: float = 3.0
+var cömelme_speed: float = 1.6
+var cömelme_tween: Tween = null
+
 # --- ÖZEL EŞYA ---
 var eldeki_ozel_esya: Node3D = null 
 var eldeki_kedi: Node3D = null
@@ -175,6 +186,16 @@ func _ready():
 		perk_aciklama_label.offset_top = -180
 		perk_aciklama_label.offset_bottom = -60
 
+	# Fener (V) baslangic ayarlari - Oyun baslarken "Acik" baslar
+	if kamera:
+		for child in kamera.get_children():
+			if child is SpotLight3D:
+				fener_node = child
+				break
+	if fener_node:
+		fener_node.visible = fener_acik
+		fener_node.light_energy = 5.0 if fener_acik else 0.0
+
 func _input(event):
 	if not kamera or oldu_mu: return 
 	if yere_dustu_mu: return 
@@ -205,7 +226,15 @@ func _input(event):
 	if event.is_action_pressed("kosma"):
 		speed = 5.25
 	elif event.is_action_released("kosma"):
-		speed = 3.0
+		speed = cömelme_speed if comelen_mi else 3.0
+
+	# --- FENER AÇMA/KAPAMA (V TUŞU) ---
+	if event.is_action_pressed("fener_toggle"):
+		_fener_toggle()
+
+	# --- ÇÖMELME (C TUŞU) ---
+	if event.is_action_pressed("comel"):
+		_cömelme_toggle()
 			
 	if event.is_action_pressed("sag_tik"):
 		if GameManager and GameManager.is_parry_window_open:
@@ -720,7 +749,85 @@ func game_over():
 	if tutulan_nesne: birak_veya_firlat()
 	if eldeki_ozel_esya: esya_birak()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE 
-	oyuncu_oldu.emit() 
+	oyuncu_oldu.emit()
+
+# --- CANAVAR SALDIRISI: Kamera düşer, sonra oyun sonu ekranı ---
+func canavar_saldirdi() -> void:
+	if yere_dustu_mu or oldu_mu: return
+	yere_dustu_mu = true
+	
+	# Kamera düşme animasyonu
+	if kamera:
+		var tween = create_tween()
+		tween.parallel().tween_property(kamera, "rotation:z", deg_to_rad(80.0), 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+		tween.parallel().tween_property(kamera, "position:y", -0.5, 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+		tween.tween_interval(2.0)
+		tween.tween_callback(game_over)
+	else:
+		game_over()
+
+# ============================================================
+# FENER (V TUŞU)
+# ============================================================
+func _fener_toggle() -> void:
+	if not kamera: return
+	# FenerIsigi: kameranin SpotLight3D cocugunu bul (node adi ne olursa olsun)
+	if not fener_node:
+		for child in kamera.get_children():
+			if child is SpotLight3D:
+				fener_node = child
+				break
+	if not fener_node: return
+	
+	fener_acik = !fener_acik
+	
+	if fener_tween:
+		fener_tween.kill()
+	fener_tween = create_tween()
+	
+	if fener_acik:
+		fener_node.visible = true
+		fener_tween.tween_property(fener_node, "light_energy", 5.0, 0.15)
+	else:
+		fener_tween.tween_property(fener_node, "light_energy", 0.0, 0.15)
+		fener_tween.tween_callback(func(): if fener_node: fener_node.visible = false)
+
+# ============================================================
+# ÇÖMELME (C TUŞU)
+# ============================================================
+func _cömelme_toggle() -> void:
+	if not kamera: return
+	comelen_mi = !comelen_mi
+	
+	if cömelme_tween:
+		cömelme_tween.kill()
+	cömelme_tween = create_tween()
+	
+	if comelen_mi:
+		# Çömel: kamerayı aşağı indir, hızı azalt
+		speed = cömelme_speed
+		cömelme_tween.parallel().tween_property(kamera, "position:y", 0.2, 0.3).set_trans(Tween.TRANS_CUBIC)
+		cömelme_tween.parallel().tween_property(self, "scale:y", 0.65, 0.3).set_trans(Tween.TRANS_CUBIC)
+		# Pyro modunda nişangahı 1/3 küçült
+		_cömelme_nisangah_guncelle(true)
+	else:
+		# Kalk: kamerayı eski konumuna getir
+		if not Input.is_action_pressed("kosma"):
+			speed = 3.0
+		cömelme_tween.parallel().tween_property(kamera, "position:y", 0.6, 0.3).set_trans(Tween.TRANS_CUBIC)
+		cömelme_tween.parallel().tween_property(self, "scale:y", 1.0, 0.3).set_trans(Tween.TRANS_CUBIC)
+		_cömelme_nisangah_guncelle(false)
+
+func _cömelme_nisangah_guncelle(cömeldi: bool) -> void:
+	# Nisangahı (crosshair) Pyro/silah modunda küçült
+	var nisangah = get_tree().get_first_node_in_group("Arayuz")
+	if not nisangah: return
+	var ns = nisangah.get_node_or_null("Nisangah")
+	if not ns: return
+	
+	var hedef_scale = Vector2(0.333, 0.333) if cömeldi else Vector2(1.0, 1.0)
+	var tw = create_tween()
+	tw.tween_property(ns, "scale", hedef_scale, 0.25).set_trans(Tween.TRANS_BACK) 
 
 func ui_guncelle():
 	if not ui_container: return
