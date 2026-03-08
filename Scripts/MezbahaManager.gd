@@ -72,17 +72,17 @@ func axe_picked_up():
 		# Yeni Pivot nodunu oluşturuyoruz: bu nod sapın alt (tutuş) noktasını kapsayacak
 		var pivot = Node3D.new()
 		pivot.name = "AxePivot"
-		# Sapın dip noktası ekran altında sabit kalsın ve el tutuyormuş gibi dursun
-		pivot.position = Vector3(0.35, -1.0, -0.35)
+		# Pivot'u daha ileri (Z=-0.7) ve biraz daha merkeze (X=0.45) çekiyoruz ki ekranda görünsün
+		pivot.position = Vector3(0.45, -0.8, -0.7)
 		player.kamera.add_child(pivot)
 		
-		var visual_axe = preload("res://Mezbaha/Mezbaha_axe/scene.gltf").instantiate()
+		var visual_axe = Sprite3D.new()
+		visual_axe.texture = preload("res://Assets/ax.png")
 		pivot.add_child(visual_axe)
-		# Modeli Pivot'a göre yukarı iterken, bilek noktasını baltanın en dibine çekmiş oluyoruz
-		visual_axe.position = Vector3(0.0, 0.5, 0.0) 
-		# Sola 45 derece eğik (çapraz) durması için rotasyon (Euler X ile sola yatırılır, Y=80 ileri bakar)
-		visual_axe.rotation_degrees = Vector3(0, 100, 0) 
-		visual_axe.scale = Vector3(3.0, 3.0, 3.0) 
+		
+		visual_axe.position = Vector3(0.0, 0.2, 0.0) 
+		visual_axe.rotation_degrees = Vector3(0, 0, 0) 
+		visual_axe.scale = Vector3(0.2, 0.2, 0.2) 
 		visual_axe.name = "MezbahaVisualAxe"
 
 func _process(delta):
@@ -129,12 +129,13 @@ func _swing_axe():
 	var pivot = player.kamera.get_node_or_null("AxePivot")
 	if pivot:
 		var tw = create_tween()
-		# Hamleyi Pivot üzerinden sadece açısal (ileri eğilmek) yapıyoruz.
-		# Baltayı z ekseninde itmiyoruz (position sabittir), böylece sap kısmı ekranın altına çakılı kalıyor ve taşmıyor.
-		tw.tween_property(pivot, "rotation_degrees:x", -70.0, 0.15).set_trans(Tween.TRANS_SINE)
+		# BALTA VURUŞU: Aşağı doğru keskin ve dikey bir hamle (+X rotasyon öne eğilme sağlar)
+		tw.tween_property(pivot, "rotation_degrees:x", 70.0, 0.08).set_trans(Tween.TRANS_SINE)
+		tw.tween_property(pivot, "position:y", -1.1, 0.08).set_trans(Tween.TRANS_SINE)
 		
-		# Hamle bitince geri eski açısına (0.0) dönüyor
+		# Geri çekilme (Yumuşak)
 		tw.tween_property(pivot, "rotation_degrees:x", 0.0, 0.4).set_trans(Tween.TRANS_SPRING)
+		tw.tween_property(pivot, "position:y", -0.8, 0.4).set_trans(Tween.TRANS_SPRING)
 	
 	# Raycast to hit meat
 	var space_state = player.get_world_3d().direct_space_state

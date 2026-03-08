@@ -170,7 +170,7 @@ func _kagit_etkilesimi():
 	
 	if kagitt_okunuyor_mu:
 		var hedef_transform = kamera.global_transform
-		hedef_transform.origin += hedef_transform.basis.z * -0.5 
+		hedef_transform.origin += hedef_transform.basis.z * -1.0 
 		hedef_transform.basis = kamera.global_transform.basis
 		hedef_transform.basis = hedef_transform.basis.rotated(hedef_transform.basis.x, deg_to_rad(90))
 		
@@ -182,7 +182,7 @@ func _kagit_etkilesimi():
 		tween.tween_property(paper_label, "modulate:a", 1.0, 0.5).set_delay(0.2)
 		
 		var isik = paper.get_node_or_null("GlowLight")
-		if isik: tween.tween_property(isik, "light_energy", 0.0, 0.3)
+		if isik: tween.tween_property(isik, "light_energy", 0.4, 0.3)
 	else:
 		tween.tween_property(paper, "global_transform", paper_orijinal_transform, 0.5).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 		tween.tween_property(paper, "scale", Vector3(0.02, 0.02, 0.02), 0.5) 

@@ -215,13 +215,10 @@ func _ready():
 
 	# Fener (V) baslangic ayarlari - Oyun baslarken "Acik" baslar
 	if kamera:
-		for child in kamera.get_children():
-			if child is SpotLight3D:
-				fener_node = child
-				break
+		fener_node = kamera.find_child("*SpotLight3D*", true, false)
 	if fener_node:
 		fener_node.visible = fener_acik
-		fener_node.light_energy = 5.0 if fener_acik else 0.0
+		fener_node.light_energy = 80.0 if fener_acik else 0.0
 
 func _input(event):
 	if not kamera or oldu_mu: return 
@@ -847,10 +844,7 @@ func _fener_toggle() -> void:
 	if not kamera: return
 	# FenerIsigi: kameranin SpotLight3D cocugunu bul (node adi ne olursa olsun)
 	if not fener_node:
-		for child in kamera.get_children():
-			if child is SpotLight3D:
-				fener_node = child
-				break
+		fener_node = kamera.find_child("*SpotLight3D*", true, false)
 	if not fener_node: return
 	
 	fener_acik = !fener_acik
@@ -861,7 +855,7 @@ func _fener_toggle() -> void:
 	
 	if fener_acik:
 		fener_node.visible = true
-		fener_tween.tween_property(fener_node, "light_energy", 5.0, 0.15)
+		fener_tween.tween_property(fener_node, "light_energy", 80.0, 0.15)
 	else:
 		fener_tween.tween_property(fener_node, "light_energy", 0.0, 0.15)
 		fener_tween.tween_callback(func(): if fener_node: fener_node.visible = false)

@@ -5,9 +5,9 @@ extends Node
 var asilabilir_mi: bool = false
 
 func _ready():
-	var parent_body = get_parent()
-	if parent_body is CollisionObject3D:
-		parent_body.collision_layer = 1 # Keep it interactable on default raycast layer
+	# Sprite3D'nin çocuğu olduğumuzda parent artık CollisionObject3D değil
+	# Bu yüzden collision_layer'ı doğrudan self (StaticBody3D) üzerinde setliyoruz
+	self.collision_layer = 1 # Raycast'in bizi bulabilmesi için Layer 1'de olmalıyız
 
 func get_etkilesim_yazisi() -> String:
 	# Mesafe kontrolü
