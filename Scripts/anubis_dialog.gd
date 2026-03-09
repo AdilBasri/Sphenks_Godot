@@ -39,11 +39,20 @@ func _ready():
 	etkilesim_yazi = get_parent().get_node_or_null("EtkilesimYazisi")
 	if etkilesim_yazi:
 		etkilesim_yazi.visible = false
-		if DilYoneticisi:
-			etkilesim_yazi.text = DilYoneticisi.metin_al("anubis_konus_etkilesim")
-		
-	# Sinyalleri bağla
-	pass
+	
+	if DilYoneticisi:
+		DilYoneticisi.dil_degisti.connect(_metinleri_guncelle)
+		_metinleri_guncelle()
+
+func _metinleri_guncelle():
+	if etkilesim_yazi:
+		etkilesim_yazi.text = DilYoneticisi.metin_al("anubis_konus_etkilesim")
+	
+	if sinematik_aktif and is_instance_valid(yazi_rt) and metin_sayaci < anubis_metinleri.size():
+		var anahtar = anubis_metinleri[metin_sayaci]
+		var suanki_metin = DilYoneticisi.metin_al(anahtar)
+		var korkunc_yazi = "[center][shake rate=30.0 level=8 connected=1]" + suanki_metin + "[/shake][/center]"
+		yazi_rt.text = korkunc_yazi
 
 func _process(_delta):
 	# Kamera sallama efekti — SinematikKamera aktifken ONU salla

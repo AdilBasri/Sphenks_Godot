@@ -44,8 +44,14 @@ func _ready():
 	DilYoneticisi.dil_degisti.connect(metinleri_guncelle)
 	
 	# Ayarlari Doldur
-	dil_secimi.add_item("Türkçe", 0)
-	dil_secimi.add_item("English", 1)
+	dil_secimi.clear()
+	dil_secimi.add_item("English", 0)
+	dil_secimi.add_item("Türkçe", 1)
+	
+	if DilYoneticisi.secili_dil == "en":
+		dil_secimi.selected = 0
+	else:
+		dil_secimi.selected = 1
 	
 	for c in cozunurlukler:
 		coz_secimi.add_item("%dx%d" % [c.x, c.y])
@@ -135,9 +141,9 @@ func ana_menuye_don():
 
 func _on_dil_degisti(index: int):
 	if index == 0:
-		DilYoneticisi.dili_degistir("tr")
-	else:
 		DilYoneticisi.dili_degistir("en")
+	else:
+		DilYoneticisi.dili_degistir("tr")
 
 func _on_coz_degisti(index: int):
 	var secilen = cozunurlukler[index]

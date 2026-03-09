@@ -577,7 +577,28 @@ var ceviriler = {
 	"mermi_isi": { "tr": "Mermi Kutusu", "en": "Ammo Crate" },
 	"mermi_ac": { "tr": "İçinden 8 mermi çıkar.", "en": "Contains 8 bullets." },
 	"dig_isi": { "tr": "Altın Kazma", "en": "Gold Pickaxe" },
-	"dig_ac": { "tr": "Bir bloku kırar ve anında +10 Altın verir.", "en": "Breaks a block and instantly grants +10 Gold." }
+	"dig_ac": { "tr": "Bir bloku kırar ve anında +10 Altın verir.", "en": "Breaks a block and instantly grants +10 Gold." },
+	"ev_diyalog_1": { "tr": "Mısır hep ilgimi çekmiştir...", "en": "Egypt has always interested me..." },
+	"ev_diyalog_2": { "tr": "Bu ziyaret aklımda bazı şeyleri toplamama yardım edebilir.", "en": "This visit might help me put some things in order in my mind." },
+	"ev_diyalog_3": { "tr": "Buralardan bir süreliğine uzaklaşmak...", "en": "To get away from here for a while..." },
+	"ev_diyalog_4": { "tr": "Bunu değerlendirebilirim, evet.", "en": "I can consider this, yes." },
+	"ev_diyalog_5": { "tr": "Ve gidersem, eminim kimse benim yokluğumu fark etmeyecektir bile.", "en": "And if I go, I'm sure no one would even notice my absence." },
+	"ev_diyalog_6": { "tr": "İki gün sonra öğlen kalkıyor uçak.", "en": "The plane takes off at noon in two days." },
+	"ev_diyalog_7": { "tr": "Öyleyse... Mısır'a gidiyoruz demek.", "en": "So... we are going to Egypt then." },
+	"feda_edildi": { "tr": "%s feda edildi. (%d/%d)", "en": "%s sacrificed. (%d/%d)" },
+	"rituel_eksik": { "tr": "Ritüel için daha fazla eşya gerekiyor.", "en": "More items are needed for the ritual." },
+	"rituel_tamamlandi": { "tr": "GEÇMİŞ ÖĞÜTÜLDÜ...", "en": "THE PAST HAS BEEN GRINDED..." },
+	"kapi_altindan_bilet": { "tr": "Kapının altından bir şey atıldı...", "en": "Something was thrown under the door..." },
+	"misir_diyalog_1": { "tr": "Buraya kadar gelebileceğimi düşünmemiştim.", "en": "I didn't think I could make it this far." },
+	"misir_diyalog_2": { "tr": "Bunu tarikat için filan yapmıyorum, hayır.", "en": "I'm not doing this for the cult or anything, no." },
+	"misir_diyalog_3": { "tr": "Zaten pek inançlı da sayılmam...", "en": "I'm not much of a believer anyway..." },
+	"misir_diyalog_4": { "tr": "Ama beni bu dünyadan biraz koparabilecek her şeye razıyım şuanda.", "en": "But right now I'm willing to do anything that\ncan detach me from this world." },
+	"misir_diyalog_5": { "tr": "Bu ziyaret de tam olarak bunu sağlıyor işte!", "en": "And this visit provides exactly that!" },
+	"misir_diyalog_6": { "tr": "İçeride nelerle karşılaşacağımı bilmiyorum.", "en": "I don't know what I'm going to face inside." },
+	"misir_diyalog_7": { "tr": "İnsanlar bunun tehlikeli olabileceğini söylüyor, uzaylı zırvaları filan!", "en": "People say it could be dangerous, alien nonsense and stuff!" },
+	"misir_diyalog_8": { "tr": "Görevimi tamamladıktan sonra belki...", "en": "Maybe after completing my mission..." },
+	"misir_diyalog_9": { "tr": "Bir süre daha buralarda vakit geçirebilirim...", "en": "I can spend some more time around here..." },
+	"Eşya": { "tr": "Eşya", "en": "Item" }
 }
 
 func dili_degistir(yeni_dil: String) -> void:

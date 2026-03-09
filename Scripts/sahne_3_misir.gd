@@ -9,15 +9,15 @@ extends Node3D
 @onready var kapilar = [$Kapi_On, $Kapi_Arka, $Kapi_Sag, $Kapi_Sol]
 
 var diyaloglar = [
-	"Buraya kadar gelebileceğimi düşünmemiştim.",
-	"Bunu tarikat için filan yapmıyorum, hayır.",
-	"Zaten pek inançlı da sayılmam...",
-	"Ama beni bu dünyadan biraz koparabilecek her şeye razıyım şuanda.",
-	"Bu ziyaret de tam olarak bunu sağlıyor işte!",
-	"İçeride nelerle karşılaşacağımı bilmiyorum.",
-	"İnsanlar bunun tehlikeli olabileceğini söylüyor, uzaylı zırvaları filan!",
-	"Görevimi tamamladıktan sonra belki...",
-	"Bir süre daha buralarda vakit geçirebilirim..."
+	"misir_diyalog_1",
+	"misir_diyalog_2",
+	"misir_diyalog_3",
+	"misir_diyalog_4",
+	"misir_diyalog_5",
+	"misir_diyalog_6",
+	"misir_diyalog_7",
+	"misir_diyalog_8",
+	"misir_diyalog_9"
 ]
 
 func _ready():
@@ -47,9 +47,10 @@ func monolog_oynat():
 	# Ekran açılana kadar bekle (3 saniye)
 	await get_tree().create_timer(3.0).timeout
 	
-	for satir in diyaloglar:
-		alt_yazi.text = satir
-		var sure = clamp(satir.length() * 0.08, 2.0, 5.0)
+	for satir_key in diyaloglar:
+		var txt = DilYoneticisi.metin_al(satir_key)
+		alt_yazi.text = txt
+		var sure = clamp(txt.length() * 0.08, 2.0, 5.0)
 		await get_tree().create_timer(sure).timeout
 		alt_yazi.text = ""
 		await get_tree().create_timer(0.5).timeout

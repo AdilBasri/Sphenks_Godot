@@ -18,13 +18,13 @@ var bilet_inceleme_modu = false # Şu an bileti inceliyor muyuz?
 var tutulan_bilet_nesnesi = null # Elimizdeki biletin referansı
 
 var final_diyaloglari = [
-	"Mısır hep ilgimi çekmiştir...",
-	"Bu ziyaret aklımda bazı şeyleri toplamama yardım edebilir.",
-	"Buralardan bir süreliğine uzaklaşmak...",
-	"Bunu değerlendirebilirim, evet.",
-	"Ve gidersem, eminim kimse benim yokluğumu fark etmeyecektir bile.",
-	"İki gün sonra öğlen kalkıyor uçak.",
-	"Öyleyse... Mısır'a gidiyoruz demek."
+	"ev_diyalog_1",
+	"ev_diyalog_2",
+	"ev_diyalog_3",
+	"ev_diyalog_4",
+	"ev_diyalog_5",
+	"ev_diyalog_6",
+	"ev_diyalog_7"
 ]
 
 func _ready():
@@ -45,7 +45,8 @@ func _input(event):
 func malzeme_topla(isim):
 	toplanan_malzemeler += 1
 	if alt_yazi:
-		alt_yazi.text = isim + " feda edildi. (" + str(toplanan_malzemeler) + "/" + str(gerekli_malzeme) + ")"
+		var txt = DilYoneticisi.metin_al("feda_edildi") % [DilYoneticisi.metin_al(isim), toplanan_malzemeler, gerekli_malzeme]
+		alt_yazi.text = txt
 		await get_tree().create_timer(2.0).timeout
 		alt_yazi.text = ""
 
@@ -53,17 +54,17 @@ func blenderi_calistir():
 	if bilet_spawnlandi_mi: return
 
 	if toplanan_malzemeler < gerekli_malzeme:
-		if alt_yazi: alt_yazi.text = "Ritüel için daha fazla eşya gerekiyor."
+		if alt_yazi: alt_yazi.text = DilYoneticisi.metin_al("rituel_eksik")
 		return
 
 	# --- RİTÜEL ---
 	bilet_spawnlandi_mi = true
-	if alt_yazi: alt_yazi.text = "GEÇMİŞ ÖĞÜTÜLDÜ..."
+	if alt_yazi: alt_yazi.text = DilYoneticisi.metin_al("rituel_tamamlandi")
 	
 	# Blender sesi vs buraya...
 	await get_tree().create_timer(2.0).timeout
 	
-	if alt_yazi: alt_yazi.text = "Kapının altından bir şey atıldı..."
+	if alt_yazi: alt_yazi.text = DilYoneticisi.metin_al("kapi_altindan_bilet")
 	bilet_yarat()
 
 func bilet_yarat():
@@ -114,8 +115,8 @@ func bilet_alindi_final(bilet_nesnesi): # Parametre olarak bileti alıyoruz
 	if alt_yazi: alt_yazi.text = ""
 	
 	# 3. MONOLOG
-	for satir in final_diyaloglari:
-		if alt_yazi: alt_yazi.text = satir
+	for satir_key in final_diyaloglari:
+		if alt_yazi: alt_yazi.text = DilYoneticisi.metin_al(satir_key)
 		await get_tree().create_timer(3.5).timeout 
 		if alt_yazi: alt_yazi.text = ""
 		await get_tree().create_timer(0.5).timeout
