@@ -73,16 +73,16 @@ func axe_picked_up():
 		var pivot = Node3D.new()
 		pivot.name = "AxePivot"
 		# Pivot'u daha ileri (Z=-0.7) ve biraz daha merkeze (X=0.45) çekiyoruz ki ekranda görünsün
-		pivot.position = Vector3(0.45, -0.8, -0.7)
+		pivot.position = Vector3(0.45, -0.4, -0.7)
 		player.kamera.add_child(pivot)
 		
 		var visual_axe = Sprite3D.new()
-		visual_axe.texture = preload("res://Assets/ax.png")
+		visual_axe.texture = preload("res://Assets/ax_1.png")
 		pivot.add_child(visual_axe)
 		
 		visual_axe.position = Vector3(0.0, 0.2, 0.0) 
 		visual_axe.rotation_degrees = Vector3(0, 0, 0) 
-		visual_axe.scale = Vector3(0.2, 0.2, 0.2) 
+		visual_axe.scale = Vector3(0.05, 0.05, 0.05) 
 		visual_axe.name = "MezbahaVisualAxe"
 
 func _process(delta):
@@ -129,13 +129,12 @@ func _swing_axe():
 	var pivot = player.kamera.get_node_or_null("AxePivot")
 	if pivot:
 		var tw = create_tween()
-		# BALTA VURUŞU: Aşağı doğru keskin ve dikey bir hamle (+X rotasyon öne eğilme sağlar)
-		tw.tween_property(pivot, "rotation_degrees:x", 70.0, 0.08).set_trans(Tween.TRANS_SINE)
-		tw.tween_property(pivot, "position:y", -1.1, 0.08).set_trans(Tween.TRANS_SINE)
+		# BALTA VURUŞU: Alt taraf sabit, üst taraf ileri gidecek şekilde devirme (sadece rotasyon)
+		# Vururken baltayı sağa doğru çeviriyoruz (Y ve Z eksi değerleri sağa döndürür)
+		tw.tween_property(pivot, "rotation_degrees", Vector3(60.0, -30.0, -20.0), 0.08).set_trans(Tween.TRANS_SINE)
 		
 		# Geri çekilme (Yumuşak)
-		tw.tween_property(pivot, "rotation_degrees:x", 0.0, 0.4).set_trans(Tween.TRANS_SPRING)
-		tw.tween_property(pivot, "position:y", -0.8, 0.4).set_trans(Tween.TRANS_SPRING)
+		tw.tween_property(pivot, "rotation_degrees", Vector3.ZERO, 0.4).set_trans(Tween.TRANS_SPRING)
 	
 	# Raycast to hit meat
 	var space_state = player.get_world_3d().direct_space_state
