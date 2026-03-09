@@ -309,6 +309,17 @@ piece_scale = 1.0
 [node name="DuvarKaplama" type="Node3D" parent="."]
 script = ExtResource("11_duvar")
 
+[node name="KaranlikFiltre" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="ColorRect" type="ColorRect" parent="KaranlikFiltre"]
+material = SubResource("ShaderMaterial_depo")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="Etler" type="Node3D" parent="."]
 
