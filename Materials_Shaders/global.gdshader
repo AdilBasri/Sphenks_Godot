@@ -19,8 +19,8 @@ shader_type canvas_item;
 uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, filter_linear_mipmap;
 
 // ─── BASIC ADJUSTMENTS ────────────────────────────────────────
-uniform float brightness : hint_range(0.5, 2.0) = 0.88;   // Slightly underexposed — oppressive
-uniform float contrast   : hint_range(0.5, 2.5) = 1.38;   // High contrast — shadows crushed
+uniform float brightness : hint_range(0.5, 2.0) = 1.05;   // Slightly brighter — still oppressive but visible
+uniform float contrast   : hint_range(0.5, 2.5) = 1.15;   // Reduced contrast — shadows less crushed
 uniform float saturation : hint_range(0.0, 2.0) = 0.42;   // Almost desaturated — palette dominates
 
 // ─── EGYPTIAN CULT PALETTE ────────────────────────────────────
@@ -32,7 +32,7 @@ uniform vec4 tone_gold     : source_color = vec4(0.78, 0.60, 0.23, 1.0); // Dese
 
 // How aggressively the palette replaces original color
 // 0.0 = original game colors, 1.0 = full palette dominance
-uniform float palette_strength : hint_range(0.0, 1.0) = 0.58;
+uniform float palette_strength : hint_range(0.0, 1.0) = 0.38;
 
 // Crimson bleed — how much red gets baked into the midtones
 // (makes even light grey areas feel slightly bloodstained)
@@ -45,7 +45,7 @@ uniform float ca_strength : hint_range(0.0, 0.02) = 0.004;
 uniform float grain_amount : hint_range(0.0, 0.15) = 0.055;
 
 // ─── VIGNETTE ─────────────────────────────────────────────────
-uniform float vignette_intensity : hint_range(0.0, 3.0) = 0.55;
+uniform float vignette_intensity : hint_range(0.0, 3.0) = 0.35;
 // Vignette tint — pull the dark edges toward blood red
 uniform vec3 vignette_color : source_color = vec3(0.04, 0.0, 0.0);
 

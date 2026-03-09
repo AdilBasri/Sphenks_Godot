@@ -6,6 +6,9 @@
 
 # Imported assets (otomatik üretilen dosyalar)
 *.import
+*.exe
+*.pck
+*.zip
 
 # Export builds (oyunu .exe yapınca oluşan klasör)
 export/
