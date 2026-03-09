@@ -543,7 +543,7 @@ func saldiri_baslat():
 
 	# "BOSS KARAR VERİYOR..." UI mesajı
 	if arayuz and arayuz.has_method("bilgi_goster"):
-		arayuz.bilgi_goster("BOSS KARAR VERİYOR...", 1.5)
+		arayuz.bilgi_goster(DilYoneticisi.metin_al("boss_karar_veriyor"), 1.5)
 
 	await get_tree().create_timer(1.0).timeout
 
@@ -693,9 +693,9 @@ func _telegraph_baslat(tip: String):
 	# UI mesajı — saldırı tipi
 	var mesaj = ""
 	match tip:
-		"TAS": mesaj = "KAYA FIRLATIYOR!"
-		"ASIT": mesaj = "ASİT TÜKÜRÜYOR!"
-		"ZAR": mesaj = "ZAR ATIYOR!"
+		"TAS": mesaj = DilYoneticisi.metin_al("kaya_firlatiyor")
+		"ASIT": mesaj = DilYoneticisi.metin_al("asit_tukuruyor")
+		"ZAR": mesaj = DilYoneticisi.metin_al("zar_atiyor")
 
 	if arayuz and arayuz.has_method("bilgi_goster"):
 		arayuz.bilgi_goster(boss_adi + ": " + mesaj, 2.0)

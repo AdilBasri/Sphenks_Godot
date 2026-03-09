@@ -55,7 +55,7 @@ func satin_almaya_calis(fiyat: int, urun_verisi: ItemData) -> bool:
 		_hata_sesi_cal()
 		var arayuz = get_tree().get_first_node_in_group("Arayuz")
 		if arayuz and arayuz.has_method("bilgi_goster"):
-			arayuz.bilgi_goster("Yetersiz Bakiye!")
+			arayuz.bilgi_goster(DilYoneticisi.metin_al("yetersiz_bakiye"))
 		return false
 
 func red_efekti_oynat():
@@ -96,7 +96,7 @@ func _on_giris_sensoru_body_entered(body):
 				body.hasar_al(3)
 			var arayuz = get_tree().get_first_node_in_group("Arayuz")
 			if arayuz and arayuz.has_method("bilgi_goster"):
-				arayuz.bilgi_goster("💩 KAN bedeli ödendi: -3 HP! Ama her şey %50 indirimli!", 4.0)
+				arayuz.bilgi_goster(DilYoneticisi.metin_al("kan_bedeli_odendi"), 4.0)
 			print("💩 Kanlı İndirim: Oyuncu 3 HP kaybetti.")
 
 		# Kolu kaldır (Kamerayı bul)

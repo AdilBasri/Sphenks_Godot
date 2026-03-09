@@ -18,6 +18,19 @@ func _ready():
 		menu_butonu.pressed.connect(_on_menu_pressed)
 	else:
 		print("HATA: Menü Butonu bağlanmamış! Inspector'dan ata.")
+	
+	metinleri_guncelle()
+	DilYoneticisi.dil_degisti.connect(metinleri_guncelle)
+
+func metinleri_guncelle():
+	if tekrar_butonu:
+		tekrar_butonu.text = DilYoneticisi.metin_al("tekrar")
+	if menu_butonu:
+		menu_butonu.text = DilYoneticisi.metin_al("ana_menu")
+	
+	var baslik = find_child("Baslik", true, false)
+	if baslik and baslik is Label:
+		baslik.text = DilYoneticisi.metin_al("oyun_bitti")
 
 func _on_tekrar_pressed():
 	print("🔄 Tekrar Deneniyor... Veriler sıfırlanıyor.")

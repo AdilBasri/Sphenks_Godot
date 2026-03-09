@@ -65,7 +65,7 @@ extends StaticBody3D
 func interact(oyuncu):
 	get_parent().get_parent()._anubis_beslendi()
 func get_etkilesim_yazisi() -> String:
-	return "[E] Besle"
+	return DilYoneticisi.metin_al("besle")
 """
 	script.reload()
 	static_body.set_script(script)
@@ -119,13 +119,13 @@ extends StaticBody3D
 func interact(oyuncu):
 	get_parent().get_parent()._kagit_etkilesimi()
 func get_etkilesim_yazisi() -> String:
-	return "[E] Oku"
+	return DilYoneticisi.metin_al("oku")
 """
 	script.reload()
 	static_body.set_script(script)
 	
 	paper_label = Label3D.new()
-	paper_label.text = "Onu besleyenler onun bir\nparcasi olur, ben besledim\nve geldigim nokta bu.\n\nKac kurtar kendini!."
+	paper_label.text = DilYoneticisi.metin_al("depo_mektup")
 	paper_label.font = load("res://Captain Redemption.ttf")
 	paper_label.font_size = 48
 	paper_label.modulate = Color(0.1, 0.1, 0.1, 0.0)
@@ -147,7 +147,7 @@ extends StaticBody3D
 func interact(oyuncu):
 	get_parent().get_parent().get_parent()._kapi_etkilesimi()
 func get_etkilesim_yazisi() -> String:
-	return "[E] Kapidan Cik"
+	return DilYoneticisi.metin_al("kapidan_cik")
 """
 		script.reload()
 		kapi_body.set_script(script)
@@ -313,7 +313,7 @@ func _anubis_beslendi():
 				anim.play("talk")
 				
 		# İlk altyaziyi hazirla ve gorunur yap
-		altyazi_label.text = "Emeklerin icin cok yasa, simdi bizden birisin iste."
+		altyazi_label.text = DilYoneticisi.metin_al("depo_anubis_1")
 		var yazi_tw = create_tween()
 		yazi_tw.tween_property(altyazi_label, "modulate:a", 1.0, 0.5)
 	)
@@ -329,7 +329,7 @@ func _anubis_beslendi():
 		var yazi_tw = create_tween()
 		yazi_tw.tween_property(altyazi_label, "modulate:a", 0.0, 0.3)
 		yazi_tw.tween_callback(func():
-			altyazi_label.text = "Sphenks'e don ve benden haber bekle!"
+			altyazi_label.text = DilYoneticisi.metin_al("depo_anubis_2")
 		)
 		yazi_tw.tween_property(altyazi_label, "modulate:a", 1.0, 0.3)
 	)

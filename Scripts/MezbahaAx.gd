@@ -1,7 +1,7 @@
 extends Node
 
 @export var kilitli_mi: bool = false
-@export var etkilesim_yazisi: String = "[E] Baltayı Al"
+@export var etkilesim_yazisi: String = DilYoneticisi.metin_al("baltayi_al")
 var asilabilir_mi: bool = false
 
 func _ready():
@@ -16,7 +16,7 @@ func get_etkilesim_yazisi() -> String:
 		return ""
 		
 	if asilabilir_mi:
-		return "[E] Baltayı Yerine As"
+		return DilYoneticisi.metin_al("baltayi_as")
 		
 	if kilitli_mi:
 		return ""

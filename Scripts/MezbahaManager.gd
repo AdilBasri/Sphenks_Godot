@@ -52,13 +52,13 @@ func _create_ui():
 	label_main.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	label_main.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 	label_main.offset_top = 80
-	label_main.text = "Baltayı eline al"
+	label_main.text = DilYoneticisi.metin_al("baltayi_eline_al")
 	label_main.show()
 	gui_layer.add_child(label_main)
 
 func axe_picked_up():
 	axe_equipped = true
-	label_main.text = "Eti parçala"
+	label_main.text = DilYoneticisi.metin_al("eti_parcala")
 	var ls = label_main.label_settings
 	ls.font_color = Color(1, 0, 0, 1) # Red dynamic text
 	label_main.show()
@@ -109,7 +109,7 @@ func _process(delta):
 							u.queue_free()
 							break
 					
-					label_main.text = "Yükleniyor... (%d/4)" % mixer_loaded_pieces
+					label_main.text = DilYoneticisi.metin_al("yukleniyor") + " (%d/4)" % mixer_loaded_pieces
 					if mixer_loaded_pieces >= 4 and wheelbarrow_pieces == 0:
 						_start_mixer()
 			else:
@@ -178,7 +178,7 @@ func meat_hit(meat_node):
 	_splash_blood()
 	
 	if hit_count < 3:
-		label_main.text = "TEKRAR!"
+		label_main.text = DilYoneticisi.metin_al("tekrar")
 		var ls = label_main.label_settings
 		ls.font_size = 48
 		_shake_label(label_main, true)
@@ -190,7 +190,7 @@ func meat_hit(meat_node):
 			meat_node.collision_layer = 0
 			meat_node.collision_mask = 0
 		spawn_pieces(meat_node.global_position)
-		label_main.text = "Baltayı yerine as"
+		label_main.text = DilYoneticisi.metin_al("baltayi_as")
 		var ls = label_main.label_settings
 		ls.font_size = 28
 		ls.font_color = Color(1.0, 1.0, 0.0, 1.0) # Normal Yellow
@@ -281,9 +281,9 @@ func spawn_pieces(pos: Vector3):
 func piece_placed_in_wheelbarrow():
 	wheelbarrow_pieces += 1
 	if wheelbarrow_pieces < 4:
-		label_main.text = "Parçaları el arabasına\nyerleştir (%d/4)" % wheelbarrow_pieces
+		label_main.text = DilYoneticisi.metin_al("mezbaha_yerlestir") % wheelbarrow_pieces
 	else:
-		label_main.text = "El arabasını et\nparçalayıcısına sürükle"
+		label_main.text = DilYoneticisi.metin_al("mezbaha_surukle")
 		
 		# Unlock wheelbarrow
 		var ab = get_parent().get_node_or_null("El_arabasi")
@@ -294,12 +294,12 @@ func piece_placed_in_wheelbarrow():
 func piece_removed_from_wheelbarrow():
 	if wheelbarrow_pieces > 0:
 		wheelbarrow_pieces -= 1
-		label_main.text = "Parçaları el arabasına\nyerleştir (%d/4)" % wheelbarrow_pieces
+		label_main.text = DilYoneticisi.metin_al("mezbaha_yerlestir") % wheelbarrow_pieces
 
 func _start_mixer():
 	is_mixing = true
 	loading_zone_active = false
-	label_main.text = "Öğütülüyor..." # Changed from Karıştırılıyor...
+	label_main.text = DilYoneticisi.metin_al("ogutuluyor")
 	_shake_label(label_main, true)
 	
 	var sfx = AudioStreamPlayer3D.new()
@@ -381,20 +381,18 @@ func _finish_mixing(mixer: Node):
 			)
 	)
 
-func show_mixer_prompt():
-	if wheelbarrow_pieces >= 4 and not is_mixing:
-		if driving_wheelbarrow:
-			label_main.text = "Boşaltmak için el arabasını\nburada bırak [E]"
-		else:
-			label_main.text = "Parçaları yüklemek için\n[R] basılı tut"
-
 func axe_returned():
 	axe_equipped = false
-	label_main.text = "Parçaları el arabasına\nyerleştir (0/4)"
-	if wheelbarrow_pieces > 0:
-		label_main.text = "Parçaları el arabasına\nyerleştir (%d/4)" % wheelbarrow_pieces
+	label_main.text = DilYoneticisi.metin_al("mezbaha_yerlestir") % wheelbarrow_pieces
 		
 	if player and player.kamera:
 		var visual_axe = player.kamera.get_node_or_null("AxePivot")
 		if visual_axe:
 			visual_axe.queue_free()
+
+func show_mixer_prompt():
+	if wheelbarrow_pieces >= 4 and not is_mixing:
+		if driving_wheelbarrow:
+			label_main.text = DilYoneticisi.metin_al("mezbaha_bosalt")
+		else:
+			label_main.text = DilYoneticisi.metin_al("mezbaha_yukle")

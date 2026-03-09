@@ -11,15 +11,15 @@ var varsayilan_fov = 90.0
 var toplam_yolcu_sayisi = 7 # <-- Yolcu sayın
 var yok_edilen_yolcu_sayisi = 0
 
-var diyaloglar = [
-	"Bu biçimsiz insan kalabalığından sıkıldım artık...",
-	"Hepsi aynı tornadan çıkmış et yığınları.",
-	"Gördüklerini anlamayıp, inandıklarını görüyorlar.",
-	"İmkanım olsa şu lanet yerde bir dakika durmam.",
-	"Biçimsiz yüzler ve anlamsız sözler...",
-	"Bu düzenin düzensizliğinden yoruldum.",
-	"Bir süre ortadan kaybolsam kimsenin ruhu bile duymaz.",
-	"Eğer bir gün burayı terk etseydim acaba nereye giderdim?"
+var diyalog_anahtarlari = [
+	"intro_diyalog_1",
+	"intro_diyalog_2",
+	"intro_diyalog_3",
+	"intro_diyalog_4",
+	"intro_diyalog_5",
+	"intro_diyalog_6",
+	"intro_diyalog_7",
+	"intro_diyalog_8"
 ]
 
 func _ready():
@@ -54,7 +54,8 @@ func yolcuya_tiklandi(yolcu_node, yok_olacak_mi):
 	etkilesim_aktif = false 
 	
 	if altyazi_label:
-		altyazi_label.text = diyaloglar.pick_random()
+		var secili_anahtar = diyalog_anahtarlari.pick_random()
+		altyazi_label.text = DilYoneticisi.metin_al(secili_anahtar)
 	
 	if kamera:
 		var tween = create_tween()

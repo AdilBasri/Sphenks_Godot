@@ -206,9 +206,9 @@ func _anahtar_al(anahtar_node: Node3D):
 	# Oyuncuya bildirim
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
 	if anahtar_node.name == "chest_key" and arayuz:
-		arayuz.bilgi_goster("🗝️ Sandık Anahtarı alındı!", 2.5)
+		arayuz.bilgi_goster(DilYoneticisi.metin_al("sandik_anahtari_alindi"), 2.5)
 	elif anahtar_node.name == "door_key" and arayuz:
-		arayuz.bilgi_goster("🚪 Çıkış Anahtarı alındı!", 3.0)
+		arayuz.bilgi_goster(DilYoneticisi.metin_al("cikis_anahtari_alindi"), 3.0)
 
 # ─── E-TUŞU ETKİLEŞİM KONTROLÜ ────────────────────────────────────────────────
 func _etkilesim_kontrol():
@@ -229,7 +229,7 @@ func _etkilesim_kontrol():
 			if tmp != elde_tutulan_anahtar:
 				var mesafe_anahtar = oyuncu_node.global_position.distance_to(tmp.global_position)
 				if mesafe_anahtar <= 3.0:
-					if etkilesim_label: etkilesim_label.text = "(E) Anahtarı Al"
+					if etkilesim_label: etkilesim_label.text = DilYoneticisi.metin_al("anahtar_al")
 					if Input.is_action_just_pressed("etkilesim"):
 						_anahtar_al(tmp)
 				return
@@ -253,14 +253,14 @@ func _etkilesim_kontrol():
 			var kilitli = kapi_node.get("kilitli_mi")
 			if kilitli == true:
 				if elde_tutulan_anahtar and elde_tutulan_anahtar.name == "door_key":
-					if etkilesim_label: etkilesim_label.text = "(E) Kapıyı Aç"
+					if etkilesim_label: etkilesim_label.text = DilYoneticisi.metin_al("kapiyi_ac")
 					if Input.is_action_just_pressed("etkilesim"):
 						_kapiyi_kilit_ac(kapi_node)
 				else:
-					if etkilesim_label: etkilesim_label.text = "Kilitli - Kapı Anahtarı Lazım"
+					if etkilesim_label: etkilesim_label.text = DilYoneticisi.metin_al("kilitli_kapi_anahtari_lazim")
 			else:
 				# Kapı kilitli değil, normal açılır
-				if etkilesim_label: etkilesim_label.text = "(E) Kapıyı Aç"
+				if etkilesim_label: etkilesim_label.text = DilYoneticisi.metin_al("kapiyi_ac")
 				if Input.is_action_just_pressed("etkilesim"):
 					kapi_node.set("hedef_tipi", 1) # HedefTipi.SONRAKI_LEVEL
 					if kapi_node.has_method("kapiyi_ac"):
@@ -277,13 +277,13 @@ func _etkilesim_kontrol():
 		# Sandık SADECE chest_key elimizdeyken açılabilir
 		if elde_tutulan_anahtar and elde_tutulan_anahtar.name == "chest_key":
 			if etkilesim_label:
-				etkilesim_label.text = "(E) Sandığı Aç"
+				etkilesim_label.text = DilYoneticisi.metin_al("sandigi_ac")
 			if Input.is_action_just_pressed("etkilesim"):
 				sandik_ac(sandik_ana)
 		else:
 			if acilan_pozitif_sayisi < 2:
 				if etkilesim_label:
-					etkilesim_label.text = "Kilitli - Masadan Anahtarı Al"
+					etkilesim_label.text = DilYoneticisi.metin_al("kilitli_masadan_anahtar_al")
 		return
 
 func _kapiyi_kilit_ac(hedef_kapi):
@@ -418,7 +418,7 @@ func _chest_key_kir():
 		elde_tutulan_anahtar.queue_free()
 		elde_tutulan_anahtar = null
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
-	if arayuz: arayuz.bilgi_goster("💥 Sandık Anahtarı Kırıldı! Daha fazla sandık açılamaz.", 4.0)
+	if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("sandik_anahtari_kirildi"), 4.0)
 	print("💥 2 pozitif açıldı, sandık anahtarı kırıldı.")
 
 func _perk_ver(perk: Dictionary):
@@ -429,7 +429,7 @@ func _perk_ver(perk: Dictionary):
 		"kahin_gozu":
 			if GameManager:
 				GameManager.kahin_gozu_aktif = true
-			if arayuz: arayuz.bilgi_goster("👁️ Kahin'in Gözü: Boss'un sıradaki hamlesini göreceksin!", 4.0)
+			if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("kahin_gozu_bilgi"), 4.0)
 		"curuk_temel":
 			if GameManager:
 				GameManager.curuk_temel_aktif = true
@@ -437,15 +437,15 @@ func _perk_ver(perk: Dictionary):
 			if item_veri and GameManager and GameManager.envanter.size() < GameManager.max_totem_sayisi:
 				GameManager.envanter.append(item_veri)
 				GameManager.envanter_guncellendi.emit()
-			if arayuz: arayuz.bilgi_goster("🪄 Çürük Temel: Envanterinde! Grid'i temizler.", 4.0)
+			if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("curuk_temel_bilgi"), 4.0)
 		"discount":
 			if GameManager:
 				GameManager.kanli_indirim_aktif = true
-			if arayuz: arayuz.bilgi_goster("💀 Kanlı İndirim: Market %50 indirimli ama -3 HP!", 4.0)
+			if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("kanli_indirim_bilgi"), 4.0)
 		"bloody_nail":
 			if GameManager:
 				GameManager.kanli_civi_aktif = true
-			if arayuz: arayuz.bilgi_goster("🩸 Kanlı Çivi: Çapraz hareketler artık patlıyor!", 4.0)
+			if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("kanli_civi_bilgi"), 4.0)
 
 	pozitif_acildi_mi = true
 	_door_key_ac()
@@ -455,18 +455,18 @@ func _negatif_sonuc():
 	if oyuncu and oyuncu.has_method("hasar_al"):
 		oyuncu.hasar_al(3)
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
-	if arayuz: arayuz.bilgi_goster("💀 Boş sandık! -3 HP!", 2.5)
+	if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("bos_sandik_hasar"), 2.5)
 	print("💀 Negatif sandık. Oyuncu 3 HP kaybetti.")
 
 func _door_key_ac():
 	if not is_instance_valid(door_key_node): return
 	door_key_node.visible = true
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
-	if arayuz: arayuz.bilgi_goster("🗝️ Anahtar hazır! Artık çıkabilirsin.", 4.0)
+	if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("anahtar_hazir_cikis"), 4.0)
 
 func _wand_item_verisi_olustur() -> ItemData:
 	var item = ItemData.new()
-	item.esya_adi = "Çürük Temel"
+	item.esya_adi = DilYoneticisi.metin_al("curuk_temel_isim")
 	item.etki_id = "curuk_temel"
 	item.animasyon_tipi = "kirma"
 	item.fiyat = 0

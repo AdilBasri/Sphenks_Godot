@@ -7,8 +7,8 @@
 script = ExtResource("1_kd8ke")
 etki_id = "cloak"
 animasyon_tipi = ""
-esya_adi = "Pelerin"
-aciklama = "3 tur boyunca zar atma sekansını atlar."
+esya_adi = "cloak_isi"
+aciklama = "cloak_ac"
 fiyat = 1
 ikon = ExtResource("1_jen6w")
 metadata/_custom_type_script = "uid://drbl7e8h0wosy"

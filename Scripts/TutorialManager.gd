@@ -157,11 +157,9 @@ func _show_step(adim: int):
 	suanki_adim = adim
 	var beklenen = veri["beklenen_eylem"]
 	
-	# Mantar artık oyunun en başında verildiği için burada tekrar spawn etmeye gerek yok.
-	
-	lbl_baslik.text = veri["baslik"]
-	lbl_metin.text = veri["metin"]
-	lbl_ipucu.text = veri["ipucu"]
+	lbl_baslik.text = DilYoneticisi.metin_al("tut_baslik_" + str(adim))
+	lbl_metin.text = DilYoneticisi.metin_al("tut_metin_" + str(adim))
+	lbl_ipucu.text = DilYoneticisi.metin_al("tut_ipucu_" + str(adim))
 	
 	visible = true
 	var color_rect = get_node_or_null("ColorRect")
@@ -221,7 +219,7 @@ func eylemi_dogrula(gerceklesecek_eylem: String):
 			_show_step(suanki_adim + 1)
 		else:
 			# Aksiyon temelli olanlarda UI 1 saniye yeşil kalsın ve sonra geçsin
-			lbl_baslik.text = "GÖREV TAMAMLANDI!"
+			lbl_baslik.text = DilYoneticisi.metin_al("gorev_tamamlandi")
 			lbl_baslik.modulate = Color.GREEN
 			
 			var t = create_tween()

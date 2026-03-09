@@ -58,4 +58,4 @@ func _process(_delta):
 				if m.driving_wheelbarrow == true:
 					m.label_main.text = "" 
 				else:
-					m.label_main.text = "El arabasını et\nparçalayıcısına sürükle"
+					m.label_main.text = DilYoneticisi.metin_al("mezbaha_surukle")

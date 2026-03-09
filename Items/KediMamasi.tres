@@ -6,8 +6,8 @@
 [resource]
 script = ExtResource("1_a8soc")
 etki_id = "kedimamasi"
-esya_adi = "Kedi Maması"
-aciklama = "Oyunu kaydetmek için kediyi besle!"
+esya_adi = "mama_isi"
+aciklama = "mama_ac"
 fiyat = 6
 ikon = ExtResource("1_ekalu")
 metadata/_custom_type_script = "uid://drbl7e8h0wosy"

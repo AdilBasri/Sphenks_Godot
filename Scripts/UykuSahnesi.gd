@@ -14,7 +14,7 @@ class ChestInteract extends StaticBody3D:
 	
 	func get_etkilesim_yazisi() -> String:
 		if ana_sahne and ana_sahne.mesafe_kapanacak and not ana_sahne.kapanis_basladi:
-			return "[E] Sandığı Aç"
+			return DilYoneticisi.metin_al("sandigi_ac")
 		return ""
 
 	func interact(oyuncu_node):
@@ -239,13 +239,13 @@ func _bulmacayi_baslat():
 	)
 
 func _altyazilari_oynat(lbl, d):
-	lbl.text = "S*ktir, s*ktir, s*ktir!"
+	lbl.text = DilYoneticisi.metin_al("uyku_diyalog_1")
 	await get_tree().create_timer(1.2).timeout
 	if not is_instance_valid(lbl): return
-	lbl.text = "Uyanmam lazım!\nBu gerçek olamaz!"
+	lbl.text = DilYoneticisi.metin_al("uyku_diyalog_2")
 	await get_tree().create_timer(4.5 - 1.2).timeout
 	if not is_instance_valid(lbl): return
-	lbl.text = "Evet! Parmaklarım...\nEğer rüyadaysam onları sayamamam gerekir!"
+	lbl.text = DilYoneticisi.metin_al("uyku_diyalog_3")
 
 func _elleri_goster():
 	if not is_instance_valid(bulmaca_layer): return
@@ -303,7 +303,7 @@ func _elleri_goster():
 	if not is_instance_valid(bulmaca_layer): return
 	
 	var info_lbl = Label.new()
-	info_lbl.text = "Parmaklarını Say..."
+	info_lbl.text = DilYoneticisi.metin_al("uyku_parmak_say")
 	info_lbl.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	info_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	info_lbl.add_theme_font_size_override("font_size", 24)
@@ -322,7 +322,7 @@ func _elleri_goster():
 	input.offset_right = 80
 	input.offset_top = 100
 	input.offset_bottom = 150
-	input.placeholder_text = "Cevap?"
+	input.placeholder_text = DilYoneticisi.metin_al("uyku_cevap")
 	input.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	input.add_theme_font_size_override("font_size", 24)
 	
@@ -371,7 +371,7 @@ func _elleri_goster():
 			err_p.play()
 			err_p.finished.connect(err_p.queue_free)
 			
-			info_lbl.text = "Yanlış! Tekrar Say..."
+			info_lbl.text = DilYoneticisi.metin_al("uyku_yanlis")
 			input.call_deferred("clear")
 			input.call_deferred("grab_focus")
 	)

@@ -446,14 +446,14 @@ func _gelismis_puan_hesapla(satir, bloklar, mantar_ekstra = 0.0):
 		GameManager.emit_signal("altin_guncellendi", GameManager.toplam_altin)
 	
 	# Arayüzde Gösterim
-	var mesaj = "KOMBO x" + str(kombo_carpani)
+	var mesaj = DilYoneticisi.metin_al("kombo") % kombo_carpani
 	if kazanilan_altin > 0:
-		mesaj += " (+" + str(kazanilan_altin) + " GOLD)"
+		mesaj += DilYoneticisi.metin_al("altin_kazandin_mesaj") % kazanilan_altin
 		
 	if GameManager.puan_carpani > 1.0:
-		mesaj += " (GÜÇ x1.3)" # Oyuncu iksirin çalıştığını görsün
+		mesaj += DilYoneticisi.metin_al("guc_iksiri_duv") # Oyuncu iksirin çalıştığını görsün
 	if mantar_ekstra > 0.0:
-		mesaj += " (RENK BONUSU)"
+		mesaj += DilYoneticisi.metin_al("renk_bonusu")
 		
 	if arayuz: arayuz.puan_ekle(int(p), mesaj)
 

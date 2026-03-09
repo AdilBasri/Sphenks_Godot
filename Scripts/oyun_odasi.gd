@@ -199,7 +199,7 @@ func _on_boss_oldu():
 	
 	# Arayüze mesaj gönder
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
-	if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss") + "\nBlokların bitene kadar kazanmaya devam et!", 5.0)
+	if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss") + DilYoneticisi.metin_al("bloklar_bitene_kadar"), 5.0)
 
 func _kapiyi_ac():
 	# KapiSistemi arayalım (MezarOdasi'nin komşusu)
@@ -375,13 +375,12 @@ func _kahin_gozu_ikon_goster():
 
 	var ikon_metni = ""
 	match sonraki:
-		"TAS":  ikon_metni = "🪨 Sıra: KAYA"
-		"ASIT": ikon_metni = "🧪 Sıra: ASİT"
-		"ZAR":  ikon_metni = "🎲 Sıra: ZAR"
+		"TAS":  ikon_metni = DilYoneticisi.metin_al("sira_kaya")
+		"ASIT": ikon_metni = DilYoneticisi.metin_al("sira_asit")
+		"ZAR":  ikon_metni = DilYoneticisi.metin_al("sira_zar")
 
 	# Arayüz grubuna bilgi göster (var olan bilgi_goster mekanizması)
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
 	if arayuz and arayuz.has_method("bilgi_goster"):
-		# Ayrı ikon etiketi oluştur (CanvasLayer üzerinde küçük, kalcı birkaç sn)
-		arayuz.bilgi_goster("👁️ KAHİN GÖZÜ \u2022 " + ikon_metni, 5.0)
+		arayuz.bilgi_goster(DilYoneticisi.metin_al("kahin_gozu_baslik") + ikon_metni, 5.0)
 	print("👁️ Kahin Gözü gösterdi: ", ikon_metni)

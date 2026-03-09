@@ -147,7 +147,7 @@ func _on_static_body_3d_input_event(_camera, event, _position, _normal, _shape_i
 			print("KAPI KİLİTLİ, TIKLAYARAK AÇILMAZ.")
 			var arayuz = get_tree().get_first_node_in_group("Arayuz")
 			if arayuz and get_tree().current_scene.name == "Sandik_Odasi":
-				arayuz.bilgi_goster("Kilitli (Çıkış Anahtarı Lazım)", 2.0)
+				arayuz.bilgi_goster(DilYoneticisi.metin_al("anahtar_yok"), 2.0)
 			return
 			
 		kapiyi_ac()

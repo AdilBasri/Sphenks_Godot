@@ -19,7 +19,7 @@ func _ready():
 # SAYACI GÜNCELLEME VE "POP" ANİMASYONU
 func guncelle(mevcut: int, maksimum: int):
 	# 1. Metni değiştir
-	sayac_label.text = "Totem: " + str(mevcut) + "/" + str(maksimum)
+	sayac_label.text = DilYoneticisi.metin_al("totem_sayisi") % [mevcut, maksimum]
 	
 	# 2. Pivotu tekrar ayarla (Metin boyutu değişince kaymasın diye)
 	await get_tree().process_frame # Bir kare bekle ki text güncellensin

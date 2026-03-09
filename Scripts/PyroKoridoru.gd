@@ -68,17 +68,14 @@ func dusmanlari_baslat():
 		await get_tree().create_timer(2.0).timeout
 
 func _arayuzu_hazirla():
-	# Çeviriler
-	var is_en = DilYoneticisi.secili_dil == "en"
-	
 	var katman = find_child("KatmanLabel", true, false)
-	if katman: katman.text = ("LAYER " if is_en else "KATMAN ") + str(GameManager.suanki_seviye)
+	if katman: katman.text = DilYoneticisi.metin_al("katman_yazisi") % GameManager.suanki_seviye
 	
 	var mermi = find_child("MermiLabel", true, false)
-	if mermi: mermi.text = "AMMO:" if is_en else "MERMİ:"
+	if mermi: mermi.text = DilYoneticisi.metin_al("mermi_sayisi").split("%d")[0].strip_edges()
 		
 	var hasar = find_child("HasarYazisi", true, false)
-	if hasar: hasar.text = "DAMAGE: 0" if is_en else "HASAR: 0"
+	if hasar: hasar.text = DilYoneticisi.metin_al("hasar") + "0"
 	
 	# Mide UI Görünürlüğü (Bazen kapalı başlıyor)
 	var mide = find_child("MideKatmani", true, false)

@@ -522,14 +522,14 @@ func esya_kullan():
 			if GameManager:
 				GameManager.tek_zar_modu = true
 				var arayuz = _get_arayuz()
-				if arayuz: arayuz.bilgi_goster("Zar Kırıcı: Düşman Tek Zar Atacak!")
+				if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("zar_kirici_aktif"))
 				basarili = true
 
 		"cloak": 
 			if GameManager:
 				GameManager.pelerin_aktif_et()
 				var arayuz = _get_arayuz()
-				if arayuz: arayuz.bilgi_goster("Pelerin Aktif: 3 Tur Koruma!")
+				if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("pelerin_aktif_bilgi"))
 				basarili = true
 
 		"kedimamasi":
@@ -549,12 +549,12 @@ func esya_kullan():
 					GameManager.suanki_seviye = aktif_seviye
 					
 					var arayuz = _get_arayuz()
-					if arayuz: arayuz.bilgi_goster("Kedi Beslendi! Oyun Kaydedildi.")
+					if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("kedi_beslendi"))
 					print("😺 Kedi beslendi ve oyun kaydedildi!")
 					basarili = true
 			else:
 				var arayuz = _get_arayuz()
-				if arayuz: arayuz.bilgi_goster("Bunu sadece Kedi yiyebilir!")
+				if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("sadece_kedi_yer"))
 				print("❌ Bu bir kedi değil!")
 
 		"canlan": 
@@ -572,7 +572,7 @@ func esya_kullan():
 				var arayuz = _get_arayuz()
 				if arayuz: 
 					# Ekranda 3 saniye kalacak net bir mesaj
-					arayuz.bilgi_goster("🧪 GÜÇ İKSİRİ İÇİLDİ! (Puanlar x1.3)", 3.0)
+					arayuz.bilgi_goster(DilYoneticisi.metin_al("guc_iksiri_aktif"), 3.0)
 				
 				print("💪 Güç İksiri Aktif: Çarpan 1.3 oldu.")
 				basarili = true
@@ -582,7 +582,7 @@ func esya_kullan():
 				
 				var arayuz = _get_arayuz()
 				if arayuz: 
-					arayuz.bilgi_goster("😇 REVIVE AKTİF! (Ölürsen Canlanırsın)", 3.0)
+					arayuz.bilgi_goster(DilYoneticisi.metin_al("revive_aktif_bilgi"), 3.0)
 					
 				print("😇 Revive İksiri İçildi: Ölümden koruyacak.")
 				basarili = true
@@ -592,7 +592,7 @@ func esya_kullan():
 				
 				var arayuz = _get_arayuz()
 				if arayuz: 
-					arayuz.bilgi_goster("🔦 FENER AÇILDI! (Yarasalar Dondu)", 3.0)
+					arayuz.bilgi_goster(DilYoneticisi.metin_al("yarasalar_dondu"), 3.0)
 					
 				print("🔦 Fener Aktif: Düşmanlar sabitlendi.")
 				basarili = true
@@ -602,7 +602,7 @@ func esya_kullan():
 				
 				var arayuz = _get_arayuz()
 				if arayuz: 
-					arayuz.bilgi_goster("⏳ ZAMAN YAVAŞLADI! (Düşmanlar %50 Yavaş)", 3.0)
+					arayuz.bilgi_goster(DilYoneticisi.metin_al("kumsaati_aktif"), 3.0)
 					
 				print("⏳ Zaman Bükülmesi Aktif: Düşmanlar yavaşladı.")
 				basarili = true
@@ -1019,13 +1019,13 @@ func check_ui_text():
 	etkilesim_label.text = ""
 	
 	if tutulan_nesne:
-		etkilesim_label.text = "[Sol Tık] Bırak"
+		etkilesim_label.text = DilYoneticisi.metin_al("birak")
 		return
 		
 	# Arabayı sürüyorsak her şeyden bağımsız olarak E yazısını göster
 	var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
 	if manager and manager.get("driving_wheelbarrow") == true:
-		etkilesim_label.text = "[E] Sürmeyi Bırak"
+		etkilesim_label.text = DilYoneticisi.metin_al("surmeyi_birak")
 		return
 	
 	if perk_isim_label:
@@ -1070,23 +1070,23 @@ func check_ui_text():
 				var p_acik = ""
 				match p_id:
 					"kahin_gozu":
-						p_isim = "Kahin'in Gözü"
-						p_acik = "Boss'un bir sonraki turda ne yapacağını\nturun başında gösterir."
+						p_isim = DilYoneticisi.metin_al("kahin_gozu_isim")
+						p_acik = DilYoneticisi.metin_al("kahin_gozu_aciklama")
 					"curuk_temel":
-						p_isim = "Çürük Temel"
-						p_acik = "Tek seferlik panik butonu, masadaki tüm\nasitleri ve taşları temizler."
+						p_isim = DilYoneticisi.metin_al("curuk_temel_isim")
+						p_acik = DilYoneticisi.metin_al("curuk_temel_aciklama")
 					"discount":
-						p_isim = "Kanlı İndirim"
-						p_acik = "Marketteki her şey %50 indirimli ama\nmarkete girdiğin an 3 HP kaybedersin."
+						p_isim = DilYoneticisi.metin_al("kanli_indirim_isim")
+						p_acik = DilYoneticisi.metin_al("kanli_indirim_aciklama")
 					"bloody_nail":
-						p_isim = "Kanlı Çivi"
-						p_acik = "Bu özellik masada çapraz\neşleştirmeyi de aktif kılar."
+						p_isim = DilYoneticisi.metin_al("kanli_civi_isim")
+						p_acik = DilYoneticisi.metin_al("kanli_civi_aciklama")
 				
 				perk_isim_label.text = p_isim
 				perk_aciklama_label.text = p_acik
 				
 	if eldeki_kedi:
-		etkilesim_label.text = "[SOL TIK] Kediyi Bırak"
+		etkilesim_label.text = DilYoneticisi.metin_al("kedi_birak")
 		return
 	
 	var nesne = null
@@ -1106,17 +1106,22 @@ func check_ui_text():
 	var market_modu = nesne.get("market_modu")
 	
 	if veri:
+		if perk_isim_label:
+			perk_isim_label.text = DilYoneticisi.metin_al(veri.esya_adi)
+		if perk_aciklama_label:
+			perk_aciklama_label.text = DilYoneticisi.metin_al(veri.aciklama)
+			
 		if market_modu == true:
-			etkilesim_label.text = DilYoneticisi.metin_al("satin_al") % [veri.esya_adi, veri.fiyat]
+			etkilesim_label.text = DilYoneticisi.metin_al("satin_al") % [DilYoneticisi.metin_al(veri.esya_adi), veri.fiyat]
 		else:
-			etkilesim_label.text = DilYoneticisi.metin_al("al") % [veri.esya_adi]
+			etkilesim_label.text = DilYoneticisi.metin_al("al") % [DilYoneticisi.metin_al(veri.esya_adi)]
 		return
 
 	# 2. KEDİ KONTROLÜ
 	if nesne.is_in_group("Kedi") or (nesne.get_parent() and nesne.get_parent().is_in_group("Kedi")):
 		var dist = kamera.global_position.distance_to(raycast.get_collision_point())
 		if dist <= 2.5:
-			etkilesim_label.text = "[SOL TIK] Kediyi Eline Al"
+			etkilesim_label.text = DilYoneticisi.metin_al("kedi_al")
 		return
 
 	# 3. INTERACT METODU KONTROLÜ (Gelişmiş Arama)
@@ -1152,9 +1157,9 @@ func check_ui_text():
 	if nesne.is_in_group("CampfireKart"):
 		var ad = nesne.get_parent().name
 		if "Gold" in ad:
-			etkilesim_label.text = "[E] Altın Kart"
+			etkilesim_label.text = DilYoneticisi.metin_al("altin_kart")
 		else:
-			etkilesim_label.text = "[E] Uyku Kartı"
+			etkilesim_label.text = DilYoneticisi.metin_al("uyku_karti")
 		return
 		
 	if nesne is RigidBody3D and not tutulan_nesne:
@@ -1163,7 +1168,7 @@ func check_ui_text():
 			if manager:
 				if manager.get("axe_equipped") == true or manager.get("driving_wheelbarrow") == true:
 					return
-			etkilesim_label.text = "[SOL TIK] Tut"
+			etkilesim_label.text = DilYoneticisi.metin_al("tut")
 			return
 		etkilesim_label.text = DilYoneticisi.metin_al("tut")
 

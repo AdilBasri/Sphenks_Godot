@@ -11,10 +11,10 @@ extends CanvasLayer
 var aktif_kedi = null
 
 var diyaloglar = [
-	{ "id": 0, "text": "[shake rate=20 level=10]Seni aptal insan![/shake] Buraya gelmemeliydin.", "choices": ["Neden?", "Seni ilgilendirmez."] },
-	{ "id": 1, "text": "Sayamadığım kadar çok yıldır bu tünellerde iğrenç yaratıklar arasında geziyorum...", "choices": ["Devam Et"] },
-	{ "id": 2, "text": "Merak etme, firavunun hazinesi için buradasın değil mi? Hehe...", "choices": ["Öyle bir şey mi var?", "Elbette!"] },
-	{ "id": 3, "text": "Para benim için çöp! Ama şanslısın, BANA sahipsin. Beni besle, ben de seni yaşatayım.", "choices": ["Tamam (Eğitimi Başlat)"] }
+	{ "id": 0, "text": DilYoneticisi.metin_al("kedi_diyalog_0"), "choices": [DilYoneticisi.metin_al("kedi_secim_0_1"), DilYoneticisi.metin_al("kedi_secim_0_2")] },
+	{ "id": 1, "text": DilYoneticisi.metin_al("kedi_diyalog_1"), "choices": [DilYoneticisi.metin_al("kedi_secim_1")] },
+	{ "id": 2, "text": DilYoneticisi.metin_al("kedi_diyalog_2"), "choices": [DilYoneticisi.metin_al("kedi_secim_2_1"), DilYoneticisi.metin_al("kedi_secim_2_2")] },
+	{ "id": 3, "text": DilYoneticisi.metin_al("kedi_diyalog_3"), "choices": [DilYoneticisi.metin_al("kedi_secim_3")] }
 ]
 
 var su_anki_adim = 0

@@ -6,8 +6,8 @@
 [resource]
 script = ExtResource("1_he5pv")
 etki_id = "revive"
-esya_adi = "Canlandırıcı İçecek"
-aciklama = "Son anda ölümden kurtarır."
+esya_adi = "revive_isi"
+aciklama = "revive_ac"
 fiyat = 20
 ikon = ExtResource("1_p723w")
 metadata/_custom_type_script = "uid://drbl7e8h0wosy"

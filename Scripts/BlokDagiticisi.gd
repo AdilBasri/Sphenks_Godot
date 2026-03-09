@@ -240,7 +240,7 @@ func _sahne_bitis_animasyonu() -> void:
 
 func _oyun_kaybedildi(arayuz_ref) -> void:
 	if arayuz_ref.has_method("puan_ekle"):
-		arayuz_ref.puan_ekle(0, "YETERSİZ PUAN - KAYBETTİN")
+		arayuz_ref.puan_ekle(0, DilYoneticisi.metin_al("yetersiz_puan"))
 
 func spawn_bloklar(adet: int) -> void:
 	print(">>> Yaratilacak Blok Adedi: ", adet)
@@ -402,7 +402,7 @@ func yer_yok_kontrolu_yap() -> void:
 		else:
 			# Boss ölmediyse ve yer kalmadıysa kaybetme
 			if arayuz and arayuz.has_method("puan_ekle"):
-				arayuz.puan_ekle(0, "MASADA YER KALMADI - KAYBETTİN")
+				arayuz.puan_ekle(0, DilYoneticisi.metin_al("yer_kalmadi"))
 			
 		var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
 		if oyuncu:

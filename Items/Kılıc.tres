@@ -7,8 +7,8 @@
 script = ExtResource("1_50lhf")
 etki_id = "kilic"
 animasyon_tipi = "kirma"
-esya_adi = "Kılıç"
-aciklama = "Seçilen TEK BİR bloku paramparça eder."
+esya_adi = "kilic_isi"
+aciklama = "kilic_ac"
 fiyat = 8
 ikon = ExtResource("1_vduey")
 metadata/_custom_type_script = "uid://drbl7e8h0wosy"

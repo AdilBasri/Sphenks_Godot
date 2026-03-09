@@ -61,6 +61,9 @@ func metinleri_guncelle():
 	baslik_ayarlar.text = DilYoneticisi.metin_al("ayarlar")
 	lbl_dil.text = DilYoneticisi.metin_al("dil")
 	lbl_coz.text = DilYoneticisi.metin_al("cozunurluk")
+	if baslik_duraklatildi:
+		baslik_duraklatildi.text = DilYoneticisi.metin_al("duraklatildi")
+	
 	btn_tam_ekran.text = DilYoneticisi.metin_al("tam_ekran")
 	
 	# Kontrol tablosunu guncelle
