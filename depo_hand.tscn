@@ -13,6 +13,7 @@ transform = Transform3D(0.07999999, 0, 0, 0, 0.08, 0, 0, 0, 0.08, 0.45258677, 0.
 [node name="CustomFlashlight2D" type="Sprite3D" parent="."]
 transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0.25, -0.2, -0.4)
 cast_shadow = 0
+no_depth_test = true
 shading_mode = 0
 texture = ExtResource("5_fener")
 

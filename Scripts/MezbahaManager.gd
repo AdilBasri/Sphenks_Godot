@@ -78,6 +78,7 @@ func axe_picked_up():
 		
 		var visual_axe = Sprite3D.new()
 		visual_axe.texture = preload("res://Assets/ax_1.png")
+		visual_axe.no_depth_test = true
 		pivot.add_child(visual_axe)
 		
 		visual_axe.position = Vector3(0.0, 0.2, 0.0) 

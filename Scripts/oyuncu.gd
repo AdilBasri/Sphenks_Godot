@@ -674,6 +674,10 @@ func esyayi_ele_al(urun_node):
 	eldeki_ozel_esya.reparent(tutma_noktasi)
 	eldeki_ozel_esya.scale = Vector3.ONE 
 	
+	for child in eldeki_ozel_esya.get_children():
+		if child is Sprite3D:
+			child.no_depth_test = true
+	
 	active_tween = create_tween()
 	active_tween.tween_property(eldeki_ozel_esya, "position", Vector3(0.5, -0.5, 0.5), 0.3).set_trans(Tween.TRANS_BACK)
 	active_tween.tween_property(eldeki_ozel_esya, "rotation", Vector3(0, 0, 0), 0.3)
@@ -686,6 +690,10 @@ func esya_birak():
 	if eldeki_ozel_esya is RigidBody3D:
 		eldeki_ozel_esya.freeze = false
 		eldeki_ozel_esya.collision_layer = 1
+		
+	for child in eldeki_ozel_esya.get_children():
+		if child is Sprite3D:
+			child.no_depth_test = false
 	
 	eldeki_ozel_esya.reparent(get_tree().current_scene)
 	eldeki_ozel_esya.apply_impulse(Vector3(0, 2, 0), Vector3.ZERO)
