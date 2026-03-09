@@ -13,6 +13,7 @@ var paper_orijinal_transform: Transform3D
 var paper_label: Label3D
 var paper_glow_timer: float = 0.0
 var paper_glow_artiyor: bool = true
+var paper_tween: Tween # Animasyonlarin cakismemesi icin
 
 # The Choice
 var secim_yapildi_mi: bool = false
@@ -100,6 +101,7 @@ func _kagit_kurulumu():
 	isik.light_color = Color(1.0, 0.9, 0.7) 
 	isik.light_energy = 0.5
 	isik.omni_range = 2.0
+	isik.position = Vector3(0, 0.7, -0.5) 
 	paper.add_child(isik)
 	
 	var static_body = StaticBody3D.new()
@@ -128,7 +130,7 @@ func get_etkilesim_yazisi() -> String:
 	paper_label.font_size = 48
 	paper_label.modulate = Color(0.1, 0.1, 0.1, 0.0)
 	paper_label.outline_size = 0
-	paper_label.pixel_size = 0.02 # Yaziyi 4 kat buyuttuk
+	paper_label.pixel_size = 0.032 # Yaziyi daha da buyuttuk
 	paper_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED 
 	paper_label.no_depth_test = true 
 	paper.add_child(paper_label)
@@ -165,31 +167,42 @@ func _kagit_etkilesimi():
 	oyuncu.mouse_serbest_modu = false 
 	oyuncu.set_physics_process(!kagitt_okunuyor_mu) 
 	
-	var tween = create_tween()
-	tween.set_parallel(true)
+	if paper_tween:
+		paper_tween.kill()
+	paper_tween = create_tween()
+	paper_tween.set_parallel(true)
 	
 	if kagitt_okunuyor_mu:
 		var hedef_transform = kamera.global_transform
-		hedef_transform.origin += hedef_transform.basis.z * -1.0 
+		hedef_transform.origin += hedef_transform.basis.z * -1.8 
 		hedef_transform.basis = kamera.global_transform.basis
 		hedef_transform.basis = hedef_transform.basis.rotated(hedef_transform.basis.x, deg_to_rad(90))
 		
-		# kagida cevirirken kendi original scale'ini eski haline cevirdik
-		var new_scale = paper.scale * 2.0
+		# kagida cevirirken her zaman orijinal scale'i (0.02) referans alarak buyutuyoruz (Spam hatasini onler)
+		var base_scale = paper_orijinal_transform.basis.get_scale()
+		var new_scale = base_scale * 6.0 # Okunabilirlik icin 3.5'ten 6.0'a cikarildi
 		
-		tween.tween_property(paper, "global_transform", hedef_transform, 0.5).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-		tween.tween_property(paper, "scale", new_scale, 0.5)
-		tween.tween_property(paper_label, "modulate:a", 1.0, 0.5).set_delay(0.2)
+		paper_tween.tween_property(paper, "global_transform", hedef_transform, 0.5).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+		paper_tween.tween_property(paper, "scale", new_scale, 0.5)
+		paper_tween.tween_property(paper_label, "modulate:a", 1.0, 0.5).set_delay(0.2)
 		
 		var isik = paper.get_node_or_null("GlowLight")
-		if isik: tween.tween_property(isik, "light_energy", 0.4, 0.3)
+		if isik: 
+			isik.omni_range = 10.0
+			# Mektup ile oyuncu arasina (kameraya dogru) cekiyoruz.
+			# Mektup rotasyonu nedeniyle Z-ekseni ters dondugu icin negatif degerle oyuncuya yaklastiriyoruz.
+			paper_tween.tween_property(isik, "position", Vector3(0, 2.0, -2.5), 0.3) 
+			paper_tween.tween_property(isik, "light_energy", 3.0, 0.3) 
 	else:
-		tween.tween_property(paper, "global_transform", paper_orijinal_transform, 0.5).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-		tween.tween_property(paper, "scale", Vector3(0.02, 0.02, 0.02), 0.5) 
-		tween.tween_property(paper_label, "modulate:a", 0.0, 0.2)
+		paper_tween.tween_property(paper, "global_transform", paper_orijinal_transform, 0.5).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+		paper_tween.tween_property(paper, "scale", paper_orijinal_transform.basis.get_scale(), 0.5) 
+		paper_tween.tween_property(paper_label, "modulate:a", 0.0, 0.2)
 		
 		var isik = paper.get_node_or_null("GlowLight")
-		if isik: tween.tween_property(isik, "light_energy", 0.5, 0.3)
+		if isik: 
+			isik.omni_range = 2.0
+			paper_tween.tween_property(isik, "position", Vector3(0, 0.5, -0.5), 0.3)
+			paper_tween.tween_property(isik, "light_energy", 0.5, 0.3)
 		
 		if not kagit_okundu_mu:
 			kagit_okundu_mu = true

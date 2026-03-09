@@ -1,24 +1,23 @@
-[gd_scene load_steps=30 format=3 uid="uid://dpavffiqg5scc"]
+[gd_scene load_steps=30 format=3 uid="uid://dy3ilyhs6t0sa"]
 
 [ext_resource type="PackedScene" uid="uid://dh5w3gifjmsp4" path="res://depo_cliff/scene.gltf" id="1_5pl20"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="2_xhdv7"]
-[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="3_tj17k"]
-[ext_resource type="Texture2D" uid="uid://ncorow4carpw" path="res://Assets/Images/çerçeve_bar.png" id="4_tgb18"]
-[ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://Assets/Images/iç_bar.png" id="5_qduyw"]
-[ext_resource type="Texture2D" uid="uid://b5k4ffrdw2m3u" path="res://Assets/carpi.png" id="6_5b14w"]
+[ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="3_tj17k"]
+[ext_resource type="Texture2D" uid="uid://dm3cprrc1lljc" path="res://Assets/Images/çerçeve_bar.png" id="4_tgb18"]
+[ext_resource type="Texture2D" uid="uid://bg20iuynejlup" path="res://Assets/Images/iç_bar.png" id="5_qduyw"]
+[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="6_5b14w"]
 [ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="7_f21yi"]
 [ext_resource type="PackedScene" uid="uid://b0br8qhx17fq3" path="res://depo_hand.tscn" id="8_y265j"]
-[ext_resource type="Script" uid="uid://cjn3f6j05p6of" path="res://Scripts/DepoTavan.gd" id="9_tavan"]
-[ext_resource type="Script" uid="uid://btp8umnmx0jnq" path="res://Scripts/DepoZemin.gd" id="10_zemin"]
+[ext_resource type="Script" path="res://Scripts/DepoTavan.gd" id="9_tavan"]
+[ext_resource type="Script" path="res://Scripts/DepoZemin.gd" id="10_zemin"]
 [ext_resource type="PackedScene" uid="uid://bcgr0lpnjw7pf" path="res://depo_dog/scene.gltf" id="11_5b14w"]
-[ext_resource type="Script" uid="uid://c20ci2totrbkl" path="res://Scripts/DepoDuvar.gd" id="11_duvar"]
-[ext_resource type="Animation" uid="uid://dalqd4owr0rsl" path="res://barking.res" id="12_f21yi"]
+[ext_resource type="Script" path="res://Scripts/DepoDuvar.gd" id="11_duvar"]
+[ext_resource type="Animation" path="res://barking.res" id="12_f21yi"]
 [ext_resource type="PackedScene" uid="uid://c0g6rd2ejnmf" path="res://depo_skelton/scene.gltf" id="16_6bm3k"]
-[ext_resource type="PackedScene" uid="uid://bqqrhsklplfjo" path="res://talk.tscn" id="17_j7yni"]
+[ext_resource type="PackedScene" path="res://talk.tscn" id="17_j7yni"]
 [ext_resource type="PackedScene" uid="uid://bq1l76ying2yg" path="res://depo_paper/scene.gltf" id="18_lu6b8"]
 [ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Scenes/Items/Kapi.tscn" id="19_lu6b8"]
 [ext_resource type="Script" uid="uid://bqy48o5uvrvto" path="res://Scripts/DepoRoot.gd" id="99_deporoot"]
-[ext_resource type="Shader" uid="uid://qeoevmq3pnei" path="res://Shaders/DepoAmbians.gdshader" id="100_shader"]
 
 [sub_resource type="Environment" id="Environment_fog"]
 background_mode = 1
@@ -77,8 +76,39 @@ shader_parameter/scanline_intensity = 0.1
 shader_parameter/scanline_count = 300.0
 shader_parameter/dither_amount = 0.025
 
+[sub_resource type="Shader" id="Shader_j7yni"]
+code = "shader_type canvas_item;
+
+uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_nearest;
+
+uniform float vignette_intensity : hint_range(0.0, 2.0) = 0.8;
+uniform float vignette_opacity : hint_range(0.0, 1.0) = 0.8;
+uniform vec4 cold_tint : source_color = vec4(0.05, 0.15, 0.3, 1.0);
+uniform float darkness_multiplier : hint_range(0.0, 5.0) = 1.2;
+
+void fragment() {
+	vec4 c = texture(screen_texture, SCREEN_UV);
+	
+	// Vignette (Kenar karartması)
+	float dist = distance(SCREEN_UV, vec2(0.5));
+	float vignette = smoothstep(0.9, 1.0 - vignette_intensity, 1.0 - dist);
+	
+	// Karartma formülü: Rengi kendisiyle ve bi çarpanla çarparak mid-tonları eziyoruz
+	// Parlak yerler (fener ışığı = 1.0) hala yüksek kalır.
+	vec3 out_color = pow(max(c.rgb, vec3(0.0)), vec3(1.4)) * darkness_multiplier;
+	
+	// Soğuk metalik tint (mavi)
+	out_color = mix(out_color, out_color * cold_tint.rgb * 5.0, 0.3);
+	
+	// Vignette uygula
+	out_color = mix(out_color, out_color * vignette, vignette_opacity);
+	
+	COLOR = vec4(out_color, c.a);
+}
+"
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_depo"]
-shader = ExtResource("100_shader")
+shader = SubResource("Shader_j7yni")
 shader_parameter/vignette_intensity = 0.8
 shader_parameter/vignette_opacity = 0.8
 shader_parameter/cold_tint = Color(0.05, 0.15, 0.3, 1)
@@ -279,17 +309,6 @@ piece_scale = 1.0
 [node name="DuvarKaplama" type="Node3D" parent="."]
 script = ExtResource("11_duvar")
 
-[node name="KaranlikFiltre" type="CanvasLayer" parent="."]
-layer = -1
-
-[node name="ColorRect" type="ColorRect" parent="KaranlikFiltre"]
-material = SubResource("ShaderMaterial_depo")
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
 
 [node name="Etler" type="Node3D" parent="."]
 

@@ -9,6 +9,6 @@ etki_id = "mermi_kutusu"
 animasyon_tipi = "kirma"
 esya_adi = "Mermi Kutusu"
 aciklama = "İçinden 8 mermi çıkar."
-fiyat = 8
+fiyat = 5
 ikon = ExtResource("2_mrmkp")
 metadata/_custom_type_script = "uid://drbl7e8h0wosy"
