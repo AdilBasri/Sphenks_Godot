@@ -21,6 +21,13 @@ func _ready():
 	# GameManager Ayarları
 	GameManager.pyro_aktif = true
 	GameManager.silah_cekildi = true 
+
+	# --- MİNİMUM 3 MERMİ GARANTİSİ ---
+	if GameManager.mermi_sayisi < 3:
+		var eksik = 3 - GameManager.mermi_sayisi
+		GameManager.mermi_ekle(eksik)
+		print("🔫 Mermi 3'ün altındaydı, %d mermi eklendi." % eksik)
+
 	
 	# Silahı Hazırla
 	if silah_sistemi:

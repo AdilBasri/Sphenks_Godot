@@ -627,6 +627,17 @@ func esya_kullan():
 				if arayuz: arayuz.bilgi_goster("🪧 Çürük Temel: Grid temizlendi!", 3.0)
 				print("🪧 Çürük Temel kullanıldı, grid temizlendi.")
 				basarili = true
+		"mermi_kutusu":
+			if GameManager:
+				var eklendi = GameManager.mermi_ekle(8)
+				var arayuz = _get_arayuz()
+				if eklendi:
+					if arayuz: arayuz.bilgi_goster("MERMI KUTUSU: +8 Mermi Kazandın!", 3.0)
+					print("Mermi Kutusu kullanıldı: +8 mermi.")
+				else:
+					if arayuz: arayuz.bilgi_goster("Mermi Zaten Dolu!", 2.0)
+					print("Mermi Kutusu: Kapasite dolu.")
+				basarili = true
 		_: print("Tanımsız Eşya: ", id); basarili = true
 
 	if basarili:
@@ -638,7 +649,37 @@ func satin_al(urun_node):
 	if market and market.has_method("satin_almaya_calis"):
 		var veri = urun_node.get("esya_verisi")
 		if not veri: return
-		
+
+		# --- MERMİ KUTUSU: Envantere eklemez, direkt 8 mermi verir ---
+		if veri.etki_id == "mermi_kutusu":
+			var gercek_fiyat = veri.fiyat
+			if GameManager and GameManager.get("kanli_indirim_aktif") and GameManager.kanli_indirim_aktif:
+				gercek_fiyat = int(veri.fiyat * 0.5)
+			if GameManager.altin_harca(gercek_fiyat):
+				GameManager.mermi_ekle(8)
+				var arayuz = _get_arayuz()
+				if arayuz:
+					arayuz.bilgi_goster("🔫 +8 Mermi Eklendi!", 3.0)
+					if arayuz.has_method("mermi_flash_goster"):
+						arayuz.mermi_flash_goster()
+				var sfx2 = AudioStreamPlayer.new()
+				sfx2.stream = load("res://Sesler/buy.mp3")
+				sfx2.bus = "Master"
+				get_tree().current_scene.add_child(sfx2)
+				sfx2.play()
+				sfx2.finished.connect(sfx2.queue_free)
+				var tw2 = create_tween()
+				tw2.tween_property(urun_node, "scale", Vector3(0.01, 0.01, 0.01), 0.2)
+				tw2.tween_callback(urun_node.queue_free)
+				print("🔫 Mermi Kutusu market'ten alındı: +8 mermi.")
+			else:
+				if market.has_method("_hata_sesi_cal"):
+					market._hata_sesi_cal()
+				var arayuz2 = _get_arayuz()
+				if arayuz2: arayuz2.bilgi_goster("Yetersiz Bakiye!")
+			return
+
+		# --- NORMAL ITEM SATIN ALMA ---
 		var basarili = market.satin_almaya_calis(veri.fiyat, veri)
 		if basarili:
 			var sfx = AudioStreamPlayer.new()
@@ -647,7 +688,7 @@ func satin_al(urun_node):
 			get_tree().current_scene.add_child(sfx)
 			sfx.play()
 			sfx.finished.connect(sfx.queue_free)
-			
+
 			var tween = create_tween()
 			tween.tween_property(urun_node, "scale", Vector3(0.01, 0.01, 0.01), 0.2)
 			tween.tween_callback(urun_node.queue_free)

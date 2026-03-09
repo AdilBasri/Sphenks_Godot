@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://csnasspc4xyij"]
+[gd_scene load_steps=33 format=3 uid="uid://csnasspc4xyij"]
 
 [ext_resource type="Script" uid="uid://c3g6t5usagaa" path="res://Scripts/PyroKoridoru.gd" id="1_h5fso"]
 [ext_resource type="Script" uid="uid://loithy76h54j" path="res://Scripts/omni_light_3d.gd" id="1_so4kj"]
@@ -15,6 +15,8 @@
 [ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Scenes/Items/Kapi.tscn" id="11_2f6ik"]
 [ext_resource type="PackedScene" uid="uid://7eln5qfuv1pk" path="res://Scenes/SilahSistemi.tscn" id="12_12o8v"]
 [ext_resource type="PackedScene" uid="uid://cwep2mo56dn1d" path="res://UI/MideUI.tscn" id="12_np28r"]
+[ext_resource type="Texture2D" uid="uid://dnpnexrcnpel5" path="res://Assets/bullet_1.png" id="13_1ndpq"]
+[ext_resource type="FontFile" uid="uid://hbyync0b8kyv" path="res://Assets/Fonts/Retro Shine.ttf" id="13_xvddi"]
 [ext_resource type="Shader" uid="uid://cuhlen0v736t0" path="res://Materials_Shaders/gore_vignette.gdshader" id="gore_shader"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qik3h"]
@@ -79,11 +81,17 @@ shadow_color = Color(0, 0, 0, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_t1agt"]
 font = ExtResource("3_tex5o")
+font_size = 18
 font_color = Color(1, 1, 0, 1)
+outline_size = 3
+shadow_size = 5
+shadow_color = Color(1, 1, 1, 0)
 
 [sub_resource type="LabelSettings" id="LabelSettings_ocmv8"]
 font = ExtResource("3_tex5o")
+font_size = 18
 font_color = Color(1, 1, 0, 1)
+outline_size = 3
 
 [sub_resource type="LabelSettings" id="LabelSettings_7tuvr"]
 font = ExtResource("3_tex5o")
@@ -94,11 +102,6 @@ font_color = Color(1, 1, 0, 1)
 shader = ExtResource("8_h5fso")
 shader_parameter/strength = 0.02
 shader_parameter/speed = 5.0
-
-[sub_resource type="LabelSettings" id="LabelSettings_2oinn"]
-font = ExtResource("3_tex5o")
-font_size = 24
-font_color = Color(1, 1, 0, 1)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_gore"]
 shader = ExtResource("gore_shader")
@@ -277,8 +280,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Revolver" parent="." node_paths=PackedStringArray("mermi_label", "nisangah", "pyro_filtresi") groups=["Arayuz"] instance=ExtResource("7_jvfqp")]
-mermi_label = NodePath("Control/MermiLabel")
+[node name="Revolver" parent="." node_paths=PackedStringArray("nisangah", "pyro_filtresi") groups=["Arayuz"] instance=ExtResource("7_jvfqp")]
 nisangah = NodePath("Control/Nisangah")
 pyro_filtresi = NodePath("PyroFiltresi")
 
@@ -321,8 +323,8 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -40.0
-offset_bottom = 40.0
+offset_left = -153.0
+offset_bottom = 70.0
 grow_horizontal = 0
 theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
@@ -332,6 +334,7 @@ layout_mode = 2
 alignment = 2
 
 [node name="AltinIkonu" type="Label" parent="Revolver/AnaKontrol/MarginContainer/HBoxContainer"]
+modulate = Color(18.892157, 18.892157, 18.892157, 1)
 layout_mode = 2
 text = "GOLD"
 label_settings = SubResource("LabelSettings_t1agt")
@@ -382,7 +385,6 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Nisangah" type="TextureRect" parent="Revolver/Control"]
-visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -390,25 +392,15 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -1020.0
-offset_top = -1020.0
+offset_top = -1065.0
 offset_right = 980.0
-offset_bottom = 980.0
+offset_bottom = 1085.0
 grow_horizontal = 2
 grow_vertical = 2
-scale = Vector2(0.3, 0.3)
+scale = Vector2(0.2, 0.2)
 pivot_offset = Vector2(1030, 1060)
 mouse_filter = 2
 texture = ExtResource("9_2f6ik")
-
-[node name="MermiLabel" type="Label" parent="Revolver/Control"]
-layout_mode = 0
-offset_left = -553.0
-offset_top = -161.0
-offset_right = -364.0
-offset_bottom = -123.0
-text = "MERMİ:"
-label_settings = SubResource("LabelSettings_2oinn")
-horizontal_alignment = 1
 
 [node name="PyroFiltresi" type="ColorRect" parent="Revolver"]
 anchors_preset = 15
@@ -418,6 +410,34 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(1, 0, 0, 0.25882354)
+
+[node name="MermiKonteyner" type="MarginContainer" parent="Revolver"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -220.0
+offset_top = -163.0
+offset_right = 28.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Revolver/MermiKonteyner"]
+layout_mode = 2
+theme_override_constants/separation = -55
+alignment = 2
+
+[node name="MermiSayisi" type="Label" parent="Revolver/MermiKonteyner/HBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("13_xvddi")
+theme_override_font_sizes/font_size = 24
+text = "19/40"
+
+[node name="MermiIkonu" type="TextureRect" parent="Revolver/MermiKonteyner/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("13_1ndpq")
+expand_mode = 2
 
 [node name="SpawnNoktalari" type="Node3D" parent="."]
 
