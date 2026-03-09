@@ -350,6 +350,9 @@ visible = false
 [node name="CustomFlashlight2D" parent="Oyuncu/Camera3D/Node3D" index="1"]
 texture = ExtResource("13_sj8vx")
 
+[node name="SpotLight3D" parent="Oyuncu/Camera3D/Node3D" index="2"]
+transform = Transform3D(1, 2.2351742e-08, -2.9802322e-08, 3.7252903e-09, 1.0000008, -5.5879354e-08, 2.9802322e-08, -1.1175871e-08, 1.0000002, 0.024031758, 0.19341946, -0.4680946)
+
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." index="6"]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0.054388165, 4.7237678, 0.14379025)
 light_color = Color(0.101960786, 0, 0, 1)

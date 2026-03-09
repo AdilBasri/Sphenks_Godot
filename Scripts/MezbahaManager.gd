@@ -81,7 +81,11 @@ func axe_picked_up():
 		pivot.add_child(visual_axe)
 		
 		visual_axe.position = Vector3(0.0, 0.2, 0.0) 
-		visual_axe.rotation_degrees = Vector3(0, 0, 0) 
+		# Baltanın ilk duruş ayarı:
+		# Eğer PNG dosyası çapraz çizilmişse, onu ekranda dik (düz) hale getirmek için Z eksenine değer giriyoruz.
+		# Z değerini (örn: 15 veya -15) PNG'nin yönüne göre değiştirip tam dik yapabilirsin.
+		# Y değeri (-15) ise baltayı 3 boyutlu uzayda hafif sağa döndürerek karşıya bakmasını ayarlar.
+		visual_axe.rotation_degrees = Vector3(0, -75, 15) 
 		visual_axe.scale = Vector3(0.05, 0.05, 0.05) 
 		visual_axe.name = "MezbahaVisualAxe"
 
@@ -129,11 +133,13 @@ func _swing_axe():
 	var pivot = player.kamera.get_node_or_null("AxePivot")
 	if pivot:
 		var tw = create_tween()
-		# BALTA VURUŞU: Alt taraf sabit, üst taraf ileri gidecek şekilde devirme (sadece rotasyon)
-		# Vururken baltayı sağa doğru çeviriyoruz (Y ve Z eksi değerleri sağa döndürür)
-		tw.tween_property(pivot, "rotation_degrees", Vector3(60.0, -30.0, -20.0), 0.08).set_trans(Tween.TRANS_SINE)
+		# BALTA VURUŞU:
+		# X ekseni (-100) ile baltayı düz bir şekilde ileri-aşağı devirir.
+		# Y ekseni (-35) ile baltayı savururken bıçağını (kendi yönünü) sağa çevirir.
+		# Z ekseni (0) olmalı ki balta savrulurken sağa-sola çapraz gitmesin, dümdüz bir hat çizsin.
+		tw.tween_property(pivot, "rotation_degrees", Vector3(-100.0, -35.0, 0.0), 0.08).set_trans(Tween.TRANS_SINE)
 		
-		# Geri çekilme (Yumuşak)
+		# Geri çekilme
 		tw.tween_property(pivot, "rotation_degrees", Vector3.ZERO, 0.4).set_trans(Tween.TRANS_SPRING)
 	
 	# Raycast to hit meat
