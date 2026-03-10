@@ -15,35 +15,35 @@ func _ready():
 	# --- BUTON BAĞLANTILARI (Defansif Kodlama) ---
 	
 	# OYNA BUTONU
-	if has_node("VBoxContainer/OynaButonu"):
-		$VBoxContainer/OynaButonu.pressed.connect(_on_oyna_pressed)
+	if has_node("MenuPanel/OynaButonu"):
+		$MenuPanel/OynaButonu.pressed.connect(_on_oyna_pressed)
 	else:
 		print("UYARI: 'OynaButonu' bulunamadı!")
 	
 	# ÇIKIŞ BUTONU
-	if has_node("VBoxContainer/CikisButonu"):
-		$VBoxContainer/CikisButonu.pressed.connect(_on_cikis_pressed)
-		
+	if has_node("MenuPanel/CikisButonu"):
+		$MenuPanel/CikisButonu.pressed.connect(_on_cikis_pressed)
+	
 	# AYARLAR BUTONU
-	if has_node("VBoxContainer/AyarlarButonu"):
-		$VBoxContainer/AyarlarButonu.pressed.connect(_on_ayarlar_pressed)
+	if has_node("MenuPanel/AyarlarButonu"):
+		$MenuPanel/AyarlarButonu.pressed.connect(_on_ayarlar_pressed)
 
 	# 🔥 SIFIRLA (HARD RESET) BUTONU 🔥
-	if has_node("VBoxContainer/SifirlaButonu"):
-		$VBoxContainer/SifirlaButonu.pressed.connect(_on_sifirla_pressed)
+	if has_node("MenuPanel/SifirlaButonu"):
+		$MenuPanel/SifirlaButonu.pressed.connect(_on_sifirla_pressed)
 
 	DilYoneticisi.dil_degisti.connect(metinleri_guncelle)
 	metinleri_guncelle()
 
 func metinleri_guncelle():
-	if has_node("VBoxContainer/OynaButonu"):
-		$VBoxContainer/OynaButonu.text = DilYoneticisi.metin_al("devam_et") if GameManager.intro_tamamlandi else DilYoneticisi.metin_al("basla")
-	if has_node("VBoxContainer/AyarlarButonu"):
-		$VBoxContainer/AyarlarButonu.text = DilYoneticisi.metin_al("ayarlar")
-	if has_node("VBoxContainer/CikisButonu"):
-		$VBoxContainer/CikisButonu.text = DilYoneticisi.metin_al("cikis")
-	if has_node("VBoxContainer/SifirlaButonu"):
-		$VBoxContainer/SifirlaButonu.text = DilYoneticisi.metin_al("kaydi_sifirla")
+	if has_node("MenuPanel/OynaButonu"):
+		$MenuPanel/OynaButonu.text = DilYoneticisi.metin_al("devam_et") if GameManager.intro_tamamlandi else DilYoneticisi.metin_al("basla")
+	if has_node("MenuPanel/AyarlarButonu"):
+		$MenuPanel/AyarlarButonu.text = DilYoneticisi.metin_al("ayarlar")
+	if has_node("MenuPanel/CikisButonu"):
+		$MenuPanel/CikisButonu.text = DilYoneticisi.metin_al("cikis")
+	if has_node("MenuPanel/SifirlaButonu"):
+		$MenuPanel/SifirlaButonu.text = DilYoneticisi.metin_al("kaydi_sifirla")
 
 func _on_ayarlar_pressed():
 	# PauseMenu AutoLoad nesnesini bul ve sadece ayarlar arayüzünü açmasını iste
@@ -91,8 +91,8 @@ func _on_sifirla_pressed():
 	GameManager.dosyalari_tamamen_sil()
 	
 	# 2. Görsel bildirim ver
-	if has_node("VBoxContainer/SifirlaButonu"):
-		var btn = $VBoxContainer/SifirlaButonu
+	if has_node("MenuPanel/SifirlaButonu"):
+		var btn = $MenuPanel/SifirlaButonu
 		btn.text = "SİLİNDİ!"
 		btn.disabled = true # Çift tıklamayı engelle
 		btn.modulate = Color.RED
