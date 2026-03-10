@@ -10,7 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://drr1tmjsq60ch" path="res://Scenes/Bus_Kadın.tscn" id="8_xw5yj"]
 [ext_resource type="PackedScene" uid="uid://cwu0vxlfw8wsp" path="res://Scenes/Sofor.tscn" id="9_pb53o"]
 [ext_resource type="Script" uid="uid://b5t3hh3nuxgki" path="res://Scripts/Yol.gd" id="10_ejsfs"]
-[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="11_jxv2l"]
+[ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="11_jxv2l"]
 [ext_resource type="Texture2D" uid="uid://ca5otomdb8oem" path="res://Assets/1.png" id="12_qpq5m"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uodxh"]
@@ -207,20 +207,23 @@ mesh = SubResource("QuadMesh_k0y4j")
 surface_material_override/0 = SubResource("ShaderMaterial_wvusv")
 
 [node name="RayCast3D" type="RayCast3D" parent="Oyuncu/Camera3D"]
-target_position = Vector3(0, 0, -3.5)
+target_position = Vector3(0, 0, -6.5)
 collision_mask = 7
 
 [node name="Sketchfab_Scene2" parent="." instance=ExtResource("4_xpw4b")]
 transform = Transform3D(0.4997027, -0.0038964294, -0.016794357, 0, 0.48706308, -0.11300266, 0.017240437, 0.11293546, 0.48677346, -0.9157098, -0.22161795, -1.7560123)
 
+[node name="Sketchfab_Scene10" parent="." instance=ExtResource("4_xpw4b")]
+transform = Transform3D(0.49969542, 0.003717327, -0.0170492, 0, 0.48852286, 0.10651521, 0.017449748, -0.10645032, 0.48822528, 0.9520432, -0.14143962, -5.163836)
+
 [node name="Sketchfab_Scene7" parent="." instance=ExtResource("4_xpw4b")]
 transform = Transform3D(0.47578916, -0.034737743, -0.14972633, -2.4210328e-11, 0.48706308, -0.113002665, 0.15370321, 0.107530884, 0.46347865, -0.94415337, 0.04794176, 3.6496558)
 
 [node name="Sketchfab_Scene3" parent="." instance=ExtResource("6_m6r2i")]
-transform = Transform3D(0.499216, -0.0027448768, -0.02785425, 0, 0.4975898, -0.04903462, 0.02798917, 0.048957735, 0.49680957, -0.9144033, -0.7126191, -3.9362862)
+transform = Transform3D(0.499216, -0.0027448768, -0.02785425, 0, 0.4975898, -0.04903462, 0.02798917, 0.048957735, 0.49680957, -0.9144033, -0.25169295, -3.9362862)
 
 [node name="Sketchfab_Scene4" parent="." instance=ExtResource("6_m6r2i")]
-transform = Transform3D(-0.5, 0, -4.371139e-08, 0, 0.5, 0, 4.371139e-08, 0, -0.5, 0.7053809, -0.6936061, -4.93525)
+transform = Transform3D(-0.5, 0, -4.371139e-08, 0, 0.5, 0, 4.371139e-08, 0, -0.5, 0.7053809, -0.2165547, -4.93525)
 
 [node name="Sketchfab_Scene5" parent="." instance=ExtResource("7_5lqdn")]
 transform = Transform3D(0.006553217, -5.901819e-11, -0.004588612, 0.0011333051, 0.007752162, 0.0016185275, 0.004446457, -0.0019758567, 0.006350198, 0.5704739, -0.7827728, -0.6097709)
@@ -294,6 +297,12 @@ transform = Transform3D(-0.5, 0, -4.371139e-08, 0, 0.5, 0, 4.371139e-08, 0, -0.5
 [node name="StaticBody3D" parent="Sketchfab_Scene8" index="2"]
 script = ExtResource("5_a43l8")
 
+[node name="Sketchfab_Scene9" parent="." instance=ExtResource("9_pb53o")]
+transform = Transform3D(0.49688396, 0, 0.055734467, 0, 0.5, 0, -0.055734467, 0, 0.49688396, -0.9942248, -0.70614666, -3.8085282)
+
+[node name="StaticBody3D" parent="Sketchfab_Scene9" index="2"]
+script = ExtResource("5_a43l8")
+
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, 0, 0)
 mesh = SubResource("CylinderMesh_7ko3x")
@@ -351,9 +360,11 @@ transform = Transform3D(-0.38067412, 0.052730612, 0.3198543, 0.13173713, 0.47593
 transform = Transform3D(1, 7.450581e-09, 8.940697e-08, 7.450581e-09, 1, 0, 0, 0, 1, 2.3841858e-07, 1.5973108, 0)
 
 [editable path="Sketchfab_Scene2"]
+[editable path="Sketchfab_Scene10"]
 [editable path="Sketchfab_Scene7"]
 [editable path="Sketchfab_Scene3"]
 [editable path="Sketchfab_Scene4"]
 [editable path="Sketchfab_Scene5"]
 [editable path="Sketchfab_Scene8"]
+[editable path="Sketchfab_Scene9"]
 [editable path="Sketchfab_Scene6"]

@@ -18,8 +18,28 @@ var crosshair_ui = null
 var crosshair_idle = preload("res://Assets/1.png") 
 var crosshair_click = preload("res://Assets/2.png") 
 
+# --- SES ---
+var walking_player: AudioStreamPlayer
+
+# --- HEAD BOBBING ---
+var t_bob: float = 0.0
+var bob_freq: float = 2.0
+var bob_amp: float = 0.035
+
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	
+	# --- SES KURULUMU ---
+	walking_player = AudioStreamPlayer.new()
+	var w_stream = load("res://Sesler/walking.mp3")
+	# loop özelliği AudioStreamMP3 içinde olmayabilir, bu yüzden güvenli kontrol
+	if w_stream:
+		if w_stream is AudioStreamMP3: w_stream.loop = true
+		elif w_stream is AudioStreamWAV: w_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	walking_player.stream = w_stream
+	walking_player.bus = "Master"
+	walking_player.volume_db = -6.0 # %50 daha kısık (Logaritmik olarak -6dB yaklaşık %50'dir)
+	add_child(walking_player)
 	
 	# --- 1. KAMERAYI BUL ---
 	# Direkt çocuklarda Camera3D ara
@@ -75,14 +95,7 @@ func _input(event):
 		kontrol_et_ve_tikla()
 
 func _physics_process(delta):
-	if kamera:
-		if titreme_aktif:
-			kamera.h_offset = randf_range(-titreme_gucu, titreme_gucu)
-			kamera.v_offset = randf_range(-titreme_gucu, titreme_gucu)
-		else:
-			kamera.h_offset = 0
-			kamera.v_offset = 0
-
+	# --- HAREKET VE SES ---
 	if not is_on_floor():
 		velocity.y -= yer_cekimi * delta
 
@@ -101,6 +114,52 @@ func _physics_process(delta):
 		velocity.z = move_toward(velocity.z, 0, anlik_hiz)
 
 	move_and_slide()
+	
+	# Yürüme sesi
+	if is_on_floor() and direction.length_squared() > 0.01:
+		if not walking_player.playing:
+			walking_player.play()
+	else:
+		if walking_player.playing:
+			walking_player.stop()
+
+	# --- KAMERA EFEKTLERİ ---
+	if kamera:
+		# Titreme efekti (Varsa)
+		if titreme_aktif:
+			kamera.h_offset = randf_range(-titreme_gucu, titreme_gucu)
+			kamera.v_offset = randf_range(-titreme_gucu, titreme_gucu)
+		else:
+			# Head Bobbing uygulanacak
+			_head_bob_guncelle(delta)
+
+func _head_bob_guncelle(delta: float):
+	if not is_instance_valid(kamera) or inceleme_modu_aktif:
+		return
+
+	var yatay_hiz = Vector2(velocity.x, velocity.z).length()
+
+	if is_on_floor() and yatay_hiz > 0.5:
+		# Dinamik Frekans ve Genlik
+		if Input.is_action_pressed("kosma"):
+			bob_freq = 2.5
+			bob_amp = 0.055
+		else:
+			bob_freq = 2.0
+			bob_amp = 0.035
+
+		t_bob += delta * yatay_hiz * bob_freq
+		
+		# Figure-8 bobbing
+		var hedef_y = sin(t_bob) * bob_amp
+		var hedef_x = cos(t_bob * 0.5) * (bob_amp * 0.5)
+
+		kamera.v_offset = lerp(kamera.v_offset, hedef_y, delta * 12.0)
+		kamera.h_offset = lerp(kamera.h_offset, hedef_x, delta * 12.0)
+	else:
+		t_bob = 0.0
+		kamera.v_offset = lerp(kamera.v_offset, 0.0, delta * 8.0)
+		kamera.h_offset = lerp(kamera.h_offset, 0.0, delta * 8.0)
 
 func _etkilesim_nesnesi_bul(dugum: Node, metod_adi: String) -> Node:
 	var current = dugum

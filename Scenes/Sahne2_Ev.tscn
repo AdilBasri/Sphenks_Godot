@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://c51w52lnmwjcl" path="res://Scripts/sahne_2_ev.gd" id="2_7c0w5"]
 [ext_resource type="Script" uid="uid://bnnrbprirdc5v" path="res://Scripts/EtkilesimNesnesi.gd" id="4_sh0wk"]
 [ext_resource type="PackedScene" uid="uid://blbr78aw2rq8l" path="res://blender/scene.gltf" id="5_tvibb"]
-[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="7_6cp0h"]
+[ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="7_6cp0h"]
 [ext_resource type="Texture2D" uid="uid://ca5otomdb8oem" path="res://Assets/1.png" id="8_l7nfj"]
 [ext_resource type="PackedScene" uid="uid://dmmewy7gjw75" path="res://watch/scene.gltf" id="9_u2kip"]
 [ext_resource type="PackedScene" uid="uid://4sd42nompvfp" path="res://cup/scene.gltf" id="10_cfcbr"]
@@ -180,7 +180,7 @@ shader_parameter/shape_feathering = 0.0
 shader_parameter/shape_treshold = 1.0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_u2kip"]
-size = Vector3(268.53543, 134.601, 135.33871)
+size = Vector3(1159.6232, 477.35275, 723.25415)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_cfcbr"]
 size = Vector3(1.6828613, 2.2207031, 1.607544)
@@ -452,14 +452,14 @@ texture = ExtResource("8_l7nfj")
 transform = Transform3D(-2.1855695e-10, 0, 0.005, 0, 0.005, 0, -0.005, 0, -2.1855695e-10, 2.351478, -0.4499238, -5.6204414)
 
 [node name="Watch" parent="." index="18" instance=ExtResource("9_u2kip")]
-transform = Transform3D(-0.00044125534, 0, -0.00089738163, 0, 0.001, 0, 0.00089738163, 0, -0.00044125534, 1.3875554, 0.3230638, -2.407662)
+transform = Transform3D(-0.00044125534, 0, -0.00089738163, 0, 0.001, 0, 0.00089738163, 0, -0.00044125534, 1.3428469, 0.3230638, -2.3861985)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Watch" index="2"]
 collision_layer = 7
 script = ExtResource("4_sh0wk")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Watch/StaticBody3D" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1.0000021, 0, 0, 0, 1, -14.996582, 31.144714, -36.077637)
+transform = Transform3D(1, 0, 0, 0, 1.0000021, 0, 0, 0, 1, -43.50659, 202.52097, -176.39685)
 shape = SubResource("BoxShape3D_u2kip")
 
 [node name="Cup" parent="." index="19" instance=ExtResource("10_cfcbr")]

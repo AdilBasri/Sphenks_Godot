@@ -26,6 +26,15 @@ func _ready() -> void:
 	# Oyuncu yürüyebilsinn
 	if oyuncu:
 		oyuncu.set_physics_process(true)
+		
+	# --- TUTORIAL KONTROLÜ ---
+	# Eğer intro bittiyse ama tutorial henüz tamamlanmadıysa, tutorial'ı başlat.
+	if GameManager.intro_tamamlandi and not GameManager.tutorial_tamamlandi:
+		if TutorialManager:
+			await get_tree().create_timer(1.0).timeout # Sahne yüklendikten kısa bir süre sonra başlat
+			TutorialManager.start_tutorial()
+		else:
+			print("⚠️ TutorialManager (Autoload) bulunamadı!")
 
 #func _input(event: InputEvent) -> void:
 #	# SPACE tuşuna basınca mod değiştir

@@ -598,6 +598,9 @@ var ceviriler = {
 	"misir_diyalog_7": { "tr": "İnsanlar bunun tehlikeli olabileceğini söylüyor, uzaylı zırvaları filan!", "en": "People say it could be dangerous, alien nonsense and stuff!" },
 	"misir_diyalog_8": { "tr": "Görevimi tamamladıktan sonra belki...", "en": "Maybe after completing my mission..." },
 	"misir_diyalog_9": { "tr": "Bir süre daha buralarda vakit geçirebilirim...", "en": "I can spend some more time around here..." },
+	"inst_yolcular": { "tr": "Yolcularla iletişime geç", "en": "Interact with passengers" },
+	"inst_gecmis": { "tr": "Geçmişine ait parçaları bul ve öğüt!", "en": "Find pieces of your past and grind them!" },
+	"inst_sphenks": { "tr": "Sphenks'e git!", "en": "Go to Sphenks!" },
 	"Eşya": { "tr": "Eşya", "en": "Item" }
 }
 

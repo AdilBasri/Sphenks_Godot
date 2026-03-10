@@ -30,6 +30,42 @@ var final_diyaloglari = [
 func _ready():
 	if alt_yazi: alt_yazi.text = ""
 	if gecis_perdesi: gecis_perdesi.material.set_shader_parameter("factor", 0.0)
+	
+	# --- TALİMAT YAZISINI EKLE ---
+	_set_up_instruction_label("inst_gecmis")
+	if DilYoneticisi:
+		DilYoneticisi.dil_degisti.connect(func(): _set_up_instruction_label("inst_gecmis"))
+
+func _set_up_instruction_label(key: String):
+	var ui_layer = find_child("UI", true, false)
+	if not ui_layer:
+		ui_layer = CanvasLayer.new()
+		ui_layer.name = "UI"
+		add_child(ui_layer)
+
+	var label = ui_layer.get_node_or_null("InstructionLabel")
+	if not label:
+		label = Label.new()
+		label.name = "InstructionLabel"
+		ui_layer.add_child(label)
+
+	label.text = DilYoneticisi.metin_al(key) if DilYoneticisi else key
+
+	# Styling
+	var font = load("res://Assets/Fonts/PressStart2P-Regular.ttf")
+	if font: label.add_theme_font_override("font", font)
+	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_color_override("font_outline_color", Color.BLACK)
+	label.add_theme_constant_override("outline_size", 6)
+
+	# Layout (Orta Üst)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	label.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	label.position.y = 40
+	label.offset_left = -label.size.x / 2.0
+	label.offset_right = label.size.x / 2.0
 
 # --- GİRİŞ KONTROLÜ (MOUSE İLE ÇEVİRME) ---
 func _input(event):
