@@ -825,7 +825,8 @@ func bar_kirildi():
 	sfx_fall.finished.connect(sfx_fall.queue_free)
 	
 	# Yere Düşme Animasyonu
-	var tween = create_tween()
+	active_tween = create_tween()
+	var tween = active_tween
 	tween.parallel().tween_property(kamera, "rotation:z", deg_to_rad(80.0), 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 	tween.parallel().tween_property(kamera, "position:y", -0.5, 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 	
@@ -846,10 +847,17 @@ func bar_kirildi():
 		tween.tween_callback(kalkis_baslat)
 
 func kalkis_baslat():
-	var tween = create_tween()
-	tween.parallel().tween_property(kamera, "rotation:z", 0.0, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	tween.parallel().tween_property(kamera, "position:y", 0.6, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	tween.parallel().tween_property(kamera, "rotation:x", 0.0, 1.0) 
+	active_tween = create_tween()
+	var tween = active_tween
+	
+	if is_sitting:
+		var target_trans = _get_stool_camera_transform()
+		tween.tween_property(kamera, "global_transform", target_trans, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	else:
+		tween.parallel().tween_property(kamera, "rotation:z", 0.0, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		tween.parallel().tween_property(kamera, "position:y", 0.6, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		tween.parallel().tween_property(kamera, "rotation:x", 0.0, 1.0) 
+		
 	tween.tween_callback(_on_kalkis_tamamlandi)
 
 func _on_kalkis_tamamlandi():
@@ -1419,6 +1427,31 @@ func move_table_camera(direction: float):
 	
 	_update_orbit_camera()
 
+func _get_stool_camera_transform() -> Transform3D:
+	if not current_stool: return Transform3D()
+	
+	var radius = 1.7
+	var target_pos = Vector3.ZERO
+	var target_rot_y = 0.0
+	
+	match table_angle_index:
+		0: 
+			target_pos = Vector3(radius, -0.38, 0)
+			target_rot_y = deg_to_rad(90)
+		1: 
+			target_pos = Vector3(0, -0.38, radius)
+			target_rot_y = deg_to_rad(0)
+		2: 
+			target_pos = Vector3(-radius, -0.38, 0)
+			target_rot_y = deg_to_rad(-90)
+		3: 
+			target_pos = Vector3(0, -0.38, -radius)
+			target_rot_y = deg_to_rad(180)
+			
+	var dest_trans = Transform3D(Basis.from_euler(Vector3(0, target_rot_y, 0)), target_pos)
+	var marker_local = current_stool.camera_position_marker.transform
+	return dest_trans * marker_local
+
 func _update_orbit_camera():
 	if not current_stool: return
 	
@@ -1556,6 +1589,7 @@ func stand_up():
 		spawner.bloklari_gizle()
 	
 	is_sitting = false
+	yere_dustu_mu = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	mouse_serbest_modu = false
 	
@@ -1601,10 +1635,16 @@ func _revive_ile_kalkis():
 	
 	# 3. ÖZEL KALKIŞ ANİMASYONU (Standart kalkis_baslat'ı kullanmıyoruz!)
 	# Çünkü o fonksiyon otomatik olarak 1 can daha düşürüyor. Biz elle yapacağız.
-	var tween = create_tween()
-	tween.parallel().tween_property(kamera, "rotation:z", 0.0, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	tween.parallel().tween_property(kamera, "position:y", 0.6, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	tween.parallel().tween_property(kamera, "rotation:x", 0.0, 1.0) 
+	active_tween = create_tween()
+	var tween = active_tween
+	
+	if is_sitting:
+		var target_trans = _get_stool_camera_transform()
+		tween.tween_property(kamera, "global_transform", target_trans, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	else:
+		tween.parallel().tween_property(kamera, "rotation:z", 0.0, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		tween.parallel().tween_property(kamera, "position:y", 0.6, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		tween.parallel().tween_property(kamera, "rotation:x", 0.0, 1.0) 
 	
 	# 4. Animasyon bitince değerleri ZORLA eşitle
 	tween.tween_callback(func():
