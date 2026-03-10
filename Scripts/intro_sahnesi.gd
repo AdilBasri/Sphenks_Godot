@@ -21,6 +21,7 @@ var diyalog_anahtarlari = [
 	"intro_diyalog_7",
 	"intro_diyalog_8"
 ]
+var kullanilabilir_diyaloglar = []
 
 func _ready():
 	# --- 0. DİNAMİK YOLCU SAYIMI ---
@@ -99,7 +100,11 @@ func yolcuya_tiklandi(yolcu_node, yok_olacak_mi):
 	etkilesim_aktif = false 
 	
 	if altyazi_label:
-		var secili_anahtar = diyalog_anahtarlari.pick_random()
+		if kullanilabilir_diyaloglar.is_empty():
+			kullanilabilir_diyaloglar = diyalog_anahtarlari.duplicate()
+			kullanilabilir_diyaloglar.shuffle()
+		
+		var secili_anahtar = kullanilabilir_diyaloglar.pop_back()
 		altyazi_label.text = DilYoneticisi.metin_al(secili_anahtar)
 	
 	if kamera:
