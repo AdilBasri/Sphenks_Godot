@@ -68,10 +68,10 @@
 [ext_resource type="Resource" uid="uid://bifkv4jermqcn" path="res://Items/Revive.tres" id="48_2531s"]
 [ext_resource type="Resource" uid="uid://damxrk4bt7wq2" path="res://Items/Mermi_Kutusu.tres" id="49_mrmkb"]
 [ext_resource type="Script" uid="uid://cr3bhd7ohfluw" path="res://Scripts/market_ui.gd" id="56_16a52"]
-[ext_resource type="AudioStream" uid="uid://cxr8wtfv6xnps" path="res://Sesler/ErrorSound.mp3" id="57_sroql"]
+[ext_resource type="AudioStream" uid="uid://bj07gxm81b2mx" path="res://Sesler/ErrorSound.mp3" id="57_sroql"]
 [ext_resource type="Script" uid="uid://ccn3umee5kexm" path="res://Scripts/MasaSpawner.gd" id="59_q606s"]
 [ext_resource type="PackedScene" uid="uid://bafdowoddcpqw" path="res://Scenes/zar.tscn" id="62_q606s"]
-[ext_resource type="Script" path="res://Scenes/free_cam.gd" id="72_7edjs"]
+[ext_resource type="Script" uid="uid://dx7dgv5514n7q" path="res://Scenes/free_cam.gd" id="72_7edjs"]
 [ext_resource type="Shader" uid="uid://cuhlen0v736t0" path="res://Materials_Shaders/gore_vignette.gdshader" id="gore_shader_sphenks"]
 
 [sub_resource type="Environment" id="Environment_jcgda"]

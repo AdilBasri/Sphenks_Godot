@@ -243,6 +243,12 @@ func _input(event):
 	# SPACE TUŞU İPTAL EDİLDİ - ARTIK TABURE SİSTEMİ VAR
 	if event.is_action_pressed("etkilesim"):
 		if is_sitting:
+			# GHOST MOVE veya BOSS atağı sırasında inemez
+			if GameManager and GameManager.ghost_move_active:
+				return
+			if LevelManager and LevelManager.is_boss_acting:
+				return
+				
 			stand_up()
 		else:
 			etkilesime_gir(false)
@@ -1522,6 +1528,12 @@ func _update_orbit_camera():
 
 func stand_up():
 	if not is_sitting: return
+	
+	# GHOST MOVE veya BOSS atağı sırasında inemez
+	if GameManager and GameManager.ghost_move_active:
+		return
+	if LevelManager and LevelManager.is_boss_acting:
+		return
 	
 	# Eğer oyuncu üzerinde aktif bir tween varsa (Tabure ile hareket ediyorsa) durduralım.
 	# Yoksa tween devam edip oyuncuyu tekrar tabureye çekebilir.
