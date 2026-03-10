@@ -91,6 +91,8 @@ func axe_picked_up():
 		visual_axe.name = "MezbahaVisualAxe"
 
 func _process(delta):
+	if not is_inside_tree(): return
+	
 	if axe_equipped and can_swing and Input.is_action_just_pressed("sol_tik"):
 		_swing_axe()
 		
@@ -269,7 +271,7 @@ func spawn_pieces(pos: Vector3):
 	if not piece_scene: return
 	for i in range(4):
 		var p = piece_scene.instantiate()
-		get_parent().call_deferred("add_child", p)
+		get_parent().add_child(p)
 		# Sadece masanın yakın bölgelerine düşsün, alan çok daraldı
 		p.global_position = pos + Vector3(randf_range(-0.1, 0.1), randf_range(0.2, 0.5), randf_range(-0.2, 0.2))
 		
@@ -358,6 +360,10 @@ func _finish_mixing(mixer: Node):
 	timer.autostart = true
 	add_child(timer)
 	timer.timeout.connect(func():
+		if not is_inside_tree():
+			timer.queue_free()
+			return
+			
 		var rb = preload("res://Scenes/Blocks/Block_kanli.tscn").instantiate()
 		get_tree().current_scene.add_child(rb)
 		rb.global_position = spawn_pos + Vector3(randf_range(-0.1, 0.1), 0, randf_range(-0.1, 0.1))

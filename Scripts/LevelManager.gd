@@ -101,6 +101,10 @@ func odaya_don_ve_level_atla():
 	if arayuz and arayuz.has_method("mantar_efekti_yonet"):
 		arayuz.mantar_efekti_yonet(false) 
 		
+	# Sahneyi temizle ve referansları sıfırla (Bellek sızıntısı önleme)
+	oyun_odasi_ref = null
+	oyuncu_ref = null
+	
 	call_deferred("_sahne_yenile")
 
 func _sahne_yenile():
