@@ -21,6 +21,7 @@ var kayitli_seviye: int = 1
 var toplam_altin: int = 10 
 var intro_tamamlandi: bool = false
 var tutorial_tamamlandi: bool = false
+var completed_tutorials: Array[String] = [] # "base", "market", "campfire", "pyro"
 var uyku_sahnesi_giris_sayisi: int = 0
 
 # --- ENVANTER ---
@@ -263,6 +264,7 @@ func verileri_sifirla():
 	curuk_temel_aktif = false
 	kanli_indirim_aktif = false
 	sonraki_boss_saldirisi = ""
+	completed_tutorials.clear()
 	
 	mide_doluluk = 0
 	limbs_eaten_this_round = 0
@@ -354,6 +356,7 @@ func oyunu_kaydet():
 	config.set_value("Oyun", "Envanter", esya_yollari)
 	config.set_value("Oyun", "IntroTamamlandi", intro_tamamlandi)
 	config.set_value("Oyun", "TutorialTamamlandi", tutorial_tamamlandi)
+	config.set_value("Oyun", "CompletedTutorials", completed_tutorials)
 	config.set_value("Oyun", "UykuSahnesiGirisSayisi", uyku_sahnesi_giris_sayisi)
 	config.save("user://savegame.cfg")
 	print("💾 Oyun kaydedildi.")
@@ -385,6 +388,7 @@ func oyunu_yukle():
 
 		intro_tamamlandi = config.get_value("Oyun", "IntroTamamlandi", false)
 		tutorial_tamamlandi = config.get_value("Oyun", "TutorialTamamlandi", false)
+		completed_tutorials.assign(config.get_value("Oyun", "CompletedTutorials", []))
 		# Boş veya hatalı değere karşı güvenli yükleme (tip kontrolü ile)
 		var _uyku_raw = config.get_value("Oyun", "UykuSahnesiGirisSayisi", 0)
 		if typeof(_uyku_raw) == TYPE_STRING:
@@ -415,7 +419,8 @@ func _intro_durumu_yukle():
 	if hata == OK:
 		intro_tamamlandi = config.get_value("Oyun", "IntroTamamlandi", false)
 		tutorial_tamamlandi = config.get_value("Oyun", "TutorialTamamlandi", false)
-		print("📂 Intro/Tutorial durumu yüklendi: Intro=", intro_tamamlandi, " Tutorial=", tutorial_tamamlandi)
+		completed_tutorials.assign(config.get_value("Oyun", "CompletedTutorials", []))
+		print("📂 Intro/Tutorial durumu yüklendi: Intro=", intro_tamamlandi, " Tutorial=", tutorial_tamamlandi, " Segments=", completed_tutorials)
 	else:
 		intro_tamamlandi = false
 		tutorial_tamamlandi = false
@@ -561,5 +566,16 @@ func pelerin_aktif_et():
 func pelerin_hak_dus():
 	if zar_atlama_hakki > 0:
 		zar_atlama_hakki -= 1
+
+# --- TUTORIAL YARDIMCILARI ---
+
+func is_tutorial_segment_completed(segment_name: String) -> bool:
+	return segment_name in completed_tutorials
+
+func complete_tutorial_segment(segment_name: String):
+	if not segment_name in completed_tutorials:
+		completed_tutorials.append(segment_name)
+		print("🎓 %s tutorial segmenti tamamlandı." % segment_name)
+		oyunu_kaydet()
 
 # --- 🫁 MİDE FONKSİYONLARI ---

@@ -40,8 +40,12 @@ func _sahne_yukle_ve_kontrol_et():
 		GameManager.pyro_aktif = true
 		GameManager.silah_cekildi = true
 		get_tree().change_scene_to_file("res://Scenes/PyroKoridoru.tscn")
+		
+		# --- PYRO TUTORIALINI BAŞLAT ---
+		if TutorialManager:
+			TutorialManager.call_deferred("start_tutorial_segment", "pyro")
 	else:
-		GameManager.pyro_aktif = false # Burası 1 ve 2. bölümlerde pyro'yu KESİN kapatır
+		GameManager.pyro_aktif = false 
 		GameManager.silah_cekildi = false
 		get_tree().change_scene_to_file("res://Scenes/Sphenks.tscn")
 

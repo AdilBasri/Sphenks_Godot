@@ -99,6 +99,10 @@ func _on_giris_sensoru_body_entered(body):
 				arayuz.bilgi_goster(DilYoneticisi.metin_al("kan_bedeli_odendi"), 4.0)
 			print("💩 Kanlı İndirim: Oyuncu 3 HP kaybetti.")
 
+		# --- MARKET TUTORIALINI BAŞLAT ---
+		if TutorialManager:
+			TutorialManager.start_tutorial_segment("market")
+
 		# Kolu kaldır (Kamerayı bul)
 		var kamera = body.find_child("Camera3D", true, false)
 		if not kamera and body.has_node("Camera3D"):
@@ -106,6 +110,8 @@ func _on_giris_sensoru_body_entered(body):
 
 		if kamera:
 			call_deferred("kolu_kaldir", kamera)
+		
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _on_giris_sensoru_body_exited(body):
 	if body.is_in_group("Oyuncu") or body.name == "Oyuncu":

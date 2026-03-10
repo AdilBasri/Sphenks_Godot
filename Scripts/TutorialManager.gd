@@ -5,6 +5,14 @@ signal tutorial_adimi_tamamlandi(adim_no: int)
 # --- TUTORIAL DURUMU ---
 var tutorial_aktif: bool = false
 var suanki_adim: int = 0
+var suanki_segment: String = ""
+
+var segments = {
+	"base": [1, 14],
+	"pyro": [15, 16],
+	"market": [17, 18],
+	"campfire": [19, 20]
+}
 
 # Arayüz Referansları
 @onready var panel = $Panel
@@ -110,6 +118,30 @@ var metinler = {
 		"metin": "Düşmanlardan düşen et parçaları olacak.\n\nOnları toplayıp [R] / [L1] tuşu ile tüketebilirsin. İşler ters gittiğinde kaybettiğin canını geri doldurmanın tek yolu budur!",
 		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
 		"beklenen_eylem": "tiklama"
+	},
+	17: {
+		"baslik": "MARKET: GÜÇLENME ZAMANI",
+		"metin": "Markete hoş geldin! Burada kazandığın altınlarla sana avantaj sağlayacak çeşitli eşyalar ve tılsımlar alabilirsin.\n\nUnutma, her eşyanın kendine has bir özelliği var ve sadece o bölüm için geçerlidir!",
+		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
+		"beklenen_eylem": "tiklama"
+	},
+	18: {
+		"baslik": "MARKET: EŞYA SATIN ALMA",
+		"metin": "Bir eşyanın üzerine gelince fiyatını ve açıklamasını görebilirsin. Satın almak için üzerine tıkla.\n\nEnvanterin sınırlıdır, bu yüzden seçimlerini stratejik yap!",
+		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
+		"beklenen_eylem": "tiklama"
+	},
+	19: {
+		"baslik": "KAMP ATEŞİ: DİNLENME VE ŞANS",
+		"metin": "Kamp ateşine vardığında sana iki seçenek sunulur: DİNLENME veya ALTIN ARAMA.\n\nDİNLENME (+1 Can Barı) sağlar, ALTIN ARAMA ise sana rastgele miktarda altın verir. İhtiyacına göre kararını ver!",
+		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
+		"beklenen_eylem": "tiklama"
+	},
+	20: {
+		"baslik": "KAMP ATEŞİ: KART SEÇİMİ",
+		"metin": "Karşındaki kartlardan birine tıklayarak seçimini yapabilirsin. Seçimini yaptıktan sonra kapı açılır ve yoluna devam edebilirsin.",
+		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
+		"beklenen_eylem": "tiklama"
 	}
 }
 
@@ -126,17 +158,29 @@ func _on_blok_yerlestirildi():
 		eylemi_dogrula("blok_yerlestirme")
 
 func start_tutorial():
-	print("🎓 Tutorial Modu Başlatıldı.")
-	GameManager.verileri_sifirla()
+	start_tutorial_segment("base")
+
+func start_tutorial_segment(segment_name: String):
+	if not segments.has(segment_name): return
 	
-	# Tutorial başlar başlamaz odaya (yan sehpaya) bir mantar ver
-	var m_data = load("res://Items/Mantar.tres")
-	if m_data and not GameManager.envanter.has(m_data):
-		GameManager.envanter.append(m_data)
-		GameManager.envanter_guncellendi.emit()
+	# Eğer bu segment zaten tamamlanmışsa başlatma
+	if GameManager and GameManager.is_tutorial_segment_completed(segment_name):
+		print("🎓 %s segmenti zaten tamamlanmış, atlanıyor." % segment_name)
+		return
+
+	print("🎓 Tutorial Segmenti Başlatıldı: %s" % segment_name)
+	
+	if segment_name == "base" and GameManager:
+		GameManager.verileri_sifirla()
+		# Tutorial başlar başlamaz odaya (yan sehpaya) bir mantar ver
+		var m_data = load("res://Items/Mantar.tres")
+		if m_data and not GameManager.envanter.has(m_data):
+			GameManager.envanter.append(m_data)
+			GameManager.envanter_guncellendi.emit()
 
 	tutorial_aktif = true
-	suanki_adim = 1
+	suanki_segment = segment_name
+	suanki_adim = segments[segment_name][0]
 	_show_step(suanki_adim)
 
 func hide_tutorial():
@@ -144,13 +188,15 @@ func hide_tutorial():
 	if get_tree(): get_tree().paused = false
 
 func _show_step(adim: int):
+	# Segment sınırlarını kontrol et
+	if suanki_segment != "" and segments.has(suanki_segment):
+		var sinir = segments[suanki_segment]
+		if adim > sinir[1]:
+			_tutorial_segmenti_bitir()
+			return
+
 	if not metinler.has(adim):
-		print("🎓 Eğitim Tamamlandı!")
-		tutorial_aktif = false
-		if GameManager:
-			GameManager.tutorial_tamamlandi = true
-			GameManager.oyunu_kaydet()
-		hide_tutorial()
+		_tutorial_segmenti_bitir()
 		return
 		
 	var veri = metinler[adim]
@@ -228,6 +274,19 @@ func eylemi_dogrula(gerceklesecek_eylem: String):
 				lbl_baslik.modulate = Color.WHITE
 				_show_step(suanki_adim + 1)
 			)
+
+func _tutorial_segmenti_bitir():
+	print("🎓 Tutorial Segmenti Tamamlandı: %s" % suanki_segment)
+	tutorial_aktif = false
+	
+	if GameManager:
+		GameManager.complete_tutorial_segment(suanki_segment)
+		if suanki_segment == "base":
+			GameManager.tutorial_tamamlandi = true
+		GameManager.oyunu_kaydet()
+	
+	suanki_segment = ""
+	hide_tutorial()
 
 func ilerlet():
 	if tutorial_aktif:

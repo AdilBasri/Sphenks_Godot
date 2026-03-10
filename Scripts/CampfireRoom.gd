@@ -131,6 +131,11 @@ func _oyuncu_girdi(body):
 		revolver._silahi_kaldir()
 	
 	print("🔥 Campfire: Oyuncu girdi, kartlar açılıyor | Silah kapatıldı.")
+	
+	# --- CAMPFIRE TUTORIALINI BAŞLAT ---
+	if TutorialManager:
+		TutorialManager.start_tutorial_segment("campfire")
+	
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_nisangahi_goster()
 	_kartlari_ac()
