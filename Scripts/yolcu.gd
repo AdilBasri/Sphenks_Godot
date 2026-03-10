@@ -11,7 +11,7 @@ func etkilesim_baslat():
 			
 			if tiklanma_sayisi == 1:
 				# İlk tık: Titret
-				main_script.yolcuya_tiklandi(get_parent(), false)
+				main_script.yolcuya_tiklandi(self, false)
 			elif tiklanma_sayisi >= 2:
 				# İkinci tık: Yok et
-				main_script.yolcuya_tiklandi(get_parent(), true)
+				main_script.yolcuya_tiklandi(self, true)

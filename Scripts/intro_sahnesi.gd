@@ -8,7 +8,7 @@ var oyuncu = null
 
 var etkilesim_aktif = true 
 var varsayilan_fov = 90.0
-var toplam_yolcu_sayisi = 9 # <-- Corrected count (9 interactable passengers)
+var toplam_yolcu_sayisi = 0
 var yok_edilen_yolcu_sayisi = 0
 
 var diyalog_anahtarlari = [
@@ -23,6 +23,13 @@ var diyalog_anahtarlari = [
 ]
 
 func _ready():
+	# --- 0. DİNAMİK YOLCU SAYIMI ---
+	toplam_yolcu_sayisi = 0
+	for child in get_children():
+		if child.has_method("etkilesim_baslat"):
+			toplam_yolcu_sayisi += 1
+	print("Sahne Başladı. Tespit edilen interactable yolcu sayısı: ", toplam_yolcu_sayisi)
+
 	# --- 1. OYUNCUYU VE KAMERAYI BUL (DEDEKTİF YÖNTEMİ) ---
 	# Sahne içindeki ismi "Oyuncu" olan düğümü ara (Recursive: True)
 	oyuncu = find_child("Oyuncu", true, false)
@@ -105,8 +112,17 @@ func yolcuya_tiklandi(yolcu_node, yok_olacak_mi):
 		tween.parallel().tween_property(kamera, "h_offset", 0.0, 0.1)
 
 	if yok_olacak_mi:
+		if not yolcu_node.visible:
+			etkilesim_aktif = true
+			return
+
 		yolcu_node.visible = false
+		
+		# Recursive collision disable to catch all internal StaticBodies
+		_disable_collisions_recursive(yolcu_node)
+		
 		yok_edilen_yolcu_sayisi += 1 
+		print("Yolcu yok edildi. İlerleme: ", yok_edilen_yolcu_sayisi, "/", toplam_yolcu_sayisi)
 		
 		if yok_edilen_yolcu_sayisi >= toplam_yolcu_sayisi:
 			bolum_sonu_gecisi_yap()
@@ -117,7 +133,7 @@ func yolcuya_tiklandi(yolcu_node, yok_olacak_mi):
 		y_tween.tween_property(yolcu_node, "position", org_pos + Vector3(0.05, 0.05, 0), 0.05)
 		y_tween.tween_property(yolcu_node, "position", org_pos, 0.05)
 
-	await get_tree().create_timer(2.5).timeout
+	await get_tree().create_timer(0.5).timeout
 	
 	if altyazi_label:
 		altyazi_label.text = ""
@@ -138,3 +154,9 @@ func bolum_sonu_gecisi_yap():
 		await get_tree().create_timer(3.0).timeout
 
 	get_tree().change_scene_to_file("res://Scenes/yenisahne.tscn")
+
+func _disable_collisions_recursive(node: Node):
+	if node is CollisionShape3D:
+		node.disabled = true
+	for child in node.get_children():
+		_disable_collisions_recursive(child)

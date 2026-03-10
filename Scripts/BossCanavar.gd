@@ -61,7 +61,7 @@ func _ready():
 		if s_stream.has_method("set_loop"): s_stream.set_loop(true)
 		elif "loop" in s_stream: s_stream.loop = true
 	sfx_snore.stream = s_stream
-	sfx_snore.bus = "Master"
+	sfx_snore.bus = "SFX"
 	add_child(sfx_snore)
 
 	# Dış referansları bul
@@ -594,7 +594,7 @@ func saldiri_baslat():
 	# Attack release sound with 450ms delay
 	var a_sfx = AudioStreamPlayer3D.new()
 	a_sfx.stream = load("res://Sesler/attack_release.mp3")
-	a_sfx.bus = "Master"
+	a_sfx.bus = "SFX"
 	a_sfx.max_distance = 20.0
 	add_child(a_sfx)
 	get_tree().create_timer(0.45).timeout.connect(func():
@@ -702,7 +702,7 @@ func _telegraph_baslat(tip: String):
 
 	var w_sfx = AudioStreamPlayer3D.new()
 	w_sfx.stream = load("res://Sesler/while_attack.mp3")
-	w_sfx.bus = "Master"
+	w_sfx.bus = "SFX"
 	w_sfx.max_distance = 25.0
 	add_child(w_sfx)
 	w_sfx.play()

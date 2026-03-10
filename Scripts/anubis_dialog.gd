@@ -157,7 +157,7 @@ func ui_katmanini_kur():
 	if not ses_oynatici:
 		ses_oynatici = AudioStreamPlayer.new()
 		ses_oynatici.stream = load("res://anubis_dialog.wav")
-		ses_oynatici.bus = "SFX"
+		ses_oynatici.bus = "Dialogue"
 		add_child(ses_oynatici)
 	
 	# B&W Matrix Screen Shader

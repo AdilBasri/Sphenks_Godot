@@ -81,7 +81,7 @@ var suanki_muzik: int = 1
 func _init_audio():
 	bgm_player = AudioStreamPlayer.new()
 	bgm_player.volume_db = -10.0
-	bgm_player.bus = "Master"
+	bgm_player.bus = "BGM"
 	add_child(bgm_player)
 	
 	bgm_player.finished.connect(_sonraki_muzige_gec)

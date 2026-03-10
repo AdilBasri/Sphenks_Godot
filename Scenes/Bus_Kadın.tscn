@@ -8,6 +8,7 @@ radius = 1.6357422
 height = 3.2714844
 
 [node name="Sketchfab_Scene" instance=ExtResource("1_ej3m6")]
+script = ExtResource("2_2njal")
 
 [node name="Skeleton3D" parent="Sketchfab_model/3314691dac3b4127899bf54b5779ff04_fbx/Object_2/RootNode/Object_4" index="0"]
 bones/1/position = Vector3(0.6427666, 69.22526, 1.4973886)
@@ -65,7 +66,7 @@ bones/63/rotation = Quaternion(0.229343, 0.0032626064, 0.0048280987, 0.97332823)
 bones/64/rotation = Quaternion(-0.005600898, -1.2265102e-07, 1.1012185e-07, 0.9999843)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." index="2"]
-script = ExtResource("2_2njal")
+collision_layer = 3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5973111, 0)

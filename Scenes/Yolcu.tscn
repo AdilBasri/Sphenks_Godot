@@ -8,9 +8,10 @@ radius = 0.6479492
 height = 2.9108887
 
 [node name="Sketchfab_Scene" instance=ExtResource("1_xm0wp")]
+script = ExtResource("2_hlbfh")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." index="1"]
-script = ExtResource("2_hlbfh")
+collision_layer = 3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.015664816, -0.20682567, 0.288432)

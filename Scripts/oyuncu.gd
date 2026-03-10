@@ -128,7 +128,7 @@ func _ready():
 	var w_stream = load("res://Sesler/walking.mp3")
 	if w_stream and "loop" in w_stream: w_stream.loop = true
 	walking_player.stream = w_stream
-	walking_player.bus = "Master"
+	walking_player.bus = "SFX"
 	add_child(walking_player)
 	
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
