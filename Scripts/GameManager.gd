@@ -251,7 +251,6 @@ func verileri_sifirla():
 	oyuncu_kalan_bar = 4
 	oyuncu_suanki_hp = 10
 	suanki_seviye = 1
-	kayitli_seviye = 1
 	toplam_altin = 10
 	uyku_sahnesi_giris_sayisi = 0
 	mermi_sayisi = 10
@@ -264,7 +263,6 @@ func verileri_sifirla():
 	curuk_temel_aktif = false
 	kanli_indirim_aktif = false
 	sonraki_boss_saldirisi = ""
-	completed_tutorials.clear()
 	
 	mide_doluluk = 0
 	limbs_eaten_this_round = 0

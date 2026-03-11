@@ -86,6 +86,10 @@ func odaya_don_ve_level_atla():
 		GameManager.silah_cekildi = false # KESİN SİLAH KAPATMA
 		GameManager.pyro_aktif = false    # KESİN PYRO KAPATMA
 		GameManager.yeme_aktif_mi = false
+		
+		# İlk seviyelerde direkt kaydet ki kediye gitmese de tutorials vb. kaybolmasın
+		if suanki_katman <= 1:
+			GameManager.oyunu_kaydet()
 	
 	is_boss_acting = false # KESİN BOSS KİLİDİ AÇMA
 	

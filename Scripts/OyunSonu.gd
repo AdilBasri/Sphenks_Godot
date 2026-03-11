@@ -39,9 +39,14 @@ func _on_tekrar_pressed():
 	var is_pyro_active = false
 	if GameManager:
 		is_pyro_active = GameManager.pyro_aktif
-		GameManager.verileri_sifirla()
 		if is_pyro_active:
+			# Pyro modunda canlansın (kaldığı yerden devam etmesi için tüm verileri_sifirla YAPMIYORUZ)
+			GameManager.oyuncu_suanki_hp = 10
+			GameManager.oyuncu_kalan_bar = 4
 			GameManager.mermi_sayisi = 3
+		else:
+			# Normal modda ise öldüğünde en sonki save noktasına geri dönsün
+			GameManager.oyunu_yukle()
 	
 	get_tree().reload_current_scene()
 
