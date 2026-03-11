@@ -124,6 +124,13 @@ func _kapiyi_kapat():
 	# Kapıyı geri kapat (orijinal rotasyonuna dön)
 	var tween = create_tween()
 	tween.tween_property(self, "rotation:y", kapali_rot_y, 1.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	
+	# Kapanınca da mantar efektini kapat (son ihtimal için)
+	var _arayuz2 = get_tree().get_first_node_in_group("Arayuz")
+	if _arayuz2 and _arayuz2.has_method("mantar_efekti_yonet"):
+		_arayuz2.mantar_efekti_yonet(false)
+	if GameManager:
+		GameManager.mantar_modu = false
 	if kapi_isigi:
 		tween.tween_property(kapi_isigi, "light_energy", 0.0, 0.5)
 		tween.tween_callback(func(): kapi_isigi.visible = false)
