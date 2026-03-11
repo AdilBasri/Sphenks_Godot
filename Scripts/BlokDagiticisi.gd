@@ -139,9 +139,9 @@ func _stoktan_yeni_parti_ver() -> void:
 		print("--- HATA: Blok Sahneleri Bos! ---")
 		return
 
-	# Tutorial sınırsız blok bypass
+	# Tutorial sınırsız blok bypass — ama boss öldüyse artık stok doldurma!
 	if TutorialManager and TutorialManager.tutorial_aktif:
-		if kalan_stok <= 5:
+		if not boss_oldu_mu and kalan_stok <= 5:
 			kalan_stok += 50
 	
 	if kalan_stok <= 0 and masadaki_aktif_bloklar <= 0:
