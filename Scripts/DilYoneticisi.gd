@@ -450,7 +450,7 @@ var ceviriler = {
 	},
 	"uyku_diyalog_3": {
 		"tr": "Evet! Parmaklarım...\nEğer rüyadaysam onları sayamamam gerekir!",
-		"en": "Yes! My fingers...\nIf I'm in a dream, I shouldn't be able to count them!"
+		"en": "Yes! My fingers...\nIf I'm dreaming, must be I cannot able to count them!"
 	},
 	"uyku_parmak_say": {
 		"tr": "Parmaklarını Say...",
