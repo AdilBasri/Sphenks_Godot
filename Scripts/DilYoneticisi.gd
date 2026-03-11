@@ -450,7 +450,7 @@ var ceviriler = {
 	},
 	"uyku_diyalog_3": {
 		"tr": "Evet! Parmaklarım...\nEğer rüyadaysam onları sayamamam gerekir!",
-		"en": "Yes! My fingers...\nIf I'm dreaming, must be I cannot able to count them!"
+		"en": "Yes! My fingers...\nIf I'm dreaming, must be\nI cannot able to count them!"
 	},
 	"uyku_parmak_say": {
 		"tr": "Parmaklarını Say...",
@@ -534,7 +534,7 @@ var ceviriler = {
 	"tut_ipucu_20": { "tr": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)", "en": "(Press [LEFT CLICK] / [A] to continue)" },
 	"yetersiz_bakiye": { "tr": "Yetersiz Bakiye!", "en": "Insufficient Funds!" },
 	"envanter_dolu": { "tr": "Envanter Dolu!", "en": "Inventory Full!" },
-	"kan_bedeli_odendi": { "tr": "💩 KAN bedeli ödendi: -3 HP! Ama her şey %50 indirimli!", "en": "💩 Blood price paid: -3 HP! But everything is 50% off!" },
+	"kan_bedeli_odendi": { "tr": "KAN bedeli ödendi: -3 HP!\nAma her şey %50 indirimli!", "en": "Blood price paid: -3 HP!\nBut everything is 50% off!" },
 	"kombo": { "tr": "KOMBO x%d", "en": "COMBO x%d" },
 	"altin_kazandin_mesaj": { "tr": " (+%d ALTIN)", "en": " (+%d GOLD)" },
 	"guc_iksiri_duv": { "tr": " (GÜÇ x1.3)", "en": " (POWER x1.3)" },
