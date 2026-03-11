@@ -232,8 +232,8 @@ func _ready():
 		
 		canvas.add_child(perk_aciklama_label)
 		perk_aciklama_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-		perk_aciklama_label.offset_top = -180
-		perk_aciklama_label.offset_bottom = -60
+		perk_aciklama_label.offset_top = -120
+		perk_aciklama_label.offset_bottom = -40
 
 	# Fener (V) baslangic ayarlari - Oyun baslarken "Acik" baslar
 	if kamera:
