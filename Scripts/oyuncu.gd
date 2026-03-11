@@ -1759,7 +1759,7 @@ func yeme_baslat():
 	# UI bilgi
 	var arayuz = _get_arayuz()
 	if arayuz and arayuz.has_method("bilgi_goster"):
-		arayuz.bilgi_goster("🩸 YİYOR... [R bırak = İptal]", 5.0)
+		arayuz.bilgi_goster(DilYoneticisi.metin_al("yiyor_bilgi"), 5.0)
 
 func _on_bite_timer():
 	"""Timer her tetiklendiğinde bir ısırık at."""
@@ -1890,7 +1890,7 @@ func yeme_tamamlandi():
 	# UI mesajı
 	var arayuz = _get_arayuz()
 	if arayuz and arayuz.has_method("bilgi_goster"):
-		arayuz.bilgi_goster("🩸 İYİLEŞTİN! Uzuv tüketildi.", 2.0)
+		arayuz.bilgi_goster(DilYoneticisi.metin_al("iyilestin_bilgi"), 2.0)
 	
 	# Mide sistemini güncelle
 	if GameManager and GameManager.has_method("uzuv_yendi"):

@@ -698,7 +698,7 @@ func _telegraph_baslat(tip: String):
 		"ZAR": mesaj = DilYoneticisi.metin_al("zar_atiyor")
 
 	if arayuz and arayuz.has_method("bilgi_goster"):
-		arayuz.bilgi_goster(boss_adi + ": " + mesaj, 2.0)
+		arayuz.bilgi_goster(mesaj, 2.0)
 
 	var w_sfx = AudioStreamPlayer3D.new()
 	w_sfx.stream = load("res://Assets/Audio/while_attack.mp3")

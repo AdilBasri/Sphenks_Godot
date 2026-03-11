@@ -18,9 +18,9 @@ func get_etkilesim_yazisi() -> String:
 		return ""
 	else:
 		if follows_player:
-			return "[E] Sürmeyi Bırak"
+			return DilYoneticisi.metin_al("surmeyi_birak")
 		else:
-			return "[E] El Arabasını Sür"
+			return DilYoneticisi.metin_al("arabayi_sur")
 
 func interact(oyuncu: Node):
 	if kilitli_mi: return
@@ -46,7 +46,7 @@ func interact(oyuncu: Node):
 			if manager.loading_zone_active:
 				manager.show_mixer_prompt()
 			else:
-				manager.label_main.text = "El arabasını et\nparçalayıcısına sürükle"
+				manager.label_main.text = DilYoneticisi.metin_al("mezbaha_surukle")
 		
 		var p_root = get_parent()
 		if pc is CollisionObject3D:

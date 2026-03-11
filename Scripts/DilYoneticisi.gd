@@ -12,6 +12,22 @@ var ceviriler = {
 		"tr": "BAŞLA",
 		"en": "START"
 	},
+	"kayit_silindi": {
+		"tr": "SİLİNDİ!",
+		"en": "DELETED!"
+	},
+	"yiyor_bilgi": {
+		"tr": "🩸 YİYOR... [R bırak = İptal]",
+		"en": "🩸 EATING... [Release R = Cancel]"
+	},
+	"iyilestin_bilgi": {
+		"tr": "🩸 İYİLEŞTİN! Uzuv tüketildi.",
+		"en": "🩸 HEALED! Limb consumed."
+	},
+	"arabayi_sur": {
+		"tr": "[E] El Arabasını Sür",
+		"en": "[E] Drive Wheelbarrow"
+	},
 	"cikis": {
 		"tr": "ÇIKIŞ",
 		"en": "QUIT"

@@ -93,7 +93,7 @@ func _on_sifirla_pressed():
 	# 2. Görsel bildirim ver
 	if has_node("MenuPanel/SifirlaButonu"):
 		var btn = $MenuPanel/SifirlaButonu
-		btn.text = "SİLİNDİ!"
+		btn.text = DilYoneticisi.metin_al("kayit_silindi")
 		btn.disabled = true # Çift tıklamayı engelle
 		btn.modulate = Color.RED
 

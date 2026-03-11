@@ -28,7 +28,7 @@ func metinleri_guncelle():
 	if menu_butonu:
 		menu_butonu.text = DilYoneticisi.metin_al("ana_menu")
 	
-	var baslik = find_child("Baslik", true, false)
+	var baslik = get_node_or_null("CenterContainer/Label")
 	if baslik and baslik is Label:
 		baslik.text = DilYoneticisi.metin_al("oyun_bitti")
 
