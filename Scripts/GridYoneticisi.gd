@@ -201,6 +201,7 @@ func hucreyi_kilitle(hedef: Vector2i, tip: String = "TAS"):
 		yukseklik_ofseti = h / 2.0
 	
 	engel.material_override = mat
+	engel.add_to_group("Blok")
 	
 	# --- BURASI KRİTİK DEĞİŞİKLİK ---
 	add_child(engel)
@@ -229,9 +230,16 @@ func hucreyi_kilitle(hedef: Vector2i, tip: String = "TAS"):
 func kilit_kir(hucre: Vector2i):
 	if kilitli_hucreler.has(hucre):
 		var engel = kilitli_hucreler[hucre]
-		engel.queue_free()
+		if is_instance_valid(engel):
+			engel.queue_free()
 		kilitli_hucreler.erase(hucre)
 		print("✅ Engel Kırıldı!")
+
+func engelleri_temizle():
+	for engel in kilitli_hucreler.values():
+		if is_instance_valid(engel):
+			engel.queue_free()
+	kilitli_hucreler.clear()
 
 # ... (Geri kalan patlatma ve puan hesaplama fonksiyonları aynı) ...
 # ... (satirlari_kontrol_et, _bloklari_yok_et, _gelismis_puan_hesapla vb. dokunmana gerek yok) ...

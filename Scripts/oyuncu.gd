@@ -332,6 +332,9 @@ func _input(event):
 			return
 			
 	if is_sitting:
+		if LevelManager and LevelManager.is_boss_acting:
+			return # Boss atak yaparken A/D kullanamaz!
+			
 		# Analog 'axis' değerleri sürekli tetiklendiğinden, manuel debounce (tek tıklama) uygulayalım
 		var lt_deger = Input.get_action_strength("masa_don_sol")
 		var rt_deger = Input.get_action_strength("masa_don_sag")

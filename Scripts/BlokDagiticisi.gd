@@ -233,8 +233,14 @@ func _sahne_bitis_animasyonu() -> void:
 	tween.chain().tween_callback(func(): 
 		if is_instance_valid(boss_objesi): boss_objesi.visible = false
 		if is_instance_valid(masa_objesi): masa_objesi.queue_free()
-		if kapi_sistemi and kapi_sistemi.has_method("kapiyi_ac"):
-			kapi_sistemi.kapiyi_ac()
+		if grid and grid.has_method("engelleri_temizle"):
+			grid.engelleri_temizle()
+			
+		var kapi = kapi_sistemi
+		if not is_instance_valid(kapi):
+			kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
+		if kapi and kapi.has_method("kapiyi_ac"):
+			kapi.kapiyi_ac()
 		emit_signal("bolum_temizlendi") 
 	)
 
