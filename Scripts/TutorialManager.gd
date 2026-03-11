@@ -37,7 +37,7 @@ var metinler = {
 		"baslik": "ADIM 2: BLOKLARI SÜRÜKLE",
 		"metin": "Sol tarafta voidden çıkan bloklar yer alıyor. Blokları tıklayıp basılı tutarak istediğin gibi sürükleyebilir ve masadaki ızgaraya (grid) bırakabilirsin!",
 		"ipucu": "(Farenin Sol Tuşuna veya [A] tuşuna basılı tutarak bloğu masaya çek)",
-		"beklenen_eylem": "blok_sürükleme" # Normalde tiklama koyuyoruz, oyuncu okuyup kendisi yapsın
+		"beklenen_eylem": "blok_yerlestirme" # Artık blok bırakılınca geçiyor
 	},
 	4: {
 		"baslik": "ADIM 3: MASAYA BAKIŞ",
