@@ -156,7 +156,7 @@ func ui_katmanini_kur():
 	# Ses Oynatıcıyı Kur
 	if not ses_oynatici:
 		ses_oynatici = AudioStreamPlayer.new()
-		ses_oynatici.stream = load("res://anubis_dialog.wav")
+		ses_oynatici.stream = load("res://Assets/Audio/anubis_dialog.wav")
 		ses_oynatici.bus = "Dialogue"
 		add_child(ses_oynatici)
 	

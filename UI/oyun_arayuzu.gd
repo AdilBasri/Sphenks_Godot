@@ -192,7 +192,7 @@ func perde_kapat(sure: float = 1.0):
 	if not perde: return
 	
 	var sfx_gecis = AudioStreamPlayer.new()
-	sfx_gecis.stream = load("res://Sesler/sahne_gecis.mp3")
+	sfx_gecis.stream = load("res://Assets/Audio/sahne_gecis.mp3")
 	sfx_gecis.bus = "Master"
 	add_child(sfx_gecis)
 	sfx_gecis.play()

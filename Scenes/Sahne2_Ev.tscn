@@ -1,15 +1,15 @@
 [gd_scene load_steps=28 format=3 uid="uid://bt1hdlkvdh1dq"]
 
-[ext_resource type="PackedScene" uid="uid://cqukpojxiic2a" path="res://the_serving_room/scene.gltf" id="1_j03r5"]
+[ext_resource type="PackedScene" uid="uid://cqukpojxiic2a" path="res://Assets/Models/the_serving_room/scene.gltf" id="1_j03r5"]
 [ext_resource type="Script" uid="uid://l3tf3bxqbcvw" path="res://Scripts/OyuncuBus.gd" id="2_2vqy4"]
 [ext_resource type="Script" uid="uid://c51w52lnmwjcl" path="res://Scripts/sahne_2_ev.gd" id="2_7c0w5"]
 [ext_resource type="Script" uid="uid://bnnrbprirdc5v" path="res://Scripts/EtkilesimNesnesi.gd" id="4_sh0wk"]
-[ext_resource type="PackedScene" uid="uid://blbr78aw2rq8l" path="res://blender/scene.gltf" id="5_tvibb"]
+[ext_resource type="PackedScene" uid="uid://blbr78aw2rq8l" path="res://Assets/Models/blender/scene.gltf" id="5_tvibb"]
 [ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="7_6cp0h"]
 [ext_resource type="Texture2D" uid="uid://ca5otomdb8oem" path="res://Assets/1.png" id="8_l7nfj"]
-[ext_resource type="PackedScene" uid="uid://dmmewy7gjw75" path="res://watch/scene.gltf" id="9_u2kip"]
-[ext_resource type="PackedScene" uid="uid://4sd42nompvfp" path="res://cup/scene.gltf" id="10_cfcbr"]
-[ext_resource type="PackedScene" uid="uid://cp7j7hv6ujwd8" path="res://knife/scene.gltf" id="11_es2t6"]
+[ext_resource type="PackedScene" uid="uid://dmmewy7gjw75" path="res://Assets/Models/watch/scene.gltf" id="9_u2kip"]
+[ext_resource type="PackedScene" uid="uid://4sd42nompvfp" path="res://Assets/Models/cup/scene.gltf" id="10_cfcbr"]
+[ext_resource type="PackedScene" uid="uid://cp7j7hv6ujwd8" path="res://Assets/Models/knife/scene.gltf" id="11_es2t6"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_7c0w5"]
 

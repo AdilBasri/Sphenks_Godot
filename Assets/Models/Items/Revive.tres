@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://bifkv4jermqcn"]
+
+[ext_resource type="Script" uid="uid://drbl7e8h0wosy" path="res://Scripts/ItemData.gd" id="1_he5pv"]
+[ext_resource type="Texture2D" uid="uid://bgf320frb2fol" path="res://Assets/Models/Items/revive.png" id="1_p723w"]
+
+[resource]
+script = ExtResource("1_he5pv")
+etki_id = "revive"
+esya_adi = "revive_isi"
+aciklama = "revive_ac"
+fiyat = 20
+ikon = ExtResource("1_p723w")
+metadata/_custom_type_script = "uid://drbl7e8h0wosy"

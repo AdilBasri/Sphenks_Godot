@@ -173,7 +173,7 @@ func start_tutorial_segment(segment_name: String):
 	if segment_name == "base" and GameManager:
 		GameManager.verileri_sifirla()
 		# Tutorial başlar başlamaz odaya (yan sehpaya) bir mantar ver
-		var m_data = load("res://Items/Mantar.tres")
+		var m_data = load("res://Assets/Models/Items/Mantar.tres")
 		if m_data and not GameManager.envanter.has(m_data):
 			GameManager.envanter.append(m_data)
 			GameManager.envanter_guncellendi.emit()

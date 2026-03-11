@@ -1,0 +1,19 @@
+[gd_scene load_steps=5 format=3 uid="uid://cr3vpqps7qaox"]
+
+[ext_resource type="Script" uid="uid://bpfk1rymhv38x" path="res://market_item.gd" id="1_d4dl3"]
+[ext_resource type="Resource" uid="uid://c3nrit3lega7q" path="res://Assets/Models/Items/Mantar.tres" id="2_k6obf"]
+[ext_resource type="Texture2D" uid="uid://brup05bqrvcp" path="res://Assets/Images/shroom.png" id="2_x2pdn"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_k6obf"]
+
+[node name="MarketItem" type="StaticBody3D"]
+script = ExtResource("1_d4dl3")
+esya_verisi = ExtResource("2_k6obf")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_k6obf")
+
+[node name="Gorsel" type="Sprite3D" parent="."]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+billboard = 2
+texture = ExtResource("2_x2pdn")

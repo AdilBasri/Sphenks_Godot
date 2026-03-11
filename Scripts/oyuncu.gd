@@ -11,13 +11,20 @@ signal oyuncu_oldu
 @export var gravity: float = 9.8
 @export var firlatma_gucu: float = 8.0 
 
-var suanki_speed: float = 3.0
+var suanki_speed: float:
+	get: return mover.current_speed if mover else 3.0
+	set(v): if mover: mover.current_speed = v
 
 # --- CAN SİSTEMİ ---
 @export var max_can_bari: int = 4        
-var suanki_can_bari: int = 4     
-var bar_hp: int = 10             
-var suanki_hp: int = 10          
+@export var bar_hp: int = 10
+var suanki_hp: int:
+	get: return stats.current_hp if stats else 10
+	set(v): if stats: stats.current_hp = v
+
+var suanki_can_bari: int:
+	get: return stats.current_bars if stats else 4
+	set(v): if stats: stats.current_bars = v
 
 var yere_dustu_mu: bool = false 
 var oldu_mu: bool = false        
@@ -96,12 +103,18 @@ var _lt_basildi = false
 var son_sag_tik_zamani: float = 0.0
 
 # --- SES ---
-var walking_player: AudioStreamPlayer
+# (Footsteps handled by PlayerMovement)
 
 # --- HEAD BOBBING ---
 var t_bob: float = 0.0
 var bob_freq: float = 2.0
 var bob_amp: float = 0.035
+
+# --- MODÜLER BİLEŞENLER ---
+var mover: PlayerMovement
+var looker: PlayerCamera
+var stats: PlayerStats
+var interactor: PlayerInteractor
 
 # --- YENİ EKLENEN CACHE SİSTEMLERİ (OPTİMİZASYON) ---
 var _cached_arayuz: Node = null
@@ -124,12 +137,12 @@ func _get_silah_katmani() -> Node:
 	return _cached_silah_katmani
 
 func _ready():
-	walking_player = AudioStreamPlayer.new()
-	var w_stream = load("res://Sesler/walking.mp3")
-	if w_stream and "loop" in w_stream: w_stream.loop = true
-	walking_player.stream = w_stream
-	walking_player.bus = "SFX"
-	add_child(walking_player)
+	_bileşenleri_hazirla()
+	# Reset scale to identity to prevent physics glitches if scene scale was modified
+	scale = Vector3.ONE
+	
+	if GameManager:
+		stats.setup(GameManager.oyuncu_kalan_bar, GameManager.oyuncu_suanki_hp)
 	
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if not kamera: return
@@ -147,6 +160,10 @@ func _ready():
 	raycast.collision_mask = 0xFFFFFFFF 
 	raycast.add_exception(self) 
 
+	# --- BİLEŞENLERİ RAYCAST İLE GÜNCELLE ---
+	if interactor:
+		interactor.raycast = raycast
+
 	# Tutma Noktası
 	if kamera.has_node("TutmaNoktasi"):
 		tutma_noktasi = kamera.get_node("TutmaNoktasi")
@@ -156,9 +173,14 @@ func _ready():
 		kamera.add_child(marker)
 		marker.position = Vector3(0, 0, -2.5) 
 		tutma_noktasi = marker
+	
+	if interactor:
+		interactor.hold_point = tutma_noktasi
 
 	if has_node("CanvasLayer/EtkilesimYazisi"):
 		etkilesim_label = $CanvasLayer/EtkilesimYazisi
+		if interactor:
+			interactor.interaction_label = etkilesim_label
 	
 	# Can Senkronizasyonu (Ölümden dönünce canın full gelmesi için)
 	if GameManager:
@@ -219,6 +241,38 @@ func _ready():
 	if fener_node:
 		fener_node.visible = fener_acik
 		fener_node.light_energy = 80.0 if fener_acik else 0.0
+
+func _bileşenleri_hazirla():
+	mover = PlayerMovement.new()
+	mover.player = self
+	mover.base_speed = base_speed
+	mover.sprint_speed = sprint_speed
+	mover.crouch_speed = crouch_speed
+	mover.gravity = gravity
+	add_child(mover)
+	
+	looker = PlayerCamera.new()
+	looker.player = self
+	looker.camera = kamera
+	looker.mouse_sensitivity = mouse_sensitivity
+	add_child(looker)
+	
+	stats = PlayerStats.new()
+	stats.max_bars = max_can_bari
+	stats.bar_hp = bar_hp
+	add_child(stats)
+	
+	interactor = PlayerInteractor.new()
+	interactor.hold_point = tutma_noktasi
+	interactor.interaction_label = etkilesim_label
+	add_child(interactor)
+
+	# Connect stats signals back to legacy methods for compatibility
+	stats.health_changed.connect(func(bars, hp): 
+		# suanki_can_bari and suanki_hp are getters/setters now, they match stats
+		ui_guncelle()
+	)
+	stats.player_died.connect(game_over)
 
 func _input(event):
 	if not kamera or oldu_mu: return 
@@ -303,11 +357,9 @@ func _input(event):
 	if not mouse_serbest_modu and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		if active_tween and active_tween.is_valid() and active_tween.is_running(): return
 		if event is InputEventMouseMotion:
-			rotate_y(-event.relative.x * mouse_sensitivity)
-			var dikey_hareket = -event.relative.y * mouse_sensitivity
-			x_rotasyonu += dikey_hareket
-			x_rotasyonu = clamp(x_rotasyonu, deg_to_rad(-80), deg_to_rad(80))
-			kamera.rotation.x = x_rotasyonu
+			looker.handle_look(event.relative)
+			# Sync back if needed (optional)
+			x_rotasyonu = looker.x_rotation
 	
 	# --- TIKLAMA İŞLEMLERİ ---
 	if event.is_action_pressed("sol_tik"):
@@ -366,73 +418,16 @@ func _physics_process(delta):
 	
 	if is_sitting: return # Otururken hareket etme
 
-	if not is_on_floor(): velocity.y -= gravity * delta
-
 	var input_dir = Input.get_vector("sol", "sag", "ileri", "geri")
-	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-	
-	if direction:
-		velocity.x = direction.x * suanki_speed
-		velocity.z = direction.z * suanki_speed
-	else:
-		velocity.x = move_toward(velocity.x, 0, suanki_speed)
-		velocity.z = move_toward(velocity.z, 0, suanki_speed)
-
+	mover.current_speed = suanki_speed
+	mover.handle_movement(delta, input_dir, is_on_floor())
 	move_and_slide()
 	
-	if is_on_floor() and direction.length_squared() > 0.01 and not is_sitting:
-		if not walking_player.playing:
-			walking_player.play()
-	else:
-		if walking_player.playing:
-			walking_player.stop()
-			
-	if is_on_floor() and direction.length_squared() > 0.01 and not is_sitting:
-		if not walking_player.playing:
-			walking_player.play()
-	else:
-		if walking_player.playing:
-			walking_player.stop()
-			
-	# YENİ EKLENEN SATIR:
-	_head_bob_guncelle(delta)
+	# Movement and Interaction handled above
+	interactor.check_interaction()
 	
-func _head_bob_guncelle(delta: float):
-	# Otururken, yemek yerken veya kamera yoksa iptal et
-	if not is_instance_valid(kamera) or is_sitting or is_eating or yere_dustu_mu or oldu_mu:
-		return
-
-	# Karakterin yatayda gerçekten hareket edip etmediğini kontrol et
-	var yatay_hiz = Vector2(velocity.x, velocity.z).length()
-
-	# Karakter yerdeyse ve hareket ediyorsa kafa salla
-	if is_on_floor() and yatay_hiz > 0.5:
-		# Dinamik Frekans ve Genlik Ayarı
-		if comelen_mi:
-			bob_freq = 1.5
-			bob_amp = 0.015 # Çömelirken çok sarsılmaz
-		elif suanki_speed > 4.0: # Koşma durumu
-			bob_freq = 2.5
-			bob_amp = 0.055 # Koşarken sarsıntı artar
-		else: # Normal Yürüme
-			bob_freq = 2.0
-			bob_amp = 0.035
-
-		# Zamanı hıza göre akıt (Durunca kafa havada asılı kalmasın diye)
-		t_bob += delta * yatay_hiz * bob_freq
-		
-		# Sonsuzluk işareti (Figure-8) algoritması: Y tam tur atarken, X yarım tur atar
-		var hedef_y = sin(t_bob) * bob_amp
-		var hedef_x = cos(t_bob * 0.5) * (bob_amp * 0.5)
-
-		# lerp ile yumuşak geçiş (Mide bulantısını engeller)
-		kamera.v_offset = lerp(kamera.v_offset, hedef_y, delta * 12.0)
-		kamera.h_offset = lerp(kamera.h_offset, hedef_x, delta * 12.0)
-	else:
-		# Karakter durduğunda veya havadayken kamerayı yumuşakça merkeze al
-		t_bob = 0.0
-		kamera.v_offset = lerp(kamera.v_offset, 0.0, delta * 8.0)
-		kamera.h_offset = lerp(kamera.h_offset, 0.0, delta * 8.0)	
+	looker.update_bob(delta, velocity, is_on_floor(), comelen_mi, suanki_speed > 4.0)
+	t_bob = looker.t_bob
 	
 	# --- JOYPAD KAMERA KONTROLU (Sürekli) ---
 	var cam_dir = Input.get_vector("kamera_sol", "kamera_sag", "kamera_yukari", "kamera_asagi")
@@ -669,7 +664,7 @@ func satin_al(urun_node):
 					if arayuz.has_method("mermi_flash_goster"):
 						arayuz.mermi_flash_goster()
 				var sfx2 = AudioStreamPlayer.new()
-				sfx2.stream = load("res://Sesler/buy.mp3")
+				sfx2.stream = load("res://Assets/Audio/buy.mp3")
 				sfx2.bus = "Master"
 				get_tree().current_scene.add_child(sfx2)
 				sfx2.play()
@@ -689,7 +684,7 @@ func satin_al(urun_node):
 		var basarili = market.satin_almaya_calis(veri.fiyat, veri)
 		if basarili:
 			var sfx = AudioStreamPlayer.new()
-			sfx.stream = load("res://Sesler/buy.mp3")
+			sfx.stream = load("res://Assets/Audio/buy.mp3")
 			sfx.bus = "Master"
 			get_tree().current_scene.add_child(sfx)
 			sfx.play()
@@ -708,7 +703,7 @@ func esyayi_ele_al(urun_node):
 	ozel_esya_verisi = urun_node.get("esya_verisi")
 	
 	var h_sfx = AudioStreamPlayer.new()
-	h_sfx.stream = load("res://Sesler/handing_item.mp3")
+	h_sfx.stream = load("res://Assets/Audio/handing_item.mp3")
 	h_sfx.bus = "Master"
 	get_tree().current_scene.add_child(h_sfx)
 	h_sfx.play()
@@ -818,7 +813,7 @@ func bar_kirildi():
 	
 	# Ses Eklemesi: Fall Ses Efekti
 	var sfx_fall = AudioStreamPlayer.new()
-	sfx_fall.stream = load("res://Sesler/fall.mp3")
+	sfx_fall.stream = load("res://Assets/Audio/fall.mp3")
 	sfx_fall.bus = "Master"
 	add_child(sfx_fall)
 	sfx_fall.play()
@@ -872,7 +867,7 @@ func game_over():
 	yere_dustu_mu = true 
 	
 	var sfx_death = AudioStreamPlayer.new()
-	sfx_death.stream = load("res://Sesler/death.mp3")
+	sfx_death.stream = load("res://Assets/Audio/death.mp3")
 	sfx_death.bus = "Master"
 	add_child(sfx_death)
 	sfx_death.play()
@@ -1726,7 +1721,7 @@ func yeme_baslat():
 		sfx_eat = AudioStreamPlayer.new()
 		sfx_eat.bus = "Master"
 		add_child(sfx_eat)
-	var eat_stream = load("res://Sesler/eat.mp3")
+	var eat_stream = load("res://Assets/Audio/eat.mp3")
 	if eat_stream is AudioStreamMP3:
 		eat_stream.loop = true
 	sfx_eat.stream = eat_stream

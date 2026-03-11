@@ -5,11 +5,11 @@
 [ext_resource type="Script" uid="uid://l3tf3bxqbcvw" path="res://Scripts/OyuncuBus.gd" id="3_54byg"]
 [ext_resource type="PackedScene" uid="uid://ixiogokciwpp" path="res://Scenes/Yolcu.tscn" id="4_xpw4b"]
 [ext_resource type="Script" uid="uid://dxwg6i1uepjta" path="res://Scripts/yolcu.gd" id="5_a43l8"]
-[ext_resource type="PackedScene" uid="uid://fcie2v4srp7u" path="res://free_018_kana_sitting.glb" id="7_5lqdn"]
+[ext_resource type="PackedScene" uid="uid://fcie2v4srp7u" path="res://Assets/Models/free_018_kana_sitting.glb" id="7_5lqdn"]
 [ext_resource type="PackedScene" uid="uid://drr1tmjsq60ch" path="res://Scenes/Bus_Kadın.tscn" id="8_xw5yj"]
 [ext_resource type="PackedScene" uid="uid://cwu0vxlfw8wsp" path="res://Scenes/Sofor.tscn" id="9_pb53o"]
 [ext_resource type="Script" uid="uid://b5t3hh3nuxgki" path="res://Scripts/Yol.gd" id="10_ejsfs"]
-[ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="11_jxv2l"]
+[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="11_jxv2l"]
 [ext_resource type="Texture2D" uid="uid://ca5otomdb8oem" path="res://Assets/1.png" id="12_qpq5m"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uodxh"]

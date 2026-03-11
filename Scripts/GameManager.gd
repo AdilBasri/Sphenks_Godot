@@ -89,9 +89,9 @@ func _init_audio():
 	_sonraki_muzige_gec()
 
 func _sonraki_muzige_gec():
-	var muzik_yolu = "res://Sesler/background_music_1.mp3"
+	var muzik_yolu = "res://Assets/Audio/background_music_1.mp3"
 	if suanki_muzik == 2:
-		muzik_yolu = "res://Sesler/background_music_2.mp3"
+		muzik_yolu = "res://Assets/Audio/background_music_2.mp3"
 		suanki_muzik = 1
 	else:
 		suanki_muzik = 2

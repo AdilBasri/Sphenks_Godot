@@ -1,6 +1,6 @@
 extends Node3D
 
-@export var wood_scene: PackedScene = preload("res://depo_wood/scene.gltf")
+@export var wood_scene: PackedScene = preload("res://Assets/Models/depo_wood/scene.gltf")
 @export var extents_x: float = 9.0
 @export var center_z: float = 8.566
 @export var extents_z: float = 29.0

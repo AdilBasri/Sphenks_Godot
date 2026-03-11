@@ -26,7 +26,7 @@ func _ready():
 	_remove_crunch_from_all_meshes(self, crunch_shader_path)
 	
 	sfx_drag = AudioStreamPlayer3D.new()
-	var d_stream = load("res://Sesler/chest_dragging.mp3")
+	var d_stream = load("res://Assets/Audio/chest_dragging.mp3")
 	if d_stream: 
 		if d_stream is AudioStreamMP3 or d_stream is AudioStreamWAV:
 			d_stream.loop = true
@@ -209,7 +209,7 @@ func _bulmacayi_baslat():
 	add_child(bulmaca_layer)
 	
 	var r_player = AudioStreamPlayer.new()
-	r_player.stream = load("res://Sesler/dream_2.wav")
+	r_player.stream = load("res://Assets/Audio/dream_2.wav")
 	add_child(r_player)
 	
 	var sub_label = Label.new()
@@ -366,7 +366,7 @@ func _elleri_goster():
 		else:
 			# HATALI
 			var err_p = AudioStreamPlayer.new()
-			err_p.stream = load("res://Sesler/ErrorSound.mp3")
+			err_p.stream = load("res://Assets/Audio/ErrorSound.mp3")
 			add_child(err_p)
 			err_p.play()
 			err_p.finished.connect(err_p.queue_free)
@@ -378,7 +378,7 @@ func _elleri_goster():
 	
 	# Nefes sesi
 	nefes_sesi_player = AudioStreamPlayer.new()
-	var s_breathe = load("res://Sesler/breathe.wav")
+	var s_breathe = load("res://Assets/Audio/breathe.wav")
 	nefes_sesi_player.stream = s_breathe
 	add_child(nefes_sesi_player)
 	

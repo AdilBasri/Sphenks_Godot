@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://f4dj0em8pars"]
 
-[ext_resource type="PackedScene" uid="uid://dxlgtgpwf2hd6" path="res://Mide/Meshy_AI_Human_stomach_model_0217223854_texture.fbx" id="1_divm4"]
+[ext_resource type="PackedScene" uid="uid://dxlgtgpwf2hd6" path="res://Assets/Models/Mide/Meshy_AI_Human_stomach_model_0217223854_texture.fbx" id="1_divm4"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7gjij"]
 

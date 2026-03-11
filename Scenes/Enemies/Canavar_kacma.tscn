@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://cbc0hmywcoc0s"]
 
-[ext_resource type="PackedScene" uid="uid://bgx47lqei4u2t" path="res://Animations/Hit On Side Of Body.fbx" id="1_cbli0"]
+[ext_resource type="PackedScene" uid="uid://bgx47lqei4u2t" path="res://Assets/Animations/Animations/Hit On Side Of Body.fbx" id="1_cbli0"]
 [ext_resource type="Material" uid="uid://b5pcufaqoeel2" path="res://Materials_Shaders/CanavarMat.tres" id="2_qyx6k"]
 
 [node name="Hit On Side Of Body" instance=ExtResource("1_cbli0")]

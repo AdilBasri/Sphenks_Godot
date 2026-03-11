@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3 uid="uid://c8t03i7uxqkma"]
+
+[ext_resource type="Texture2D" uid="uid://bqy75ns34lwwg" path="res://Assets/Models/Items/magnet.png" id="1_cxi74"]
+[ext_resource type="Script" uid="uid://drbl7e8h0wosy" path="res://Scripts/ItemData.gd" id="1_td7t1"]
+
+[resource]
+script = ExtResource("1_td7t1")
+etki_id = "magnet"
+animasyon_tipi = ""
+esya_adi = "magnet_isi"
+aciklama = "magnet_ac"
+fiyat = 1
+ikon = ExtResource("1_cxi74")
+metadata/_custom_type_script = "uid://drbl7e8h0wosy"

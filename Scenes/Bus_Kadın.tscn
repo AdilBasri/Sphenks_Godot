@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://drr1tmjsq60ch"]
 
-[ext_resource type="PackedScene" uid="uid://d20g7d1qpsk3h" path="res://sitting_talking/scene.gltf" id="1_ej3m6"]
+[ext_resource type="PackedScene" uid="uid://d20g7d1qpsk3h" path="res://Assets/Models/sitting_talking/scene.gltf" id="1_ej3m6"]
 [ext_resource type="Script" uid="uid://dxwg6i1uepjta" path="res://Yolcu.gd" id="2_2njal"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ej3m6"]

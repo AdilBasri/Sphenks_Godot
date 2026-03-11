@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://cfkrvm0r51ln5"]
 
-[ext_resource type="PackedScene" uid="uid://pyb4gnet3q8" path="res://Animations/Standing Melee Attack Horizontal.fbx" id="1_qwcf0"]
+[ext_resource type="PackedScene" uid="uid://pyb4gnet3q8" path="res://Assets/Animations/Animations/Standing Melee Attack Horizontal.fbx" id="1_qwcf0"]
 [ext_resource type="Material" uid="uid://b5pcufaqoeel2" path="res://Materials_Shaders/CanavarMat.tres" id="2_8cur5"]
 
 [node name="Standing Melee Attack Horizontal" instance=ExtResource("1_qwcf0")]

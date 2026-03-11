@@ -25,15 +25,15 @@ func _ready():
 	GameManager.silah_cekildi = false  # Başlangıçta silah kesinlikle gizli
 	
 	sfx_inspect = AudioStreamPlayer.new()
-	sfx_inspect.stream = load("res://Sesler/gun_inspect.mp3")
+	sfx_inspect.stream = load("res://Assets/Audio/gun_inspect.mp3")
 	add_child(sfx_inspect)
 	
 	sfx_blank = AudioStreamPlayer.new()
-	sfx_blank.stream = load("res://Sesler/gun_blank.mp3")
+	sfx_blank.stream = load("res://Assets/Audio/gun_blank.mp3")
 	add_child(sfx_blank)
 	
 	sfx_fire = AudioStreamPlayer.new()
-	sfx_fire.stream = load("res://Sesler/gun_fire.mp3")
+	sfx_fire.stream = load("res://Assets/Audio/gun_fire.mp3")
 	add_child(sfx_fire)
 	
 	if silah_gorsel:

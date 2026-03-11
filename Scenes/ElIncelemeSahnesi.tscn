@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://dx1g7dc40eugl"]
 
-[ext_resource type="PackedScene" uid="uid://cbdd80eg35bxb" path="res://hando.glb" id="1_gw3dq"]
+[ext_resource type="PackedScene" uid="uid://cbdd80eg35bxb" path="res://Assets/Models/hando.glb" id="1_gw3dq"]
 [ext_resource type="Script" uid="uid://djm8dkn31l1wr" path="res://Scripts/eller_tutucu.gd" id="1_s50kv"]
 [ext_resource type="Shader" uid="uid://bochd5dc7ttrh" path="res://Materials_Shaders/hando.gdshader" id="2_s50kv"]
 [ext_resource type="Texture2D" uid="uid://bttekv7s7ioya" path="res://Assets/Images/hando_Meshy_AI_mutant_biological_app_0224152132_texture.png" id="4_k2gg8"]

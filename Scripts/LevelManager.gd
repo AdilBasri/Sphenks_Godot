@@ -190,7 +190,7 @@ func zar_at_animasyonunu_baslat():
 
 	# Pelerin yok → Zar gerçekten atılıyor, şimdi ses çal
 	var sfx_dice = AudioStreamPlayer.new()
-	sfx_dice.stream = load("res://Sesler/dice_roll.mp3")
+	sfx_dice.stream = load("res://Assets/Audio/dice_roll.mp3")
 	sfx_dice.bus = "SFX"
 	add_child(sfx_dice)
 	sfx_dice.play()

@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://cpth252ybxo5s"]
 
 [ext_resource type="Script" uid="uid://bnnrbprirdc5v" path="res://Scripts/EtkilesimNesnesi.gd" id="1_1kpi1"]
-[ext_resource type="PackedScene" uid="uid://gcnxm8c4e4ga" path="res://russian_passport/scene.gltf" id="2_775qc"]
+[ext_resource type="PackedScene" uid="uid://gcnxm8c4e4ga" path="res://Assets/Models/russian_passport/scene.gltf" id="2_775qc"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wu26d"]
 size = Vector3(2.3998413, 0.4464569, 2.274231)

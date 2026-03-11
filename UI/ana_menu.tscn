@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://dxmulcsvw5m34" path="res://UI/ana_menu.gd" id="1_1v26u"]
 [ext_resource type="VideoStream" uid="uid://dylwl7p47xjca" path="res://Assets/fire.ogv" id="2_video"]
 [ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="4_font"]
-[ext_resource type="AudioStream" uid="uid://4avn5omshnom" path="res://Sesler/campfire.mp3" id="5_music"]
+[ext_resource type="AudioStream" uid="uid://4avn5omshnom" path="res://Assets/Audio/campfire.mp3" id="5_music"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_normal"]
 bg_color = Color(0, 0, 0, 0)

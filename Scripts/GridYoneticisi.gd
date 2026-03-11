@@ -324,7 +324,7 @@ func _bloklari_yok_et_kanli(hucreler: Array) -> void:
 	
 	# 1. Kan Yüklenme Sesi (load)
 	var sfx_load = AudioStreamPlayer3D.new()
-	sfx_load.stream = load("res://Sesler/blood_load.mp3")
+	sfx_load.stream = load("res://Assets/Audio/blood_load.mp3")
 	sfx_load.max_distance = 25.0
 	sfx_load.pitch_scale = randf_range(0.9, 1.1)
 	add_child(sfx_load)
@@ -355,7 +355,7 @@ func _bloklari_yok_et_kanli(hucreler: Array) -> void:
 	
 	# 3. PATLAMA VE KAN SAÇILMA
 	var sfx_splash = AudioStreamPlayer3D.new()
-	sfx_splash.stream = load("res://Sesler/blood_splash.mp3")
+	sfx_splash.stream = load("res://Assets/Audio/blood_splash.mp3")
 	sfx_splash.max_distance = 30.0
 	sfx_splash.pitch_scale = randf_range(0.85, 1.1)
 	add_child(sfx_splash)

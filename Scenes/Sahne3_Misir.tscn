@@ -1,6 +1,6 @@
 [gd_scene load_steps=27 format=3 uid="uid://u280l10jq4xw"]
 
-[ext_resource type="PackedScene" uid="uid://b145yhb185yrn" path="res://pyramid/scene.gltf" id="1_50npa"]
+[ext_resource type="PackedScene" uid="uid://b145yhb185yrn" path="res://Assets/Models/pyramid/scene.gltf" id="1_50npa"]
 [ext_resource type="Script" uid="uid://bdlg7liuik76m" path="res://Scripts/sahne_3_misir.gd" id="1_cxnkm"]
 [ext_resource type="Script" uid="uid://l3tf3bxqbcvw" path="res://Scripts/OyuncuBus.gd" id="2_df857"]
 [ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="4_glfev"]

@@ -73,7 +73,7 @@ func kapiyi_ac():
 	print(">>> KAPI AÇILIYOR... TİP: ", hedef_tipi)
 	
 	var sfx_door = AudioStreamPlayer3D.new()
-	sfx_door.stream = load("res://Sesler/door.mp3")
+	sfx_door.stream = load("res://Assets/Audio/door.mp3")
 	sfx_door.bus = "Master"
 	add_child(sfx_door)
 	sfx_door.play()

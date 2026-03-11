@@ -126,7 +126,7 @@ func _swing_axe():
 	get_tree().create_timer(0.75).timeout.connect(func(): can_swing = true)
 	
 	var swing_sfx = AudioStreamPlayer3D.new()
-	swing_sfx.stream = preload("res://Sesler/swinging-axe.mp3")
+	swing_sfx.stream = preload("res://Assets/Audio/swinging-axe.mp3")
 	swing_sfx.bus = "Master"
 	player.add_child(swing_sfx)
 	swing_sfx.global_position = player.global_position
@@ -159,7 +159,7 @@ func _swing_axe():
 		if hit_node:
 			# Balta cesede değdi — kan sesi çal
 			var blood_sfx = AudioStreamPlayer3D.new()
-			blood_sfx.stream = preload("res://Sesler/BloodSplatter.mp3")
+			blood_sfx.stream = preload("res://Assets/Audio/BloodSplatter.mp3")
 			blood_sfx.bus = "Master"
 			get_tree().current_scene.add_child(blood_sfx)
 			blood_sfx.global_position = result.position
@@ -305,7 +305,7 @@ func _start_mixer():
 	_shake_label(label_main, true)
 	
 	var sfx = AudioStreamPlayer3D.new()
-	sfx.stream = preload("res://Sesler/Grinder.mp3")
+	sfx.stream = preload("res://Assets/Audio/Grinder.mp3")
 	sfx.name = "MixerSFX"
 	sfx.bus = "Master"
 	add_child(sfx)

@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://bafdowoddcpqw"]
 
 [ext_resource type="Script" uid="uid://dkb7kungb814" path="res://Scripts/zar.gd" id="1_0yrgi"]
-[ext_resource type="ArrayMesh" uid="uid://baeb0bj358fd" path="res://dice_black.obj" id="1_aeeky"]
+[ext_resource type="ArrayMesh" uid="uid://baeb0bj358fd" path="res://Assets/Models/dice_black.obj" id="1_aeeky"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_0yrgi"]
 rough = true

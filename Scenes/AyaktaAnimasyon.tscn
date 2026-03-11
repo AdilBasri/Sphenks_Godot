@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://b2raidxb22qj3"]
 
-[ext_resource type="PackedScene" uid="uid://ckwbkjfvig61d" path="res://AyaktaAnimasyon/Meshy_AI_Animation_Idle_11_withSkin.fbx" id="1_vdbfq"]
+[ext_resource type="PackedScene" uid="uid://ckwbkjfvig61d" path="res://Assets/Animations/AyaktaAnimasyon/Meshy_AI_Animation_Idle_11_withSkin.fbx" id="1_vdbfq"]
 
 [node name="Meshy_AI_Animation_Idle_11_withSkin" instance=ExtResource("1_vdbfq")]
 

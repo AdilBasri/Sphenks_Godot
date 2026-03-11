@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://b1rdxeucrivcq"]
 
-[ext_resource type="PackedScene" uid="uid://bdkldchgef32r" path="res://Animations/Zombie Run.fbx" id="1_a3klf"]
+[ext_resource type="PackedScene" uid="uid://bdkldchgef32r" path="res://Assets/Animations/Animations/Zombie Run.fbx" id="1_a3klf"]
 [ext_resource type="Material" uid="uid://b5pcufaqoeel2" path="res://Materials_Shaders/CanavarMat.tres" id="2_kt6qo"]
 
 [node name="Zombie Run" instance=ExtResource("1_a3klf")]

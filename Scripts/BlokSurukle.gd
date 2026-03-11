@@ -295,7 +295,7 @@ func _birak() -> void:
 			if hayalet: hayalet.visible = false
 			
 			var sfx = AudioStreamPlayer3D.new()
-			sfx.stream = load("res://Sesler/place_block.mp3")
+			sfx.stream = load("res://Assets/Audio/place_block.mp3")
 			sfx.bus = "Master"
 			sfx.max_distance = 15.0
 			get_tree().current_scene.add_child(sfx)
@@ -309,7 +309,7 @@ func _birak() -> void:
 
 	if not basarili:
 		var err_sfx = AudioStreamPlayer3D.new()
-		err_sfx.stream = load("res://Sesler/ErrorSound.mp3")
+		err_sfx.stream = load("res://Assets/Audio/ErrorSound.mp3")
 		err_sfx.bus = "Master"
 		err_sfx.max_distance = 15.0
 		get_tree().current_scene.add_child(err_sfx)

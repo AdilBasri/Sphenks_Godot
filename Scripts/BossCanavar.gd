@@ -44,7 +44,7 @@ var tabure_pozisyonu_kaydedildi: bool = false
 var _saldiri_resume_ediliyor: bool = false
 
 # --- HARİCİ ANİMASYON YÜKLEYİCİ ---
-@export var harici_ayakta_anim_fbx: PackedScene = preload("res://AyaktaAnimasyon/Meshy_AI_Animation_Idle_11_withSkin.fbx")
+@export var harici_ayakta_anim_fbx: PackedScene = preload("res://Assets/Animations/AyaktaAnimasyon/Meshy_AI_Animation_Idle_11_withSkin.fbx")
 
 # ==========================================
 # HAZIRLIK
@@ -56,7 +56,7 @@ func _ready():
 	add_to_group("Dusman")
 	
 	sfx_snore = AudioStreamPlayer3D.new()
-	var s_stream = load("res://Sesler/snoring.mp3")
+	var s_stream = load("res://Assets/Audio/snoring.mp3")
 	if s_stream and s_stream is AudioStream:
 		if s_stream.has_method("set_loop"): s_stream.set_loop(true)
 		elif "loop" in s_stream: s_stream.loop = true
@@ -593,7 +593,7 @@ func saldiri_baslat():
 
 	# Attack release sound with 450ms delay
 	var a_sfx = AudioStreamPlayer3D.new()
-	a_sfx.stream = load("res://Sesler/attack_release.mp3")
+	a_sfx.stream = load("res://Assets/Audio/attack_release.mp3")
 	a_sfx.bus = "SFX"
 	a_sfx.max_distance = 20.0
 	add_child(a_sfx)
@@ -701,7 +701,7 @@ func _telegraph_baslat(tip: String):
 		arayuz.bilgi_goster(boss_adi + ": " + mesaj, 2.0)
 
 	var w_sfx = AudioStreamPlayer3D.new()
-	w_sfx.stream = load("res://Sesler/while_attack.mp3")
+	w_sfx.stream = load("res://Assets/Audio/while_attack.mp3")
 	w_sfx.bus = "SFX"
 	w_sfx.max_distance = 25.0
 	add_child(w_sfx)

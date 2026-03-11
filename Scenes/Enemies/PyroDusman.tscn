@@ -1,11 +1,11 @@
 [gd_scene load_steps=15 format=3 uid="uid://b4bhb1v1do7yg"]
 
 [ext_resource type="Script" uid="uid://2nxi7ua8bxqa" path="res://Scripts/PyroDusman.gd" id="1_jysm5"]
-[ext_resource type="PackedScene" uid="uid://bdkldchgef32r" path="res://Animations/Zombie Run.fbx" id="2_86xrn"]
+[ext_resource type="PackedScene" uid="uid://bdkldchgef32r" path="res://Assets/Animations/Animations/Zombie Run.fbx" id="2_86xrn"]
 [ext_resource type="PackedScene" uid="uid://iawfvtay0cq" path="res://Scenes/KopanUzuv.tscn" id="2_gjjfq"]
 [ext_resource type="PackedScene" uid="uid://dpdgmgogxjv7i" path="res://Scenes/KanSpreyi.tscn" id="3_0h1uj"]
-[ext_resource type="Animation" uid="uid://5vh0o33csdr6" path="res://Attack.res" id="3_2bmcb"]
-[ext_resource type="Animation" uid="uid://kcb0f6kdls1h" path="res://Dodge.res" id="4_gjjfq"]
+[ext_resource type="Animation" uid="uid://5vh0o33csdr6" path="res://Assets/Resources/Attack.res" id="3_2bmcb"]
+[ext_resource type="Animation" uid="uid://kcb0f6kdls1h" path="res://Assets/Resources/Dodge.res" id="4_gjjfq"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_6c0cy"]
 size = Vector3(0.24298096, 0.26281738, 0.5045166)

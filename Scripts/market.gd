@@ -65,12 +65,12 @@ func red_efekti_oynat():
 
 func _hata_sesi_cal():
 	var sfx = AudioStreamPlayer.new()
-	var stream = load("res://Sesler/ErrorSound.mp3")
+	var stream = load("res://Assets/Audio/ErrorSound.mp3")
 	if not stream:
 		# Dosya ismi farklıysa dene
-		stream = load("res://Sesler/Error.mp3")
+		stream = load("res://Assets/Audio/Error.mp3")
 	if not stream:
-		stream = load("res://Sesler/error.mp3")
+		stream = load("res://Assets/Audio/error.mp3")
 	if stream:
 		sfx.stream = stream
 		sfx.bus = "Master"

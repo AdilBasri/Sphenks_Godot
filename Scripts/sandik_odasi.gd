@@ -3,11 +3,11 @@ extends Node3D
 ## sandik_odasi.tscn kök düğümüne (Sandik_Odasi) eklenmiştir.
 
 # ─── SAHNELER ────────────────────────────────────────────────────────────────
-const KAHIN_GOZU_SAHNE   = preload("res://Perks/kahin_gozu/kahin_gozu.tscn")
-const WAND_SAHNE         = preload("res://Perks/wand/wand.tscn")
-const DISCOUNT_SAHNE     = preload("res://Perks/discount/discount.tscn")
-const BLOODY_NAIL_SAHNE  = preload("res://Perks/bloody_nail/bloody_nail.tscn")
-const CROSS_WHITE_SAHNE  = preload("res://cross_white.tscn")
+const KAHIN_GOZU_SAHNE   = preload("res://Assets/Models/Perks/kahin_gozu/kahin_gozu.tscn")
+const WAND_SAHNE         = preload("res://Assets/Models/Perks/wand/wand.tscn")
+const DISCOUNT_SAHNE     = preload("res://Assets/Models/Perks/discount/discount.tscn")
+const BLOODY_NAIL_SAHNE  = preload("res://Assets/Models/Perks/bloody_nail/bloody_nail.tscn")
+const CROSS_WHITE_SAHNE  = preload("res://Scenes/cross_white.tscn")
 
 # ─── SANDIK ADI → NODE YOLU ──────────────────────────────────────────────────
 const SANDIK_ADLARI = [
@@ -318,7 +318,7 @@ func sandik_ac(sandik: Node3D):
 
 	# Ses
 	var sfx = AudioStreamPlayer.new()
-	var ses = load("res://Sesler/buy.mp3")
+	var ses = load("res://Assets/Audio/buy.mp3")
 	if ses:
 		sfx.stream = ses
 		sfx.bus = "Master"

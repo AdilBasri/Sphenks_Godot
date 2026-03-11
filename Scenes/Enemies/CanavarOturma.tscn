@@ -1,7 +1,7 @@
 [gd_scene load_steps=9 format=3 uid="uid://cyy5cvfn3untg"]
 
-[ext_resource type="PackedScene" uid="uid://k1whi24gleww" path="res://Canavar/Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin.fbx" id="1_c4uxv"]
-[ext_resource type="Animation" uid="uid://cfs7a8vabk3ud" path="res://Uyuklama.res" id="2_rwgfm"]
+[ext_resource type="PackedScene" uid="uid://k1whi24gleww" path="res://Assets/Models/Canavar/Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin.fbx" id="1_c4uxv"]
+[ext_resource type="Animation" uid="uid://cfs7a8vabk3ud" path="res://Assets/Resources/Uyuklama.res" id="2_rwgfm"]
 
 [sub_resource type="Animation" id="Animation_53g5v"]
 resource_name = "Armature|Armature|Stand_to_Sit_Transition_M|baselayer"

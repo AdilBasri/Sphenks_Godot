@@ -31,7 +31,7 @@ func _ready():
 	
 	# --- SES KURULUMU ---
 	walking_player = AudioStreamPlayer.new()
-	var w_stream = load("res://Sesler/walking.mp3")
+	var w_stream = load("res://Assets/Audio/walking.mp3")
 	# loop özelliği AudioStreamMP3 içinde olmayabilir, bu yüzden güvenli kontrol
 	if w_stream:
 		if w_stream is AudioStreamMP3: w_stream.loop = true
@@ -125,13 +125,12 @@ func _physics_process(delta):
 
 	# --- KAMERA EFEKTLERİ ---
 	if kamera:
-		# Titreme efekti (Varsa)
+		# Head Bobbing - titreme_aktif bağımsız olarak her zaman çalışır
+		_head_bob_guncelle(delta)
+		# Titreme efekti - head bobbing üzerine eklenir
 		if titreme_aktif:
-			kamera.h_offset = randf_range(-titreme_gucu, titreme_gucu)
-			kamera.v_offset = randf_range(-titreme_gucu, titreme_gucu)
-		else:
-			# Head Bobbing uygulanacak
-			_head_bob_guncelle(delta)
+			kamera.h_offset += randf_range(-titreme_gucu, titreme_gucu)
+			kamera.v_offset += randf_range(-titreme_gucu, titreme_gucu)
 
 func _head_bob_guncelle(delta: float):
 	if not is_instance_valid(kamera) or inceleme_modu_aktif:

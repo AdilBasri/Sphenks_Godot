@@ -81,7 +81,7 @@ func get_etkilesim_yazisi() -> String:
 			anim_player.play("barking") 
 	
 	ses_oynatici = AudioStreamPlayer3D.new()
-	var stream_audio = load("res://Sesler/dog.mp3")
+	var stream_audio = load("res://Assets/Audio/dog.mp3")
 	if stream_audio is AudioStreamMP3:
 		stream_audio.loop = true
 	ses_oynatici.stream = stream_audio
@@ -126,7 +126,7 @@ func get_etkilesim_yazisi() -> String:
 	
 	paper_label = Label3D.new()
 	paper_label.text = DilYoneticisi.metin_al("depo_mektup")
-	paper_label.font = load("res://Captain Redemption.ttf")
+	paper_label.font = load("res://Assets/Fonts/Captain Redemption.ttf")
 	paper_label.font_size = 48
 	paper_label.modulate = Color(0.1, 0.1, 0.1, 0.0)
 	paper_label.outline_size = 0

@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=4 uid="uid://bcaphl238c1gj"]
 
-[ext_resource type="Texture2D" uid="uid://bjr1a7q65w3ho" path="res://Chest/ChestEfekt/et_parcası/textures/Male_LB_Head_Diff_baseColor.png" id="1_ei61q"]
-[ext_resource type="Texture2D" uid="uid://c35f8q4v0801q" path="res://Chest/ChestEfekt/et_parcası/textures/Male_LB_Head_Diff_metallicRoughness.png" id="2_xgtmo"]
-[ext_resource type="Texture2D" uid="uid://bekrcfjed5jcd" path="res://Chest/ChestEfekt/et_parcası/textures/Male_LB_Head_Diff_normal.png" id="3_2ucis"]
+[ext_resource type="Texture2D" uid="uid://bjr1a7q65w3ho" path="res://Assets/Models/Chest/ChestEfekt/et_parcası/textures/Male_LB_Head_Diff_baseColor.png" id="1_ei61q"]
+[ext_resource type="Texture2D" uid="uid://c35f8q4v0801q" path="res://Assets/Models/Chest/ChestEfekt/et_parcası/textures/Male_LB_Head_Diff_metallicRoughness.png" id="2_xgtmo"]
+[ext_resource type="Texture2D" uid="uid://bekrcfjed5jcd" path="res://Assets/Models/Chest/ChestEfekt/et_parcası/textures/Male_LB_Head_Diff_normal.png" id="3_2ucis"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aostt"]
 resource_name = "Male_LB_Head_Diff"

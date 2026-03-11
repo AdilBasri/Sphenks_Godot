@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://cwu0vxlfw8wsp"]
 
-[ext_resource type="PackedScene" uid="uid://ijjcu2rxd8i7" path="res://man_sitting-2/scene.gltf" id="1_eh5st"]
+[ext_resource type="PackedScene" uid="uid://ijjcu2rxd8i7" path="res://Assets/Models/man_sitting-2/scene.gltf" id="1_eh5st"]
 [ext_resource type="Script" uid="uid://dxwg6i1uepjta" path="res://Scripts/yolcu.gd" id="2_hlbfh"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_eh5st"]

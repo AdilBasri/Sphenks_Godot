@@ -27,7 +27,7 @@ func _ready():
 		oyuncu = get_tree().current_scene.find_child("Oyuncu", true, false)
 		
 	sfx_chase = AudioStreamPlayer3D.new()
-	var c_stream = load("res://Sesler/pyro_boss.mp3")
+	var c_stream = load("res://Assets/Audio/pyro_boss.mp3")
 	if c_stream and c_stream is AudioStream:
 		if c_stream.has_method("set_loop"): c_stream.set_loop(true)
 		elif "loop" in c_stream: c_stream.loop = true
@@ -37,7 +37,7 @@ func _ready():
 	sfx_chase.play()
 	
 	sfx_bite = AudioStreamPlayer3D.new()
-	sfx_bite.stream = load("res://Sesler/pyro_bite.mp3")
+	sfx_bite.stream = load("res://Assets/Audio/pyro_bite.mp3")
 	sfx_bite.bus = "Master"
 	add_child(sfx_bite)
 	

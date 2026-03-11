@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://ixiogokciwpp"]
 
-[ext_resource type="PackedScene" uid="uid://dp3mt40o74jx5" path="res://bus_man/scene.gltf" id="1_xm0wp"]
+[ext_resource type="PackedScene" uid="uid://dp3mt40o74jx5" path="res://Assets/Models/bus_man/scene.gltf" id="1_xm0wp"]
 [ext_resource type="Script" uid="uid://dxwg6i1uepjta" path="res://Yolcu.gd" id="2_hlbfh"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_xm0wp"]

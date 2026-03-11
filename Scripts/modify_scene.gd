@@ -37,8 +37,8 @@ func _run():
 	print("Bulunan Grass: ", grass_nodes.size(), " | Gas Lamp: ", lamp_nodes.size(), " | Çarpışma eklenecekler: ", nodes_to_add_collision.size())
 			
 	# Mesh ve AABB okumak için Packing işlemi
-	var grass_mesh = _get_mesh_from_path("res://grass/scene.gltf")
-	var lamp_mesh = _get_mesh_from_path("res://gas_lamp/scene.gltf")
+	var grass_mesh = _get_mesh_from_path("res://Assets/Models/grass/scene.gltf")
+	var lamp_mesh = _get_mesh_from_path("res://Assets/Models/gas_lamp/scene.gltf")
 	
 	# 1. Grass için MultiMesh oluştur
 	if grass_nodes.size() > 0 and grass_mesh != null:
@@ -59,7 +59,7 @@ func _run():
 		grass_mmi.owner = scene
 		print("- Grass MultiMesh başarıyla eklendi.")
 	elif grass_nodes.size() > 0:
-		print("HATA: Grass Mesh'i bulunamadı. Lütfen res://grass/scene.gltf yolunu kontrol edin.")
+		print("HATA: Grass Mesh'i bulunamadı. Lütfen res://Assets/Models/grass/scene.gltf yolunu kontrol edin.")
 		
 	# 2. Gas Lamp için MultiMesh oluştur (ışıkları koru)
 	if lamp_nodes.size() > 0 and lamp_mesh != null:
@@ -99,7 +99,7 @@ func _run():
 		lamp_mmi.owner = scene
 		print("- Gas Lamp MultiMesh ve Işık Koruma başarıyla eklendi.")
 	elif lamp_nodes.size() > 0:
-		print("HATA: Gas Lamp Mesh'i bulunamadı. Lütfen res://gas_lamp/scene.gltf yolunu kontrol edin.")
+		print("HATA: Gas Lamp Mesh'i bulunamadı. Lütfen res://Assets/Models/gas_lamp/scene.gltf yolunu kontrol edin.")
 
 	# 3. Collision Ekleme (Layer 1, Mask 1)
 	var added_col_count = 0

@@ -1,6 +1,6 @@
 extends Node3D
 
-@export var floor_scene: PackedScene = preload("res://depo_tas/scene.gltf")
+@export var floor_scene: PackedScene = preload("res://Assets/Models/depo_tas/scene.gltf")
 @export var extents_x: float = 9.0     # Half of 18 width
 @export var center_z: float = 8.566    # Offset center of the room in Z
 @export var extents_z: float = 29.0    # Half of 58 depth

@@ -145,7 +145,7 @@ func _oyuncu_girdi(body):
 	if kampates and not kampates.has_node("CampfireSfxPlayer"):
 		var sfx = AudioStreamPlayer3D.new()
 		sfx.name = "CampfireSfxPlayer"
-		var stream = load("res://Sesler/campfire.mp3")
+		var stream = load("res://Assets/Audio/campfire.mp3")
 		if stream and stream is AudioStream:
 			if stream.has_method("set_loop"): stream.set_loop(true)
 			elif "loop" in stream: stream.loop = true
@@ -240,9 +240,13 @@ func _uyku_secildi():
 	var direkt_atla = false
 	var ucuncu_ruyaya_git = false
 	var mezbahaya_git = false
+	var depo_git = false
 	if GameManager:
-		if GameManager.uyku_sahnesi_giris_sayisi >= 4:
+		if GameManager.uyku_sahnesi_giris_sayisi >= 5:
 			direkt_atla = true
+		elif GameManager.uyku_sahnesi_giris_sayisi == 4:
+			# Mezbaha sonrası 5. kart çekildiğinde (giris_sayisi 4) Depo'ya git
+			depo_git = true
 		elif GameManager.uyku_sahnesi_giris_sayisi == 3:
 			# Sandık odası görüldükten sonra sıradaki uyku: Mezbaha
 			mezbahaya_git = true
@@ -256,6 +260,11 @@ func _uyku_secildi():
 	if direkt_atla:
 		if LevelManager:
 			LevelManager.odaya_don_ve_level_atla()
+	elif depo_git:
+		if GameManager:
+			GameManager.uyku_sahnesi_giris_sayisi += 1
+			GameManager.oyunu_kaydet()
+		get_tree().change_scene_to_file("res://Scenes/Depo.tscn")
 	elif mezbahaya_git:
 		if GameManager:
 			GameManager.uyku_sahnesi_giris_sayisi += 1
@@ -263,7 +272,7 @@ func _uyku_secildi():
 		get_tree().change_scene_to_file("res://Scenes/Mezbaha.tscn")
 	elif ucuncu_ruyaya_git:
 		if GameManager: GameManager.uyku_sahnesi_giris_sayisi += 1
-		get_tree().change_scene_to_file("res://sandik_odasi.tscn")
+		get_tree().change_scene_to_file("res://Scenes/sandik_odasi.tscn")
 	else:
 		get_tree().change_scene_to_file("res://Scenes/UykuSahnesi.tscn")
 

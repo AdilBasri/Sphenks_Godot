@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://da5xuxk2xrfw"]
-
-[ext_resource type="PackedScene" uid="uid://04srw8nxngym" path="res://Perks/wand/scene.gltf" id="1_efo13"]
-
-[node name="wand" type="Node3D"]
-
-[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_efo13")]
-transform = Transform3D(0.10606602, 0, -0.10606602, 0, 0.15, 0, 0.10606602, 0, 0.10606602, 0, 0, 0)
