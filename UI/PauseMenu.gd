@@ -109,16 +109,17 @@ func uykuya_dal():
 func uykudan_uyan():
 	visible = false
 	ayarlar_ui.visible = false
-	ana_menu_ui.visible = true # <--- Ana menü yüzünü sıfırla ki sonra tekrar açıldığında boş gelmesin
+	ana_menu_ui.visible = true
 	get_tree().paused = false
 	
-	# Sadece oyuncu sahnedeyse ve 3d oyundaysa mouse'u kitle
 	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
-	if oyuncu and MainLoop:
+	if oyuncu:
 		if oyuncu.is_sitting:
 			Input.mouse_mode = Input.MOUSE_MODE_CONFINED
 		else:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func ayarlari_ac():
 	ana_menu_ui.visible = false
