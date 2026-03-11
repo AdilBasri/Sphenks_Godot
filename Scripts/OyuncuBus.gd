@@ -3,18 +3,18 @@ extends CharacterBody3D
 # --- AYARLAR ---
 var inceleme_modu_aktif = false
 var yurume_hizi = 3.0
-var sprint_hizi = 5.5   # Shift ile sprint hızı
+var sprint_hizi = 5.5
 var yer_cekimi = 9.8
 var fare_hassasiyeti = 0.003
 var titreme_gucu = 0.005
 @export var titreme_aktif : bool = false
+var mouse_manuel_serbest = false
 
 var kamera = null
 var raycast = null
 var crosshair_ui = null
 
 # --- RESİMLER ---
-# Klasör adının BÜYÜK/KÜÇÜK harf uyumuna dikkat et!
 var crosshair_idle = preload("res://Assets/1.png") 
 var crosshair_click = preload("res://Assets/2.png") 
 
@@ -29,45 +29,35 @@ var bob_amp: float = 0.035
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	
-	# --- SES KURULUMU ---
 	walking_player = AudioStreamPlayer.new()
 	var w_stream = load("res://Assets/Audio/walking.mp3")
-	# loop özelliği AudioStreamMP3 içinde olmayabilir, bu yüzden güvenli kontrol
 	if w_stream:
 		if w_stream is AudioStreamMP3: w_stream.loop = true
 		elif w_stream is AudioStreamWAV: w_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
 	walking_player.stream = w_stream
 	walking_player.bus = "Master"
-	walking_player.volume_db = -6.0 # %50 daha kısık (Logaritmik olarak -6dB yaklaşık %50'dir)
+	walking_player.volume_db = -6.0
 	add_child(walking_player)
 	
-	# --- 1. KAMERAYI BUL ---
-	# Direkt çocuklarda Camera3D ara
 	for child in get_children():
 		if child is Camera3D:
 			kamera = child
 			kamera.fov = 90.0
 			break
 	
-	# --- 2. RAYCAST'İ BUL ---
 	if kamera:
-		# Önce isme göre ara
 		if kamera.has_node("RayCast3D"):
 			raycast = kamera.get_node("RayCast3D")
 		else:
-			# Bulamazsan kameranın içine girip TİPİNE göre ara (Garanti Yöntem)
 			for child in kamera.get_children():
 				if child is RayCast3D:
 					raycast = child
 					break
-		
 		if not raycast:
 			print("⚠️ UYARI: Kameranın içinde RayCast3D nesnesi yok!")
 	else:
 		print("⛔ HATA: Oyuncu içinde Camera3D bulunamadı!")
 
-	# --- 3. CROSSHAIR BUL ---
-	# Sahne kökünde 'Nisangah' ismini ara
 	var root = get_tree().current_scene
 	crosshair_ui = root.find_child("Nisangah", true, false)
 	
@@ -75,6 +65,11 @@ func _ready():
 		crosshair_ui.texture = crosshair_idle
 	else:
 		print("⚠️ UYARI: Sahnede 'Nisangah' isimli bir nesne bulunamadı.")
+
+func _notification(what):
+	if what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
+		if not inceleme_modu_aktif and not mouse_manuel_serbest:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _input(event):
 	if inceleme_modu_aktif: return
@@ -85,7 +80,12 @@ func _input(event):
 		kamera.rotation.x = clamp(kamera.rotation.x, deg_to_rad(-80), deg_to_rad(80))
 	
 	if Input.is_action_just_pressed("ui_cancel"):
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			mouse_manuel_serbest = true
+		else:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			mouse_manuel_serbest = false
 	
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		crosshair_tiklama_efekti()
@@ -95,7 +95,6 @@ func _input(event):
 		kontrol_et_ve_tikla()
 
 func _physics_process(delta):
-	# --- HAREKET VE SES ---
 	if not is_on_floor():
 		velocity.y -= yer_cekimi * delta
 
@@ -115,7 +114,6 @@ func _physics_process(delta):
 
 	move_and_slide()
 	
-	# Yürüme sesi
 	if is_on_floor() and direction.length_squared() > 0.01:
 		if not walking_player.playing:
 			walking_player.play()
@@ -123,11 +121,8 @@ func _physics_process(delta):
 		if walking_player.playing:
 			walking_player.stop()
 
-	# --- KAMERA EFEKTLERİ ---
 	if kamera:
-		# Head Bobbing - titreme_aktif bağımsız olarak her zaman çalışır
 		_head_bob_guncelle(delta)
-		# Titreme efekti - head bobbing üzerine eklenir
 		if titreme_aktif:
 			kamera.h_offset += randf_range(-titreme_gucu, titreme_gucu)
 			kamera.v_offset += randf_range(-titreme_gucu, titreme_gucu)
@@ -139,7 +134,6 @@ func _head_bob_guncelle(delta: float):
 	var yatay_hiz = Vector2(velocity.x, velocity.z).length()
 
 	if is_on_floor() and yatay_hiz > 0.5:
-		# Dinamik Frekans ve Genlik
 		if Input.is_action_pressed("kosma"):
 			bob_freq = 2.5
 			bob_amp = 0.055
@@ -149,7 +143,6 @@ func _head_bob_guncelle(delta: float):
 
 		t_bob += delta * yatay_hiz * bob_freq
 		
-		# Figure-8 bobbing
 		var hedef_y = sin(t_bob) * bob_amp
 		var hedef_x = cos(t_bob * 0.5) * (bob_amp * 0.5)
 
@@ -175,7 +168,7 @@ func kontrol_et_ve_tikla():
 	
 	if raycast.is_colliding():
 		var carpan = raycast.get_collider()
-		print("Raycast hit: ", carpan.name, " (", carpan, ")") # DEBUG: Hangi objeye değdiğini görelim
+		print("Raycast hit: ", carpan.name, " (", carpan, ")")
 		
 		var etkilesim_hedefi = _etkilesim_nesnesi_bul(carpan, "etkilesim_baslat")
 		if etkilesim_hedefi:
