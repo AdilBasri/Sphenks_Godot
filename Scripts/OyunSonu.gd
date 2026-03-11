@@ -36,8 +36,12 @@ func _on_tekrar_pressed():
 	print("🔄 Tekrar Deneniyor... Veriler sıfırlanıyor.")
 	get_tree().paused = false # Oyunu devam ettir
 	
+	var is_pyro_active = false
 	if GameManager:
+		is_pyro_active = GameManager.pyro_aktif
 		GameManager.verileri_sifirla()
+		if is_pyro_active:
+			GameManager.mermi_sayisi = 3
 	
 	get_tree().reload_current_scene()
 
