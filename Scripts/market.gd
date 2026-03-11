@@ -48,6 +48,8 @@ func satin_almaya_calis(fiyat: int, urun_verisi: ItemData) -> bool:
 		# 2. Para düştü, şimdi eşyayı envantere ekle
 		GameManager.envanter.append(urun_verisi)
 		GameManager.envanter_guncellendi.emit()
+		# 3. Anında kaydet (kediyi beslemeyi unutunca totem kaybolmasın)
+		GameManager.oyunu_kaydet()
 		print("✅ Satın alma başarılı: " + urun_verisi.esya_adi)
 		return true
 	else:

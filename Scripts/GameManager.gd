@@ -333,31 +333,47 @@ func bolum_bufflarini_sifirla():
 
 func oyunu_kaydet():
 	var config = ConfigFile.new()
-	config.set_value("Oyun", "KayitliSeviye", suanki_seviye)
+	# Kayıt anında LevelManager'dan güncel katmanı al (varsa)
+	var kayit_seviyesi = suanki_seviye
+	if LevelManager and LevelManager.get("suanki_katman") != null:
+		kayit_seviyesi = LevelManager.suanki_katman
+	config.set_value("Oyun", "KayitliSeviye", kayit_seviyesi)
 	config.set_value("Oyun", "Altin", toplam_altin)
 	config.set_value("Oyuncu", "KalanBar", oyuncu_kalan_bar)
 	config.set_value("Oyuncu", "SuankiHP", oyuncu_suanki_hp)
 	config.set_value("Oyuncu", "MermiSayisi", mermi_sayisi)
 	config.set_value("Oyuncu", "PyroAktif", pyro_aktif)
+	config.set_value("Oyuncu", "GoreIntensity", gore_intensity)
 	
 	config.set_value("Bufflar", "PuanCarpani", puan_carpani)
 	config.set_value("Bufflar", "ReviveAktif", revive_aktif)
 	config.set_value("Bufflar", "FenerAktif", fener_aktif)
 	config.set_value("Bufflar", "ZamanYavas", pyro_yavaslatma)
 	config.set_value("Bufflar", "KanliCiviAktif", kanli_civi_aktif)
-	config.set_value("Bufflar", "GlitchFaceAktif", glitch_face_aktif)
 	config.set_value("Bufflar", "KahinGozuAktif", kahin_gozu_aktif)
+	config.set_value("Bufflar", "KanliIndirimAktif", kanli_indirim_aktif)
+	config.set_value("Bufflar", "MantarModu", mantar_modu)
+	config.set_value("Bufflar", "YarasaBonusu", yarasa_bonusu)
+	config.set_value("Bufflar", "TekZarModu", tek_zar_modu)
+	config.set_value("Bufflar", "ZarYokSayma", zar_yok_sayma)
+	config.set_value("Bufflar", "ZarAtlamaHakki", zar_atlama_hakki)
 	
-	var esya_yollari = []
+	# Envanterı etki_id listesi olarak kaydet (resource_path olmayan dinamik item'lar için güvenli)
+	var esya_id_listesi = []
 	for esya in envanter:
-		if esya != null: esya_yollari.append(esya.resource_path)
-	config.set_value("Oyun", "Envanter", esya_yollari)
+		if esya != null and esya.etki_id != "":
+			esya_id_listesi.append(esya.etki_id)
+	config.set_value("Oyun", "EnvanterIDler", esya_id_listesi)
+	# Eski Envanter key'ini de temizle (uyumluluk için boş yaz)
+	config.set_value("Oyun", "Envanter", [])
 	config.set_value("Oyun", "IntroTamamlandi", intro_tamamlandi)
-	config.set_value("Oyun", "TutorialTamamlandi", tutorial_tamamlandi)
+	# tutorial_tamamlandi'yı completed_tutorials'dan otomatik hesapla (tutarsızlığı önle)
+	var _tut_tamam = ("base" in completed_tutorials and "market" in completed_tutorials \
+		and "campfire" in completed_tutorials and "pyro" in completed_tutorials)
 	config.set_value("Oyun", "CompletedTutorials", completed_tutorials)
 	config.set_value("Oyun", "UykuSahnesiGirisSayisi", uyku_sahnesi_giris_sayisi)
 	config.save("user://savegame.cfg")
-	print("💾 Oyun kaydedildi.")
+	print("💾 Oyun kaydedildi. (Seviye: %d, Envanter: %s)" % [kayit_seviyesi, str(esya_id_listesi)])
 
 func oyunu_yukle():
 	"""Kaydedilen TÜM verileri yükler."""
@@ -370,6 +386,7 @@ func oyunu_yukle():
 		oyuncu_suanki_hp = config.get_value("Oyuncu", "SuankiHP", 10)
 		mermi_sayisi = config.get_value("Oyuncu", "MermiSayisi", 10)
 		pyro_aktif = config.get_value("Oyuncu", "PyroAktif", false)
+		gore_intensity = config.get_value("Oyuncu", "GoreIntensity", 0.0)
 		
 		puan_carpani = config.get_value("Bufflar", "PuanCarpani", 1.0)
 		revive_aktif = config.get_value("Bufflar", "ReviveAktif", false)
@@ -377,16 +394,36 @@ func oyunu_yukle():
 		pyro_yavaslatma = config.get_value("Bufflar", "ZamanYavas", false)
 		kanli_civi_aktif = config.get_value("Bufflar", "KanliCiviAktif", false)
 		kahin_gozu_aktif = config.get_value("Bufflar", "KahinGozuAktif", false)
+		kanli_indirim_aktif = config.get_value("Bufflar", "KanliIndirimAktif", false)
+		mantar_modu = config.get_value("Bufflar", "MantarModu", false)
+		yarasa_bonusu = config.get_value("Bufflar", "YarasaBonusu", false)
+		tek_zar_modu = config.get_value("Bufflar", "TekZarModu", false)
+		zar_yok_sayma = config.get_value("Bufflar", "ZarYokSayma", false)
+		zar_atlama_hakki = config.get_value("Bufflar", "ZarAtlamaHakki", 0)
 		
 		envanter.clear()
-		var esya_yollari = config.get_value("Oyun", "Envanter", [])
-		for yol in esya_yollari:
-			if ResourceLoader.exists(yol):
-				envanter.append(load(yol))
+		# Yeni format: etki_id listesi
+		var esya_id_listesi = config.get_value("Oyun", "EnvanterIDler", [])
+		if esya_id_listesi.size() > 0:
+			for eid in esya_id_listesi:
+				var item = _etki_id_den_item_yukle(eid)
+				if item: envanter.append(item)
+		else:
+			# Eski format: resource_path (gerçe yoldan yükle)
+			var esya_yollari = config.get_value("Oyun", "Envanter", [])
+			for yol in esya_yollari:
+				if typeof(yol) == TYPE_STRING and yol.begins_with("res://") and ResourceLoader.exists(yol):
+					envanter.append(load(yol))
 
 		intro_tamamlandi = config.get_value("Oyun", "IntroTamamlandi", false)
-		tutorial_tamamlandi = config.get_value("Oyun", "TutorialTamamlandi", false)
 		completed_tutorials.assign(config.get_value("Oyun", "CompletedTutorials", []))
+		# Eğer base segmenti tamamlanmamışsa tüm tutorial listesini sıfırla
+		# (Kısmen sahte dolu liste durumunu önle)
+		if "base" not in completed_tutorials:
+			completed_tutorials.clear()
+		# tutorial_tamamlandi'yı completed_tutorials'dan otomatik hesapla
+		tutorial_tamamlandi = ("base" in completed_tutorials and "market" in completed_tutorials \
+			and "campfire" in completed_tutorials and "pyro" in completed_tutorials)
 		# Boş veya hatalı değere karşı güvenli yükleme (tip kontrolü ile)
 		var _uyku_raw = config.get_value("Oyun", "UykuSahnesiGirisSayisi", 0)
 		if typeof(_uyku_raw) == TYPE_STRING:
@@ -404,7 +441,7 @@ func oyunu_yukle():
 			print("⚠️ Yükleme: Corrupt HP tespit edildi, tam sağlığa sıfırlanıyor.")
 			oyuncu_kalan_bar = oyuncu_max_bar
 			oyuncu_suanki_hp = 10
-		print("✅ oyunu_yukle: intro=%s, kayitli_seviye=%d" % [str(intro_tamamlandi), kayitli_seviye])
+		print("✅ oyunu_yukle: tutorial=%s, kayitli_seviye=%d, envanter=%s" % [str(tutorial_tamamlandi), kayitli_seviye, str(envanter.size())])
 	else:
 		kayitli_seviye = 1
 		print("⚠️ oyunu_yukle: save yüklenemedi, seviye 1'e sıfırlandı.")
@@ -416,13 +453,51 @@ func _intro_durumu_yukle():
 	var hata = config.load("user://savegame.cfg")
 	if hata == OK:
 		intro_tamamlandi = config.get_value("Oyun", "IntroTamamlandi", false)
-		tutorial_tamamlandi = config.get_value("Oyun", "TutorialTamamlandi", false)
 		completed_tutorials.assign(config.get_value("Oyun", "CompletedTutorials", []))
-		print("📂 Intro/Tutorial durumu yüklendi: Intro=", intro_tamamlandi, " Tutorial=", tutorial_tamamlandi, " Segments=", completed_tutorials)
+		# tutorial_tamamlandi'yı completed_tutorials'dan otomatik hesapla (tutarsızlığı önle)
+		tutorial_tamamlandi = ("base" in completed_tutorials and "market" in completed_tutorials \
+			and "campfire" in completed_tutorials and "pyro" in completed_tutorials)
+		print("📂 Intro/Tutorial durumu yülendi: Intro=", intro_tamamlandi, " Tutorial=", tutorial_tamamlandi, " Segments=", completed_tutorials)
 	else:
 		intro_tamamlandi = false
 		tutorial_tamamlandi = false
+		completed_tutorials.clear()
 		print("📂 Save dosyası bulunamadı, intro sıfır.")
+
+func _etki_id_den_item_yukle(etki_id: String) -> ItemData:
+	"""etki_id'ye göre ilgili .tres dosyasını bulur ve yükler."""
+	var yol_map = {
+		"asit":        "res://Assets/Models/Items/Asit.tres",
+		"kilic":       "res://Assets/Models/Items/Kılıc.tres",
+		"dig":         "res://Assets/Models/Items/Dig.tres",
+		"paint":       "res://Assets/Models/Items/Paint.tres",
+		"mantar":      "res://Assets/Models/Items/Mantar.tres",
+		"serbet":      "res://Assets/Models/Items/Mantar.tres",
+		"guc":         "res://Assets/Models/Items/Guc.tres",
+		"canlan":      "res://Assets/Models/Items/Revive.tres",
+		"revive":      "res://Assets/Models/Items/Revive.tres",
+		"fener":       "res://Assets/Models/Items/Fener.tres",
+		"kumsaati":    "res://Assets/Models/Items/Time.tres",
+		"magnet":      "res://Assets/Models/Items/Magnet.tres",
+		"cloak":       "res://Assets/Models/Items/Cloak.tres",
+		"dice":        "res://Assets/Models/Items/Dice.tres",
+		"kedimamasi":  "res://Assets/Models/Items/KediMamasi.tres",
+		"mermi_kutusu":"res://Assets/Models/Items/Mermi_Kutusu.tres",
+		"curuk_temel": "",  # Dinamik yaratılan, .tres yok — özel yarat
+	}
+	if etki_id == "curuk_temel":
+		# Dinamik item — sandik_odasi.\_wand_item_verisi_olustur() ile aynı şekilde oluştur
+		var item = ItemData.new()
+		item.esya_adi = DilYoneticisi.metin_al("curuk_temel_isim") if DilYoneticisi else "Çürük Temel"
+		item.etki_id = "curuk_temel"
+		item.animasyon_tipi = "kirma"
+		item.fiyat = 0
+		return item
+	var yol = yol_map.get(etki_id, "")
+	if yol != "" and ResourceLoader.exists(yol):
+		return load(yol)
+	push_warning("_etki_id_den_item_yukle: '%s' için .tres dosyası bulunamadı!" % etki_id)
+	return null
 
 func dosyalari_tamamen_sil():
 	"""Kullanıcının kayıt dosyasını siler ve değişkenleri sıfırlar."""
@@ -438,6 +513,7 @@ func dosyalari_tamamen_sil():
 	
 	intro_tamamlandi = false
 	tutorial_tamamlandi = false
+	completed_tutorials.clear()
 	verileri_sifirla()
 
 func mermi_ekle(miktar: int) -> bool:

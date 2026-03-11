@@ -24,6 +24,7 @@ var arayuz: CanvasLayer = null # Arayüz (bilgi_goster)
 @export var glitch_yuzu_dokusu: Texture2D
 @export var kirik_cam_sesi: AudioStream
 var glitch_ui_rect: TextureRect = null
+var glitch_canvas: CanvasLayer = null   # Glitch yüz canvas'ı (kapat için referans tutuyoruz)
 
 # --- DURUM MAKİNESİ ---
 # Durumlar: "BASLANGIC", "UYUKLAMA", "AYAKTA", "SALDIRI"
@@ -624,6 +625,9 @@ func pre_attack() -> bool:
 	# Pencereyi Aç
 	if GameManager: GameManager.is_parry_window_open = true
 	
+	# Her ihtimale karşı varsa eskisini temizle
+	glitch_yuzu_kapat()
+	
 	# Ekranda Korkunç Yüz Göster
 	glitch_ui_rect = TextureRect.new()
 	glitch_ui_rect.texture = glitch_yuzu_dokusu
@@ -638,23 +642,24 @@ func pre_attack() -> bool:
 	if shader: mat.shader = shader
 	glitch_ui_rect.material = mat
 	
-	# En üste çizilmesi için CanvasLayer
-	var canvas = CanvasLayer.new()
-	canvas.layer = 99 
-	canvas.add_child(glitch_ui_rect)
-	add_child(canvas)
+	# En üste çizilmesi için CanvasLayer — instance variable'a kaydet
+	glitch_canvas = CanvasLayer.new()
+	glitch_canvas.layer = 99 
+	glitch_canvas.add_child(glitch_ui_rect)
+	add_child(glitch_canvas)
 	
-	# process_always=false parametresi ile, TutorialManager oyunu dondurduğunda (pause) bu zamanlayıcı da donacak, böylece arka planda bitmeyecek!
+	# pause_mode=false yapıyoruz ki Tutorial sırasında (oyun durduğunda) veya menüde timer donsun.
 	await get_tree().create_timer(0.5, false).timeout
 	
 	# Süre Bitti. Pencere hala açık mı? (Oyuncu tıklamadıysa true kalır)
 	if GameManager and GameManager.is_parry_window_open:
 		# TIKLAYAMADI! Normal saldırıya devam.
 		GameManager.is_parry_window_open = false
-		if is_instance_valid(canvas): canvas.queue_free()
+		glitch_yuzu_kapat()
 		return false
 	else:
 		# TIKLADI! (oyuncu.gd is_parry_window_open'ı false yaptı)
+		glitch_yuzu_kapat()  # Canvas'ı temizle
 		# Ses Çalar
 		if kirik_cam_sesi:
 			var as_player = AudioStreamPlayer3D.new()
@@ -668,8 +673,10 @@ func pre_attack() -> bool:
 		return true
 
 func glitch_yuzu_kapat():
-	if is_instance_valid(glitch_ui_rect) and glitch_ui_rect.get_parent():
-		glitch_ui_rect.get_parent().queue_free()
+	if is_instance_valid(glitch_canvas):
+		glitch_canvas.queue_free()
+		glitch_canvas = null
+		glitch_ui_rect = null
 
 func gercek_saldiri_basa_don():
 	"""

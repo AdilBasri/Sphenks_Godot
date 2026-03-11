@@ -3,6 +3,7 @@ extends Node
 # --- OYUN DURUMU ---
 var suanki_katman: int = 1
 var isleme_alindi_mi: bool = false
+var saldiri_devrede: bool = false
 var is_boss_acting: bool = false:
 	set(value):
 		is_boss_acting = value
@@ -82,10 +83,13 @@ func odaya_don_ve_level_atla():
 		
 	if GameManager:
 		GameManager.suanki_seviye = suanki_katman
-		GameManager.mantar_modu = false
 		GameManager.silah_cekildi = false # KESİN SİLAH KAPATMA
 		GameManager.pyro_aktif = false    # KESİN PYRO KAPATMA
 		GameManager.yeme_aktif_mi = false
+		
+		# Bölüm geçişinde buff efektlerini sıfırla (item'lar envanterde kalır,
+		# sadece o bölümde aktif olan efektler — puan_carpani, revive, fener vb. — kapanır)
+		GameManager.bolum_bufflarini_sifirla()
 		
 		# İlk seviyelerde direkt kaydet ki kediye gitmese de tutorials vb. kaybolmasın
 		if suanki_katman <= 1:
@@ -144,6 +148,11 @@ func bolum_verilerini_getir() -> Dictionary:
 func boss_saldirisi_baslat():
 	# Sadece Pyro olmayan seviyelerde çalışır
 	if GameManager.pyro_aktif: return
+	
+	if saldiri_devrede:
+		print("⚠️ Boss saldırısı zaten devrede, kopya çağrı engellendi.")
+		return
+	saldiri_devrede = true
 
 	# is_boss_acting oyuncunun blok atmasını engellemek için dışarıdan (oyun_odasi) set edilir.
 	# Dolayısıyla boss'un kendi saldırmasını burada durdurmamalı.
@@ -167,6 +176,7 @@ func boss_saldirisi_baslat():
 func _on_boss_isi_bitti():
 	# KİLİDİ AÇ — oyuncu tekrar blok koyabilir
 	is_boss_acting = false
+	saldiri_devrede = false
 	print("🔓 Boss sırası AÇILDI.")
 
 	# Kamera Güvenliği: Boss saldırısı veya zar bittiğinde kamera oyuncuya döner

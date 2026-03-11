@@ -540,17 +540,8 @@ func esya_kullan():
 			# --- GÜNCELLENMİŞ KEDİ KONTROLÜ ---
 			if kedi_bulundu:
 				if GameManager:
-					# Kamp odasında kedi beslenerek kaydedildiğinde aşama geçilmiştir.
-					# Bu yüzden oyuncu geri döndüğünde bir sonraki aşamayı oynamalı.
-					var aktif_seviye = GameManager.suanki_seviye
-					
-					if LevelManager:
-						GameManager.suanki_seviye = LevelManager.suanki_katman
-					
+					# oyunu_kaydet() artık LevelManager.suanki_katman'ı kendisi okuyor
 					GameManager.oyunu_kaydet()
-					
-					# Kayıttan sonra oyun esnasında bug olmaması için eski haline al
-					GameManager.suanki_seviye = aktif_seviye
 					
 					var arayuz = _get_arayuz()
 					if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("kedi_beslendi"))

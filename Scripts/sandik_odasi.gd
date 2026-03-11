@@ -448,6 +448,9 @@ func _perk_ver(perk: Dictionary):
 			if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("kanli_civi_bilgi"), 4.0)
 
 	pozitif_acildi_mi = true
+	# Perk alındı → otomatik kaydet (kediyi beslemeyi unutunca perkler kaybolmasın)
+	if GameManager:
+		GameManager.oyunu_kaydet()
 	_door_key_ac()
 
 func _negatif_sonuc():
