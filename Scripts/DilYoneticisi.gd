@@ -483,7 +483,7 @@ var ceviriler = {
 	"tut_ipucu_3": { "tr": "(Farenin Sol Tuşuna veya [A] tuşuna basılı tutarak bloğu masaya çek)", "en": "(Hold Left Mouse Button or [A] to drag the block to the table)" },
 	"tut_baslik_4": { "tr": "ADIM 3: MASAYA BAKIŞ", "en": "STEP 3: VIEWING THE TABLE" },
 	"tut_metin_4": { "tr": "Kamerayı ayarlamak masayı daha iyi görmeni sağlar.\n[A] ve [D] tuşlarıyla (Gamepad: LT / RT) masaya baktığın konumu sağa ve sola çevirebilirsin.\n\nŞimdi blokları dizerek bir satır veya sütun patlatmayı dene!", "en": "Adjusting the camera allows you to see the table better.\nYou can turn your view left and right with [A] and [D] (Gamepad: LT / RT).\n\nNow try popping a row or column by arranging blocks!" },
-	"tut_ipucu_4": { "tr": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)", "en": "(Press [LEFT CLICK] / [A] to continue)" },
+	"tut_ipucu_4": { "tr": "(Bir satır veya sütun patlat)", "en": "(Pop a row or column to continue)" },
 	"tut_baslik_5": { "tr": "ADIM 4: FİRAVUNUN UYANIŞI", "en": "STEP 4: PHARAOH'S AWAKENING" },
 	"tut_metin_5": { "tr": "DİKKAT! Satır patlattıktan sonra blokların çıkarttığı ses firavunu derin uykusundan uyandırır.\n\nUyanan firavun artık HER blok yerleştirmenden sonra sana ölümcül bir saldırı yapacaktır!", "en": "ATTENTION! The sound blocks make after popping a row wakes the pharaoh from his deep sleep.\n\nThe awakened pharaoh will now make a deadly attack on you after EVERY block you place!" },
 	"tut_ipucu_5": { "tr": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)", "en": "(Press [LEFT CLICK] / [A] to continue)" },

@@ -35,15 +35,15 @@ var metinler = {
 	},
 	3: {
 		"baslik": "ADIM 2: BLOKLARI SÜRÜKLE",
-		"metin": "Sol tarafta voidden çıkan bloklar yer alıyor. Blokları tıklayıp basılı tutarak istediğin gibi sürükleyebilir ve masadaki ızgaraya (grid) bırakabilirsin!",
+		"metin": "Sol tarafta voidden çıkan bloklar yer alıyor. Bloklara tıklayıp basılı tutarak istediğin gibi sürükleyebilir ve masadaki ızgaraya (grid) bırakabilirsin!",
 		"ipucu": "(Farenin Sol Tuşuna veya [A] tuşuna basılı tutarak bloğu masaya çek)",
 		"beklenen_eylem": "blok_yerlestirme" # Artık blok bırakılınca geçiyor
 	},
 	4: {
 		"baslik": "ADIM 3: MASAYA BAKIŞ",
 		"metin": "Kamerayı ayarlamak masayı daha iyi görmeni sağlar.\n[A] ve [D] tuşlarıyla (Gamepad: LT / RT) masaya baktığın konumu sağa ve sola çevirebilirsin.\n\nŞimdi blokları dizerek bir satır veya sütun patlatmayı dene!",
-		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
-		"beklenen_eylem": "tiklama"
+		"ipucu": "(Bir satır veya sütun patlat)",
+		"beklenen_eylem": "satir_patlatma"
 	},
 	5: {
 		"baslik": "ADIM 4: FİRAVUNUN UYANIŞI",
@@ -95,7 +95,7 @@ var metinler = {
 	},
 	13: {
 		"baslik": "ADIM 11: RENK KOMBOLARI",
-		"metin": "Aynı renk blokları yan yana patlatmak sana ekstra bölüm içi puan (Altın) kazandırır!\n\nAma şunu unutma; marketten alınan ve kullanılan her nesne SADECE o bölüm için geçerlidir. Sonraki katmanlara taşınmaz!",
+		"metin": "Aynı renk blokları yan yana patlatmak sana ekstra bölüm içi puan kazandırır!\n\nAma şunu unutma; marketten alınan ve kullanılan her nesne SADECE o bölüm için geçerlidir. Sonraki katmanlara taşınmaz!",
 		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
 		"beklenen_eylem": "tiklama"
 	},
@@ -152,6 +152,12 @@ func _ready():
 	if GameManager:
 		if not GameManager.blok_yerlestirildi.is_connected(_on_blok_yerlestirildi):
 			GameManager.blok_yerlestirildi.connect(_on_blok_yerlestirildi)
+		if GameManager.has_signal("satir_patladi") and not GameManager.satir_patladi.is_connected(_on_satir_patladi):
+			GameManager.satir_patladi.connect(_on_satir_patladi)
+
+func _on_satir_patladi():
+	if tutorial_aktif:
+		eylemi_dogrula("satir_patlatma")
 
 func _on_blok_yerlestirildi():
 	if tutorial_aktif:

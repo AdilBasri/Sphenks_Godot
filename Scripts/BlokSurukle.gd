@@ -102,6 +102,9 @@ func _on_area_3d_input_event(_camera, event, _position, _normal, _shape_idx) -> 
 	if GameManager.silah_cekildi: return
 	# -------------------------------------------------------------
 	
+	if TutorialManager and TutorialManager.tutorial_aktif and TutorialManager.suanki_adim == 10:
+		return
+	
 	if LevelManager and LevelManager.is_boss_acting: return
 	
 	var dagitici = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
