@@ -303,6 +303,11 @@ func _process(_delta):
 func _input(event):
 	if not visible or not tutorial_aktif: return
 	
+	# Eğer pause menüsü açıksa tıklamaları yok say
+	var pause_menu = get_node_or_null("/root/PauseMenu")
+	if pause_menu and pause_menu.visible:
+		return
+	
 	# Eğer sadece TIKLAMA ile geçilen bilgilendirme ekranındaysak:
 	if metinler.has(suanki_adim) and metinler[suanki_adim]["beklenen_eylem"] == "tiklama":
 		if event.is_action_pressed("sol_tik"):

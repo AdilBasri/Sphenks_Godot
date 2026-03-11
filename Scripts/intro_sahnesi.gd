@@ -138,7 +138,7 @@ func yolcuya_tiklandi(yolcu_node, yok_olacak_mi):
 		y_tween.tween_property(yolcu_node, "position", org_pos + Vector3(0.05, 0.05, 0), 0.05)
 		y_tween.tween_property(yolcu_node, "position", org_pos, 0.05)
 
-	await get_tree().create_timer(0.5).timeout
+	await get_tree().create_timer(2.0).timeout
 	
 	if altyazi_label:
 		altyazi_label.text = ""
