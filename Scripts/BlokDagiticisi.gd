@@ -139,9 +139,10 @@ func _stoktan_yeni_parti_ver() -> void:
 		print("--- HATA: Blok Sahneleri Bos! ---")
 		return
 
-	# Boss ölmediği sürece sonsuz blok sağla (User Request)
-	if not boss_oldu_mu and kalan_stok <= 5:
-		kalan_stok += 10
+	# Tutorial'da boss ölmediği sürece sonsuz blok sağla (User Request)
+	if LevelManager and LevelManager.suanki_katman == 1:
+		if not boss_oldu_mu and kalan_stok <= 5:
+			kalan_stok += 10
 	
 	if kalan_stok <= 0 and masadaki_aktif_bloklar <= 0:
 		emit_signal("stok_bitti")
@@ -186,17 +187,20 @@ func _boss_olum_animasyonu() -> void:
 	boss_oldu_mu = true 
 	GameManager.boss_oldu.emit()
 	
-	# --- BOSS ÖLDÜĞÜNDE SON 3 BLOK MEKANİĞİ ---
-	print("☠️ BOSS ÖLDÜ! Son 3 blok kalacak.")
-	# Masadaki bloklar dahil toplam 3 blok hakkı tanı
-	var eksik = 3 - masadaki_aktif_bloklar
-	if eksik > 0:
-		kalan_stok = eksik
+	# --- BOSS ÖLDÜĞÜNDE SON 3 BLOK MEKANİĞİ (SADECE TUTORIAL / KATMAN 1) ---
+	if LevelManager and LevelManager.suanki_katman == 1:
+		print("🎓 TUTORIAL BOSS ÖLDÜ! Son 3 blok kalacak.")
+		# Masadaki bloklar dahil toplam 3 blok hakkı tanı
+		var eksik = 3 - masadaki_aktif_bloklar
+		if eksik > 0:
+			kalan_stok = eksik
+		else:
+			kalan_stok = 0 # Zaten masada 3 veya daha fazla blok var
+		
+		# UI Güncelle
+		emit_signal("stok_guncellendi", kalan_stok + masadaki_aktif_bloklar)
 	else:
-		kalan_stok = 0 # Zaten masada 3 veya daha fazla blok var
-	
-	# UI Güncelle
-	emit_signal("stok_guncellendi", kalan_stok + masadaki_aktif_bloklar)
+		print("☠️ BOSS ÖLDÜ! Normal oyun devam ediyor (Altın kasma modu).")
 
 	if is_instance_valid(boss_objesi):
 		var tween = create_tween()
