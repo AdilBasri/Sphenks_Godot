@@ -91,6 +91,7 @@ var min_fov: float = 50.0  # En dar tünel vizyonu
 # var ses_sivi = preload("res://Liquid_Squish.ogg")
 
 var is_sitting: bool = false
+var is_front_stool: bool = false
 var current_stool: Node3D = null
 var original_camera_transform: Transform3D
 var table_camera_offset: float = 0.0
@@ -1352,6 +1353,12 @@ func sit_on_stool(stool_node):
 		else: table_angle_index = 3 # Z- (Sol)
 	
 	print("🪑 Başlangıç Indexi Bulundu: ", table_angle_index)
+	# 'TumMasaSistemi' içindeki varsayılan Tabure Z+ (1.75) yönündedir.
+	# Bu da table_angle_index = 1 demektir (Z Poziitf).
+	# Ama kullanıcı 'tam karşıdaki' diyor, o yüzden oturduğu tıbureyi 'front' olarak işaretleyelim.
+	# Eğer bu ilk oturuşsa veya belli bir tabureyse (Z+ olan başlangıç taburesidir).
+	is_front_stool = (table_angle_index == 1) 
+	print("DEBUG: is_front_stool set to: ", is_front_stool, " (based on index ", table_angle_index, ")")
 	
 	# Mouse'u serbest bırak ki gridle etkileşime girsin
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -1413,6 +1420,7 @@ func move_table_camera(direction: float):
 		
 	# 0-3 arası wrap
 	table_angle_index = wrapi(table_angle_index, 0, 4)
+	print("DEBUG: New angle index: ", table_angle_index)
 	
 	_update_orbit_camera()
 
@@ -1547,6 +1555,15 @@ func _update_orbit_camera():
 		var final_spawner_rot_y = current_spawner_rot_y + diff_spawner
 		
 		tween.tween_property(spawner, "rotation:y", final_spawner_rot_y, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	
+	# --- BOSS SAYDAMLIK KONTROLÜ ---
+	# Eğer başlangıç taburesindeysek ve Boss'un baktığı açıdaysak (Index 3 - Z Negatif) Boss'u saydam yap
+	# MasaSistemi'nde karşısı Z Negatif açısıdır (Index 3).
+	var boss = _get_dusman()
+	if boss and boss.has_method("set_transparency"):
+		var boss_bakis_acisi = (table_angle_index == 3)
+		print("DEBUG: transparency check - is_front:", is_front_stool, " is_angle_match:", boss_bakis_acisi)
+		boss.set_transparency(is_front_stool and boss_bakis_acisi)
 
 func stand_up():
 	if not is_sitting: return
@@ -1577,6 +1594,10 @@ func stand_up():
 	if spawner and spawner.has_method("bloklari_gizle"):
 		spawner.bloklari_gizle()
 	
+	var boss = _get_dusman()
+	if boss and boss.has_method("set_transparency"):
+		boss.set_transparency(false)
+		
 	is_sitting = false
 	yere_dustu_mu = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

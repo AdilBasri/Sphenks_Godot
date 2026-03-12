@@ -338,6 +338,29 @@ func _guvenli_look_at(hedef: Vector3):
 
 
 # ==========================================
+# SAYDAMLIK KONTROLÜ
+# ==========================================
+
+func set_transparency(transparent: bool):
+	var target_transparency = 0.8 if transparent else 0.0
+	_apply_transparency(self, target_transparency)
+
+func _apply_transparency(node: Node, val: float):
+	if node is GeometryInstance3D:
+		node.transparency = val
+		if val > 0.1:
+			node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		else:
+			node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+			
+	if node is Sprite3D:
+		node.modulate.a = 1.0 - val
+		
+	for child in node.get_children():
+		_apply_transparency(child, val)
+
+
+# ==========================================
 # TABURE POZİSYONU SABITLEME (Issue 2: Drift fix)
 # ==========================================
 
