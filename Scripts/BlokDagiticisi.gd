@@ -139,10 +139,9 @@ func _stoktan_yeni_parti_ver() -> void:
 		print("--- HATA: Blok Sahneleri Bos! ---")
 		return
 
-	# Tutorial sınırsız blok bypass — ama boss öldüyse artık stok doldurma!
-	if TutorialManager and TutorialManager.tutorial_aktif:
-		if not boss_oldu_mu and kalan_stok <= 5:
-			kalan_stok += 50
+	# Boss ölmediği sürece sonsuz blok sağla (User Request)
+	if not boss_oldu_mu and kalan_stok <= 5:
+		kalan_stok += 10
 	
 	if kalan_stok <= 0 and masadaki_aktif_bloklar <= 0:
 		emit_signal("stok_bitti")
@@ -169,7 +168,7 @@ func _on_blok_yerlesti() -> void:
 func _anlik_boss_kontrolu() -> void:
 	if boss_oldu_mu: return
 	
-	# TUTORIAL SIRASINDA BOSS ÖLEMEZ
+	# TUTORIAL SIRASINDA BOSS ÖLEMEZ (User Request)
 	if TutorialManager and TutorialManager.tutorial_aktif:
 		return
 		
@@ -187,21 +186,17 @@ func _boss_olum_animasyonu() -> void:
 	boss_oldu_mu = true 
 	GameManager.boss_oldu.emit()
 	
-	# Eğer tutorial'daysak, kullanıcının isteği üzerine kalan blokları 3'e sabitliyoruz
-	if TutorialManager and TutorialManager.tutorial_aktif:
-		print("🎓 TUTORIAL BOSS ÖLDÜ! Blok sayısı 3'e sabitleniyor.")
-		GameManager.tutorial_tamamlandi = true # Tutorial bitti sayılır
-		# Kalan stoğu temizle, masada kaç tane eksik varsa o kadar spawnla ki toplam 3 olsun
-		var eksik = 3 - masadaki_aktif_bloklar
-		if eksik > 0:
-			kalan_stok = eksik
-			spawn_bloklar(eksik)
-		else:
-			kalan_stok = 0
-			emit_signal("stok_guncellendi", 0)
-		
-		# UI'da "3" görünmesi için zorla sinyal gönder
-		emit_signal("stok_guncellendi", 3)
+	# --- BOSS ÖLDÜĞÜNDE SON 3 BLOK MEKANİĞİ ---
+	print("☠️ BOSS ÖLDÜ! Son 3 blok kalacak.")
+	# Masadaki bloklar dahil toplam 3 blok hakkı tanı
+	var eksik = 3 - masadaki_aktif_bloklar
+	if eksik > 0:
+		kalan_stok = eksik
+	else:
+		kalan_stok = 0 # Zaten masada 3 veya daha fazla blok var
+	
+	# UI Güncelle
+	emit_signal("stok_guncellendi", kalan_stok + masadaki_aktif_bloklar)
 
 	if is_instance_valid(boss_objesi):
 		var tween = create_tween()
@@ -255,8 +250,10 @@ func _sahne_bitis_animasyonu() -> void:
 		var kapi = kapi_sistemi
 		if not is_instance_valid(kapi):
 			kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
-		if kapi and kapi.has_method("kapiyi_ac"):
-			kapi.kapiyi_ac()
+		if kapi:
+			if "kilitli_mi" in kapi: kapi.kilitli_mi = false
+			if kapi.has_method("kapiyi_ac"):
+				kapi.kapiyi_ac()
 		emit_signal("bolum_temizlendi") 
 	)
 
