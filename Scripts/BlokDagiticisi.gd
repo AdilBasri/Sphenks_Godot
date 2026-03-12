@@ -187,6 +187,22 @@ func _boss_olum_animasyonu() -> void:
 	boss_oldu_mu = true 
 	GameManager.boss_oldu.emit()
 	
+	# Eğer tutorial'daysak, kullanıcının isteği üzerine kalan blokları 3'e sabitliyoruz
+	if TutorialManager and TutorialManager.tutorial_aktif:
+		print("🎓 TUTORIAL BOSS ÖLDÜ! Blok sayısı 3'e sabitleniyor.")
+		GameManager.tutorial_tamamlandi = true # Tutorial bitti sayılır
+		# Kalan stoğu temizle, masada kaç tane eksik varsa o kadar spawnla ki toplam 3 olsun
+		var eksik = 3 - masadaki_aktif_bloklar
+		if eksik > 0:
+			kalan_stok = eksik
+			spawn_bloklar(eksik)
+		else:
+			kalan_stok = 0
+			emit_signal("stok_guncellendi", 0)
+		
+		# UI'da "3" görünmesi için zorla sinyal gönder
+		emit_signal("stok_guncellendi", 3)
+
 	if is_instance_valid(boss_objesi):
 		var tween = create_tween()
 		tween.set_parallel(true)
