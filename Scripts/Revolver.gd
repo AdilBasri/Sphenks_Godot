@@ -104,6 +104,9 @@ func _process(_delta):
 	if nisangah and nisangah.visible != nisangah_aktif:
 		nisangah.visible = nisangah_aktif
 	
+	if mermi_hud and mermi_hud.visible != nisangah_aktif:
+		mermi_hud.visible = nisangah_aktif
+	
 	if pyro_filtresi:
 		var filtre_gorunur = GameManager.pyro_aktif and not GameManager.yeme_aktif_mi
 		if pyro_filtresi.visible != filtre_gorunur:
