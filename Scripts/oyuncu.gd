@@ -217,8 +217,8 @@ func _ready():
 		
 		canvas.add_child(perk_isim_label)
 		perk_isim_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-		perk_isim_label.offset_top = 60
-		perk_isim_label.offset_bottom = 120
+		perk_isim_label.offset_top = 120
+		perk_isim_label.offset_bottom = 180
 		
 		perk_aciklama_label = Label.new()
 		perk_aciklama_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1384,8 +1384,8 @@ func sit_on_stool(stool_node):
 	if etkilesim_label:
 		etkilesim_label.text = DilYoneticisi.metin_al("kalk")
 		# Anchor Top-Center
-		etkilesim_label.anchor_top = 0.05
-		etkilesim_label.anchor_bottom = 0.05
+		etkilesim_label.anchor_top = 0.08
+		etkilesim_label.anchor_bottom = 0.08
 		etkilesim_label.anchor_left = 0.5
 		etkilesim_label.anchor_right = 0.5
 		etkilesim_label.horizontal_alignment = 1 # CENTER

@@ -120,6 +120,8 @@ func _input(event):
 	if oyuncu_ref and oyuncu_ref.get("oldu_mu") == true: return
 	
 	if event.is_action_pressed("sag_tik"):
+		if oyuncu_ref and oyuncu_ref.get("is_sitting") == true:
+			return
 		_silah_durumunu_degistir()
 	
 	if GameManager.silah_cekildi and event.is_action_pressed("ates_et") and not islem_mesgul:
