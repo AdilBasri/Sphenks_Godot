@@ -1,0 +1,468 @@
+[gd_scene load_steps=32 format=3 uid="uid://5r052hg2ato8"]
+
+[ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="1_j5rsp"]
+[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="2_tlklb"]
+[ext_resource type="Texture2D" uid="uid://ncorow4carpw" path="res://Assets/Images/çerçeve_bar.png" id="3_h6a0u"]
+[ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://Assets/Images/iç_bar.png" id="4_756oi"]
+[ext_resource type="Texture2D" uid="uid://b5k4ffrdw2m3u" path="res://Assets/carpi.png" id="5_nn26f"]
+[ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="6_e0pfg"]
+[ext_resource type="PackedScene" uid="uid://hqgrge6ijj2s" path="res://animated_gun/scene.gltf" id="7_tlklb"]
+[ext_resource type="Script" uid="uid://gdt0if15j8al" path="res://animated_gun/scene.gd" id="8_h6a0u"]
+[ext_resource type="Shader" uid="uid://bg3erydhe6l0u" path="res://hand.gdshader" id="9_756oi"]
+[ext_resource type="PackedScene" uid="uid://dvucb86havcwa" path="res://UI/oyun_arayuzu.tscn" id="10_u18ft"]
+[ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Materials_Shaders/Sphenks.gdshader" id="11_xh7p1"]
+[ext_resource type="Script" uid="uid://lcig2p1w37xb" path="res://Scripts/Revolver.gd" id="11_xl8ic"]
+[ext_resource type="Texture2D" uid="uid://b6qhtc7ov5oqy" path="res://Assets/Images/crosshair.png" id="12_xl8ic"]
+[ext_resource type="FontFile" uid="uid://cy77p676hbv6h" path="res://Assets/Fonts/Retro Shine.ttf" id="13_w84ue"]
+[ext_resource type="Texture2D" uid="uid://dnpnexrcnpel5" path="res://Assets/bullet_1.png" id="14_f3u4t"]
+[ext_resource type="Script" uid="uid://jep6dm3gok1q" path="res://deneme.gd" id="15_deneme"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_m18cy"]
+size = Vector3(20, 20, 0.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ua3w8"]
+albedo_color = Color(1, 1, 0, 1)
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_j5rsp"]
+data = PackedVector3Array(-10, 10, 0.099999994, 10, 10, 0.099999994, -10, -10, 0.099999994, 10, 10, 0.099999994, 10, -10, 0.099999994, -10, -10, 0.099999994, 10, 10, -0.099999994, -10, 10, -0.099999994, 10, -10, -0.099999994, -10, 10, -0.099999994, -10, -10, -0.099999994, 10, -10, -0.099999994, 10, 10, 0.099999994, 10, 10, -0.099999994, 10, -10, 0.099999994, 10, 10, -0.099999994, 10, -10, -0.099999994, 10, -10, 0.099999994, -10, 10, -0.099999994, -10, 10, 0.099999994, -10, -10, -0.099999994, -10, 10, 0.099999994, -10, -10, 0.099999994, -10, -10, -0.099999994, 10, 10, 0.099999994, -10, 10, 0.099999994, 10, 10, -0.099999994, -10, 10, 0.099999994, -10, 10, -0.099999994, 10, 10, -0.099999994, -10, -10, 0.099999994, 10, -10, 0.099999994, -10, -10, -0.099999994, 10, -10, 0.099999994, 10, -10, -0.099999994, -10, -10, -0.099999994)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1egvt"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_rqf73"]
+font = ExtResource("2_tlklb")
+font_color = Color(1, 1, 0, 1)
+shadow_size = 3
+shadow_color = Color(0, 0, 0, 0.84705883)
+
+[sub_resource type="LabelSettings" id="LabelSettings_u18ft"]
+font = ExtResource("2_tlklb")
+font_size = 32
+font_color = Color(1, 0, 0, 1)
+shadow_size = 5
+shadow_color = Color(1, 0, 0, 0)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xh7p1"]
+atlas = ExtResource("3_h6a0u")
+region = Rect2(389.22156, 296.0412, 1253.7622, 1473.935)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xl8ic"]
+atlas = ExtResource("4_756oi")
+region = Rect2(375.71313, 280.9171, 1237.1509, 1443.3556)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_w84ue"]
+shader = ExtResource("6_e0pfg")
+shader_parameter/brightness = 1.05
+shader_parameter/contrast = 1.15
+shader_parameter/saturation = 0.42
+shader_parameter/tone_shadow = Color(0.05, 0, 0, 1)
+shader_parameter/tone_crimson = Color(0.55, 0.02, 0.02, 1)
+shader_parameter/tone_ash = Color(0.24, 0.21, 0.19, 1)
+shader_parameter/tone_gold = Color(0.78, 0.6, 0.23, 1)
+shader_parameter/palette_strength = 0.38
+shader_parameter/crimson_bleed = 0.18
+shader_parameter/ca_strength = 0.003
+shader_parameter/grain_amount = 0.06
+shader_parameter/vignette_intensity = 0.35
+shader_parameter/vignette_color = Color(0.04, 0, 0, 1)
+shader_parameter/scanline_intensity = 0.1
+shader_parameter/scanline_count = 300.0
+shader_parameter/dither_amount = 0.025
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nn26f"]
+render_priority = 0
+shader = ExtResource("9_756oi")
+shader_parameter/base_color = Color(1, 0.078431375, 0.03137255, 1)
+shader_parameter/melt_color = Color(1.0908113, 0.14985418, 0, 1)
+shader_parameter/melt_strength = 1.0
+shader_parameter/drip_speed = 3.26400015504
+shader_parameter/drip_scale = 10.0000004275
+shader_parameter/edge_glow = 3.0
+shader_parameter/roughness_val = 0.50000002375
+
+[sub_resource type="LabelSettings" id="LabelSettings_t52yg"]
+font = ExtResource("2_tlklb")
+font_size = 38
+shadow_size = 5
+shadow_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_d4mfo"]
+font = ExtResource("2_tlklb")
+font_size = 18
+font_color = Color(1, 1, 0, 1)
+outline_size = 3
+shadow_size = 5
+shadow_color = Color(1, 1, 1, 0)
+
+[sub_resource type="LabelSettings" id="LabelSettings_kx4rv"]
+font = ExtResource("2_tlklb")
+font_size = 18
+font_color = Color(1, 1, 0, 1)
+outline_size = 3
+
+[sub_resource type="LabelSettings" id="LabelSettings_3iubv"]
+font = ExtResource("2_tlklb")
+font_size = 24
+font_color = Color(1, 1, 0, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ljdlr"]
+shader = ExtResource("11_xh7p1")
+shader_parameter/strength = 0.02
+shader_parameter/speed = 5.0
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("15_deneme")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
+mesh = SubResource("BoxMesh_m18cy")
+surface_material_override/0 = SubResource("StandardMaterial3D_ua3w8")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_j5rsp")
+
+[node name="Oyuncu" type="CharacterBody3D" parent="." node_paths=PackedStringArray("kamera", "ui_container") groups=["Oyuncu"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1323147, 3.3313973)
+script = ExtResource("1_j5rsp")
+kamera = NodePath("Camera3D")
+ui_container = NodePath("CanBarlariContainer")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Oyuncu"]
+shape = SubResource("CapsuleShape3D_1egvt")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="Oyuncu"]
+
+[node name="EtkilesimYazisi" type="Label" parent="Oyuncu/CanvasLayer"]
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.85
+anchor_right = 0.5
+anchor_bottom = 0.85
+offset_left = -150.0
+offset_top = -20.0
+offset_right = 150.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+label_settings = SubResource("LabelSettings_rqf73")
+horizontal_alignment = 1
+
+[node name="HasarYazisi" type="Label" parent="Oyuncu/CanvasLayer"]
+visible = false
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -16.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "HASAR: 0"
+label_settings = SubResource("LabelSettings_u18ft")
+horizontal_alignment = 1
+
+[node name="CanBarlariContainer" type="HBoxContainer" parent="Oyuncu"]
+anchors_preset = -1
+anchor_left = 0.041
+anchor_top = 0.053000003
+anchor_right = 0.044000003
+anchor_bottom = 0.053000003
+offset_left = -51.232002
+offset_top = -35.344
+offset_right = 4042.312
+offset_bottom = 2012.656
+scale = Vector2(0.07, 0.07)
+theme_override_constants/separation = -200
+
+[node name="Bar1" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+texture_over = SubResource("AtlasTexture_xh7p1")
+texture_progress = SubResource("AtlasTexture_xl8ic")
+
+[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar1"]
+visible = false
+layout_mode = 0
+offset_left = -1059.0
+offset_top = -928.5713
+offset_right = 989.0
+offset_bottom = 1119.4287
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("5_nn26f")
+
+[node name="Bar2" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+texture_over = SubResource("AtlasTexture_xh7p1")
+texture_progress = SubResource("AtlasTexture_xl8ic")
+
+[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar2"]
+visible = false
+layout_mode = 0
+offset_left = -1059.0
+offset_top = -928.5713
+offset_right = 989.0
+offset_bottom = 1119.4287
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("5_nn26f")
+
+[node name="Bar3" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+texture_over = SubResource("AtlasTexture_xh7p1")
+texture_progress = SubResource("AtlasTexture_xl8ic")
+
+[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar3"]
+visible = false
+layout_mode = 0
+offset_left = -1059.0
+offset_top = -928.5713
+offset_right = 989.0
+offset_bottom = 1119.4287
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("5_nn26f")
+
+[node name="Bar4" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
+layout_mode = 2
+max_value = 10.0
+value = 10.0
+fill_mode = 3
+texture_over = SubResource("AtlasTexture_xh7p1")
+texture_progress = SubResource("AtlasTexture_xl8ic")
+
+[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar4"]
+visible = false
+layout_mode = 0
+offset_left = -1059.0
+offset_top = -928.5713
+offset_right = 989.0
+offset_bottom = 1119.4287
+scale = Vector2(1.7, 1.7)
+texture = ExtResource("5_nn26f")
+
+[node name="Camera3D" type="Camera3D" parent="Oyuncu" groups=["OyuncuKamera"]]
+physics_interpolation_mode = 2
+transform = Transform3D(0.99888355, -0.024378376, -0.040465526, 0.01922809, 0.9922066, -0.12311137, 0.043151416, 0.12219585, 0.9915675, -0.045120563, 0.83062285, 0.014348984)
+current = true
+
+[node name="RayCast3D" type="RayCast3D" parent="Oyuncu/Camera3D"]
+target_position = Vector3(0, 0, -2.5)
+collision_mask = 15
+
+[node name="GlobalFiltre" type="CanvasLayer" parent="Oyuncu/Camera3D"]
+layer = 100
+
+[node name="ColorRect" type="ColorRect" parent="Oyuncu/Camera3D/GlobalFiltre"]
+material = SubResource("ShaderMaterial_w84ue")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Sketchfab_Scene" parent="Oyuncu/Camera3D" instance=ExtResource("7_tlklb")]
+transform = Transform3D(-0.009992799, -0.00027612958, 0.00025981833, -0.00024250048, 0.009922487, 0.0012186932, -0.00029145594, 0.0012115176, -0.009922059, 0.10295622, -0.120666265, -0.24678564)
+script = ExtResource("8_h6a0u")
+
+[node name="Skeleton3D" parent="Oyuncu/Camera3D/Sketchfab_Scene/Sketchfab_model/5eeddaa24ccf49d79eeee40e1990f1a2_fbx/Object_2/RootNode/Object_4" index="0"]
+bones/2/rotation = Quaternion(0.25796154, 0.9297814, 0.22787733, -0.1305158)
+bones/3/rotation = Quaternion(-0.05864206, -0.620038, 0.25071317, 0.7411188)
+bones/4/rotation = Quaternion(0.07744874, 0.15056543, 0.0033443766, 0.98555607)
+bones/5/rotation = Quaternion(0.34143493, -0.13126898, -0.18362854, 0.9123987)
+bones/6/rotation = Quaternion(-0.14798684, 0.028925575, 0.1394676, 0.9786787)
+bones/7/rotation = Quaternion(0.04226039, 0.035134334, -0.060829833, 0.99663407)
+bones/9/rotation = Quaternion(-0.27297083, -0.06607726, 0.52608496, 0.8027175)
+bones/10/rotation = Quaternion(0.026161904, -0.019073727, -0.019376853, 0.9992879)
+bones/11/rotation = Quaternion(-0.26169086, 0.06376714, -0.0017270625, 0.96304137)
+bones/13/rotation = Quaternion(-0.36990002, -0.11879721, 0.54179907, 0.7453287)
+bones/14/rotation = Quaternion(-0.037878558, 0.01366396, 0.0005179912, 0.9991888)
+bones/15/rotation = Quaternion(-0.102251105, -0.03646409, 0.042533185, 0.9931798)
+bones/17/rotation = Quaternion(-0.07335648, 0.967215, -0.14036547, -0.19852383)
+bones/19/rotation = Quaternion(-0.1534726, 0.042014092, -0.00077113544, 0.98725903)
+bones/20/rotation = Quaternion(-0.043778185, -0.017422747, 0.04742926, 0.99776274)
+bones/22/rotation = Quaternion(0.5637218, 0.64343315, 0.4589749, 0.23990321)
+bones/23/rotation = Quaternion(-0.20646484, -0.00023003391, -0.12716474, 0.9701553)
+bones/24/rotation = Quaternion(-0.09858587, 0.020356014, 0.13328601, 0.985952)
+bones/26/rotation = Quaternion(0.045813877, 0.994108, 0.013634784, 0.09728561)
+bones/27/rotation = Quaternion(-0.010641767, 0.39254817, -0.23554944, 0.88899344)
+bones/28/rotation = Quaternion(-0.050310202, -0.2047689, -0.00047383833, 0.9775164)
+bones/29/rotation = Quaternion(0.3247192, 0.24567866, 0.30457073, 0.8610669)
+bones/30/rotation = Quaternion(-0.43431434, -0.10294244, 0.10865734, 0.88823855)
+bones/31/rotation = Quaternion(-0.05788982, 0.023586363, 0.08964905, 0.99400985)
+bones/34/rotation = Quaternion(-0.22425471, 0.050072685, -0.055815265, 0.97164154)
+bones/35/rotation = Quaternion(-0.41298094, 0.009064543, 0.007326831, 0.9106652)
+bones/44/rotation = Quaternion(-0.16282354, 0.043925114, 0.04259521, 0.9847562)
+bones/47/rotation = Quaternion(-0.49414966, 0.10418648, 0.008514123, 0.8630694)
+bones/48/rotation = Quaternion(-0.19543907, -0.0076647187, -0.014900149, 0.9805727)
+
+[node name="Object_7" parent="Oyuncu/Camera3D/Sketchfab_Scene/Sketchfab_model/5eeddaa24ccf49d79eeee40e1990f1a2_fbx/Object_2/RootNode/Object_4/Skeleton3D" index="0"]
+transform = Transform3D(0.9999998, -5.5879354e-09, 7.450581e-09, 1.8626451e-09, 1, 1.4901161e-08, 0, -1.4901161e-08, 1, 0, 0, 0)
+surface_material_override/0 = SubResource("ShaderMaterial_nn26f")
+
+[node name="Revolver" parent="." groups=["Arayuz"] instance=ExtResource("10_u18ft")]
+script = ExtResource("11_xl8ic")
+mermi_sahnesi = null
+animasyon_kareleri = Array[Texture2D]([])
+
+[node name="KatmanLabel" type="Label" parent="Revolver"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -0.5
+offset_top = -11.5
+offset_right = 0.5
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "KATMAN 1"
+label_settings = SubResource("LabelSettings_t52yg")
+
+[node name="Perde" type="ColorRect" parent="Revolver"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="AnaKontrol" type="Control" parent="Revolver"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Revolver/AnaKontrol"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -153.0
+offset_bottom = 70.0
+grow_horizontal = 0
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Revolver/AnaKontrol/MarginContainer"]
+layout_mode = 2
+alignment = 2
+
+[node name="AltinIkonu" type="Label" parent="Revolver/AnaKontrol/MarginContainer/HBoxContainer"]
+modulate = Color(18.892157, 18.892157, 18.892157, 1)
+layout_mode = 2
+text = "GOLD"
+label_settings = SubResource("LabelSettings_d4mfo")
+
+[node name="AltinSayisi" type="Label" parent="Revolver/AnaKontrol/MarginContainer/HBoxContainer"]
+layout_mode = 2
+text = "000"
+label_settings = SubResource("LabelSettings_kx4rv")
+
+[node name="BilgiLabel" type="Label" parent="Revolver/AnaKontrol"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 23.0
+grow_horizontal = 2
+label_settings = SubResource("LabelSettings_3iubv")
+horizontal_alignment = 1
+
+[node name="MantarEfekti" type="ColorRect" parent="Revolver"]
+visible = false
+material = SubResource("ShaderMaterial_ljdlr")
+use_parent_material = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -153.0
+offset_right = 103.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Control" type="Control" parent="Revolver"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Nisangah" type="TextureRect" parent="Revolver/Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -1020.0
+offset_top = -1065.0
+offset_right = 980.0
+offset_bottom = 1085.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.2, 0.2)
+pivot_offset = Vector2(1030, 1060)
+mouse_filter = 2
+texture = ExtResource("12_xl8ic")
+
+[node name="PyroFiltresi" type="ColorRect" parent="Revolver"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 0, 0, 0.25882354)
+
+[node name="MermiKonteyner" type="MarginContainer" parent="Revolver"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -220.0
+offset_top = -163.0
+offset_right = 28.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Revolver/MermiKonteyner"]
+layout_mode = 2
+theme_override_constants/separation = -55
+alignment = 2
+
+[node name="MermiSayisi" type="Label" parent="Revolver/MermiKonteyner/HBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("13_w84ue")
+theme_override_font_sizes/font_size = 24
+text = "19/40"
+
+[node name="MermiIkonu" type="TextureRect" parent="Revolver/MermiKonteyner/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("14_f3u4t")
+expand_mode = 2
+
+[editable path="Oyuncu/Camera3D/Sketchfab_Scene"]
+[editable path="Revolver"]
