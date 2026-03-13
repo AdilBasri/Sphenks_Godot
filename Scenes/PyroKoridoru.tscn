@@ -1,23 +1,25 @@
-[gd_scene load_steps=33 format=3 uid="uid://csnasspc4xyij"]
+[gd_scene load_steps=35 format=3 uid="uid://csnasspc4xyij"]
 
 [ext_resource type="Script" uid="uid://c3g6t5usagaa" path="res://Scripts/PyroKoridoru.gd" id="1_h5fso"]
 [ext_resource type="Script" uid="uid://loithy76h54j" path="res://Scripts/omni_light_3d.gd" id="1_so4kj"]
 [ext_resource type="PackedScene" uid="uid://b4bhb1v1do7yg" path="res://Scenes/Enemies/PyroDusman.tscn" id="2_oessh"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="2_wck7j"]
-[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="3_tex5o"]
-[ext_resource type="Texture2D" uid="uid://ncorow4carpw" path="res://Assets/Images/çerçeve_bar.png" id="4_0v4dx"]
-[ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://Assets/Images/iç_bar.png" id="5_jvfqp"]
-[ext_resource type="Texture2D" uid="uid://b5k4ffrdw2m3u" path="res://Assets/carpi.png" id="6_h5fso"]
+[ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="3_tex5o"]
+[ext_resource type="Texture2D" uid="uid://dm3cprrc1lljc" path="res://Assets/Images/çerçeve_bar.png" id="4_0v4dx"]
+[ext_resource type="Texture2D" uid="uid://bg20iuynejlup" path="res://Assets/Images/iç_bar.png" id="5_jvfqp"]
+[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="6_h5fso"]
 [ext_resource type="PackedScene" uid="uid://dvucb86havcwa" path="res://UI/oyun_arayuzu.tscn" id="7_jvfqp"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Materials_Shaders/Sphenks.gdshader" id="8_h5fso"]
-[ext_resource type="Texture2D" uid="uid://b6qhtc7ov5oqy" path="res://Assets/Images/crosshair.png" id="9_2f6ik"]
+[ext_resource type="Texture2D" uid="uid://ctkgrnlyobok1" path="res://Assets/Images/crosshair.png" id="9_2f6ik"]
 [ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="9_ocmv8"]
 [ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Scenes/Items/Kapi.tscn" id="11_2f6ik"]
-[ext_resource type="PackedScene" uid="uid://7eln5qfuv1pk" path="res://Scenes/SilahSistemi.tscn" id="12_12o8v"]
 [ext_resource type="PackedScene" uid="uid://cwep2mo56dn1d" path="res://UI/MideUI.tscn" id="12_np28r"]
 [ext_resource type="Texture2D" uid="uid://dnpnexrcnpel5" path="res://Assets/bullet_1.png" id="13_1ndpq"]
-[ext_resource type="FontFile" uid="uid://cy77p676hbv6h" path="res://Assets/Fonts/Retro Shine.ttf" id="13_xvddi"]
+[ext_resource type="FontFile" uid="uid://hbyync0b8kyv" path="res://Assets/Fonts/Retro Shine.ttf" id="13_xvddi"]
+[ext_resource type="Script" uid="uid://gdt0if15j8al" path="res://animated_gun/scene.gd" id="ag_gd"]
+[ext_resource type="PackedScene" uid="uid://hqgrge6ijj2s" path="res://animated_gun/scene.gltf" id="ag_gltf"]
 [ext_resource type="Shader" uid="uid://cuhlen0v736t0" path="res://Materials_Shaders/gore_vignette.gdshader" id="gore_shader"]
+[ext_resource type="Script" uid="uid://lcig2p1w37xb" path="res://Scripts/Revolver.gd" id="rev_gd"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qik3h"]
 cull_mode = 2
@@ -280,11 +282,17 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Revolver" parent="." node_paths=PackedStringArray("nisangah", "pyro_filtresi") groups=["Arayuz"] instance=ExtResource("7_jvfqp")]
-nisangah = NodePath("Control/Nisangah")
-pyro_filtresi = NodePath("PyroFiltresi")
+[node name="Sketchfab_Scene" parent="Oyuncu/Camera3D" instance=ExtResource("ag_gltf")]
+transform = Transform3D(-0.009992799, -0.00027612958, 0.00025981833, -0.00024250048, 0.009922487, 0.0012186932, -0.00029145594, 0.0012115176, -0.009922059, 0.10295622, -0.120666265, -0.24678564)
+script = ExtResource("ag_gd")
+
+[node name="Revolver" parent="." groups=["Arayuz"] instance=ExtResource("7_jvfqp")]
+script = ExtResource("rev_gd")
+mermi_sahnesi = null
+animasyon_kareleri = Array[Texture2D]([])
 
 [node name="KatmanLabel" type="Label" parent="Revolver"]
+visible = false
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -349,9 +357,9 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -20.0
+offset_top = 50.0
 offset_right = 20.0
-offset_bottom = 23.0
+offset_bottom = 73.0
 grow_horizontal = 2
 label_settings = SubResource("LabelSettings_7tuvr")
 horizontal_alignment = 1
@@ -456,8 +464,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.56, -1, -10.363)
 [node name="KapiSistemi" parent="." instance=ExtResource("11_2f6ik")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7176584, 0, -14.182446)
 hedef_tipi = 1
-
-[node name="SilahKatmani" parent="." instance=ExtResource("12_12o8v")]
 
 [node name="MideKatmani" type="CanvasLayer" parent="."]
 

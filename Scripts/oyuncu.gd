@@ -217,8 +217,8 @@ func _ready():
 		
 		canvas.add_child(perk_isim_label)
 		perk_isim_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-		perk_isim_label.offset_top = 60
-		perk_isim_label.offset_bottom = 120
+		perk_isim_label.offset_top = 120
+		perk_isim_label.offset_bottom = 180
 		
 		perk_aciklama_label = Label.new()
 		perk_aciklama_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -426,6 +426,15 @@ func _physics_process(delta):
 	mover.current_speed = suanki_speed
 	mover.handle_movement(delta, input_dir, is_on_floor())
 	move_and_slide()
+	
+	# --- GLOBAL FAILSAFE (Yerin altina duserse kurtar) ---
+	if global_position.y < -15.0:
+		velocity = Vector3.ZERO
+		if LevelManager and LevelManager.start_pos != Vector3.ZERO:
+			global_position = LevelManager.start_pos + Vector3(0, 1.0, 0)
+		else:
+			global_position = Vector3(0, 2.0, 0)
+		print("⚠️ OYUNCU YERIN ALTINA DÜSTÜ! GÜVENLİ BÖLGEYE IŞINLANDI.")
 	
 	# Movement and Interaction handled above
 	interactor.check_interaction()
@@ -1375,8 +1384,8 @@ func sit_on_stool(stool_node):
 	if etkilesim_label:
 		etkilesim_label.text = DilYoneticisi.metin_al("kalk")
 		# Anchor Top-Center
-		etkilesim_label.anchor_top = 0.05
-		etkilesim_label.anchor_bottom = 0.05
+		etkilesim_label.anchor_top = 0.08
+		etkilesim_label.anchor_bottom = 0.08
 		etkilesim_label.anchor_left = 0.5
 		etkilesim_label.anchor_right = 0.5
 		etkilesim_label.horizontal_alignment = 1 # CENTER
@@ -1607,7 +1616,8 @@ func stand_up():
 	if current_stool and is_instance_valid(current_stool) and current_stool.exit_position_marker:
 		var exit_pos = current_stool.exit_position_marker.global_position
 		velocity = Vector3.ZERO
-		global_position = exit_pos
+		global_position = exit_pos + Vector3(0, 0.5, 0) # Kliplemeyi onlemek icin += 0.5
+
 		
 		# TABURENİN ARKASINDAN GRİDE (MERKEZE) BAK
 		var look_target = Vector3(0, global_position.y, 0)

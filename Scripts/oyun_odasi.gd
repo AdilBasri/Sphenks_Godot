@@ -344,15 +344,16 @@ func _zar_sistemini_bagla():
 # ==========================================
 
 func tur_sonrasi_islemler():
-	"""Boss saldırısı bittikten sonra çalışır. Gerekli temizlik işlemleri."""
-	print("✅ Tur sonrası işlemler çalıştı.")
-	# Boss'un UYUKLAMA durumunda olduğunu onaylamak için:
-	var boss = get_tree().get_first_node_in_group("Dusman")
-	if boss and is_instance_valid(boss) and boss.has_method("boss_durumu_sifirla"):
-		# Eğer durum UYUKLAMA değilse, sıfırla
-		if boss.suanki_durum != "UYUKLAMA" and boss.suanki_durum != str(boss.DURUM_OLDU):
-			print("⚠️ Boss UYUKLAMA değil, sıfırlanıyor...")
-			boss.boss_durumu_sifirla()
+	# Boss temizlik islemleri.
+	print("Tur sonrasi islemler calisti.")
+	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
+	for b in dusmanlar:
+		if is_instance_valid(b) and b.has_method("boss_durumu_sifirla"):
+			var oldu = b.get("oldu_mu")
+			var durum = b.get("suanki_durum")
+			if not oldu and durum != "UYUKLAMA":
+				print("Boss sifirlaniyor: ", b.name)
+				b.boss_durumu_sifirla()
 
 	# ─ KAHİN GÖZÜ: Bir sonraki turun saldırı ikonunu göster ───
 	_kahin_gozu_ikon_goster()

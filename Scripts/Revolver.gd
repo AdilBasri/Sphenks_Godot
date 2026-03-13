@@ -1,18 +1,34 @@
 extends CanvasLayer
 
+# --- BAĞLANTILAR (OyunArayuzu) ---
+@onready var panel = get_node_or_null("ParsomenPanel")
+@onready var quota_label = get_node_or_null("ParsomenPanel/PuanTablosu/QuotaDeger")
+@onready var score_label = get_node_or_null("ParsomenPanel/PuanTablosu/TotalScoreDeger")
+@onready var liste = get_node_or_null("ParsomenPanel/PuanTablosu/Liste")
+@onready var altin_label = get_node_or_null("AnaKontrol/MarginContainer/HBoxContainer/AltinSayisi")
+@onready var bilgi_label = get_node_or_null("AnaKontrol/BilgiLabel")
+@onready var katman_label = get_node_or_null("KatmanLabel")
+@onready var mermi_hud: Control = find_child("MermiKonteyner", true, false)
+@onready var nisangah: Control = find_child("Nisangah", true, false)
+@onready var pyro_filtresi: ColorRect = find_child("PyroFiltresi", true, false)
+
+# --- BAĞLANTILAR (Silah) ---
 @export var silah_gorsel: TextureRect
 @export var namlu_ucu: Marker2D
 @export var mermi_sahnesi: PackedScene 
-
-# Inspector'dan resimleri at (1..8)
 @export var animasyon_kareleri: Array[Texture2D] 
 
+# --- DEĞİŞKENLER ---
 var orjinal_pos: Vector2
 var islem_mesgul: bool = false 
-
-# Muzzle flash overlay
+var panel_acik: bool = false
+var toplam_puan: int = 0
+var hedef_puan: int = 300
 var flash_rect: ColorRect = null
 var oyuncu_ref: Node = null
+var _3d_gun: Node = null
+var perde: ColorRect = null
+var bilgi_tween: Tween 
 
 # --- SES ---
 var sfx_inspect: AudioStreamPlayer
@@ -20,10 +36,29 @@ var sfx_blank: AudioStreamPlayer
 var sfx_fire: AudioStreamPlayer
 
 func _ready():
-	# Başlangıçta silahı gizle
-	visible = false
-	GameManager.silah_cekildi = false  # Başlangıçta silah kesinlikle gizli
+	add_to_group("Arayuz")
+	visible = true # CanvasLayer her zaman açık kalmalı
 	
+	# Silah parçalarını başlangıçta gizle
+	if mermi_hud: mermi_hud.visible = false
+	if nisangah: nisangah.visible = false
+	if panel: panel.visible = false
+	GameManager.silah_cekildi = false 
+	
+	# GameManager Bağlantıları
+	if GameManager:
+		if not GameManager.mermi_degisti.is_connected(_on_mermi_degisti):
+			GameManager.mermi_degisti.connect(_on_mermi_degisti)
+		if not GameManager.altin_guncellendi.is_connected(_on_altin_guncellendi):
+			GameManager.altin_guncellendi.connect(_on_altin_guncellendi)
+		if not GameManager.envanter_guncellendi.is_connected(totem_sayacini_guncelle):
+			GameManager.envanter_guncellendi.connect(totem_sayacini_guncelle)
+			
+		_on_mermi_degisti(GameManager.mermi_sayisi)
+		_on_altin_guncellendi(GameManager.toplam_altin)
+		totem_sayacini_guncelle()
+
+	# Sesler
 	sfx_inspect = AudioStreamPlayer.new()
 	sfx_inspect.stream = load("res://Assets/Audio/gun_inspect.mp3")
 	add_child(sfx_inspect)
@@ -38,163 +73,207 @@ func _ready():
 	
 	if silah_gorsel:
 		orjinal_pos = silah_gorsel.position
-		if animasyon_kareleri.size() > 0:
-			silah_gorsel.texture = animasyon_kareleri[7] # Idle
-	# Muzzle flash oluştur
+		silah_gorsel.texture = animasyon_kareleri[7] if animasyon_kareleri.size() > 7 else null
+	
+	# Muzzle flash
 	flash_rect = ColorRect.new()
 	flash_rect.color = Color(1.0, 0.95, 0.5, 0.85)
 	flash_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	flash_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	flash_rect.visible = false
 	add_child(flash_rect)
-	# Oyuncu referansı
+
+	# Perde
+	perde = get_node_or_null("Perde")
+	if perde:
+		perde.color.a = 1.0
+		perde_ac()
+	
+	# Katman yazısını başlangıçta gizle
+	if katman_label: katman_label.visible = false
+	
+	# Oyuncu/3D Silah
 	oyuncu_ref = get_tree().get_first_node_in_group("Oyuncu")
+	if oyuncu_ref:
+		_3d_gun = oyuncu_ref.get_node_or_null("Camera3D/Sketchfab_Scene")
+
+func _process(_delta):
+	# Nişangah ve Filtre kontrolü
+	# Nişangah artık sadece silahın çekili olup olmamasına bakıyor (Sphenks uyumu için)
+	var nisangah_aktif = GameManager.silah_cekildi
+	if nisangah and nisangah.visible != nisangah_aktif:
+		nisangah.visible = nisangah_aktif
+	
+	if mermi_hud and mermi_hud.visible != nisangah_aktif:
+		mermi_hud.visible = nisangah_aktif
+	
+	if pyro_filtresi:
+		var filtre_gorunur = GameManager.pyro_aktif and not GameManager.yeme_aktif_mi
+		if pyro_filtresi.visible != filtre_gorunur:
+			pyro_filtresi.visible = filtre_gorunur
 
 func _input(event):
-	# Eğer PYRO modunda değilsek bu tuşlar çalışmasın
-	if not GameManager.pyro_aktif: return
-	# Oyuncu öldüyse ateş edemez
+	if event.is_action_pressed("panel_ac"):
+		toggle_panel()
+
+	if not GameManager.pyro_aktif and not _3d_gun: return
 	if oyuncu_ref and oyuncu_ref.get("oldu_mu") == true: return
 	
-	# --- SAĞ TIK: SİLAHI ÇEK / GİZLE ---
-	if event.is_action_pressed("sag_tik"): # Input Map'te 'sag_tik' (Right Mouse Button) ekli olmalı
+	if event.is_action_pressed("sag_tik"):
+		if oyuncu_ref and oyuncu_ref.get("is_sitting") == true:
+			return
 		_silah_durumunu_degistir()
 	
-	# --- SOL TIK: ATEŞ (Sadece Silah Çekiliyse) ---
 	if GameManager.silah_cekildi and event.is_action_pressed("ates_et") and not islem_mesgul:
-		if GameManager.mermiyi_kullan():
-			_animasyon_oynat_ates()
+		if _3d_gun and is_instance_valid(_3d_gun):
+			pass
 		else:
-			_mermi_yok_uyarisi()
+			if GameManager.mermiyi_kullan():
+				_animasyon_oynat_ates()
+			else:
+				_mermi_yok_uyarisi()
 
-	# --- F TUŞU: İNCELEME (Sadece Silah Çekiliyse) ---
 	if GameManager.silah_cekildi and event.is_action_pressed("incele") and not islem_mesgul:
 		sfx_inspect.play()
 		_animasyon_oynat_incele()
 
+func toggle_panel():
+	panel_acik = !panel_acik
+	if panel: panel.visible = panel_acik
+
 func _silah_durumunu_degistir():
-	if islem_mesgul: return # Animasyon bitmeden değiştirme
-	
-	# Durumu tersine çevir
+	if islem_mesgul: return
 	GameManager.silah_cekildi = !GameManager.silah_cekildi
 	
+	if mermi_hud: mermi_hud.visible = GameManager.silah_cekildi
+	
 	if GameManager.silah_cekildi:
-		# Silahı ÇIKAR
-		visible = true
-		
-		# Aşağıdan yukarı çıkma animasyonu (Draw Animation)
-		var tween = create_tween()
-		silah_gorsel.position.y = get_viewport().size.y + 200 # Ekranın altından başla
-		tween.tween_property(silah_gorsel, "position", orjinal_pos, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		
-		print("🔫 Silah Çekildi!")
+		if _3d_gun and is_instance_valid(_3d_gun):
+			if _3d_gun.has_method("show_weapon"): _3d_gun.show_weapon()
+		elif silah_gorsel:
+			silah_gorsel.visible = true
+			silah_gorsel.position.y = get_viewport().size.y + 200
+			create_tween().tween_property(silah_gorsel, "position", orjinal_pos, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	else:
-		# Silahı GİZLE
-		var tween = create_tween()
-		tween.tween_property(silah_gorsel, "position:y", get_viewport().size.y + 200, 0.2).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-		tween.tween_callback(func(): visible = false) # Animasyon bitince görünmez yap
-		
-		print("🤚 Silah Gizlendi.")
+		if _3d_gun and is_instance_valid(_3d_gun):
+			if _3d_gun.has_method("hide_weapon"): _3d_gun.hide_weapon()
+		elif silah_gorsel:
+			var tw = create_tween()
+			tw.tween_property(silah_gorsel, "position:y", get_viewport().size.y + 200, 0.2).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+			tw.tween_callback(func(): silah_gorsel.visible = false)
 
-# --- İNCELEME, ATEŞ ETME ve MERMİ KODLARI AYNEN KALIYOR ---
-# (Önceki cevaptaki _animasyon_oynat_incele, _animasyon_oynat_ates, _mermi_olustur fonksiyonlarını buraya yapıştır)
-# Tek fark: _input fonksiyonunu yukarıdaki gibi değiştirdik.
+func _on_mermi_degisti(sayi):
+	var m_label = find_child("MermiSayisi", true, false)
+	if m_label:
+		m_label.text = "%d/%d" % [sayi, GameManager.max_mermi]
+		m_label.modulate = Color.RED if sayi == 0 else (Color(1, 0.55, 0) if sayi <= 5 else Color.WHITE)
 
-func _animasyon_oynat_incele():
-	islem_mesgul = true
-	for i in range(7, -1, -1):
-		silah_gorsel.texture = animasyon_kareleri[i]
-		await get_tree().create_timer(0.06).timeout
-	for i in range(1, 8):
-		silah_gorsel.texture = animasyon_kareleri[i]
-		await get_tree().create_timer(0.06).timeout
-	islem_mesgul = false
+func _on_altin_guncellendi(miktar):
+	if altin_label:
+		altin_label.text = str(miktar)
+		var tw = create_tween()
+		tw.tween_property(altin_label, "scale", Vector2(1.2, 1.2), 0.1)
+		tw.tween_property(altin_label, "scale", Vector2(1.0, 1.0), 0.1)
+
+func totem_sayacini_guncelle():
+	var sayac = find_child("SayacLabel", true, false)
+	if sayac:
+		var mevcut = GameManager.envanter.size()
+		var maks = GameManager.max_totem_sayisi
+		sayac.text = DilYoneticisi.metin_al("totem_sayisi") % [mevcut, maks]
+
+func bolum_kurulumu(yeni_hedef: int):
+	toplam_puan = 0
+	hedef_puan = yeni_hedef
+	if liste:
+		for child in liste.get_children(): child.queue_free()
+	guncelle_ekran()
+
+func katman_yazisi_goster(kat_no: int):
+	if not katman_label: katman_label = find_child("KatmanLabel", true, false)
+	if katman_label:
+		katman_label.text = DilYoneticisi.metin_al("katman_yazisi") % [kat_no]
+		katman_label.visible = true
+		var tw = create_tween()
+		katman_label.modulate.a = 0
+		katman_label.scale = Vector2(1.5, 1.5)
+		tw.tween_property(katman_label, "modulate:a", 1.0, 0.5)
+		tw.parallel().tween_property(katman_label, "scale", Vector2(1, 1), 0.5)
+		tw.tween_interval(2.0)
+		tw.tween_property(katman_label, "modulate:a", 0.0, 0.5)
+
+func puan_ekle(miktar: int, aciklama: String):
+	toplam_puan += miktar
+	if liste:
+		var satir = Label.new()
+		satir.text = "+%d %s" % [miktar, aciklama]
+		satir.modulate = Color(0.1, 0.6, 0.1)
+		liste.add_child(satir)
+		liste.move_child(satir, 0)
+	bilgi_goster("+%d %s" % [miktar, aciklama])
+	guncelle_ekran()
+
+func guncelle_ekran():
+	if quota_label: quota_label.text = str(hedef_puan)
+	if score_label:
+		score_label.text = str(toplam_puan)
+		score_label.modulate = Color.GREEN if toplam_puan >= hedef_puan else Color.WHITE
+
+func bilgi_goster(mesaj: String, sure: float = 2.0):
+	if not bilgi_label: return
+	if bilgi_tween: bilgi_tween.kill()
+	bilgi_label.text = mesaj
+	bilgi_label.modulate.a = 1.0
+	bilgi_tween = create_tween()
+	bilgi_tween.tween_property(bilgi_label, "modulate:a", 0.0, sure).set_delay(1.5)
+
+func perde_ac():
+	if perde: create_tween().tween_property(perde, "color:a", 0.0, 1.0)
 
 func _animasyon_oynat_ates():
 	sfx_fire.play()
 	islem_mesgul = true
-	silah_gorsel.texture = animasyon_kareleri[7]
-	var tween = create_tween()
-	var tepme_vektoru = Vector2(30, -50)
-	tween.tween_property(silah_gorsel, "position", orjinal_pos + tepme_vektoru, 0.04).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
-	tween.tween_property(silah_gorsel, "position", orjinal_pos, 0.15).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	if silah_gorsel:
+		silah_gorsel.texture = animasyon_kareleri[7] if animasyon_kareleri.size() > 7 else null
+		var tw = create_tween()
+		tw.tween_property(silah_gorsel, "position", orjinal_pos + Vector2(30, -50), 0.05)
+		tw.tween_property(silah_gorsel, "position", orjinal_pos, 0.1)
 	_mermi_olustur()
 	_muzzle_flash_goster()
-	# Tüm düşmanlar öldü mü kontrol et
-	await get_tree().create_timer(0.15).timeout
+	await get_tree().create_timer(0.2).timeout
 	islem_mesgul = false
-	_dusman_kontrol()
 
 func _muzzle_flash_goster():
-	if not flash_rect: return
-	flash_rect.visible = true
-	var t = create_tween()
-	t.tween_property(flash_rect, "color:a", 0.0, 0.08)
-	t.tween_callback(func(): 
-		if is_instance_valid(flash_rect):
-			flash_rect.color.a = 0.85
-			flash_rect.visible = false
-	)
-
-func _dusman_kontrol():
-	# Kısa bir süre bekle (vurulma animasyonları vb. için)
-	await get_tree().create_timer(0.2).timeout
-	
-	if not GameManager.silah_cekildi: return
-
-	# Eğer hala doğacak düşman varsa silahı asla kaldırma!
-	if GameManager.pyro_dogacak_dusman > 0:
-		return
-
-	# Pyro düşmanları bitince silahı otomatik kaldır
-	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
-	# Ölmemiş düşman var mı?
-	var hayatta_kalan = false
-	for d in dusmanlar:
-		if is_instance_valid(d) and d.get("suanki_durum") != 99:
-			hayatta_kalan = true
-			break
-
-	# Eğer hayatta kalan düşman kalmadıysa silahı kaldır
-	if not hayatta_kalan:
-		_silahi_kaldir()
-
-func _silahi_kaldir():
-	if not GameManager.silah_cekildi: return
-	GameManager.silah_cekildi = false
-	GameManager.pyro_aktif = false
-	var tween = create_tween()
-	tween.tween_property(silah_gorsel, "position:y", get_viewport().size.y + 200, 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-	tween.tween_callback(func(): visible = false)
-	print("✅ Tüm düşmanlar öldü — silah kaldırıldı.")
+	if flash_rect:
+		flash_rect.visible = true
+		var tw = create_tween()
+		tw.tween_property(flash_rect, "color:a", 0.0, 0.1)
+		tw.tween_callback(func(): flash_rect.visible = false; flash_rect.color.a = 0.85)
 
 func _mermi_olustur():
 	if not mermi_sahnesi: return
-	
 	var cam = get_viewport().get_camera_3d()
-	
-	# 1. Hedef Yönü (Ekranın Tam Ortası)
-	var ekran_ortasi = get_viewport().get_visible_rect().size / 2.0
-	var hedef_yonu = cam.project_ray_normal(ekran_ortasi)
-	
-	# 2. Başlangıç Noktası (Namlunun ucu)
-	# Mermi görsel olarak silahtan çıksın ama ortaya gitsin
-	var namlu_screen_pos = namlu_ucu.global_position
-	var baslangic_noktasi = cam.project_ray_origin(namlu_screen_pos)
-	
-	# 3. Mermiyi Yarat
+	var ray_origin = cam.project_ray_origin(get_viewport().size / 2)
+	var ray_dir = cam.project_ray_normal(get_viewport().size / 2)
 	var mermi = mermi_sahnesi.instantiate()
 	get_tree().current_scene.add_child(mermi)
-	
-	# Mermiyi kameranın biraz önünden başlat (İç içe girmesin)
-	mermi.global_position = baslangic_noktasi + (hedef_yonu * 1.0)
-	
-	# Mermiye "Ekranın ortasına git" emri ver
-	mermi.baslat(hedef_yonu)
+	mermi.global_position = ray_origin + ray_dir * 1.0
+	mermi.baslat(ray_dir)
 
 func _mermi_yok_uyarisi():
-	if not sfx_blank.playing:
-		sfx_blank.play()
-	var tween = create_tween()
-	tween.tween_property(silah_gorsel, "modulate", Color.RED, 0.1)
-	tween.tween_property(silah_gorsel, "modulate", Color.WHITE, 0.1)
+	if not sfx_blank.playing: sfx_blank.play()
+	if silah_gorsel:
+		var tw = create_tween()
+		tw.tween_property(silah_gorsel, "modulate", Color.RED, 0.1)
+		tw.tween_property(silah_gorsel, "modulate", Color.WHITE, 0.1)
+
+func _animasyon_oynat_incele():
+	islem_mesgul = true
+	if silah_gorsel and animasyon_kareleri.size() >= 8:
+		for i in range(7, -1, -1):
+			silah_gorsel.texture = animasyon_kareleri[i]
+			await get_tree().create_timer(0.06).timeout
+		for i in range(1, 8):
+			silah_gorsel.texture = animasyon_kareleri[i]
+			await get_tree().create_timer(0.06).timeout
+	islem_mesgul = false

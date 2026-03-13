@@ -235,9 +235,9 @@ func _show_step(adim: int):
 		# Paneli Üste Yasla (Küçük / Objektif Görünümü)
 		panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
 		panel.offset_left = -400
-		panel.offset_top = 20
+		panel.offset_top = 80
 		panel.offset_right = 400
-		panel.offset_bottom = 220
+		panel.offset_bottom = 280
 		
 		# TUTORIAL BOSS FIX: Adım 6'da Boss'a saldırı emri ver
 		if suanki_adim == 6:

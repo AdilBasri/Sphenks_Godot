@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cx6msh67nsv5"]
+
+[ext_resource type="PackedScene" uid="uid://bw7l4qf6h4f1s" path="res://acid_boss/Meshy_AI_Animation_Idle_withSkin.fbx" id="1_c7yv8"]
+
+[node name="AcidBoss_Model" instance=ExtResource("1_c7yv8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)

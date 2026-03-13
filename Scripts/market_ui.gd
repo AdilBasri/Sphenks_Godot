@@ -15,6 +15,11 @@ func _ready():
 	
 	# Başlangıçta güncelle
 	guncelle(GameManager.envanter.size(), GameManager.max_totem_sayisi)
+	
+	if GameManager:
+		GameManager.envanter_guncellendi.connect(func():
+			guncelle(GameManager.envanter.size(), GameManager.max_totem_sayisi)
+		)
 
 # SAYACI GÜNCELLEME VE "POP" ANİMASYONU
 func guncelle(mevcut: int, maksimum: int):

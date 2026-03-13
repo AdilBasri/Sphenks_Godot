@@ -29,12 +29,15 @@ func _ready():
 		print("🔫 Mermi 3'ün altındaydı, %d mermi eklendi." % eksik)
 
 	
-	# Silahı Hazırla
+	# Silahı Hazırla (3D Silahın çıkartılması)
+	var _3d_gun = oyuncu.get_node_or_null("Camera3D/Sketchfab_Scene")
+	if _3d_gun and _3d_gun.has_method("show_weapon"):
+		# Sahne açılır açılmaz silahı eline al
+		_3d_gun.show_weapon()
+		
+	# Eğer eski 2D silah hala duruyorsa tamamen gizle ve engelle
 	if silah_sistemi:
-		silah_sistemi.visible = true 
-		if "silah_gorsel" in silah_sistemi and silah_sistemi.silah_gorsel:
-			if "orjinal_pos" in silah_sistemi and silah_sistemi.orjinal_pos != Vector2.ZERO:
-				silah_sistemi.silah_gorsel.position = silah_sistemi.orjinal_pos
+		silah_sistemi.visible = false 
 
 	# --- DİL ÇEVİRİLERİ VE MİDE UI ---
 	_arayuzu_hazirla()

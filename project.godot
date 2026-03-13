@@ -13,7 +13,7 @@ config_version=5
 config/name="Sphenks"
 run/main_scene="uid://cpaqx02f6lwd8"
 config/features=PackedStringArray("4.5", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="res://Assets/Media/sphenks.ico"
 
 [autoload]
 
