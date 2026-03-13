@@ -451,6 +451,7 @@ func _physics_process(delta):
 			x_rotasyonu += -cam_dir.y * joy_sens
 			x_rotasyonu = clamp(x_rotasyonu, deg_to_rad(-80), deg_to_rad(80))
 			if kamera: kamera.rotation.x = x_rotasyonu
+			if looker: looker.x_rotation = x_rotasyonu
 		else:
 			# VIRTUAL MOUSE (Masa modunda sağ analog imleci kaydırır)
 			var cursor_speed = 750.0 * delta # Gamepad imlec hizi
@@ -861,6 +862,8 @@ func kalkis_baslat():
 
 func _on_kalkis_tamamlandi():
 	yere_dustu_mu = false
+	x_rotasyonu = 0.0
+	if looker: looker.x_rotation = 0.0
 	suanki_can_bari -= 1 
 	suanki_hp = 10 
 	if GameManager: GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
@@ -1626,12 +1629,18 @@ func stand_up():
 		kamera.position = Vector3(0, 0.6, 0)
 		kamera.rotation = Vector3.ZERO
 		x_rotasyonu = 0.0
+		if looker:
+			looker.x_rotation = 0.0
 	else:
 		# Fallback if table already deleted (game over)
 		var tween = create_tween()
 		active_tween = tween
 		tween.tween_property(kamera, "global_transform", original_camera_transform, 1.0)
-		tween.tween_callback(func(): x_rotasyonu = kamera.rotation.x)
+		tween.tween_callback(func(): 
+			x_rotasyonu = kamera.rotation.x
+			if looker:
+				looker.x_rotation = x_rotasyonu
+		)
 	
 	current_stool = null
 	print("🚶 Tabureden kalkıldı.")
@@ -1669,6 +1678,8 @@ func _revive_ile_kalkis():
 	# 4. Animasyon bitince değerleri ZORLA eşitle
 	tween.tween_callback(func():
 		yere_dustu_mu = false
+		x_rotasyonu = 0.0
+		if looker: looker.x_rotation = 0.0
 		
 		# --- BURASI DÜZELTİLDİ ---
 		# Normalde can düşüyordu, burada direkt 1'e sabitliyoruz.
