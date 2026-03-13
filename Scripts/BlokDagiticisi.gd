@@ -243,6 +243,7 @@ func _sahne_bitis_animasyonu() -> void:
 	tween.set_parallel(true)
 	
 	if is_instance_valid(masa_objesi):
+		_disable_all_collisions(masa_objesi)
 		tween.tween_property(masa_objesi, "position:y", -10.0, 4.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	
 	tween.chain().tween_callback(func(): 
@@ -260,6 +261,17 @@ func _sahne_bitis_animasyonu() -> void:
 				kapi.kapiyi_ac()
 		emit_signal("bolum_temizlendi") 
 	)
+
+func _disable_all_collisions(node: Node) -> void:
+	if not is_instance_valid(node): return
+	if node is CollisionShape3D or node is CollisionPolygon3D:
+		node.disabled = true
+	# if StaticBody3D or AnimatableBody3D, disable masks/layers just in case
+	if node is PhysicsBody3D:
+		node.collision_layer = 0
+		node.collision_mask = 0
+	for child in node.get_children():
+		_disable_all_collisions(child)
 
 func _oyun_kaybedildi(arayuz_ref) -> void:
 	if arayuz_ref.has_method("puan_ekle"):

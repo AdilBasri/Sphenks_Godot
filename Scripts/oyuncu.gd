@@ -427,6 +427,15 @@ func _physics_process(delta):
 	mover.handle_movement(delta, input_dir, is_on_floor())
 	move_and_slide()
 	
+	# --- GLOBAL FAILSAFE (Yerin altina duserse kurtar) ---
+	if global_position.y < -15.0:
+		velocity = Vector3.ZERO
+		if LevelManager and LevelManager.start_pos != Vector3.ZERO:
+			global_position = LevelManager.start_pos + Vector3(0, 1.0, 0)
+		else:
+			global_position = Vector3(0, 2.0, 0)
+		print("⚠️ OYUNCU YERIN ALTINA DÜSTÜ! GÜVENLİ BÖLGEYE IŞINLANDI.")
+	
 	# Movement and Interaction handled above
 	interactor.check_interaction()
 	
@@ -1607,7 +1616,8 @@ func stand_up():
 	if current_stool and is_instance_valid(current_stool) and current_stool.exit_position_marker:
 		var exit_pos = current_stool.exit_position_marker.global_position
 		velocity = Vector3.ZERO
-		global_position = exit_pos
+		global_position = exit_pos + Vector3(0, 0.5, 0) # Kliplemeyi onlemek icin += 0.5
+
 		
 		# TABURENİN ARKASINDAN GRİDE (MERKEZE) BAK
 		var look_target = Vector3(0, global_position.y, 0)
