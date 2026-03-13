@@ -54,12 +54,13 @@ func yeni_bolumu_baslat():
 	tur_bitti_mi = false
 	boss_oldu_mu = false
 	masadaki_aktif_bloklar = 0
-	# 3. BOSS GÜNCELLEME (Görünürlük Fix)
-	if boss_objesi:
-		boss_objesi.visible = true # Zorla görünür yap
-		boss_objesi.scale = Vector3(1.5, 1.5, 1.5) # Orijinal boyut (Sphenks.tscn'de 1.5)
-		
-		# Resmi Yükle
+	# 3. BOSS GÜNCELLEME (Görünürlük LevelManager tarafından yönetilir)
+	var aktif_boss = boss_objesi
+	if not aktif_boss:
+		aktif_boss = get_tree().get_first_node_in_group("Dusman")
+	
+	if aktif_boss:
+		# Sadece resmi güncelle, görünürlüğü LevelManager'a bırak
 		if boss_yolu != "":
 			var doku = load(boss_yolu)
 			if doku:

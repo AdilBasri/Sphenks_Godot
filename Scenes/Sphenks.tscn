@@ -1,4 +1,4 @@
-[gd_scene load_steps=112 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=109 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://b1abmwu2tkjli" path="res://Assets/Models/Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://Scripts/sphenks.gd" id="2_fi7dh"]
@@ -14,13 +14,9 @@
 [ext_resource type="Texture2D" uid="uid://bdg68m5qvav5s" path="res://Assets/Images/KediTutulan.png" id="8_p4fw5"]
 [ext_resource type="PackedScene" uid="uid://b4bhb1v1do7yg" path="res://Scenes/Enemies/PyroDusman.tscn" id="9_bjfsn"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Materials_Shaders/Sphenks.gdshader" id="10_h2n1q"]
-[ext_resource type="Texture2D" uid="uid://d354w4jvnfqdx" path="res://Assets/Images/blob.png" id="10_jl7q8"]
-[ext_resource type="Script" uid="uid://bmnvsawx0sym2" path="res://Scripts/DiyalogYoneticisi.gd" id="11_1eqvi"]
-[ext_resource type="Shader" uid="uid://bdknl4my2yii6" path="res://Materials_Shaders/Shader.gdshader" id="11_48she"]
 [ext_resource type="PackedScene" uid="uid://cyy5cvfn3untg" path="res://Scenes/Enemies/CanavarOturma.tscn" id="13_bjfsn"]
 [ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="13_bpxfr"]
 [ext_resource type="Script" uid="uid://bnl3r0qmhc78q" path="res://Scripts/BossCanavar.gd" id="14_2531s"]
-[ext_resource type="Script" uid="uid://y8xd6535ud3l" path="res://Scripts/Dusman.gd" id="15_krygw"]
 [ext_resource type="Texture2D" uid="uid://bnidhre7u4yaw" path="res://Assets/Images/CultFace.png" id="15_qrobu"]
 [ext_resource type="PackedScene" uid="uid://bgolektkymgbc" path="res://Scenes/Blocks/block_kare.tscn" id="16_b7lqx"]
 [ext_resource type="PackedScene" uid="uid://cj7t4ncxfa3jh" path="res://Scenes/Blocks/block_cubuk.tscn" id="17_sbm3a"]
@@ -70,6 +66,8 @@
 [ext_resource type="AudioStream" uid="uid://bd4cupg0y0kqc" path="res://Assets/Audio/ErrorSound.mp3" id="57_sroql"]
 [ext_resource type="Script" uid="uid://ccn3umee5kexm" path="res://Scripts/MasaSpawner.gd" id="59_q606s"]
 [ext_resource type="PackedScene" uid="uid://bafdowoddcpqw" path="res://Scenes/zar.tscn" id="62_q606s"]
+[ext_resource type="Script" uid="uid://chuv2uyii3n14" path="res://Scripts/AcidBoss.gd" id="94_acid"]
+[ext_resource type="PackedScene" path="res://acid_boss/AcidBoss_Model.tscn" id="95_acid_model"]
 [ext_resource type="Script" uid="uid://gdt0if15j8al" path="res://animated_gun/scene.gd" id="ag_gd"]
 [ext_resource type="PackedScene" uid="uid://hqgrge6ijj2s" path="res://animated_gun/scene.gltf" id="ag_gltf"]
 [ext_resource type="Texture2D" uid="uid://dnpnexrcnpel5" path="res://Assets/bullet_1.png" id="bullet_img"]
@@ -134,11 +132,6 @@ size = Vector3(4.3583374, 2.0308838, 1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_bjfsn"]
 size = Vector3(4.262207, 2.2539673, 4.15094)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_1eqvi"]
-shader = ExtResource("11_48she")
-shader_parameter/renk = Color(0.1, 0, 0, 0.8)
-shader_parameter/hiz = 0.2
-
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_lxn88"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_q0r6j"]
@@ -180,38 +173,6 @@ shader_parameter/vignette_color = Color(0.04, 0, 0, 1)
 shader_parameter/scanline_intensity = 0.1
 shader_parameter/scanline_count = 300.0
 shader_parameter/dither_amount = 0.025
-
-[sub_resource type="LabelSettings" id="LabelSettings_5uvl0"]
-font = ExtResource("13_bpxfr")
-font_size = 38
-shadow_size = 5
-shadow_color = Color(0, 0, 0, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_3fpuv"]
-font = ExtResource("13_bpxfr")
-font_color = Color(1, 1, 0, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_bjfsn"]
-font = ExtResource("13_bpxfr")
-font_color = Color(1, 1, 0, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_krygw"]
-font = ExtResource("13_bpxfr")
-font_size = 24
-font_color = Color(1, 1, 0, 1)
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_48she"]
-shader = ExtResource("10_h2n1q")
-shader_parameter/strength = 0.02
-shader_parameter/speed = 5.0
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_gore_s"]
-shader = ExtResource("gore_shader_sphenks")
-shader_parameter/intensity = 0.0
-shader_parameter/frenzy = 0.0
-shader_parameter/pulse_speed = 4.0
-shader_parameter/vignette_radius = 0.4
-shader_parameter/vignette_softness = 0.2
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lxn88"]
 albedo_texture = ExtResource("7_lxn88")
@@ -269,6 +230,38 @@ albedo_texture_force_srgb = true
 uv1_triplanar = true
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ipvml"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_5uvl0"]
+font = ExtResource("13_bpxfr")
+font_size = 38
+shadow_size = 5
+shadow_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_3fpuv"]
+font = ExtResource("13_bpxfr")
+font_color = Color(1, 1, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_bjfsn"]
+font = ExtResource("13_bpxfr")
+font_color = Color(1, 1, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_krygw"]
+font = ExtResource("13_bpxfr")
+font_size = 24
+font_color = Color(1, 1, 0, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_48she"]
+shader = ExtResource("10_h2n1q")
+shader_parameter/strength = 0.02
+shader_parameter/speed = 5.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gore_s"]
+shader = ExtResource("gore_shader_sphenks")
+shader_parameter/intensity = 0.0
+shader_parameter/frenzy = 0.0
+shader_parameter/pulse_speed = 4.0
+shader_parameter/vignette_radius = 0.4
+shader_parameter/vignette_softness = 0.2
 
 [node name="Meshy_AI__0118084653_texture" instance=ExtResource("1_1eqvi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.031485796, 0, 0)
@@ -380,20 +373,22 @@ size = Vector3(1.5, 3, 2.2)
 [node name="YanSehpa" parent="MezarOdasi" index="5" instance=ExtResource("7_kn6rn")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.2961266, -0.3699206, 0)
 
-[node name="Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin" parent="MezarOdasi" index="6" instance=ExtResource("13_bjfsn")]
-transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.16618979, -1.0051993, -0.9190335)
+[node name="NormalBoss" parent="MezarOdasi" index="6" instance=ExtResource("13_bjfsn")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.16618979, -0.59165543, -0.9190335)
+visible = false
 script = ExtResource("14_2531s")
 glitch_yuzu_dokusu = ExtResource("15_qrobu")
 
-[node name="Armature" parent="MezarOdasi/Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin" index="0"]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0.23335242, 0.075831294)
+[node name="AcidBoss" type="Node3D" parent="MezarOdasi" index="7"]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.16618979, -1.0051993, -0.9190335)
+visible = false
+script = ExtResource("94_acid")
 
-[node name="Camera3D" parent="MezarOdasi/Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin" index="2"]
-transform = Transform3D(0.5260561, 0.2266268, -0.34110078, 0, 0.55528086, 0.3689277, 0.4095235, -0.29111496, 0.43816328, -0.3689316, 1.7665404, 0.12147406)
-fov = 100.8
+[node name="Camera3D" type="Camera3D" parent="MezarOdasi/AcidBoss" index="0"]
+transform = Transform3D(0.5201633, 0, -0.41698277, 0, 0.6666667, 0, 0.41698277, 0, 0.5201633, -1.7895818, 1.6243179, 0.49395496)
 
-[node name="MeshInstance3D" parent="MezarOdasi/Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13036722, 0.7029474, -0.5996864)
+[node name="AcidBossModel" parent="MezarOdasi/AcidBoss" index="1" instance=ExtResource("95_acid_model")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26097602, -1.3516316)
 
 [node name="Kedi" type="Sprite3D" parent="." index="4"]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.4053817, -0.19308585, -3.5038295)
@@ -418,88 +413,33 @@ collision_layer = 2
 transform = Transform3D(0.99999976, 0, 0, 0, 0.99999976, 0, 0, 0, 0.99999976, 0.09008789, -0.0155335665, -0.053863466)
 shape = SubResource("BoxShape3D_bjfsn")
 
-[node name="Boss" type="Sprite3D" parent="." index="5" groups=["Dusman"]]
-transform = Transform3D(0.7, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0.4112321, -1.3106129)
-visible = false
-billboard = 2
-alpha_cut = 1
-texture_filter = 0
-texture = ExtResource("10_jl7q8")
-script = ExtResource("15_krygw")
-genel_boyut = 0.7
-kisisel_alan = 5.0
-surtunme = 2.0
-merkeze_donus_hizi = 10.0
-
-[node name="CanvasLayer" type="CanvasLayer" parent="Boss" index="0"]
-
-[node name="DiyalogKatmani" type="CanvasLayer" parent="Boss/CanvasLayer" index="0"]
-script = ExtResource("11_1eqvi")
-ozel_font = ExtResource("13_bpxfr")
-
-[node name="Panel" type="Panel" parent="Boss/CanvasLayer/DiyalogKatmani" index="0"]
-material = SubResource("ShaderMaterial_1eqvi")
-anchors_preset = 11
-anchor_left = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -548.0
-offset_top = -155.0
-offset_right = 102.0
-grow_horizontal = 0
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="KonusmaMetni" type="RichTextLabel" parent="Boss/CanvasLayer/DiyalogKatmani/Panel" index="0"]
-layout_mode = 0
-offset_right = 600.0
-offset_bottom = 200.0
-mouse_filter = 2
-theme_override_colors/default_color = Color(1, 1, 1, 1)
-theme_override_fonts/normal_font = ExtResource("13_bpxfr")
-bbcode_enabled = true
-scroll_active = false
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Boss/CanvasLayer/DiyalogKatmani/Panel" index="1"]
-layout_mode = 0
-offset_left = 244.0
-offset_top = 478.0
-offset_right = 284.0
-offset_bottom = 518.0
-
-[node name="Button" type="Button" parent="Boss/CanvasLayer/DiyalogKatmani/Panel/VBoxContainer" index="0"]
-layout_mode = 2
-
-[node name="Button2" type="Button" parent="Boss/CanvasLayer/DiyalogKatmani/Panel/VBoxContainer" index="1"]
-layout_mode = 2
-
-[node name="BlokKare" parent="." index="6" instance=ExtResource("16_b7lqx")]
+[node name="BlokKare" parent="." index="5" instance=ExtResource("16_b7lqx")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -0.086585164, 0.521, 1.3832939)
 visible = false
 hover_y_offset = 0.0
 
-[node name="BlokCubuk" parent="." index="7" instance=ExtResource("17_sbm3a")]
+[node name="BlokCubuk" parent="." index="6" instance=ExtResource("17_sbm3a")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, 0.53413725, 0.521, 1.4186599)
 visible = false
 tekli_blok_sahnesi = ExtResource("20_mc62c")
 footprint = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3)])
 
-[node name="BlokT" parent="." index="8" instance=ExtResource("18_btjas")]
+[node name="BlokT" parent="." index="7" instance=ExtResource("18_btjas")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, 1.2060636, 0.521, 1.3921502)
 visible = false
 tekli_blok_sahnesi = ExtResource("20_mc62c")
 
-[node name="BlokZ" parent="." index="9" instance=ExtResource("19_5n3a3")]
+[node name="BlokZ" parent="." index="8" instance=ExtResource("19_5n3a3")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -1.2616234, 0.521, 1.4148206)
 visible = false
 tekli_blok_sahnesi = ExtResource("20_mc62c")
 
-[node name="BlokTek" parent="." index="10" instance=ExtResource("20_mc62c")]
+[node name="BlokTek" parent="." index="9" instance=ExtResource("20_mc62c")]
 transform = Transform3D(0.209, 0, 0, 0, 0.2018785, 0.054093182, 0, -0.054093182, 0.2018785, -0.26791936, 0.66327345, 1.524)
 visible = false
 tekli_blok_sahnesi = null
 
-[node name="Oyuncu" type="CharacterBody3D" parent="." index="11" node_paths=PackedStringArray("kamera", "ui_container", "gore_vignette", "mide_ui_container") groups=["Oyuncu"]]
+[node name="Oyuncu" type="CharacterBody3D" parent="." index="10" node_paths=PackedStringArray("kamera", "ui_container", "gore_vignette", "mide_ui_container") groups=["Oyuncu"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6191114, 3.3313973)
 script = ExtResource("23_4kj0i")
 kamera = NodePath("Camera3D")
@@ -648,7 +588,371 @@ mouse_filter = 2
 transform = Transform3D(-0.009992799, -0.00027612958, 0.00025981833, -0.00024250048, 0.009922487, 0.0012186932, -0.00029145594, 0.0012115176, -0.009922059, 0.10295622, -0.120666265, -0.24678564)
 script = ExtResource("ag_gd")
 
-[node name="OyunArayuzu" parent="." index="12" groups=["Arayuz"] instance=ExtResource("3_4kj0i")]
+[node name="Sprite3D" type="Sprite3D" parent="." index="11"]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 2.814343, 0.7904787, -4.989589)
+texture = ExtResource("24_4kj0i")
+
+[node name="Sprite3D3" type="Sprite3D" parent="." index="12"]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -2.606346, 2.5711083, -2.53472)
+billboard = 2
+texture = ExtResource("25_yiyi8")
+
+[node name="Sprite3D2" type="Sprite3D" parent="." index="13"]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.980662, 2.4447017, -2.4630535)
+alpha_cut = 1
+texture_filter = 0
+texture = ExtResource("25_lxn88")
+
+[node name="Zemin" type="CSGBox3D" parent="." index="14"]
+transform = Transform3D(20, 0, 0, 0, 0.5, 0, 0, 0, 20, -0.0067620277, -0.8497947, -0.0027458668)
+material_override = SubResource("StandardMaterial3D_lxn88")
+use_collision = true
+material = SubResource("StandardMaterial3D_yiyi8")
+
+[node name="KapiSistemi" parent="." index="15" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.74290544, 0.9280957, -5.4079823)
+kapi_isigi = NodePath("../SpotLight3D")
+gecit_efektleri = NodePath("../MezarOdasi/SabitGecitEfekti")
+
+[node name="OnYuz" parent="KapiSistemi/Govde" index="0"]
+transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
+
+[node name="SpotLight3D" type="SpotLight3D" parent="." index="16"]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.31994456, 1.1450957, -5.2922864)
+visible = false
+light_color = Color(1, 0.91764706, 0, 1)
+light_energy = 10.0
+shadow_enabled = true
+distance_fade_enabled = true
+spot_angle = 60.0
+
+[node name="TumMasaSistemi" parent="." index="17" instance=ExtResource("37_63q5f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.1451937)
+
+[node name="KaranlikKoridor" parent="." index="18" instance=ExtResource("30_1283l")]
+transform = Transform3D(0.58, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.93540573, -11.2914505)
+
+[node name="DisDuvar" parent="KaranlikKoridor" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.038085938)
+size = Vector3(4, 4, 12.076172)
+
+[node name="IcBosluk" parent="KaranlikKoridor/DisDuvar" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06335449, 0)
+size = Vector3(2.5, 3.126709, 14)
+
+[node name="CatalOdasi" type="CSGBox3D" parent="." index="19"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.020557582, 1.466571, -22.436665)
+use_collision = true
+size = Vector3(10, 6.290039, 9.981107)
+material = SubResource("StandardMaterial3D_ojhqj")
+script = ExtResource("31_ojhqj")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="CatalOdasi" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.37565458, -0.031238556)
+operation = 2
+size = Vector3(9.5, 5.0718994, 9.907251)
+material = SubResource("StandardMaterial3D_1g7sh")
+
+[node name="oda2_koridorkapi" type="CSGBox3D" parent="CatalOdasi" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.014709473, -0.68739843, 5.028185)
+visible = false
+operation = 2
+size = Vector3(1.5, 3, 0.5)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="CatalOdasi" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.334017, 0, 0)
+light_energy = 2.0
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="CatalOdasi" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.733116)
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="CatalOdasi" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.126993, 0.19324851, 0)
+light_energy = 2.0
+
+[node name="marketkapideligi" type="CSGBox3D" parent="CatalOdasi" index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1311731, -0.7990906, -5.068287)
+operation = 2
+size = Vector3(1.5, 3, 0.2)
+
+[node name="campfirekapideligi" type="CSGBox3D" parent="CatalOdasi" index="6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9005396, -0.682544, -5.0773163)
+operation = 2
+size = Vector3(1.5, 2.7669067, 0.2)
+
+[node name="KaranlikKoridor" parent="CatalOdasi" index="7" instance=ExtResource("30_1283l")]
+transform = Transform3D(0.58, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9354056, 8.45308)
+
+[node name="DisDuvar" parent="CatalOdasi/KaranlikKoridor" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.028564453, -1.7345321, 2.4212494)
+size = Vector3(4.057129, 4.3667603, 12.171387)
+
+[node name="Koridorkapideligi" type="CSGBox3D" parent="CatalOdasi" index="8"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.028452456, -0.63649964, 4.907215)
+operation = 2
+size = Vector3(1.5, 2.9863281, 0.2)
+
+[node name="Market_tabela" type="Sprite3D" parent="CatalOdasi" index="9"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, -2.1760197, 1.3525583, -4.97217)
+modulate = Color(1, 1, 1, 0.39215687)
+texture = ExtResource("31_ewkc5")
+
+[node name="campfire_tabela" type="Sprite3D" parent="CatalOdasi" index="10"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 1.8211832, 1.3574995, -4.9742317)
+modulate = Color(1, 1, 1, 0.39215687)
+texture = ExtResource("32_ojhqj")
+
+[node name="KapiCampfire" parent="CatalOdasi" index="11" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6266735, -0.6419221, -4.8798866)
+hedef_tipi = 3
+kapi_isigi = NodePath("../../SpotLight3D")
+gecit_efektleri = NodePath("../../MezarOdasi/SabitGecitEfekti")
+
+[node name="Govde" parent="CatalOdasi/KapiCampfire" index="0"]
+transform = Transform3D(1.5, 0, 0, 0, 3, 0, 0, 0, 0.2, -0.75, 0, -0.012796402)
+
+[node name="OnYuz" parent="CatalOdasi/KapiCampfire/Govde" index="0"]
+transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
+
+[node name="KapiMarket" parent="CatalOdasi" index="12" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3873303, -0.6419221, -4.8798866)
+hedef_tipi = 2
+kapi_isigi = NodePath("../../SpotLight3D")
+gecit_efektleri = NodePath("../../MezarOdasi/SabitGecitEfekti")
+
+[node name="Govde" parent="CatalOdasi/KapiMarket" index="0"]
+transform = Transform3D(1.5, 0, 0, 0, 3, 0, 0, 0, 0.2, -0.75, 0, -0.012796402)
+
+[node name="OnYuz" parent="CatalOdasi/KapiMarket/Govde" index="0"]
+transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
+
+[node name="Market" type="CSGBox3D" parent="." index="20" node_paths=PackedStringArray("market_kapisi", "market_ui", "hedef_marketci", "kese_sprite")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2407465, 1.6105278, -32.43347)
+use_collision = true
+size = Vector3(10, 6, 10)
+material = SubResource("StandardMaterial3D_oaawk")
+script = ExtResource("34_kt702")
+market_kapisi = NodePath("../CatalOdasi/KapiMarket")
+market_ui = NodePath("MarketUI_Layer/MarketUI")
+hedef_marketci = NodePath("Sprite3D")
+kese_sprite = NodePath("OyuncuEli/KeseResmi")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Market" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03969288, 0.30154967, 0.22190857)
+operation = 2
+size = Vector3(9.5, 5.310791, 9.409497)
+material = SubResource("StandardMaterial3D_mu64t")
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="Market" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5566893, -0.6882386, -4.7549286)
+operation = 2
+size = Vector3(1.5167998, 3.001152, 0.589)
+material = SubResource("StandardMaterial3D_mu64t")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Market" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04316473, 3.0137646, 0.13230133)
+light_color = Color(1, 0.8627451, 0, 1)
+light_energy = 5.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 16.0
+light_size = 2.0
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="Market" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04316473, 1.7308311, -0.10557556)
+light_color = Color(1, 0.8627451, 0, 1)
+light_energy = 5.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 16.0
+light_size = 2.0
+
+[node name="marketkapideligiCSG" type="CSGBox3D" parent="Market" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9454231, -0.93358433, 5.1652565)
+operation = 2
+size = Vector3(1.5, 2.720089, 0.5258881)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="Market" index="5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.20578432, -1.6250725, -1.1469078)
+size = Vector3(5.9655075, 1.4327393, 1.5761719)
+material = SubResource("StandardMaterial3D_kt702")
+
+[node name="Sprite3D" type="Sprite3D" parent="Market" index="6"]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, -1.1033959, -2.381958)
+billboard = 2
+texture = ExtResource("34_1g7sh")
+
+[node name="Sprite3D2" type="Sprite3D" parent="Market" index="7"]
+transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 0, 2.0759084, -1.0868073)
+billboard = 2
+texture = ExtResource("38_kt702")
+
+[node name="GirisSensoru" type="Area3D" parent="Market" index="8"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8207242, 0, 1.0033932)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Market/GirisSensoru" index="0"]
+transform = Transform3D(10, 0, 0, 0, 6, 0, 0, 0, 10, -1.7974851, 0, -0.5792599)
+shape = SubResource("BoxShape3D_8wtdy")
+
+[node name="OyuncuEli" type="AnimatableBody3D" parent="Market" index="9"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.322, -0.652, -1.915)
+collision_layer = 2
+collision_mask = 0
+
+[node name="Sprite3D" type="Sprite3D" parent="Market/OyuncuEli" index="0"]
+transform = Transform3D(-0.15, 2.2649372e-08, -9.900355e-16, 0, -6.5567085e-09, -0.15, -2.2649372e-08, -0.15, 6.5567085e-09, 0, 0, 0)
+no_depth_test = true
+texture = ExtResource("39_fknsn")
+
+[node name="KeseResmi" type="Sprite3D" parent="Market/OyuncuEli" index="1"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0.42353106, 0.16448301, 0.4694748)
+billboard = 2
+no_depth_test = true
+texture = ExtResource("41_q0r6j")
+
+[node name="MasaSpawner" type="Node3D" parent="Market" index="10"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.10371065, 0)
+script = ExtResource("59_q606s")
+satilacak_esya_listesi = Array[ExtResource("35_pl0tg")]([ExtResource("48_2531s"), ExtResource("49_mrmkb"), ExtResource("47_bjfsn"), ExtResource("46_3fpuv"), ExtResource("43_o15xn"), ExtResource("44_63q5f"), ExtResource("43_krygw"), ExtResource("42_5uvl0"), ExtResource("41_q606s"), ExtResource("40_uxn7w"), ExtResource("39_k4rhs"), ExtResource("38_sroql"), ExtResource("37_16a52"), ExtResource("36_kn6rn")])
+
+[node name="Marker3D" type="Marker3D" parent="Market/MasaSpawner" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9613943, -0.48753572, -0.99705887)
+
+[node name="Marker3D2" type="Marker3D" parent="Market/MasaSpawner" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.761261, -0.43594038, -0.99705887)
+
+[node name="Marker3D3" type="Marker3D" parent="Market/MasaSpawner" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3124876, -0.42967284, -0.99705887)
+
+[node name="Marker3D4" type="Marker3D" parent="Market/MasaSpawner" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2660685, -0.42271292, -0.99705887)
+
+[node name="Marker3D5" type="Marker3D" parent="Market/MasaSpawner" index="4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3234415, -0.4332639, -0.99705887)
+
+[node name="MarketUI_Layer" type="CanvasLayer" parent="Market" index="11"]
+
+[node name="MarketUI" type="Control" parent="Market/MarketUI_Layer" index="0"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("56_16a52")
+
+[node name="SayacLabel" type="Label" parent="Market/MarketUI_Layer/MarketUI" index="0"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.476
+anchor_top = 0.057000004
+anchor_right = 0.476
+anchor_bottom = 0.057000004
+offset_left = -180.35199
+offset_top = -17.936
+offset_right = 179.64801
+offset_bottom = 18.064
+grow_horizontal = 2
+text = "Totem: 0/5"
+label_settings = SubResource("LabelSettings_k4rhs")
+
+[node name="SesPlayer" type="AudioStreamPlayer" parent="Market/MarketUI_Layer/MarketUI" index="1"]
+stream = ExtResource("57_sroql")
+
+[node name="KapiSistemi2" parent="Market" index="12" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.3015263, -0.68243206, -4.6784515)
+hedef_tipi = 1
+kapi_isigi = NodePath("../../SpotLight3D")
+gecit_efektleri = NodePath("../../MezarOdasi/SabitGecitEfekti")
+
+[node name="OnYuz" parent="Market/KapiSistemi2/Govde" index="0"]
+transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
+
+[node name="Campfire_room" type="CSGBox3D" parent="." index="21"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2604437, 1.8707769, -32.43788)
+use_collision = true
+size = Vector3(10, 5.9286804, 10)
+material = SubResource("StandardMaterial3D_mmuev")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Campfire_room" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03969288, -0.0013358593, 0.22190857)
+operation = 2
+size = Vector3(9.5, 5.114258, 9.409497)
+material = SubResource("StandardMaterial3D_fknsn")
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="Campfire_room" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.029934883, -1.059655, -4.775528)
+operation = 2
+size = Vector3(1.5154266, 2.9976196, 0.5941559)
+material = SubResource("StandardMaterial3D_fknsn")
+
+[node name="campfirekapideligi" type="CSGBox3D" parent="Campfire_room" index="2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.3307421, -1.1378739, 4.916786)
+operation = 2
+size = Vector3(1.5100098, 2.8344116, 0.28303224)
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="Campfire_room" index="3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.009578705, -2.1542864, -0.9618454)
+light_color = Color(1, 0.6666667, 0, 1)
+light_energy = 5.0
+light_indirect_energy = 5.0
+light_volumetric_fog_energy = 1.5
+
+[node name="KapiSistemi3" parent="Campfire_room" index="4" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.71353626, -1.0531323, -4.6958694)
+hedef_tipi = 1
+kapi_isigi = NodePath("../../SpotLight3D")
+gecit_efektleri = NodePath("../../MezarOdasi/SabitGecitEfekti")
+
+[node name="OnYuz" parent="Campfire_room/KapiSistemi3/Govde" index="0"]
+transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
+
+[node name="campfire_gecis" type="CSGBox3D" parent="." index="22"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8984134, 0.9008086, -27.660534)
+operation = 2
+size = Vector3(1.5482178, 2.852666, 0.48053682)
+material = SubResource("StandardMaterial3D_ipvml")
+
+[node name="campfire_roomgecisCSGB" type="CSGBox3D" parent="campfire_gecis" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.008218527, -0.06420374, -0.015083313)
+operation = 2
+size = Vector3(1.5482178, 2.9299502, 0.6573989)
+
+[node name="GirisTetikleyici" type="Area3D" parent="campfire_gecis" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.31323457, -0.03407097)
+collision_layer = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="campfire_gecis/GirisTetikleyici" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00063323975, 0.07821655, 0.028535843)
+shape = SubResource("BoxShape3D_8wtdy")
+
+[node name="CampfireOdasi" parent="." index="23" instance=ExtResource("33_1g7sh")]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 5.427616, 0.8997017, -33.59956)
+
+[node name="ZarOdasi" type="CSGBox3D" parent="." index="24"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.913664, 0.5922892, 0)
+use_collision = true
+size = Vector3(4, 4, 4)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="ZarOdasi" index="0"]
+operation = 2
+size = Vector3(3.5, 3.5, 3.5)
+
+[node name="OmniLight3D6" type="OmniLight3D" parent="ZarOdasi/CSGBox3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.012934685, -0.42016852, -0.01415503)
+light_color = Color(0.35047063, 0.24055037, 0.9999998, 1)
+light_energy = 4.0
+light_volumetric_fog_energy = 3.0
+omni_range = 2.0
+omni_attenuation = 1.9
+
+[node name="ZarAtisNoktasi" type="Marker3D" parent="ZarOdasi" index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.18612671, 1.242451, -0.06695452)
+
+[node name="ZarKamerasi" type="Camera3D" parent="ZarOdasi" index="2"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -0.0932312, 1.3956807, 0.2135151)
+fov = 85.4
+
+[node name="OyunArayuzu" parent="." index="25" groups=["Arayuz"] instance=ExtResource("3_4kj0i")]
 script = ExtResource("rev_gd")
 mermi_sahnesi = null
 animasyon_kareleri = Array[Texture2D]([])
@@ -819,373 +1123,6 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="Sprite3D" type="Sprite3D" parent="." index="13"]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 2.814343, 0.7904787, -4.989589)
-texture = ExtResource("24_4kj0i")
-
-[node name="Sprite3D3" type="Sprite3D" parent="." index="14"]
-transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -2.606346, 2.5711083, -2.53472)
-billboard = 2
-texture = ExtResource("25_yiyi8")
-
-[node name="Sprite3D2" type="Sprite3D" parent="." index="15"]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.980662, 2.4447017, -2.4630535)
-alpha_cut = 1
-texture_filter = 0
-texture = ExtResource("25_lxn88")
-
-[node name="Zemin" type="CSGBox3D" parent="." index="16"]
-transform = Transform3D(20, 0, 0, 0, 0.5, 0, 0, 0, 20, -0.0067620277, -0.8497947, -0.0027458668)
-material_override = SubResource("StandardMaterial3D_lxn88")
-use_collision = true
-material = SubResource("StandardMaterial3D_yiyi8")
-
-[node name="KapiSistemi" parent="." index="17" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.74290544, 0.9280957, -5.4079823)
-kapi_isigi = NodePath("../SpotLight3D")
-gecit_efektleri = NodePath("../MezarOdasi/SabitGecitEfekti")
-
-[node name="OnYuz" parent="KapiSistemi/Govde" index="0"]
-transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
-
-[node name="SpotLight3D" type="SpotLight3D" parent="." index="18"]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.31994456, 1.1450957, -5.2922864)
-visible = false
-light_color = Color(1, 0.91764706, 0, 1)
-light_energy = 10.0
-shadow_enabled = true
-distance_fade_enabled = true
-spot_angle = 60.0
-
-[node name="TumMasaSistemi" parent="." index="19" instance=ExtResource("37_63q5f")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.1451937)
-
-[node name="BlokDagiticisi" parent="TumMasaSistemi" index="4" node_paths=PackedStringArray("boss_objesi")]
-boss_objesi = NodePath("../../MezarOdasi/Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin")
-
-[node name="KaranlikKoridor" parent="." index="20" instance=ExtResource("30_1283l")]
-transform = Transform3D(0.58, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.93540573, -11.2914505)
-
-[node name="DisDuvar" parent="KaranlikKoridor" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.038085938)
-size = Vector3(4, 4, 12.076172)
-
-[node name="IcBosluk" parent="KaranlikKoridor/DisDuvar" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06335449, 0)
-size = Vector3(2.5, 3.126709, 14)
-
-[node name="CatalOdasi" type="CSGBox3D" parent="." index="21"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.020557582, 1.466571, -22.436665)
-use_collision = true
-size = Vector3(10, 6.290039, 9.981107)
-material = SubResource("StandardMaterial3D_ojhqj")
-script = ExtResource("31_ojhqj")
-
-[node name="CSGBox3D" type="CSGBox3D" parent="CatalOdasi" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.37565458, -0.031238556)
-operation = 2
-size = Vector3(9.5, 5.0718994, 9.907251)
-material = SubResource("StandardMaterial3D_1g7sh")
-
-[node name="oda2_koridorkapi" type="CSGBox3D" parent="CatalOdasi" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.014709473, -0.68739843, 5.028185)
-visible = false
-operation = 2
-size = Vector3(1.5, 3, 0.5)
-
-[node name="OmniLight3D" type="OmniLight3D" parent="CatalOdasi" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.334017, 0, 0)
-light_energy = 2.0
-
-[node name="OmniLight3D2" type="OmniLight3D" parent="CatalOdasi" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.733116)
-
-[node name="OmniLight3D3" type="OmniLight3D" parent="CatalOdasi" index="4"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.126993, 0.19324851, 0)
-light_energy = 2.0
-
-[node name="marketkapideligi" type="CSGBox3D" parent="CatalOdasi" index="5"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1311731, -0.7990906, -5.068287)
-operation = 2
-size = Vector3(1.5, 3, 0.2)
-
-[node name="campfirekapideligi" type="CSGBox3D" parent="CatalOdasi" index="6"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9005396, -0.682544, -5.0773163)
-operation = 2
-size = Vector3(1.5, 2.7669067, 0.2)
-
-[node name="KaranlikKoridor" parent="CatalOdasi" index="7" instance=ExtResource("30_1283l")]
-transform = Transform3D(0.58, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9354056, 8.45308)
-
-[node name="DisDuvar" parent="CatalOdasi/KaranlikKoridor" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.028564453, -1.7345321, 2.4212494)
-size = Vector3(4.057129, 4.3667603, 12.171387)
-
-[node name="Koridorkapideligi" type="CSGBox3D" parent="CatalOdasi" index="8"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.028452456, -0.63649964, 4.907215)
-operation = 2
-size = Vector3(1.5, 2.9863281, 0.2)
-
-[node name="Market_tabela" type="Sprite3D" parent="CatalOdasi" index="9"]
-transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, -2.1760197, 1.3525583, -4.97217)
-modulate = Color(1, 1, 1, 0.39215687)
-texture = ExtResource("31_ewkc5")
-
-[node name="campfire_tabela" type="Sprite3D" parent="CatalOdasi" index="10"]
-transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 1.8211832, 1.3574995, -4.9742317)
-modulate = Color(1, 1, 1, 0.39215687)
-texture = ExtResource("32_ojhqj")
-
-[node name="KapiCampfire" parent="CatalOdasi" index="11" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6266735, -0.6419221, -4.8798866)
-hedef_tipi = 3
-kapi_isigi = NodePath("../../SpotLight3D")
-gecit_efektleri = NodePath("../../MezarOdasi/SabitGecitEfekti")
-
-[node name="Govde" parent="CatalOdasi/KapiCampfire" index="0"]
-transform = Transform3D(1.5, 0, 0, 0, 3, 0, 0, 0, 0.2, -0.75, 0, -0.012796402)
-
-[node name="OnYuz" parent="CatalOdasi/KapiCampfire/Govde" index="0"]
-transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
-
-[node name="KapiMarket" parent="CatalOdasi" index="12" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3873303, -0.6419221, -4.8798866)
-hedef_tipi = 2
-kapi_isigi = NodePath("../../SpotLight3D")
-gecit_efektleri = NodePath("../../MezarOdasi/SabitGecitEfekti")
-
-[node name="Govde" parent="CatalOdasi/KapiMarket" index="0"]
-transform = Transform3D(1.5, 0, 0, 0, 3, 0, 0, 0, 0.2, -0.75, 0, -0.012796402)
-
-[node name="OnYuz" parent="CatalOdasi/KapiMarket/Govde" index="0"]
-transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
-
-[node name="Market" type="CSGBox3D" parent="." index="22" node_paths=PackedStringArray("market_kapisi", "market_ui", "hedef_marketci", "kese_sprite")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2407465, 1.6105278, -32.43347)
-use_collision = true
-size = Vector3(10, 6, 10)
-material = SubResource("StandardMaterial3D_oaawk")
-script = ExtResource("34_kt702")
-market_kapisi = NodePath("../CatalOdasi/KapiMarket")
-market_ui = NodePath("MarketUI_Layer/MarketUI")
-hedef_marketci = NodePath("Sprite3D")
-kese_sprite = NodePath("OyuncuEli/KeseResmi")
-
-[node name="CSGBox3D" type="CSGBox3D" parent="Market" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03969288, 0.30154967, 0.22190857)
-operation = 2
-size = Vector3(9.5, 5.310791, 9.409497)
-material = SubResource("StandardMaterial3D_mu64t")
-
-[node name="CSGBox3D3" type="CSGBox3D" parent="Market" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5566893, -0.6882386, -4.7549286)
-operation = 2
-size = Vector3(1.5167998, 3.001152, 0.589)
-material = SubResource("StandardMaterial3D_mu64t")
-
-[node name="OmniLight3D" type="OmniLight3D" parent="Market" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04316473, 3.0137646, 0.13230133)
-light_color = Color(1, 0.8627451, 0, 1)
-light_energy = 5.0
-light_indirect_energy = 5.0
-light_volumetric_fog_energy = 16.0
-light_size = 2.0
-
-[node name="OmniLight3D2" type="OmniLight3D" parent="Market" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04316473, 1.7308311, -0.10557556)
-light_color = Color(1, 0.8627451, 0, 1)
-light_energy = 5.0
-light_indirect_energy = 5.0
-light_volumetric_fog_energy = 16.0
-light_size = 2.0
-
-[node name="marketkapideligiCSG" type="CSGBox3D" parent="Market" index="4"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9454231, -0.93358433, 5.1652565)
-operation = 2
-size = Vector3(1.5, 2.720089, 0.5258881)
-
-[node name="CSGBox3D2" type="CSGBox3D" parent="Market" index="5"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.20578432, -1.6250725, -1.1469078)
-size = Vector3(5.9655075, 1.4327393, 1.5761719)
-material = SubResource("StandardMaterial3D_kt702")
-
-[node name="Sprite3D" type="Sprite3D" parent="Market" index="6"]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, -1.1033959, -2.381958)
-billboard = 2
-texture = ExtResource("34_1g7sh")
-
-[node name="Sprite3D2" type="Sprite3D" parent="Market" index="7"]
-transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 0, 2.0759084, -1.0868073)
-billboard = 2
-texture = ExtResource("38_kt702")
-
-[node name="GirisSensoru" type="Area3D" parent="Market" index="8"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8207242, 0, 1.0033932)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Market/GirisSensoru" index="0"]
-transform = Transform3D(10, 0, 0, 0, 6, 0, 0, 0, 10, -1.7974851, 0, -0.5792599)
-shape = SubResource("BoxShape3D_8wtdy")
-
-[node name="OyuncuEli" type="AnimatableBody3D" parent="Market" index="9"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.322, -0.652, -1.915)
-collision_layer = 2
-collision_mask = 0
-
-[node name="Sprite3D" type="Sprite3D" parent="Market/OyuncuEli" index="0"]
-transform = Transform3D(-0.15, 2.2649372e-08, -9.900355e-16, 0, -6.5567085e-09, -0.15, -2.2649372e-08, -0.15, 6.5567085e-09, 0, 0, 0)
-no_depth_test = true
-texture = ExtResource("39_fknsn")
-
-[node name="KeseResmi" type="Sprite3D" parent="Market/OyuncuEli" index="1"]
-transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0.42353106, 0.16448301, 0.4694748)
-billboard = 2
-no_depth_test = true
-texture = ExtResource("41_q0r6j")
-
-[node name="MasaSpawner" type="Node3D" parent="Market" index="10"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.10371065, 0)
-script = ExtResource("59_q606s")
-satilacak_esya_listesi = Array[ExtResource("35_pl0tg")]([ExtResource("48_2531s"), ExtResource("49_mrmkb"), ExtResource("47_bjfsn"), ExtResource("46_3fpuv"), ExtResource("43_o15xn"), ExtResource("44_63q5f"), ExtResource("43_krygw"), ExtResource("42_5uvl0"), ExtResource("41_q606s"), ExtResource("40_uxn7w"), ExtResource("39_k4rhs"), ExtResource("38_sroql"), ExtResource("37_16a52"), ExtResource("36_kn6rn")])
-
-[node name="Marker3D" type="Marker3D" parent="Market/MasaSpawner" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9613943, -0.48753572, -0.99705887)
-
-[node name="Marker3D2" type="Marker3D" parent="Market/MasaSpawner" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.761261, -0.43594038, -0.99705887)
-
-[node name="Marker3D3" type="Marker3D" parent="Market/MasaSpawner" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3124876, -0.42967284, -0.99705887)
-
-[node name="Marker3D4" type="Marker3D" parent="Market/MasaSpawner" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2660685, -0.42271292, -0.99705887)
-
-[node name="Marker3D5" type="Marker3D" parent="Market/MasaSpawner" index="4"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3234415, -0.4332639, -0.99705887)
-
-[node name="MarketUI_Layer" type="CanvasLayer" parent="Market" index="11"]
-
-[node name="MarketUI" type="Control" parent="Market/MarketUI_Layer" index="0"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("56_16a52")
-
-[node name="SayacLabel" type="Label" parent="Market/MarketUI_Layer/MarketUI" index="0"]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.476
-anchor_top = 0.057000004
-anchor_right = 0.476
-anchor_bottom = 0.057000004
-offset_left = -180.35199
-offset_top = -17.936
-offset_right = 179.64801
-offset_bottom = 18.064
-grow_horizontal = 2
-text = "Totem: 0/5"
-label_settings = SubResource("LabelSettings_k4rhs")
-
-[node name="SesPlayer" type="AudioStreamPlayer" parent="Market/MarketUI_Layer/MarketUI" index="1"]
-stream = ExtResource("57_sroql")
-
-[node name="KapiSistemi2" parent="Market" index="12" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.3015263, -0.68243206, -4.6784515)
-hedef_tipi = 1
-kapi_isigi = NodePath("../../SpotLight3D")
-gecit_efektleri = NodePath("../../MezarOdasi/SabitGecitEfekti")
-
-[node name="OnYuz" parent="Market/KapiSistemi2/Govde" index="0"]
-transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
-
-[node name="Campfire_room" type="CSGBox3D" parent="." index="23"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2604437, 1.8707769, -32.43788)
-use_collision = true
-size = Vector3(10, 5.9286804, 10)
-material = SubResource("StandardMaterial3D_mmuev")
-
-[node name="CSGBox3D" type="CSGBox3D" parent="Campfire_room" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03969288, -0.0013358593, 0.22190857)
-operation = 2
-size = Vector3(9.5, 5.114258, 9.409497)
-material = SubResource("StandardMaterial3D_fknsn")
-
-[node name="CSGBox3D2" type="CSGBox3D" parent="Campfire_room" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.029934883, -1.059655, -4.775528)
-operation = 2
-size = Vector3(1.5154266, 2.9976196, 0.5941559)
-material = SubResource("StandardMaterial3D_fknsn")
-
-[node name="campfirekapideligi" type="CSGBox3D" parent="Campfire_room" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.3307421, -1.1378739, 4.916786)
-operation = 2
-size = Vector3(1.5100098, 2.8344116, 0.28303224)
-
-[node name="OmniLight3D3" type="OmniLight3D" parent="Campfire_room" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.009578705, -2.1542864, -0.9618454)
-light_color = Color(1, 0.6666667, 0, 1)
-light_energy = 5.0
-light_indirect_energy = 5.0
-light_volumetric_fog_energy = 1.5
-
-[node name="KapiSistemi3" parent="Campfire_room" index="4" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.71353626, -1.0531323, -4.6958694)
-hedef_tipi = 1
-kapi_isigi = NodePath("../../SpotLight3D")
-gecit_efektleri = NodePath("../../MezarOdasi/SabitGecitEfekti")
-
-[node name="OnYuz" parent="Campfire_room/KapiSistemi3/Govde" index="0"]
-transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
-
-[node name="campfire_gecis" type="CSGBox3D" parent="." index="24"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8984134, 0.9008086, -27.660534)
-operation = 2
-size = Vector3(1.5482178, 2.852666, 0.48053682)
-material = SubResource("StandardMaterial3D_ipvml")
-
-[node name="campfire_roomgecisCSGB" type="CSGBox3D" parent="campfire_gecis" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.008218527, -0.06420374, -0.015083313)
-operation = 2
-size = Vector3(1.5482178, 2.9299502, 0.6573989)
-
-[node name="GirisTetikleyici" type="Area3D" parent="campfire_gecis" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.31323457, -0.03407097)
-collision_layer = 0
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="campfire_gecis/GirisTetikleyici" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00063323975, 0.07821655, 0.028535843)
-shape = SubResource("BoxShape3D_8wtdy")
-
-[node name="CampfireOdasi" parent="." index="25" instance=ExtResource("33_1g7sh")]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 5.427616, 0.8997017, -33.59956)
-
-[node name="ZarOdasi" type="CSGBox3D" parent="." index="26"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.913664, 0.5922892, 0)
-use_collision = true
-size = Vector3(4, 4, 4)
-
-[node name="CSGBox3D" type="CSGBox3D" parent="ZarOdasi" index="0"]
-operation = 2
-size = Vector3(3.5, 3.5, 3.5)
-
-[node name="OmniLight3D6" type="OmniLight3D" parent="ZarOdasi/CSGBox3D" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.012934685, -0.42016852, -0.01415503)
-light_color = Color(0.35047063, 0.24055037, 0.9999998, 1)
-light_energy = 4.0
-light_volumetric_fog_energy = 3.0
-omni_range = 2.0
-omni_attenuation = 1.9
-
-[node name="ZarAtisNoktasi" type="Marker3D" parent="ZarOdasi" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.18612671, 1.242451, -0.06695452)
-
-[node name="ZarKamerasi" type="Camera3D" parent="ZarOdasi" index="2"]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -0.0932312, 1.3956807, 0.2135151)
-fov = 85.4
-
 [connection signal="input_event" from="Kedi/Y_Kedi" to="Kedi" method="_on_area_3d_input_event"]
 
 [editable path="Block_L"]
@@ -1193,13 +1130,11 @@ fov = 85.4
 [editable path="Block_L/Hayalet/Node3D2"]
 [editable path="Block_L/Hayalet/Node3D3"]
 [editable path="Block_L/Hayalet/Node3D4"]
-[editable path="MezarOdasi/Meshy_AI_Animation_Stand_to_Sit_Transition_M_withSkin"]
 [editable path="BlokKare"]
 [editable path="BlokKare/Hayalet/Node3D"]
 [editable path="BlokKare/Hayalet/Node3D2"]
 [editable path="BlokKare/Hayalet/Node3D3"]
 [editable path="BlokKare/Hayalet/Node3D4"]
-[editable path="OyunArayuzu"]
 [editable path="KapiSistemi"]
 [editable path="TumMasaSistemi"]
 [editable path="KaranlikKoridor"]
@@ -1208,3 +1143,4 @@ fov = 85.4
 [editable path="CatalOdasi/KapiMarket"]
 [editable path="Market/KapiSistemi2"]
 [editable path="Campfire_room/KapiSistemi3"]
+[editable path="OyunArayuzu"]

@@ -1,10 +1,10 @@
-[gd_scene load_steps=32 format=3 uid="uid://5r052hg2ato8"]
+[gd_scene load_steps=35 format=3 uid="uid://5r052hg2ato8"]
 
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="1_j5rsp"]
-[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="2_tlklb"]
-[ext_resource type="Texture2D" uid="uid://ncorow4carpw" path="res://Assets/Images/çerçeve_bar.png" id="3_h6a0u"]
-[ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://Assets/Images/iç_bar.png" id="4_756oi"]
-[ext_resource type="Texture2D" uid="uid://b5k4ffrdw2m3u" path="res://Assets/carpi.png" id="5_nn26f"]
+[ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="2_tlklb"]
+[ext_resource type="Texture2D" uid="uid://dm3cprrc1lljc" path="res://Assets/Images/çerçeve_bar.png" id="3_h6a0u"]
+[ext_resource type="Texture2D" uid="uid://bg20iuynejlup" path="res://Assets/Images/iç_bar.png" id="4_756oi"]
+[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="5_nn26f"]
 [ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="6_e0pfg"]
 [ext_resource type="PackedScene" uid="uid://hqgrge6ijj2s" path="res://animated_gun/scene.gltf" id="7_tlklb"]
 [ext_resource type="Script" uid="uid://gdt0if15j8al" path="res://animated_gun/scene.gd" id="8_h6a0u"]
@@ -12,10 +12,12 @@
 [ext_resource type="PackedScene" uid="uid://dvucb86havcwa" path="res://UI/oyun_arayuzu.tscn" id="10_u18ft"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Materials_Shaders/Sphenks.gdshader" id="11_xh7p1"]
 [ext_resource type="Script" uid="uid://lcig2p1w37xb" path="res://Scripts/Revolver.gd" id="11_xl8ic"]
-[ext_resource type="Texture2D" uid="uid://b6qhtc7ov5oqy" path="res://Assets/Images/crosshair.png" id="12_xl8ic"]
-[ext_resource type="FontFile" uid="uid://cy77p676hbv6h" path="res://Assets/Fonts/Retro Shine.ttf" id="13_w84ue"]
+[ext_resource type="Texture2D" uid="uid://ctkgrnlyobok1" path="res://Assets/Images/crosshair.png" id="12_xl8ic"]
+[ext_resource type="FontFile" uid="uid://hbyync0b8kyv" path="res://Assets/Fonts/Retro Shine.ttf" id="13_w84ue"]
 [ext_resource type="Texture2D" uid="uid://dnpnexrcnpel5" path="res://Assets/bullet_1.png" id="14_f3u4t"]
 [ext_resource type="Script" uid="uid://jep6dm3gok1q" path="res://deneme.gd" id="15_deneme"]
+[ext_resource type="PackedScene" uid="uid://ci3tj0pxk8doq" path="res://acid_boss/Meshy_AI_Animation_Left_Slash_withSkin.fbx" id="17_f3u4t"]
+[ext_resource type="Animation" uid="uid://coxrvxqi787yk" path="res://hit_acid.res" id="18_t52yg"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_m18cy"]
 size = Vector3(20, 20, 0.2)
@@ -108,6 +110,11 @@ font_color = Color(1, 1, 0, 1)
 shader = ExtResource("11_xh7p1")
 shader_parameter/strength = 0.02
 shader_parameter/speed = 5.0
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_d4mfo"]
+_data = {
+&"hit_acid": ExtResource("18_t52yg")
+}
 
 [node name="Node3D" type="Node3D"]
 script = ExtResource("15_deneme")
@@ -464,5 +471,40 @@ layout_mode = 2
 texture = ExtResource("14_f3u4t")
 expand_mode = 2
 
+[node name="Meshy_AI_Animation_Left_Slash_withSkin" parent="." instance=ExtResource("17_f3u4t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6344193, 1.0799999, 0.4013324)
+
+[node name="Skeleton3D" parent="Meshy_AI_Animation_Left_Slash_withSkin/Armature" index="0"]
+bones/0/rotation = Quaternion(0.37061915, 0.61846304, 0.6427234, 0.25894347)
+bones/1/rotation = Quaternion(0.7765093, -0.061317824, 0.06306342, 0.62393636)
+bones/2/rotation = Quaternion(0.3235207, 0.5591259, 0.23064159, 0.72767925)
+bones/3/rotation = Quaternion(-0.6430896, -0.019138036, 0.41292343, 0.6446423)
+bones/4/rotation = Quaternion(-0.13287328, 0.016819991, 0.011060422, 0.99092865)
+bones/5/rotation = Quaternion(0.65740764, -0.061797902, -0.4448609, 0.60505784)
+bones/6/rotation = Quaternion(0.10269183, -0.58790386, -0.21259238, 0.7737105)
+bones/7/rotation = Quaternion(-0.681535, 0.05354224, -0.48691732, 0.54364955)
+bones/8/rotation = Quaternion(-0.19452578, -0.007685357, -0.013783248, 0.98077047)
+bones/9/rotation = Quaternion(-0.038958628, 0.9976783, 0.038832698, -0.040154483)
+bones/10/rotation = Quaternion(0.07497925, 0.0105360225, -0.037634082, 0.9964191)
+bones/11/rotation = Quaternion(0.27700898, -0.042854592, -0.03256978, 0.9593586)
+bones/12/rotation = Quaternion(0.62638307, 0.36635894, -0.4200707, 0.5449459)
+bones/13/rotation = Quaternion(0.13319455, -0.5464003, 0.7349783, -0.378831)
+bones/14/rotation = Quaternion(-0.1452321, -0.41978955, 0.10817949, 0.8893715)
+bones/15/rotation = Quaternion(0.26152292, -0.12190464, 0.420198, 0.8603365)
+bones/16/rotation = Quaternion(0.7694584, -0.094787106, 0.35827503, 0.52018076)
+bones/17/rotation = Quaternion(-0.22381349, -0.70697963, 0.114466, 0.66104835)
+bones/18/rotation = Quaternion(0.08861407, -0.025525399, 0.21398377, 0.97247463)
+bones/19/rotation = Quaternion(0.23737366, -0.17435715, -0.25129867, 0.92201)
+bones/20/rotation = Quaternion(-0.40565547, 0.22287677, 0.038543925, 0.8855981)
+bones/21/rotation = Quaternion(0.5797545, 0.25836208, -0.00815179, 0.7727014)
+bones/22/rotation = Quaternion(-0.30605534, -5.0903557e-09, -0.022568936, 0.95174617)
+bones/23/rotation = Quaternion(0.34642738, -5.7109478e-08, 0.025545977, 0.9377289)
+
+[node name="AnimationPlayer" parent="Meshy_AI_Animation_Left_Slash_withSkin" index="1"]
+libraries = {
+&"": SubResource("AnimationLibrary_d4mfo")
+}
+
 [editable path="Oyuncu/Camera3D/Sketchfab_Scene"]
 [editable path="Revolver"]
+[editable path="Meshy_AI_Animation_Left_Slash_withSkin"]
