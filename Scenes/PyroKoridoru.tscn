@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3 uid="uid://csnasspc4xyij"]
+[gd_scene load_steps=35 format=3 uid="uid://csnasspc4xyij"]
 
 [ext_resource type="Script" uid="uid://c3g6t5usagaa" path="res://Scripts/PyroKoridoru.gd" id="1_h5fso"]
 [ext_resource type="Script" uid="uid://loithy76h54j" path="res://Scripts/omni_light_3d.gd" id="1_so4kj"]
@@ -13,11 +13,13 @@
 [ext_resource type="Texture2D" uid="uid://b6qhtc7ov5oqy" path="res://Assets/Images/crosshair.png" id="9_2f6ik"]
 [ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="9_ocmv8"]
 [ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Scenes/Items/Kapi.tscn" id="11_2f6ik"]
-[ext_resource type="PackedScene" uid="uid://7eln5qfuv1pk" path="res://Scenes/SilahSistemi.tscn" id="12_12o8v"]
 [ext_resource type="PackedScene" uid="uid://cwep2mo56dn1d" path="res://UI/MideUI.tscn" id="12_np28r"]
 [ext_resource type="Texture2D" uid="uid://dnpnexrcnpel5" path="res://Assets/bullet_1.png" id="13_1ndpq"]
 [ext_resource type="FontFile" uid="uid://cy77p676hbv6h" path="res://Assets/Fonts/Retro Shine.ttf" id="13_xvddi"]
+[ext_resource type="Script" uid="uid://gdt0if15j8al" path="res://animated_gun/scene.gd" id="ag_gd"]
+[ext_resource type="PackedScene" uid="uid://hqgrge6ijj2s" path="res://animated_gun/scene.gltf" id="ag_gltf"]
 [ext_resource type="Shader" uid="uid://cuhlen0v736t0" path="res://Materials_Shaders/gore_vignette.gdshader" id="gore_shader"]
+[ext_resource type="Script" uid="uid://lcig2p1w37xb" path="res://Scripts/Revolver.gd" id="rev_gd"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qik3h"]
 cull_mode = 2
@@ -280,11 +282,17 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Revolver" parent="." node_paths=PackedStringArray("nisangah", "pyro_filtresi") groups=["Arayuz"] instance=ExtResource("7_jvfqp")]
-nisangah = NodePath("Control/Nisangah")
-pyro_filtresi = NodePath("PyroFiltresi")
+[node name="Sketchfab_Scene" parent="Oyuncu/Camera3D" instance=ExtResource("ag_gltf")]
+transform = Transform3D(-0.009992799, -0.00027612958, 0.00025981833, -0.00024250048, 0.009922487, 0.0012186932, -0.00029145594, 0.0012115176, -0.009922059, 0.10295622, -0.120666265, -0.24678564)
+script = ExtResource("ag_gd")
+
+[node name="Revolver" parent="." groups=["Arayuz"] instance=ExtResource("7_jvfqp")]
+script = ExtResource("rev_gd")
+mermi_sahnesi = null
+animasyon_kareleri = Array[Texture2D]([])
 
 [node name="KatmanLabel" type="Label" parent="Revolver"]
+visible = false
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -456,8 +464,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.56, -1, -10.363)
 [node name="KapiSistemi" parent="." instance=ExtResource("11_2f6ik")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7176584, 0, -14.182446)
 hedef_tipi = 1
-
-[node name="SilahKatmani" parent="." instance=ExtResource("12_12o8v")]
 
 [node name="MideKatmani" type="CanvasLayer" parent="."]
 
