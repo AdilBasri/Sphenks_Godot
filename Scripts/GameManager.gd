@@ -54,6 +54,7 @@ var limbs_eaten_this_round: int = 0  # Bu tur kaç uzuv yendi
 var pyro_aktif: bool = false
 var mermi_sayisi: int = 10
 var max_mermi: int = 40
+var mermi_parcasi_sayisi: int = 0  # 3 parça = 1 mermi
 var silah_cekildi: bool = false 
 var yeme_aktif_mi: bool = false  # Oyuncu uzuv yerken true — pyro_filtresi gizlenir
 var pyro_dogacak_dusman: int = 0 # Pyro modunda doğması beklenen düşman sayısı
@@ -65,9 +66,11 @@ var ghost_move_active: bool = false
 var ghost_canvas: CanvasLayer = null
 
 # --- 👹 BOSS KAÇTI SİSTEMİ ---
-var boss_kacti: bool = false  # Boss öldürülemeden kaçtıysa, bir sonraki bölümde 2 boss spawn olur
+var boss_kacti: bool = false  # Boss öldürülemeden kaçtıysa, bir sonraki bölümde tekrar gelir
+var boss_kalan_hp: int = 0    # Boss kaçtığında kalan HP'si (sonraki bölümde bu HP ile spawn olur)
 
 func _ready():
+	randomize()
 	print("GameManager Başlatıldı.")
 	# Oyun açıldığında pencereyi ön plana getir (Focus fix)
 	DisplayServer.window_move_to_foreground()
@@ -260,6 +263,7 @@ func verileri_sifirla():
 	toplam_altin = 10
 	uyku_sahnesi_giris_sayisi = 0
 	mermi_sayisi = 10
+	mermi_parcasi_sayisi = 0
 	pyro_aktif = false
 	silah_cekildi = false
 	envanter.clear()
@@ -270,6 +274,7 @@ func verileri_sifirla():
 	kanli_indirim_aktif = false
 	sonraki_boss_saldirisi = ""
 	boss_kacti = false
+	boss_kalan_hp = 0
 	
 	mide_doluluk = 0
 	limbs_eaten_this_round = 0
@@ -349,6 +354,7 @@ func oyunu_kaydet():
 	config.set_value("Oyuncu", "KalanBar", oyuncu_kalan_bar)
 	config.set_value("Oyuncu", "SuankiHP", oyuncu_suanki_hp)
 	config.set_value("Oyuncu", "MermiSayisi", mermi_sayisi)
+	config.set_value("Oyuncu", "MermiParcasi", mermi_parcasi_sayisi)
 	config.set_value("Oyuncu", "PyroAktif", pyro_aktif)
 	config.set_value("Oyuncu", "GoreIntensity", gore_intensity)
 	
@@ -380,6 +386,7 @@ func oyunu_kaydet():
 	config.set_value("Oyun", "CompletedTutorials", completed_tutorials)
 	config.set_value("Oyun", "UykuSahnesiGirisSayisi", uyku_sahnesi_giris_sayisi)
 	config.set_value("Oyun", "BossKacti", boss_kacti)
+	config.set_value("Oyun", "BossKalanHP", boss_kalan_hp)
 	config.save("user://savegame.cfg")
 	print("💾 Oyun kaydedildi. (Seviye: %d, Envanter: %s)" % [kayit_seviyesi, str(esya_id_listesi)])
 
@@ -393,6 +400,7 @@ func oyunu_yukle():
 		oyuncu_kalan_bar = config.get_value("Oyuncu", "KalanBar", 4)
 		oyuncu_suanki_hp = config.get_value("Oyuncu", "SuankiHP", 10)
 		mermi_sayisi = config.get_value("Oyuncu", "MermiSayisi", 10)
+		mermi_parcasi_sayisi = config.get_value("Oyuncu", "MermiParcasi", 0)
 		pyro_aktif = config.get_value("Oyuncu", "PyroAktif", false)
 		gore_intensity = config.get_value("Oyuncu", "GoreIntensity", 0.0)
 		
@@ -444,6 +452,7 @@ func oyunu_yukle():
 		# suanki_seviye'yi de senkronize et ki LevelManager doğru okusun
 		suanki_seviye = kayitli_seviye
 		boss_kacti = config.get_value("Oyun", "BossKacti", false)
+		boss_kalan_hp = config.get_value("Oyun", "BossKalanHP", 0)
 
 		# Corrupt save fix: HP sıfırsa tam sağlığa döndür
 		if oyuncu_kalan_bar <= 0 or oyuncu_suanki_hp <= 0:
@@ -537,6 +546,24 @@ func mermiyi_kullan():
 		_arayuz_guncelle()
 		return true
 	return false
+
+func mermi_parcasi_ekle(miktar: int = 1):
+	"""Mermi parçası ekler. Her 3 parçada 1 mermi oluşur."""
+	mermi_parcasi_sayisi += miktar
+	print("🔩 Mermi parçası toplandı! Toplam: %d/3" % mermi_parcasi_sayisi)
+	
+	# UI'ı hemen güncelle (parça sayısı gösterilsin)
+	emit_signal("mermi_degisti", mermi_sayisi)
+	
+	while mermi_parcasi_sayisi >= 3:
+		mermi_parcasi_sayisi -= 3
+		mermi_ekle(1)
+		print("🎯 3 parça birleşti → +1 Mermi! Toplam mermi: %d" % mermi_sayisi)
+		
+		# Arayüze bilgi göster
+		var arayuz = get_tree().get_first_node_in_group("Arayuz")
+		if arayuz and arayuz.has_method("bilgi_goster"):
+			arayuz.bilgi_goster("🔩 +1 Mermi!", 2.0)
 
 # ==========================================
 # 🌌 GHOST MOVE PARRY MANTIĞI 🌌

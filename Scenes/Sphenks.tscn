@@ -371,6 +371,7 @@ script = ExtResource("14_2531s")
 glitch_yuzu_dokusu = ExtResource("15_qrobu")
 
 [node name="Area3D" type="Area3D" parent="MezarOdasi/NormalBoss" index="5"]
+input_ray_pickable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MezarOdasi/NormalBoss/Area3D" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14257813, 0.70714176, -0.24958801)
@@ -386,6 +387,7 @@ glitch_yuzu_dokusu = ExtResource("15_qrobu")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26097602, -1.3516316)
 
 [node name="Area3D" type="Area3D" parent="MezarOdasi/AcidBoss" index="1"]
+input_ray_pickable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MezarOdasi/AcidBoss/Area3D" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.072883606, 0.9358213, -1.1842747)
@@ -401,6 +403,7 @@ glitch_yuzu_dokusu = ExtResource("15_qrobu")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.260976, -0.97269034)
 
 [node name="Area3D" type="Area3D" parent="MezarOdasi/StoneBoss" index="1"]
+input_ray_pickable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MezarOdasi/StoneBoss/Area3D" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.022503905, 1.0557065, -0.8128639)

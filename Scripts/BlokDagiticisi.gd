@@ -163,62 +163,18 @@ func _stoktan_yeni_parti_ver() -> void:
 
 func _on_blok_yerlesti() -> void:
 	masadaki_aktif_bloklar -= 1
-	_anlik_boss_kontrolu()
+	# Boss artık satır patlatarak ölmüyor — sadece silahla öldürülebilir
+	# _anlik_boss_kontrolu() KALDIRILDI
 	await get_tree().create_timer(0.5).timeout
 	_stoktan_yeni_parti_ver()
 
-func _anlik_boss_kontrolu() -> void:
-	if boss_oldu_mu: return
-	
-	# TUTORIAL SIRASINDA BOSS ÖLEMEZ (User Request)
-	if TutorialManager and TutorialManager.tutorial_aktif:
-		return
-		
-	var arayuz = get_tree().get_first_node_in_group("Arayuz")
-	if arayuz:
-		var skor = 0
-		if "toplam_puan" in arayuz: skor = arayuz.toplam_puan
-		elif "puan" in arayuz: skor = arayuz.puan
-		
-		if skor >= arayuz.hedef_puan:
-			_boss_olum_animasyonu()
+# Boss artık sadece silahla öldürülebilir — bu fonksiyon devre dışı
+#func _anlik_boss_kontrolu() -> void:
+#	pass
 
-func _boss_olum_animasyonu() -> void:
-	print(">>> KOTA AŞILDI! BOSS GİDİYOR... <<<")
-	boss_oldu_mu = true 
-	GameManager.boss_oldu.emit()
-	
-	# --- BOSS ÖLDÜĞÜNDE SON 3 BLOK MEKANİĞİ (SADECE TUTORIAL / KATMAN 1) ---
-	if LevelManager and LevelManager.suanki_katman == 1:
-		print("🎓 TUTORIAL BOSS ÖLDÜ! Son 3 blok kalacak.")
-		# Masadaki bloklar dahil toplam 3 blok hakkı tanı
-		var eksik = 3 - masadaki_aktif_bloklar
-		if eksik > 0:
-			kalan_stok = eksik
-		else:
-			kalan_stok = 0 # Zaten masada 3 veya daha fazla blok var
-		
-		# UI Güncelle
-		emit_signal("stok_guncellendi", kalan_stok + masadaki_aktif_bloklar)
-	else:
-		print("☠️ BOSS ÖLDÜ! Normal oyun devam ediyor (Altın kasma modu).")
-
-	if is_instance_valid(boss_objesi):
-		var tween = create_tween()
-		tween.set_parallel(true)
-		for i in range(10):
-			tween.tween_property(boss_objesi, "position:x", 0.1, 0.03).as_relative()
-			tween.tween_property(boss_objesi, "position:x", -0.1, 0.03).as_relative()
-		
-		# Node3D'de modulate yok, görsel efekt için scale sarsma yeterli
-			
-		tween.tween_property(boss_objesi, "scale", Vector3.ZERO, 0.8).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_IN)
-		
-		# Boss'u silme (queue_free), sadece gizle. Çünkü sonraki turda geri gelecek!
-		tween.chain().tween_callback(func():
-			if is_instance_valid(boss_objesi):
-				boss_objesi.visible = false # SİLME YOK!
-		)
+# Boss artık sadece silahla öldürülebilir — bu fonksiyon devre dışı
+#func _boss_olum_animasyonu() -> void:
+#	pass
 
 func _tur_sonu_hesaplamasi() -> void:
 	tur_bitti_mi = true
@@ -238,7 +194,7 @@ func _sahne_bitis_animasyonu() -> void:
 	set_process_input(false)
 	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
 	if oyuncu and oyuncu.has_method("stand_up"):
-		oyuncu.stand_up()
+		oyuncu.stand_up(true) # Direkt ve zorunlu kaldır
 		
 	var tween = create_tween()
 	tween.set_parallel(true)
@@ -260,6 +216,10 @@ func _sahne_bitis_animasyonu() -> void:
 			if "kilitli_mi" in kapi: kapi.kilitli_mi = false
 			if kapi.has_method("kapiyi_ac"):
 				kapi.kapiyi_ac()
+		
+		# Mekan bariyerlerini kaldır
+		get_tree().call_group("Bariyer", "bolum_bitti")
+		
 		emit_signal("bolum_temizlendi") 
 	)
 
@@ -451,8 +411,19 @@ func yer_yok_kontrolu_yap() -> void:
 				if arayuz and arayuz.has_method("bilgi_goster"):
 					arayuz.bilgi_goster("Boss kaçtı!", 3.0)
 				
-				# Boss'u kaçır
+				# Boss'u kaçır — kalan HP'yi kaydet
 				GameManager.boss_kacti = true
+				
+				# İlk hayatta olan boss'un HP'sini al
+				var kalan_hp = 0
+				for boss in boss_list:
+					if is_instance_valid(boss) and "boss_hp" in boss:
+						var oldu = boss.get("oldu_mu")
+						if not oldu:
+							kalan_hp = boss.boss_hp
+							break
+				GameManager.boss_kalan_hp = kalan_hp
+				print("👹 Boss kaçtı! Kalan HP: %d" % kalan_hp)
 				
 				for boss in boss_list:
 					if is_instance_valid(boss):

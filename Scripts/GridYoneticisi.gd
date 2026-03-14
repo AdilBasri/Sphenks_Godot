@@ -311,7 +311,30 @@ func satirlari_kontrol_et() -> void:
 		_bloklari_yok_et_kanli(patlayacak_hucreler)
 		kombo_carpani += 1; kombo_suresi = max_kombo_suresi
 		_gelismis_puan_hesapla(patlayan_satir_sayisi, patlayacak_hucreler, mantar_ekstra)
-		GameManager.satir_patladi.emit()
+		
+		# --- MERMİ PARÇASI DÜŞÜRME SİSTEMİ ---
+		if not Engine.is_editor_hint():
+			var gm = get_node_or_null("/root/GameManager")
+			if gm:
+				var toplam_patlayan_blok = patlayacak_hucreler.size()
+				var parca_sansi_sayisi = int(toplam_patlayan_blok / 8)
+				if parca_sansi_sayisi < 1: parca_sansi_sayisi = 1
+				
+				print("🔩 SATIR PATLADI! [%d blok] -> %d drop şansı deneniyor..." % [toplam_patlayan_blok, parca_sansi_sayisi])
+				
+				for i in range(parca_sansi_sayisi):
+					var sans = randi() % 100
+					if sans < 20: # %20 ihtimal
+						print("🔩 Şans TUTTU! (%d < 20) -> Mermi parçası eklendi." % sans)
+						if gm.has_method("mermi_parcasi_ekle"):
+							gm.mermi_parcasi_ekle(1)
+					else:
+						print("🔩 Şans tutmadı (%d >= 20)." % sans)
+			else:
+				print("⚠️ UYARI: GameManager bulunamadı (Drop yapılamadı)")
+		
+		if GameManager:
+			GameManager.satir_patladi.emit()
 
 func _komsulari_kontrol_et_ve_kir(merkez: Vector2i):
 	var yonler = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]

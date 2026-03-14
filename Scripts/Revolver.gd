@@ -165,7 +165,11 @@ func _silah_durumunu_degistir():
 func _on_mermi_degisti(sayi):
 	var m_label = find_child("MermiSayisi", true, false)
 	if m_label:
-		m_label.text = "%d/%d" % [sayi, GameManager.max_mermi]
+		var parca = GameManager.mermi_parcasi_sayisi if GameManager else 0
+		if parca > 0:
+			m_label.text = "%d/%d (🔩%d/3)" % [sayi, GameManager.max_mermi, parca]
+		else:
+			m_label.text = "%d/%d" % [sayi, GameManager.max_mermi]
 		m_label.modulate = Color.RED if sayi == 0 else (Color(1, 0.55, 0) if sayi <= 5 else Color.WHITE)
 
 func _on_altin_guncellendi(miktar):

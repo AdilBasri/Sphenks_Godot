@@ -1581,14 +1581,15 @@ func _update_orbit_camera():
 		print("DEBUG: transparency check - is_front:", is_front_stool, " is_angle_match:", boss_bakis_acisi)
 		boss.set_transparency(is_front_stool and boss_bakis_acisi)
 
-func stand_up():
+func stand_up(forced: bool = false):
 	if not is_sitting: return
 	
-	# GHOST MOVE veya BOSS atağı sırasında inemez
-	if GameManager and GameManager.ghost_move_active:
-		return
-	if LevelManager and LevelManager.is_boss_acting:
-		return
+	if not forced:
+		# GHOST MOVE veya BOSS atağı sırasında inemez (Normal oyun akışı)
+		if GameManager and GameManager.ghost_move_active:
+			return
+		if LevelManager and LevelManager.is_boss_acting:
+			return
 	
 	# Eğer oyuncu üzerinde aktif bir tween varsa (Tabure ile hareket ediyorsa) durduralım.
 	# Yoksa tween devam edip oyuncuyu tekrar tabureye çekebilir.
