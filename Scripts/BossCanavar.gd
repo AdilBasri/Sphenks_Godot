@@ -568,10 +568,6 @@ func saldiri_baslat():
 	else:
 		suanki_durum = "AYAKTA"
 
-	# "BOSS KARAR VERİYOR..." UI mesajı
-	if arayuz and arayuz.has_method("bilgi_goster"):
-		arayuz.bilgi_goster(DilYoneticisi.metin_al("boss_karar_veriyor"), 1.5)
-
 	await get_tree().create_timer(1.0).timeout
 
 	if _oldu_mu_kontrol():

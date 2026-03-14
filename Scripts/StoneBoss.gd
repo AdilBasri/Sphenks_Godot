@@ -5,6 +5,13 @@ signal saldiri_tamamlandi
 var anim_player: AnimationPlayer = null
 
 var suanki_durum: String = "IDLE"
+var _saldiri_resume_ediliyor: bool = false
+var glitch_canvas: CanvasLayer = null
+var glitch_ui_rect: TextureRect = null
+
+@export_group("QTE Ayarları")
+@export var glitch_yuzu_dokusu: Texture2D
+@export var kirik_cam_sesi: AudioStream
 
 func _ready():
 	add_to_group("Dusman")
@@ -62,10 +69,19 @@ func saldiri_baslat():
 	if boss_kamera:
 		boss_kamera.make_current()
 	
-	# Uyarı mesajı
+	# --- 👁️ GLITCH PARRY WINDOW (PRE-ATTACK) ---
+	if not _saldiri_resume_ediliyor:
+		var parry_basarili = await pre_attack()
+		if parry_basarili:
+			# PARRY EDİLDİ! Saldırı sekansını tamamen durdur.
+			return
+	_saldiri_resume_ediliyor = false
+	# -------------------------------------------
+
+	# Telegraph mesajı
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
 	if arayuz and arayuz.has_method("bilgi_goster"):
-		arayuz.bilgi_goster(DilYoneticisi.metin_al("kaya_firlatiyor"), 2.0)
+		arayuz.bilgi_goster(DilYoneticisi.metin_al("kaya_firlatiyor"), 1.5)
 	
 	await get_tree().create_timer(1.0).timeout
 
@@ -148,3 +164,67 @@ func _animasyon_olcegini_temizle(anim: Animation):
 			anim.remove_track(i)
 	
 	print("✅ Animasyon ölçek trackleri temizlendi: ", anim.resource_name)
+
+# ==========================================
+# 🌌 GLITCH PARRY (REALITY DENIAL)
+# ==========================================
+
+func pre_attack() -> bool:
+	"""
+	Saldırı öncesi kısa (0.5s) pencere açar. 
+	Oyuncu bu pencerede sağ tıklarsa gerçekliği inkar eder (Glitch Parry).
+	"""
+	if not glitch_yuzu_dokusu: return false
+	
+	if GameManager: GameManager.is_parry_window_open = true
+	glitch_yuzu_kapat()
+	
+	# Ekranda Korkunç Yüz Göster
+	glitch_ui_rect = TextureRect.new()
+	glitch_ui_rect.texture = glitch_yuzu_dokusu
+	glitch_ui_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	glitch_ui_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	glitch_ui_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	glitch_ui_rect.modulate = Color(1, 1, 1, 0.8)
+	
+	var mat = ShaderMaterial.new()
+	var shader = load("res://Materials_Shaders/glitch_yuz.gdshader")
+	if shader: mat.shader = shader
+	glitch_ui_rect.material = mat
+	
+	glitch_canvas = CanvasLayer.new()
+	glitch_canvas.layer = 99 
+	glitch_canvas.add_child(glitch_ui_rect)
+	add_child(glitch_canvas)
+	
+	await get_tree().create_timer(0.5, false).timeout
+	
+	if GameManager and GameManager.is_parry_window_open:
+		GameManager.is_parry_window_open = false
+		glitch_yuzu_kapat()
+		return false
+	else:
+		glitch_yuzu_kapat()
+		if kirik_cam_sesi:
+			var as_player = AudioStreamPlayer3D.new()
+			as_player.stream = kirik_cam_sesi
+			as_player.max_distance = 15.0
+			add_child(as_player)
+			as_player.play()
+			as_player.finished.connect(as_player.queue_free)
+			
+		print("❌ STONE BOSS ATTACK CANCELLED! (GLITCH PARRY)")
+		return true
+
+func glitch_yuzu_kapat():
+	if is_instance_valid(glitch_canvas):
+		glitch_canvas.queue_free()
+		glitch_canvas = null
+		glitch_ui_rect = null
+
+func gercek_saldiri_basa_don():
+	"""Ghost Move bitince (5s sessizlik) saldırıya devam et."""
+	print("⏳ Ghost Move bitti (Stone). Boss saldırıya geçiyor!")
+	await get_tree().create_timer(0.5).timeout
+	_saldiri_resume_ediliyor = true
+	saldiri_baslat()

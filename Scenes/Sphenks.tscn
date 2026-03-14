@@ -385,6 +385,7 @@ glitch_yuzu_dokusu = ExtResource("15_qrobu")
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.16618979, -1.0051993, -0.9190335)
 visible = false
 script = ExtResource("94_acid")
+glitch_yuzu_dokusu = ExtResource("15_qrobu")
 
 [node name="AcidBossModel" parent="MezarOdasi/AcidBoss" index="0" instance=ExtResource("95_acid_model")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26097602, -1.3516316)
@@ -393,6 +394,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26097602, -1.3516316)
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0.073679924, -1.0051993, -0.8207301)
 visible = false
 script = ExtResource("96_stone")
+glitch_yuzu_dokusu = ExtResource("15_qrobu")
 
 [node name="StoneBossModel" parent="MezarOdasi/StoneBoss" index="0" instance=ExtResource("97_stone_model")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.260976, -0.97269034)
