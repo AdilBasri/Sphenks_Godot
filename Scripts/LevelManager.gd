@@ -4,6 +4,7 @@ extends Node
 var suanki_katman: int = 1
 var isleme_alindi_mi: bool = false
 var saldiri_devrede: bool = false
+var is_pyro_encounter: bool = false # Rastgele ara katman durumunu takip eder
 var is_boss_acting: bool = false:
 	set(value):
 		is_boss_acting = value
@@ -44,7 +45,7 @@ func oyunu_baslat():
 
 func _sahne_yukle_ve_kontrol_et():
 	# Sahne ismine göre state'i kesinleştiriyoruz
-	if suanki_katman % 3 == 0:
+	if is_pyro_encounter:
 		GameManager.pyro_aktif = true
 		GameManager.silah_cekildi = true
 		get_tree().change_scene_to_file("res://Scenes/PyroKoridoru.tscn")
@@ -80,8 +81,20 @@ func _oyuncuyu_baslangica_isinla():
 
 func odaya_don_ve_level_atla():
 	var onceki_katman = suanki_katman
-	# Katmanı bir artır ve ilerlemeyi kaydet
-	suanki_katman += 1
+	
+	# Katman geçiş mantığı
+	if is_pyro_encounter:
+		# Pyro ara katmanından geliyorsak katman artırma, sadece geri dön
+		is_pyro_encounter = false
+		print("🔥 Pyro ara katmanı tamamlandı, katman sabit: ", suanki_katman)
+	else:
+		# Normal katman bitti, katmanı artır ve %20 ihtimalle Pyro'ya sok
+		suanki_katman += 1
+		if randf() < 0.20:
+			is_pyro_encounter = true
+			print("🎲 Zar atıldı: Rastgele Pyro karşına çıktı!")
+		else:
+			is_pyro_encounter = false
 	
 	if SaveManager:
 		var alinacak_yildiz = 3
@@ -208,15 +221,15 @@ func _sahne_yenile():
 
 func bolum_verilerini_getir() -> Dictionary:
 	var veri = {}
-	if suanki_katman % 3 == 0:
-		var pyro_level = suanki_katman / 3
-		veri["bolum_adi"] = "PYRO " + str(pyro_level)
+	if is_pyro_encounter:
+		# Pyro bir ara katman olduğu için katman ismi yazılmayacak
+		veri["bolum_adi"] = DilYoneticisi.metin_al("karanlik_koridor") if DilYoneticisi else "Karanlik Koridor"
 		veri["hedef_puan"] = 540 + ((suanki_katman - 2) * 200) 
 		veri["blok_limiti"] = 15 + (suanki_katman - 2) 
 		veri["boss_resmi"] = "res://Assets/Images/hammer.png" 
-		veri["dusman_sayisi"] = 5 + ((pyro_level - 1) * 2)
+		veri["dusman_sayisi"] = 5 + ((suanki_katman / 3) * 2) # Tahmini zorluk
 		veri["atmosfer_rengi"] = Color(0.8, 0.1, 0.1, 1.0) 
-		veri["katman"] = suanki_katman 
+		veri["katman"] = 0 # UI'da katman yazılmaması için 0 veya özel flag
 		return veri
 
 	match suanki_katman:
