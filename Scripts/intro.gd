@@ -6,6 +6,9 @@ extends Node
 
 func _ready():
 	print("INTRO BAŞLADI")
+	# Splash ekranları sırasında fare imlecini gizle
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+	
 	print("Warning pozisyon: ", warning_label.global_position)
 	print("Warning boyut: ", warning_label.size)
 	warning_label.modulate.a = 0.0

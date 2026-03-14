@@ -1,0 +1,48 @@
+[gd_scene load_steps=7 format=3 uid="uid://dg8mjuugdsa8b"]
+
+[ext_resource type="Script" uid="uid://clcg2p1w37xb" path="res://efektler/boss_patlama.gd" id="1_boss"]
+
+[sub_resource type="Curve" id="Curve_boss"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_boss"]
+curve = SubResource("Curve_boss")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_boss"]
+emission_shape = 1
+emission_sphere_radius = 2.5
+direction = Vector3(0, 1, 0)
+spread = 180.0
+initial_velocity_min = 12.0
+initial_velocity_max = 20.0
+gravity = Vector3(0, -10, 0)
+damping_min = 4.0
+damping_max = 8.0
+color = Color(0.5, 0, 0, 1)
+scale_min = 3.0
+scale_max = 6.0
+scale_curve = SubResource("CurveTexture_boss")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_boss"]
+transparency = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_boss"]
+material = SubResource("StandardMaterial3D_boss")
+size = Vector2(0.5, 0.5)
+
+[node name="BossPatlama" type="GPUParticles3D"]
+emitting = false
+amount = 128
+lifetime = 1.2
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_boss")
+draw_pass_1 = SubResource("QuadMesh_boss")
+script = ExtResource("1_boss")

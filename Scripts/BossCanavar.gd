@@ -383,24 +383,52 @@ func _oldu_mu_kontrol() -> bool:
 
 
 func _on_boss_oldu_sinyali():
-	"""GameManager'dan gelen ölüm sinyali."""
+	"""GameManager'dan gelen ölüm sinyali (Zar Boss için)."""
+	if oldu_mu: return
 	oldu_mu = true
 	suanki_durum = str(DURUM_OLDU)
 
-	# Animasyonu durdur
+	print("☠️ ZAR BOSS ÖLÜYOR...")
+
+	# 1 — Animasyonu durdur
 	_animasyonu_durdur()
 
-	# Kamerayı oyuncuya iade et
+	# 2 — Kamerayı oyuncuya iade et
 	_kamerayi_oyuncuya_ver()
 
-	# Kilit varsa aç
+	# 3 — Kilitleri aç
 	if LevelManager:
 		LevelManager.is_boss_acting = false
-
-	# Scale'ı sıfıra yakın yap (det == 0 hatasından kaçın, TAM sıfır yasak)
+	
+	# 4 — Patlama efekti spawn (Modelin tam konumunda)
+	var patlama_sahne = load("res://efektler/boss_patlama.tscn")
+	if patlama_sahne:
+		var patlama = patlama_sahne.instantiate()
+		get_parent().add_child(patlama)
+		# İlk child model/armature olduğu için onun pozisyonunu kullanıyoruz
+		var model_pos = global_position
+		if get_child_count() > 0:
+			model_pos = get_child(0).global_position
+		patlama.global_position = model_pos + Vector3(0, 1, 0)
+	
+	await get_tree().create_timer(0.1).timeout
+	
+	# 5 — Yerin altına girme (Hızlı ve belirsiz)
 	var tween = create_tween()
-	tween.tween_property(self, "scale", Vector3(0.01, 0.01, 0.01), 1.0)
-	tween.tween_callback(queue_free)
+	tween.tween_property(self, "global_position:y", global_position.y - 12.0, 0.8).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	
+	await tween.finished
+	
+	# 6 — Görünmez yap ve temizle
+	visible = false
+	
+	# Bariyeri kaldır
+	var bariyer = get_tree().get_first_node_in_group("Bariyer")
+	if bariyer and bariyer.has_method("bolum_bitti"):
+		bariyer.bolum_bitti()
+		
+	await get_tree().create_timer(1.0).timeout
+	queue_free()
 
 
 # ==========================================

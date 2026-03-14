@@ -160,6 +160,10 @@ func _ready():
 	raycast.target_position = Vector3(0, 0, -6.0) 
 	raycast.collision_mask = 0xFFFFFFFF 
 	raycast.add_exception(self) 
+	
+	# --- BARIYER KONTROLU (Layer 10) ---
+	set_collision_mask_value(10, true)
+	raycast.set_collision_mask_value(10, true)
 
 	# --- BİLEŞENLERİ RAYCAST İLE GÜNCELLE ---
 	if interactor:

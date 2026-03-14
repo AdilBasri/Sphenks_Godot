@@ -24,6 +24,9 @@ var diyalog_anahtarlari = [
 var kullanilabilir_diyaloglar = []
 
 func _ready():
+	# Sahne başladığında fareyi hapset
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	
 	# --- 0. DİNAMİK YOLCU SAYIMI ---
 	toplam_yolcu_sayisi = 0
 	for child in get_children():

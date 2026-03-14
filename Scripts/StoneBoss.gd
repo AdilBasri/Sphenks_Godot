@@ -5,6 +5,8 @@ signal saldiri_tamamlandi
 var anim_player: AnimationPlayer = null
 
 var suanki_durum: String = "IDLE"
+@export var boss_hp: int = 5
+var oldu_mu: bool = false
 var _saldiri_resume_ediliyor: bool = false
 var glitch_canvas: CanvasLayer = null
 var glitch_ui_rect: TextureRect = null
@@ -22,6 +24,9 @@ func _ready():
 	
 	print("--- STONE BOSS HAZIRLANIYOR ---")
 	print("Animator: ", anim_player.name if anim_player else "BULUNAMADI")
+	
+	if GameManager:
+		GameManager.boss_oldu.connect(_on_boss_oldu_sinyali)
 	
 	# Animasyonları yükle
 	_animasyonlari_yukle()
@@ -164,6 +169,50 @@ func _animasyon_olcegini_temizle(anim: Animation):
 			anim.remove_track(i)
 	
 	print("✅ Animasyon ölçek trackleri temizlendi: ", anim.resource_name)
+
+func _on_boss_oldu_sinyali():
+	"""GameManager'dan gelen ölüm sinyali (Stone Boss)."""
+	if oldu_mu: return
+	oldu_mu = true
+	suanki_durum = "OLDU"
+
+	print("☠️ STONE BOSS ÖLÜYOR...")
+
+	if anim_player:
+		anim_player.stop()
+
+	_kamerayi_oyuncuya_ver()
+
+	if LevelManager:
+		LevelManager.is_boss_acting = false
+	
+	# 1 — Patlama efekti spawn (Modelin tam konumunda)
+	var patlama_sahne = load("res://efektler/boss_patlama.tscn")
+	if patlama_sahne:
+		var patlama = patlama_sahne.instantiate()
+		get_parent().add_child(patlama)
+		# StoneBossModel node'unun pozisyonunu kullanıyoruz
+		var model_pos = global_position
+		if has_node("StoneBossModel"):
+			model_pos = get_node("StoneBossModel").global_position
+		patlama.global_position = model_pos + Vector3(0, 1, 0)
+	
+	await get_tree().create_timer(0.1).timeout
+	
+	# 2 — Yerin altına girme (Hızlı ve belirsiz)
+	var tween = create_tween()
+	tween.tween_property(self, "global_position:y", global_position.y - 12.0, 0.8).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	
+	await tween.finished
+	
+	visible = false
+	
+	var bariyer = get_tree().get_first_node_in_group("Bariyer")
+	if bariyer and bariyer.has_method("bolum_bitti"):
+		bariyer.bolum_bitti()
+		
+	await get_tree().create_timer(1.0).timeout
+	queue_free()
 
 # ==========================================
 # 🌌 GLITCH PARRY (REALITY DENIAL)

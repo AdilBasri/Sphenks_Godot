@@ -66,6 +66,9 @@ var ghost_canvas: CanvasLayer = null
 
 func _ready():
 	print("GameManager Başlatıldı.")
+	# Oyun açıldığında pencereyi ön plana getir (Focus fix)
+	DisplayServer.window_move_to_foreground()
+	
 	_setup_gamepad()
 	_init_audio()
 	# Sadece intro durumunu yükle — oyun state'i her açılışta sıfır başlar
