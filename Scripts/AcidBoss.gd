@@ -99,7 +99,6 @@ func saldiri_baslat():
 		anim_player.play("shooting")
 		await get_tree().create_timer(0.5).timeout # Atma anını bekle
 		await _asit_firlat() # Bekle ki kamera içeride değişsin
-		await anim_player.animation_finished
 	
 	idle_baslat()
 	saldiri_tamamlandi.emit()
