@@ -4,7 +4,7 @@ signal saldiri_tamamlandi
 
 # --- DÜĞÜM REFERANSLARI ---
 @onready var anim_player: AnimationPlayer = $AnimationPlayer
-@onready var kamera_boss: Camera3D = $Camera3D
+var kamera_boss: Camera3D = null
 
 # --- SKELETON/BONE REFERANSLARI (drift fix) ---
 var _skeleton: Skeleton3D = null
@@ -55,6 +55,9 @@ var sfx_snore: AudioStreamPlayer3D
 
 func _ready():
 	add_to_group("Dusman")
+	
+	# Birleşik Boss kamerasını bul
+	kamera_boss = get_parent().find_child("BossCamera", true, false)
 	
 	sfx_snore = AudioStreamPlayer3D.new()
 	var s_stream = load("res://Assets/Audio/snoring.mp3")

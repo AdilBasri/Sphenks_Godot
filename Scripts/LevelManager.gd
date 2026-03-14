@@ -25,6 +25,7 @@ var oyuncu_ref: CharacterBody3D
 var oyun_odasi_ref: Node = null 
 var normal_boss_ref: Node3D = null
 var acid_boss_ref: Node3D = null
+var stone_boss_ref: Node3D = null
 
 func is_acid_boss_level() -> bool:
 	# 1, 4, 7... pattern (katman % 3 == 1)
@@ -132,6 +133,7 @@ func _boss_sistemini_ayarla():
 	# Daha agrasif arama
 	normal_boss_ref = oyun_odasi_ref.find_child("NormalBoss", true, false)
 	acid_boss_ref = oyun_odasi_ref.find_child("AcidBoss", true, false)
+	stone_boss_ref = oyun_odasi_ref.find_child("StoneBoss", true, false)
 	
 	var tabure = oyun_odasi_ref.find_child("Tabure", true, false)
 	var acid_mi = is_acid_boss_level()
@@ -139,7 +141,8 @@ func _boss_sistemini_ayarla():
 	print("--- BOSS YAPILANDIRMASI BASLADI ---")
 	print("NormalBoss: ", "BULDUM" if normal_boss_ref else "YOK")
 	print("AcidBoss: ", "BULDUM" if acid_boss_ref else "YOK")
-	print("Katman: ", suanki_katman, " | Acid Seviyesi: ", acid_mi)
+	print("StoneBoss: ", "BULDUM" if stone_boss_ref else "YOK")
+	print("Katman: ", suanki_katman)
 
 	# 1. Garanti temizlik
 	if normal_boss_ref:
@@ -153,11 +156,21 @@ func _boss_sistemini_ayarla():
 	if acid_boss_ref:
 		acid_boss_ref.visible = false
 		acid_boss_ref.remove_from_group("Dusman")
-		var a_cam = acid_boss_ref.find_child("Camera3D", true, false)
-		if a_cam and a_cam is Camera3D: a_cam.current = false
+
+	if stone_boss_ref:
+		stone_boss_ref.visible = false
+		stone_boss_ref.remove_from_group("Dusman")
 
 	# 2. Aktif Boss'u Belirle
-	var aktif_boss: Node3D = acid_boss_ref if acid_mi else normal_boss_ref
+	var aktif_boss: Node3D = null
+	var mod_katman = suanki_katman % 3
+	
+	if mod_katman == 1:
+		aktif_boss = acid_boss_ref
+	elif mod_katman == 2:
+		aktif_boss = stone_boss_ref
+	else: # 0
+		aktif_boss = normal_boss_ref
 	
 	if aktif_boss:
 		aktif_boss.visible = true
@@ -165,20 +178,23 @@ func _boss_sistemini_ayarla():
 		if aktif_boss.has_method("boss_durumu_sifirla"):
 			aktif_boss.boss_durumu_sifirla()
 		
-		# Kamera ayari: Baslangicta boss kamerasi aktif degildir (Tur bekliyoruz)
-		var b_cam = aktif_boss.find_child("Camera3D", true, false)
-		if b_cam and b_cam is Camera3D:
-			b_cam.current = false
+		# Birleşik Boss kamerasını bul ve başlangıçta kapat
+		var boss_cam = oyun_odasi_ref.find_child("BossCamera", true, false)
+		if boss_cam and boss_cam is Camera3D:
+			boss_cam.current = false
 			print("Boss kamerasi beklemeye alindi.")
 			
 		print("AKTIF BOSS GORUNUR YAPILDI: ", aktif_boss.name)
 	else:
 		print("KRITIK HATA: Aktif boss bulunamadi!")
 
-	# 3. Yan Parcalar (Tabure)
+	# 3. Yan Parcalar (Tabure) sadece NormalBoss'ta görünür
 	if tabure:
-		tabure.visible = not acid_mi
-		tabure.process_mode = Node.PROCESS_MODE_DISABLED if acid_mi else Node.PROCESS_MODE_INHERIT
+		tabure.visible = (aktif_boss == normal_boss_ref)
+		if tabure.visible:
+			tabure.process_mode = Node.PROCESS_MODE_INHERIT
+		else:
+			tabure.process_mode = Node.PROCESS_MODE_DISABLED
 
 	print("--- YAPILANDIRMA BITTI ---")
 

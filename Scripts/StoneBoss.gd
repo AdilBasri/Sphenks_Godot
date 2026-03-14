@@ -3,7 +3,6 @@ extends Node3D
 signal saldiri_tamamlandi
 
 var anim_player: AnimationPlayer = null
-var boss_kamera: Camera3D = null
 
 var suanki_durum: String = "IDLE"
 
@@ -14,15 +13,11 @@ func _ready():
 	if not anim_player:
 		anim_player = find_child("AnimationPlayer", true, false)
 	
-	print("--- ACID BOSS HAZIRLANIYOR ---")
+	print("--- STONE BOSS HAZIRLANIYOR ---")
 	print("Animator: ", anim_player.name if anim_player else "BULUNAMADI")
 	
 	# Animasyonları yükle
 	_animasyonlari_yukle()
-	
-	# Birleşik Boss kamerasını bul
-	boss_kamera = get_parent().find_child("BossCamera", true, false)
-	
 	# Başlangıçta Idle
 	idle_baslat()
 
@@ -31,27 +26,22 @@ func _animasyonlari_yukle():
 	
 	var lib = AnimationLibrary.new()
 	
-	var idle_path = "res://idle_acid.res"
+	var idle_path = "res://idle_stone.res"
 	var idle_anim = load(idle_path)
 	if idle_anim:
 		idle_anim.loop_mode = Animation.LOOP_LINEAR
+		_animasyon_olcegini_temizle(idle_anim)
 		lib.add_animation("idle", idle_anim)
 	else:
 		print("Hata: Idle animasyonu bulunamadi: ", idle_path)
 		
-	var hit_path = "res://hit_acid.res"
+	var hit_path = "res://hit_stone.res"
 	var hit_anim = load(hit_path)
 	if hit_anim:
+		_animasyon_olcegini_temizle(hit_anim)
 		lib.add_animation("hit", hit_anim)
 	else:
 		print("Hata: Hit animasyonu bulunamadi: ", hit_path)
-		
-	var shooting_path = "res://shooting_acid.res"
-	var shooting_anim = load(shooting_path)
-	if shooting_anim:
-		lib.add_animation("shooting", shooting_anim)
-	else:
-		print("Hata: Shooting animasyonu bulunamadi: ", shooting_path)
 		
 	if anim_player.has_animation_library(""):
 		anim_player.remove_animation_library("")
@@ -64,34 +54,35 @@ func idle_baslat():
 		anim_player.play("idle", -1, 0.5) # Yarı hızda oynat (0.5x)
 
 func saldiri_baslat():
-	# Acid Boss yalnızca asit atacak
+	# Stone Boss yalnızca taş atacak
 	suanki_durum = "SALDIRI"
 	
-	# Kamerayı aktif et
+	# Kamerayı aktif et (Unified BossCamera)
+	var boss_kamera = get_parent().find_child("BossCamera", true, false)
 	if boss_kamera:
 		boss_kamera.make_current()
 	
 	# Uyarı mesajı
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
 	if arayuz and arayuz.has_method("bilgi_goster"):
-		arayuz.bilgi_goster(DilYoneticisi.metin_al("asit_tukuruyor"), 2.0)
+		arayuz.bilgi_goster(DilYoneticisi.metin_al("kaya_firlatiyor"), 2.0)
 	
 	await get_tree().create_timer(1.0).timeout
 
-	if anim_player and anim_player.has_animation("shooting"):
-		anim_player.play("shooting")
-		await get_tree().create_timer(0.5).timeout # Atma anını bekle
-		await _asit_firlat() # Bekle ki kamera içeride değişsin
+	if anim_player and anim_player.has_animation("hit"):
+		anim_player.play("hit")
+		await get_tree().create_timer(0.5).timeout # Atma anını bekle (0.4 -> 0.5)
+		await _tas_firlat()
 		await anim_player.animation_finished
 	
 	idle_baslat()
 	saldiri_tamamlandi.emit()
 
-func _asit_firlat():
+func _tas_firlat():
 	var grid = get_tree().current_scene.find_child("GridYoneticisi", true, false)
 	if not grid: return
 	
-	# Rastgele bir hücre seç (BossCanavar.gd ile benzer mantık)
+	# Rastgele bir hücre seç
 	var grid_boyutu = grid.grid_boyutu if "grid_boyutu" in grid else Vector2i(5, 5)
 	var hedef_hucre = Vector2i(randi_range(0, grid_boyutu.x - 1), randi_range(0, grid_boyutu.y - 1))
 	
@@ -101,36 +92,35 @@ func _asit_firlat():
 	
 	var final_pos = Vector3(grid_pos.x, grid.global_position.y, grid_pos.z)
 	
-	# Asit Mermisi (Sphere)
+	# Taş Mermisi
 	var mermi = MeshInstance3D.new()
 	mermi.set_as_top_level(true)
 	var sphere = SphereMesh.new()
-	sphere.radius = 0.3
-	sphere.height = 0.6
+	sphere.radius = 0.4
+	sphere.height = 0.8
 	mermi.mesh = sphere
 	
 	var mat = StandardMaterial3D.new()
-	mat.albedo_color = Color.GREEN
-	mat.emission_enabled = true
-	mat.emission = Color.GREEN
+	mat.albedo_color = Color.DARK_GRAY
+	mat.roughness = 0.9
 	mermi.material_override = mat
 	
 	get_tree().current_scene.add_child(mermi)
 	mermi.global_position = global_position + Vector3(0, 1.5, 0)
 	
-	var tween = create_tween()
-	tween.tween_property(mermi, "global_position", final_pos, 0.5).set_ease(Tween.EASE_IN)
+	var tween = create_tween() # fixed
+	tween.tween_property(mermi, "global_position", final_pos, 0.4).set_ease(Tween.EASE_IN)
 	await tween.finished
 	
-	# Asit gride düştüğü an kamerayı oyuncuya ver
+	# Taş gride düştüğü an kamerayı oyuncuya ver
 	_kamerayi_oyuncuya_ver()
 	
 	if is_instance_valid(mermi):
 		mermi.queue_free()
 	
-	# Hücreyi asitle kilitle
+	# Hücreyi taşla kilitle
 	if is_instance_valid(grid) and grid.has_method("hucreyi_kilitle"):
-		grid.hucreyi_kilitle(hedef_hucre, "ASIT")
+		grid.hucreyi_kilitle(hedef_hucre, "TAS")
 
 func _kamerayi_oyuncuya_ver():
 	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
@@ -146,15 +136,15 @@ func boss_durumu_sifirla():
 
 func hasar_al_bolgesel(_bolge_adi: String):
 	"""Mermi çarptığında tetiklenir."""
-	if suanki_durum == "HIT": return
+	pass # Stone boss hit interaction
+
+func _animasyon_olcegini_temizle(anim: Animation):
+	"""Animasyondaki tüm scale tracklerini temizleyerek boss'un küçülmesini engeller."""
+	if not anim: return
 	
-	var eski_durum = suanki_durum
-	suanki_durum = "HIT"
+	# Sondan başa doğru silmek güvenlidir
+	for i in range(anim.get_track_count() - 1, -1, -1):
+		if anim.track_get_type(i) == Animation.TYPE_SCALE_3D:
+			anim.remove_track(i)
 	
-	if anim_player and anim_player.has_animation("hit"):
-		anim_player.play("hit")
-		await anim_player.animation_finished
-	
-	# Eğer hala hayattaysa (veya durum değişmediyse) idle'a dön
-	if suanki_durum == "HIT":
-		idle_baslat()
+	print("✅ Animasyon ölçek trackleri temizlendi: ", anim.resource_name)
