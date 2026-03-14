@@ -6,7 +6,7 @@ var anim_player: AnimationPlayer = null
 var boss_kamera: Camera3D = null
 
 var suanki_durum: String = "IDLE"
-@export var boss_hp: int = 5
+var boss_hp: int = 2
 var oldu_mu: bool = false
 var _saldiri_resume_ediliyor: bool = false
 var glitch_canvas: CanvasLayer = null
@@ -28,6 +28,12 @@ func _ready():
 	
 	if GameManager:
 		GameManager.boss_oldu.connect(_on_boss_oldu_sinyali)
+	
+	# Katmana göre HP belirle
+	_hp_ayarla()
+	
+	# Mermi hitbox oluştur
+	_hitbox_olustur()
 	
 	# Animasyonları yükle
 	_animasyonlari_yukle()
@@ -180,6 +186,88 @@ func hasar_al_bolgesel(_bolge_adi: String):
 	if suanki_durum == "HIT":
 		idle_baslat()
 
+# ==========================================
+# KATMANA GÖRE HP AYARLAMA
+# ==========================================
+
+func _hp_ayarla():
+	"""Katmana göre boss HP değerini belirler."""
+	var katman = 1
+	if LevelManager:
+		katman = LevelManager.suanki_katman
+	
+	if katman <= 3:
+		boss_hp = 2
+	elif katman <= 9:
+		boss_hp = 3
+	else:
+		boss_hp = 4
+	
+	print("💚 ACID BOSS HP: %d (Katman: %d)" % [boss_hp, katman])
+
+# ==========================================
+# MERMİ HITBOX OLUŞTURMA
+# ==========================================
+
+func _hitbox_olustur():
+	"""Boss'a mermi algılayacak bir Area3D hitbox ekler."""
+	var hitbox = Area3D.new()
+	hitbox.name = "BossHitbox"
+	hitbox.add_to_group("BossHitbox")
+	hitbox.collision_layer = 4  # Mermiyle etkileşim katmanı
+	hitbox.collision_mask = 4   # Mermi katmanını algıla
+	hitbox.monitorable = true
+	hitbox.monitoring = false
+	
+	var col = CollisionShape3D.new()
+	var shape = CapsuleShape3D.new()
+	shape.radius = 1.0
+	shape.height = 3.0
+	col.shape = shape
+	col.position = Vector3(0, 1.2, -1.0)
+	hitbox.add_child(col)
+	
+	add_child(hitbox)
+	print("🎯 ACID BOSS hitbox oluşturuldu.")
+
+# ==========================================
+# MERMİ HASARI ALMA
+# ==========================================
+
+func mermi_hasari_al():
+	"""Oyuncunun mermisi boss'a çarptığında çağrılır. HP 1 azalır."""
+	if oldu_mu: return
+	
+	boss_hp -= 1
+	print("🔫 ACID BOSS'a mermi çarptı! Kalan HP: %d" % boss_hp)
+	
+	# Hit animasyonu
+	if anim_player and anim_player.has_animation("hit"):
+		var onceki_durum = suanki_durum
+		suanki_durum = "HIT"
+		anim_player.play("hit")
+		await anim_player.animation_finished
+		if not oldu_mu and suanki_durum == "HIT":
+			suanki_durum = onceki_durum
+			idle_baslat()
+	
+	if boss_hp <= 0:
+		_boss_oldu_mermi()
+
+func _boss_oldu_mermi():
+	"""Boss mermiyle öldürüldüğünde çağrılır — kapıyı otomatik açar."""
+	if oldu_mu: return
+	oldu_mu = true
+	suanki_durum = "OLDU"
+	
+	print("☠️ ACID BOSS MERMİYLE ÖLDÜRÜLDÜ!")
+	
+	# GameManager'a boss öldü bildir
+	if GameManager:
+		GameManager.boss_oldu.emit()
+	
+	_olum_sekans()
+
 func _on_boss_oldu_sinyali():
 	"""GameManager'dan gelen ölüm sinyali (Acid Boss)."""
 	if oldu_mu: return
@@ -187,7 +275,10 @@ func _on_boss_oldu_sinyali():
 	suanki_durum = "OLDU"
 
 	print("☠️ ACID BOSS ÖLÜYOR...")
+	_olum_sekans()
 
+func _olum_sekans():
+	"""Ölüm animasyonu, patlama efekti ve kapı açma."""
 	if anim_player:
 		anim_player.stop()
 
@@ -220,9 +311,24 @@ func _on_boss_oldu_sinyali():
 	var bariyer = get_tree().get_first_node_in_group("Bariyer")
 	if bariyer and bariyer.has_method("bolum_bitti"):
 		bariyer.bolum_bitti()
+	
+	# 3 — KAPIYI OTOMATİK AÇ
+	_kapiyi_otomatik_ac()
 		
 	await get_tree().create_timer(1.0).timeout
 	queue_free()
+
+func _kapiyi_otomatik_ac():
+	"""Boss öldüğünde kapıyı otomatik açar."""
+	var kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
+	if kapi and kapi.has_method("kapiyi_ac"):
+		# Kilidi kaldır ve aç
+		if "kilitli_mi" in kapi:
+			kapi.kilitli_mi = false
+		kapi.kapiyi_ac()
+		print("🚪 Boss öldü — Kapı otomatik açıldı!")
+	else:
+		print("⚠️ KapiSistemi bulunamadı, kapı açılamadı!")
 
 # ==========================================
 # 🌌 GLITCH PARRY (REALITY DENIAL)

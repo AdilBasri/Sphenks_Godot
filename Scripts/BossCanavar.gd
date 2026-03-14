@@ -31,6 +31,7 @@ var glitch_canvas: CanvasLayer = null   # Glitch yüz canvas'ı (kapat için ref
 const DURUM_OLDU = 99
 var suanki_durum: String = "BASLANGIC"
 var oldu_mu: bool = false
+var boss_hp: int = 2
 var sonraki_saldiri_tipi: String = ""   # Kahin Gözü için bir tur önceden belirlenir
 
 # --- ANİMASYON İSİMLERİ (Otomatik keşfedilecek) ---
@@ -114,6 +115,12 @@ func _ready():
 	if GameManager and GameManager.has_signal("boss_oldu"):
 		if not GameManager.boss_oldu.is_connected(_on_boss_oldu_sinyali):
 			GameManager.boss_oldu.connect(_on_boss_oldu_sinyali)
+
+	# Katmana göre HP belirle
+	_hp_ayarla()
+	
+	# Mermi hitbox oluştur
+	_hitbox_olustur()
 
 	# 1 saniye sonra oturma sekansını başlat
 	await get_tree().create_timer(1.0).timeout
@@ -426,9 +433,92 @@ func _on_boss_oldu_sinyali():
 	var bariyer = get_tree().get_first_node_in_group("Bariyer")
 	if bariyer and bariyer.has_method("bolum_bitti"):
 		bariyer.bolum_bitti()
+	
+	# 7 — KAPIYI OTOMATİK AÇ
+	_kapiyi_otomatik_ac()
 		
 	await get_tree().create_timer(1.0).timeout
 	queue_free()
+
+func _kapiyi_otomatik_ac():
+	"""Boss öldüğünde kapıyı otomatik açar."""
+	var kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
+	if kapi and kapi.has_method("kapiyi_ac"):
+		# Kilidi kaldır ve aç
+		if "kilitli_mi" in kapi:
+			kapi.kilitli_mi = false
+		kapi.kapiyi_ac()
+		print("🚪 Boss öldü — Kapı otomatik açıldı!")
+	else:
+		print("⚠️ KapiSistemi bulunamadı, kapı açılamadı!")
+
+# ==========================================
+# KATMANA GÖRE HP AYARLAMA
+# ==========================================
+
+func _hp_ayarla():
+	"""Katmana göre boss HP değerini belirler."""
+	var katman = 1
+	if LevelManager:
+		katman = LevelManager.suanki_katman
+	
+	if katman <= 3:
+		boss_hp = 2
+	elif katman <= 9:
+		boss_hp = 3
+	else:
+		boss_hp = 4
+	
+	print("🎲 ZAR BOSS HP: %d (Katman: %d)" % [boss_hp, katman])
+
+# ==========================================
+# MERMİ HITBOX OLUŞTURMA
+# ==========================================
+
+func _hitbox_olustur():
+	"""Boss'a mermi algılayacak bir Area3D hitbox ekler."""
+	var hitbox = Area3D.new()
+	hitbox.name = "BossHitbox"
+	hitbox.add_to_group("BossHitbox")
+	hitbox.collision_layer = 4  # Mermiyle etkileşim katmanı
+	hitbox.collision_mask = 4   # Mermi katmanını algıla
+	hitbox.monitorable = true
+	hitbox.monitoring = false
+	
+	var col = CollisionShape3D.new()
+	var shape = CapsuleShape3D.new()
+	shape.radius = 1.0
+	shape.height = 3.0
+	col.shape = shape
+	col.position = Vector3(0, 1.2, 0)
+	hitbox.add_child(col)
+	
+	add_child(hitbox)
+	print("🎯 ZAR BOSS hitbox oluşturuldu.")
+
+# ==========================================
+# MERMİ HASARI ALMA
+# ==========================================
+
+func mermi_hasari_al():
+	"""Oyuncunun mermisi boss'a çarptığında çağrılır. HP 1 azalır."""
+	if oldu_mu: return
+	
+	boss_hp -= 1
+	print("🔫 ZAR BOSS'a mermi çarptı! Kalan HP: %d" % boss_hp)
+	
+	if boss_hp <= 0:
+		_boss_oldu_mermi()
+
+func _boss_oldu_mermi():
+	"""Boss mermiyle öldürüldüğünde çağrılır — kapıyı otomatik açar."""
+	if oldu_mu: return
+	
+	print("☠️ ZAR BOSS MERMİYLE ÖLDÜRÜLDÜ!")
+	
+	# GameManager'a boss öldü bildir
+	if GameManager:
+		GameManager.boss_oldu.emit()
 
 
 # ==========================================

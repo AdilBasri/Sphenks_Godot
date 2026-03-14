@@ -217,12 +217,12 @@ func _on_boss_oldu():
 	boss_uyandi_mi = false
 	boss_tamamen_oldu = true
 	
-	# Boss ölse bile oyuncu blok koymaya / gold kasmaya devam eder.
-	# Masa gitmez, kapı hemen açılmaz. Oyun ancak stok bitince veya yer kalmayınca biter.
-	
 	# Arayüze mesaj gönder
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
-	if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss") + DilYoneticisi.metin_al("bloklar_bitene_kadar"), 5.0)
+	if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss"), 5.0)
+	
+	# Kapı otomatik açılacak (boss scriptleri tarafından)
+	print("🚪 Boss öldü — Kapı açılıyor.")
 
 func _kapiyi_ac():
 	# KapiSistemi arayalım (MezarOdasi'nin komşusu)

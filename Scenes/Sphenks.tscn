@@ -1,4 +1,4 @@
-[gd_scene load_steps=107 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=108 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://b1abmwu2tkjli" path="res://Assets/Models/Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://Scripts/sphenks.gd" id="2_fi7dh"]
@@ -122,6 +122,9 @@ albedo_texture_force_srgb = true
 emission_enabled = true
 emission = Color(1, 1, 0, 1)
 emission_energy_multiplier = 5.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0o22n"]
+size = Vector3(1.400217, 1.265907, 0.7770014)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bariyer"]
 size = Vector3(10, 5, 0.1)
@@ -362,10 +365,16 @@ size = Vector3(1.5, 3, 2.2)
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.2961266, -0.3699206, 0)
 
 [node name="NormalBoss" parent="MezarOdasi" index="6" instance=ExtResource("13_bjfsn")]
-transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.16618979, -0.59165543, -0.9190335)
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.16618979, -0.7297865, -0.9190335)
 visible = false
 script = ExtResource("14_2531s")
 glitch_yuzu_dokusu = ExtResource("15_qrobu")
+
+[node name="Area3D" type="Area3D" parent="MezarOdasi/NormalBoss" index="5"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MezarOdasi/NormalBoss/Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14257813, 0.70714176, -0.24958801)
+shape = SubResource("BoxShape3D_0o22n")
 
 [node name="AcidBoss" type="Node3D" parent="MezarOdasi" index="7"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0.0632534, -1.0051993, -0.9190335)
@@ -376,6 +385,12 @@ glitch_yuzu_dokusu = ExtResource("15_qrobu")
 [node name="AcidBossModel" parent="MezarOdasi/AcidBoss" index="0" instance=ExtResource("95_acid_model")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26097602, -1.3516316)
 
+[node name="Area3D" type="Area3D" parent="MezarOdasi/AcidBoss" index="1"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MezarOdasi/AcidBoss/Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.072883606, 0.9358213, -1.1842747)
+shape = SubResource("BoxShape3D_0o22n")
+
 [node name="StoneBoss" type="Node3D" parent="MezarOdasi" index="8"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0.073679924, -1.0051993, -0.8207301)
 visible = false
@@ -385,10 +400,17 @@ glitch_yuzu_dokusu = ExtResource("15_qrobu")
 [node name="StoneBossModel" parent="MezarOdasi/StoneBoss" index="0" instance=ExtResource("97_stone_model")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.260976, -0.97269034)
 
+[node name="Area3D" type="Area3D" parent="MezarOdasi/StoneBoss" index="1"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MezarOdasi/StoneBoss/Area3D" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.022503905, 1.0557065, -0.8128639)
+shape = SubResource("BoxShape3D_0o22n")
+
 [node name="BossCamera" type="Camera3D" parent="MezarOdasi" index="9"]
 transform = Transform3D(0.8947662, 0.09763501, -0.43573022, -0.087779894, 0.9952223, 0.042746756, 0.437822, 0, 0.8990617, -2.178694, 0.90977776, 0)
 
 [node name="MekanBariyeri" type="StaticBody3D" parent="MezarOdasi" index="10"]
+visible = false
 collision_layer = 512
 script = ExtResource("bariyer_gd")
 

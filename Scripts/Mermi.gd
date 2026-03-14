@@ -25,6 +25,19 @@ func _on_body_entered(body):
 func _on_area_entered(area):
 	if carpti_mi: return 
 	
+	# --- BOSS HITBOX KONTROLÜ ---
+	if area.is_in_group("BossHitbox"):
+		var boss = _boss_scriptini_bul(area)
+		if boss and boss.has_method("mermi_hasari_al"):
+			var boss_oldu = boss.get("oldu_mu")
+			if boss_oldu == true: return
+			carpti_mi = true
+			set_deferred("monitoring", false)
+			set_deferred("monitorable", false)
+			boss.mermi_hasari_al()
+			queue_free()
+			return
+	
 	if area.has_meta("Bolge"): 
 		var dusman = _dusman_scriptini_bul(area)
 		if dusman and dusman.suanki_durum != 99: # Sadece hayattaki düşmana çarp
@@ -39,6 +52,15 @@ func _dusman_scriptini_bul(baslangic_node):
 	var deneme_sayisi = 0
 	while aday and deneme_sayisi < 15:
 		if aday.has_method("hasar_al_bolgesel"): return aday
+		aday = aday.get_parent()
+		deneme_sayisi += 1
+	return null
+
+func _boss_scriptini_bul(baslangic_node):
+	var aday = baslangic_node
+	var deneme_sayisi = 0
+	while aday and deneme_sayisi < 15:
+		if aday.has_method("mermi_hasari_al"): return aday
 		aday = aday.get_parent()
 		deneme_sayisi += 1
 	return null
