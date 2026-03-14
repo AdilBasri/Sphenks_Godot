@@ -201,25 +201,38 @@ func _boss_sistemini_ayarla():
 		if aktif_boss.has_method("boss_durumu_sifirla"):
 			aktif_boss.boss_durumu_sifirla()
 		
-		# --- 👹 BOSS KAÇTI: KALAN HP İLE TEKRAR SPAWN ---
+		# --- 👹 BOSS KAÇTI: İKİZ BOSS SPAWN (V2) ---
 		if GameManager and GameManager.boss_kacti:
 			var kalan = GameManager.boss_kalan_hp
-			print("👹 BOSS KAÇMIŞTI! Bu sefer kalan HP ile geri geliyor: %d" % kalan)
-			GameManager.boss_kacti = false
+			print("👹 BOSS KAÇMIŞTI! Bu sefer İKİZ olarak kalan HP ile geri geliyorlar: %d" % kalan)
 			
-			# Scale'i sıfırla (kaçış animasyonundan)
-			aktif_boss.scale = Vector3(1.5, 1.5, 1.5)
+			# İkinci'yi oluştur
+			var twin_boss = aktif_boss.duplicate()
+			aktif_boss.get_parent().add_child(twin_boss)
+			twin_boss.name = aktif_boss.name + "_Twin"
+			twin_boss.visible = true
+			twin_boss.add_to_group("Dusman")
 			
-			# Boss'un _ready'si çalışınca _hp_ayarla() katmana göre HP verecek
-			# Ama biz bunu override edeceğiz — kalan HP ile gelecek
+			# Yan yana dize
+			aktif_boss.global_position.x -= 0.8
+			twin_boss.global_position.x += 0.8
+			
+			# HP'lerini ayarla (Kısa bekleme ile _ready'nin bitmesini sağla)
 			if kalan > 0:
-				# Kısa bekleme ile _ready'nin bitmesini sağla
 				await get_tree().create_timer(0.2).timeout
-				if is_instance_valid(aktif_boss) and "boss_hp" in aktif_boss:
+				if is_instance_valid(aktif_boss):
 					aktif_boss.boss_hp = kalan
-					print("👹 Boss HP override edildi → %d" % kalan)
+				if is_instance_valid(twin_boss):
+					twin_boss.boss_hp = kalan
+					if twin_boss.has_method("boss_durumu_sifirla"): twin_boss.boss_durumu_sifirla()
+				print("👹 Her iki boss HP'si override edildi → %d" % kalan)
 			
+			# Flagleri sıfırla
+			GameManager.boss_kacti = false
 			GameManager.boss_kalan_hp = 0
+		else:
+			# Normal ölçeklendirme (Kaçıştan gelmiyorsa)
+			aktif_boss.scale = Vector3(1.5, 1.5, 1.5)
 		
 		# Birleşik Boss kamerasını bul ve başlangıçta kapat
 		var boss_cam = oyun_odasi_ref.find_child("BossCamera", true, false)

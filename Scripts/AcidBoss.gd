@@ -218,6 +218,7 @@ func _hitbox_olustur():
 	hitbox.collision_mask = 4   # Mermi katmanını algıla
 	hitbox.monitorable = true
 	hitbox.monitoring = false
+	hitbox.input_ray_pickable = false # Raycast'leri (mouse seçimini) engellemesin
 	
 	var col = CollisionShape3D.new()
 	var shape = CapsuleShape3D.new()
