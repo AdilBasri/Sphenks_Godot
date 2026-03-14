@@ -144,6 +144,11 @@ func _boss_sistemini_ayarla():
 	print("StoneBoss: ", "BULDUM" if stone_boss_ref else "YOK")
 	print("Katman: ", suanki_katman)
 
+	# Bölüm başında blok sayacını sıfırla (Zar Bossu kuralı için)
+	if "blok_sayaci" in oyun_odasi_ref:
+		oyun_odasi_ref.blok_sayaci = 0
+		print("🔄 Blok sayacı sıfırlandı.")
+
 	# 1. Garanti temizlik
 	if normal_boss_ref:
 		normal_boss_ref.visible = false

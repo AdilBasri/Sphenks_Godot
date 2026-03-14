@@ -466,7 +466,7 @@ func uyuklamaya_basla():
 	_pozisyonu_tabureye_sabitle()
 
 	if not uyuklama_anim_adi.is_empty() and is_instance_valid(anim_player) and anim_player.has_animation(uyuklama_anim_adi):
-		anim_player.play(uyuklama_anim_adi)
+		anim_player.play(uyuklama_anim_adi, -1, 0.5) # 0.5x hıza yavaşlatıldı
 		if sfx_snore and not sfx_snore.playing:
 			sfx_snore.play()
 		print("💤 Canavar uyuklamaya başladı.")
@@ -487,8 +487,8 @@ func ayakta_beklemeye_gec():
 	_pozisyonu_tabureye_sabitle()
 
 	if not ayakta_durma_anim_adi.is_empty() and is_instance_valid(anim_player) and anim_player.has_animation(ayakta_durma_anim_adi):
-		anim_player.play(ayakta_durma_anim_adi)
-		print("🧍 Canavar ayakta beklemeye başladı.")
+		anim_player.play(ayakta_durma_anim_adi, -1, 0.5) # 0.5x hıza yavaşlatıldı
+		print("🧍 Canavar ayakta beklemeye başladı (0.5x).")
 	else:
 		print("⚠️ Ayakta durma animasyonu bulunamadı veya boş!")
 
@@ -590,25 +590,14 @@ func saldiri_baslat():
 	_saldiri_resume_ediliyor = false
 	# -------------------------------------------
 
-	# 4. Saldırı tipi seç
+	# 4. Saldırı tipi seç: ZAR BOSS ÖZELLEŞTİRMESİ
 	suanki_durum = "SALDIRI"
-	var saldiri_tipi: String
+	var saldiri_tipi: String = "ZAR"
 
-	# Önceki turda Kahin Gözü için belirlendiyse onu kullan
-	if sonraki_saldiri_tipi != "":
-		saldiri_tipi = sonraki_saldiri_tipi
-		sonraki_saldiri_tipi = ""
-	else:
-		var sans = randf()
-		if sans < 0.35:
-			saldiri_tipi = "TAS"
-		elif sans < 0.70:
-			saldiri_tipi = "ASIT"
-		else:
-			saldiri_tipi = "ZAR"
-
-	# Bir sonraki tur için sıradaki saldırı tipini şimdi belirle ve GameManager'a yaz
-	_bir_sonraki_saldiriyi_belirle()
+	# Bir sonraki tur için sıradaki saldırı tipini belirle (Hep ZAR)
+	sonraki_saldiri_tipi = "ZAR"
+	if GameManager:
+		GameManager.sonraki_boss_saldirisi = "ZAR"
 
 	# 5. Telegraph efekti + UI bildirimi
 	await _telegraph_baslat(saldiri_tipi)
@@ -898,3 +887,14 @@ func _sirayi_bitir_ve_tekrar_otur():
 		await otura_gec()
 
 	saldiri_tamamlandi.emit()
+
+func _animasyon_olcegini_temizle(anim_adi: String):
+	"""Animasyondaki scale tracklerini temizler (FBX import sorunları için)."""
+	if not anim_player or anim_adi.is_empty(): return
+	var anim = anim_player.get_animation(anim_adi)
+	if not anim: return
+	
+	for i in range(anim.get_track_count() - 1, -1, -1):
+		if anim.track_get_type(i) == Animation.TYPE_SCALE_3D:
+			anim.remove_track(i)
+	print("✅ Ölçek temizlendi: ", anim_adi)

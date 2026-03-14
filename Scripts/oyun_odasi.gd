@@ -30,6 +30,7 @@ var duran_zar_sayisi = 0
 var boss_uyandi_mi : bool = false 
 var boss_tamamen_oldu : bool = false 
 var beklenen_zar_sayisi: int = 2
+var blok_sayaci: int = 0 # Zar Boss'u (Normal) için sayaç
 
 func _ready():
 	print("--- OYUN ODASI BAŞLATILIYOR ---")
@@ -180,14 +181,36 @@ func _on_blok_yerlestirildi():
 		print("💤 Boss uyuyor, saldırı yok.")
 		return
 
-	print("🧱 Blok yerleşti. Boss saldırısı bekleniyor...")
-	# Pre-lock: await'ten önce kilitle ki bekleme süresinde de blok koyulamasın
+	print("🧱 Blok yerleşti. Sayaç: ", blok_sayaci)
+	
+	# Sayaç artırımı (Boss uyandıysa)
+	blok_sayaci += 1
+	
+	# Pre-lock
 	if LevelManager:
 		LevelManager.is_boss_acting = true
-	await get_tree().create_timer(1.0).timeout
 	
-	if LevelManager and not boss_tamamen_oldu:
-		LevelManager.boss_saldirisi_baslat()
+	# Saldırı Kararı
+	var boss = get_tree().get_first_node_in_group("Dusman")
+	var saldiri_yapacak_mi = true
+	
+	# Eğer Zar Boss'u (NormalBoss) ise 2 adımda bir saldırır
+	if boss and boss.name == "NormalBoss":
+		if blok_sayaci % 2 != 0:
+			saldiri_yapacak_mi = false
+			print("🎲 Zar Boss'u (Normal) bu adımı pas geçiyor.")
+	
+	if saldiri_yapacak_mi:
+		print("🚀 Boss saldırısı tetikleniyor...")
+		await get_tree().create_timer(1.0).timeout
+		if LevelManager and not boss_tamamen_oldu:
+			LevelManager.boss_saldirisi_baslat()
+	else:
+		# Saldırı yoksa kilidi hemen aç
+		print("🔓 Saldırı yok, kilit açılıyor.")
+		await get_tree().create_timer(0.5).timeout
+		if LevelManager:
+			LevelManager.is_boss_acting = false
 
 func _on_boss_oldu():
 	print("☠️ OYUN ODASI: Boss öldü.")
