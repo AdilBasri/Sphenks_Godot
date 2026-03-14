@@ -183,6 +183,11 @@ func _boss_sistemini_ayarla():
 	var aktif_boss: Node3D = null
 	var mod_katman = suanki_katman % 3
 	
+	# Eğer boss kaçtıysa, aynı boss tipini (Normal, Acid, Stone) koruyoruz
+	if GameManager and GameManager.boss_kacti and GameManager.kacan_boss_tipi != -1:
+		mod_katman = GameManager.kacan_boss_tipi
+		print("👹 KAÇAN BOSS TAKİP EDİYOR! Tip Index: %d" % mod_katman)
+	
 	if mod_katman == 1:
 		aktif_boss = acid_boss_ref
 	elif mod_katman == 2:

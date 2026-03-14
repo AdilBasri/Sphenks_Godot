@@ -423,7 +423,12 @@ func yer_yok_kontrolu_yap() -> void:
 							kalan_hp = boss.boss_hp
 							break
 				GameManager.boss_kalan_hp = kalan_hp
-				print("👹 Boss kaçtı! Kalan HP: %d" % kalan_hp)
+				
+				# Boss tipini belirle ve kaydet (LevelManager rotasyonu için)
+				var mod = LevelManager.suanki_katman % 3
+				GameManager.kacan_boss_tipi = mod
+				
+				print("👹 Boss kaçtı! Kalan HP: %d | Boss Tipi Index: %d" % [kalan_hp, mod])
 				
 				for boss in boss_list:
 					if is_instance_valid(boss):

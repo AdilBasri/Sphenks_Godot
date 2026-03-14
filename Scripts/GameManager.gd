@@ -68,6 +68,7 @@ var ghost_canvas: CanvasLayer = null
 # --- 👹 BOSS KAÇTI SİSTEMİ ---
 var boss_kacti: bool = false  # Boss öldürülemeden kaçtıysa, bir sonraki bölümde tekrar gelir
 var boss_kalan_hp: int = 0    # Boss kaçtığında kalan HP'si (sonraki bölümde bu HP ile spawn olur)
+var kacan_boss_tipi: int = -1 # Hangi boss'un kaçtığını hatırlar (-1: yok, 0: Normal, 1: Acid, 2: Stone)
 
 func _ready():
 	randomize()
@@ -82,6 +83,9 @@ func _ready():
 	boss_oldu.connect(_on_boss_oldu_gm)
 
 func _on_boss_oldu_gm():
+	boss_kacti = false
+	boss_kalan_hp = 0
+	kacan_boss_tipi = -1
 	if ghost_move_active:
 		end_ghost_move()
 

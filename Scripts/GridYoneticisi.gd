@@ -317,19 +317,23 @@ func satirlari_kontrol_et() -> void:
 			var gm = get_node_or_null("/root/GameManager")
 			if gm:
 				var toplam_patlayan_blok = patlayacak_hucreler.size()
-				var parca_sansi_sayisi = int(toplam_patlayan_blok / 8)
-				if parca_sansi_sayisi < 1: parca_sansi_sayisi = 1
+				# Her patlayan blok için ayrı ayrı %20 şans olsun:
+				var parca_sansi_sayisi = toplam_patlayan_blok
 				
-				print("🔩 SATIR PATLADI! [%d blok] -> %d drop şansı deneniyor..." % [toplam_patlayan_blok, parca_sansi_sayisi])
+				print("🔩 SATIR PATLADI! [%d blok] -> Her blok için ayrı drop şansı (%d deneme)..." % [toplam_patlayan_blok, parca_sansi_sayisi])
 				
+				var dusen_parca_toplam = 0
 				for i in range(parca_sansi_sayisi):
 					var sans = randi() % 100
-					if sans < 20: # %20 ihtimal
-						print("🔩 Şans TUTTU! (%d < 20) -> Mermi parçası eklendi." % sans)
+					if sans < 20: # Her blok için %20 ihtimal
+						dusen_parca_toplam += 1
 						if gm.has_method("mermi_parcasi_ekle"):
 							gm.mermi_parcasi_ekle(1)
-					else:
-						print("🔩 Şans tutmadı (%d >= 20)." % sans)
+				
+				if dusen_parca_toplam > 0:
+					print("🔩 TOPLAM DÜŞEN MERMİ PARÇASI: %d" % dusen_parca_toplam)
+				else:
+					print("🔩 Maalesef hiç parça düşmedi.")
 			else:
 				print("⚠️ UYARI: GameManager bulunamadı (Drop yapılamadı)")
 		
