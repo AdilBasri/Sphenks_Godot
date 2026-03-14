@@ -421,13 +421,7 @@ func yer_yok_kontrolu_yap() -> void:
 		# Boss eğer saldırma modundaysa anında kes
 		if LevelManager:
 			LevelManager.is_boss_acting = false
-		var boss = get_tree().get_first_node_in_group("Dusman")
-		if boss and is_instance_valid(boss):
-			boss.set_process(false)
-			if boss.has_method("boss_durumu_sifirla"):
-				boss.boss_durumu_sifirla()
-			if "oldu_mu" in boss:
-				boss.oldu_mu = true # Boss'un tüm devam eden rutinlerini durdurur
+		var boss_list = get_tree().get_nodes_in_group("Dusman")
 		
 		# Kazanma / Kaybetme Durumu:
 		if boss_oldu_mu:
@@ -435,11 +429,44 @@ func yer_yok_kontrolu_yap() -> void:
 			print(">>> BOSS ÖLMÜŞTÜ VE ŞİMDİ YER KALMADI. KAZANARAK ÇIKIYOR.")
 			if arayuz and arayuz.has_method("bilgi_goster"):
 				arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss"), 5.0)
-		else:
-			# Boss ölmediyse ve yer kalmadıysa kaybetme
-			if arayuz and arayuz.has_method("puan_ekle"):
-				arayuz.puan_ekle(0, DilYoneticisi.metin_al("yer_kalmadi"))
 			
+			for boss in boss_list:
+				if is_instance_valid(boss):
+					boss.set_process(false)
+					if "oldu_mu" in boss:
+						boss.oldu_mu = true
+		else:
+			# Boss ölmediyse ve yer kalmadıysa — mermi kontrolü yap
+			var mermi_var = GameManager and GameManager.mermi_sayisi > 0
+			
+			if mermi_var:
+				# Mermi var ama blok koyacak yer yok — oyuncu silahla boss'u öldürebilir
+				print("🔫 Blok koyacak yer yok ama mermi var! Oyuncu boss'u silahla öldürebilir.")
+				if arayuz and arayuz.has_method("bilgi_goster"):
+					arayuz.bilgi_goster("Silahını kullan!", 3.0)
+				return  # Oyun devam etsin, oyuncu boss'u vurabilir
+			else:
+				# Mermi de yok, blok da yok — BOSS KAÇIYOR
+				print("👹 Mermi ve blok bitti! Boss küçülüp kaçıyor...")
+				if arayuz and arayuz.has_method("bilgi_goster"):
+					arayuz.bilgi_goster("Boss kaçtı!", 3.0)
+				
+				# Boss'u kaçır
+				GameManager.boss_kacti = true
+				
+				for boss in boss_list:
+					if is_instance_valid(boss):
+						boss.set_process(false)
+						if "oldu_mu" in boss:
+							boss.oldu_mu = true
+						# Küçülüp yok olma animasyonu
+						var tween = create_tween()
+						tween.tween_property(boss, "scale", Vector3(0.01, 0.01, 0.01), 1.0).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_IN)
+						tween.tween_callback(func():
+							if is_instance_valid(boss):
+								boss.visible = false
+						)
+		
 		var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
 		if oyuncu:
 			# Oyuncunun elindeki bloklar dahil tüm aktif serbest blokları sil
@@ -449,6 +476,7 @@ func yer_yok_kontrolu_yap() -> void:
 		
 		# Oyun bitirme animasyonuna geç
 		tur_bitti_mi = true
+		await get_tree().create_timer(1.5).timeout
 		_sahne_bitis_animasyonu()
 	else:
 		print(">>> Yer var, oyun devam ediyor.")

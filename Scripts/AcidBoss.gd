@@ -319,14 +319,23 @@ func _olum_sekans():
 	queue_free()
 
 func _kapiyi_otomatik_ac():
-	"""Boss öldüğünde kapıyı otomatik açar."""
+	"""Boss öldüğünde kapıyı otomatik açar (tüm boss'lar ölmüşse)."""
+	# Çift boss kontrolü: Dusman grubunda hayatta boss var mı?
+	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
+	for d in dusmanlar:
+		if is_instance_valid(d) and d != self:
+			var d_oldu = d.get("oldu_mu")
+			if d_oldu == null or d_oldu == false:
+				print("⏳ Diğer boss hâlâ hayatta, kapı açılmayacak.")
+				return
+	
 	var kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
 	if kapi and kapi.has_method("kapiyi_ac"):
 		# Kilidi kaldır ve aç
 		if "kilitli_mi" in kapi:
 			kapi.kilitli_mi = false
 		kapi.kapiyi_ac()
-		print("🚪 Boss öldü — Kapı otomatik açıldı!")
+		print("🚪 Tüm boss'lar öldü — Kapı otomatik açıldı!")
 	else:
 		print("⚠️ KapiSistemi bulunamadı, kapı açılamadı!")
 

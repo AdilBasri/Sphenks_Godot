@@ -64,6 +64,9 @@ var is_parry_window_open: bool = false
 var ghost_move_active: bool = false
 var ghost_canvas: CanvasLayer = null
 
+# --- 👹 BOSS KAÇTI SİSTEMİ ---
+var boss_kacti: bool = false  # Boss öldürülemeden kaçtıysa, bir sonraki bölümde 2 boss spawn olur
+
 func _ready():
 	print("GameManager Başlatıldı.")
 	# Oyun açıldığında pencereyi ön plana getir (Focus fix)
@@ -266,6 +269,7 @@ func verileri_sifirla():
 	curuk_temel_aktif = false
 	kanli_indirim_aktif = false
 	sonraki_boss_saldirisi = ""
+	boss_kacti = false
 	
 	mide_doluluk = 0
 	limbs_eaten_this_round = 0
@@ -375,6 +379,7 @@ func oyunu_kaydet():
 		and "campfire" in completed_tutorials and "pyro" in completed_tutorials)
 	config.set_value("Oyun", "CompletedTutorials", completed_tutorials)
 	config.set_value("Oyun", "UykuSahnesiGirisSayisi", uyku_sahnesi_giris_sayisi)
+	config.set_value("Oyun", "BossKacti", boss_kacti)
 	config.save("user://savegame.cfg")
 	print("💾 Oyun kaydedildi. (Seviye: %d, Envanter: %s)" % [kayit_seviyesi, str(esya_id_listesi)])
 
@@ -438,6 +443,7 @@ func oyunu_yukle():
 		
 		# suanki_seviye'yi de senkronize et ki LevelManager doğru okusun
 		suanki_seviye = kayitli_seviye
+		boss_kacti = config.get_value("Oyun", "BossKacti", false)
 
 		# Corrupt save fix: HP sıfırsa tam sağlığa döndür
 		if oyuncu_kalan_bar <= 0 or oyuncu_suanki_hp <= 0:
