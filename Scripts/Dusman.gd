@@ -36,6 +36,7 @@ signal saldiri_tamamlandi
 
 func _ready():
 	add_to_group("Dusman") 
+	add_to_group("boss")
 	suanki_can = max_can
 	
 	grid = get_tree().current_scene.find_child("GridYoneticisi", true, false)

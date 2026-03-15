@@ -18,6 +18,7 @@ var glitch_ui_rect: TextureRect = null
 
 func _ready():
 	add_to_group("Dusman")
+	add_to_group("boss")
 	
 	# Animatoru dinamik bul (Direct cocuk veya model icindeki)
 	if not anim_player:
@@ -241,6 +242,9 @@ func mermi_hasari_al(hit_pos: Vector3, hit_dir: Vector3):
 	
 	if boss_hp <= 0:
 		_boss_oldu_mermi()
+
+func hasar_al(miktar: int, hit_pos: Vector3 = Vector3.ZERO):
+	mermi_hasari_al(hit_pos, Vector3.ZERO)
 
 func _kan_efekti_olustur(pos: Vector3, dir: Vector3):
 	var kan_sahne = load("res://Scenes/KanSpreyi.tscn")
