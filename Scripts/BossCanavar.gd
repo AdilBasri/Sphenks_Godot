@@ -122,10 +122,13 @@ func _ready():
 	# Mermi hitbox oluştur
 	_hitbox_olustur()
 
-	# 1 saniye sonra oturma sekansını başlat
+	# 1 saniye sonra oturma sekansını başlat (Sadece görünürse)
 	await get_tree().create_timer(1.0).timeout
 	if _oldu_mu_kontrol(): return
-	otura_gec()
+	if visible:
+		otura_gec()
+	else:
+		print("ℹ️ Zar Boss görünmez, uyuklama sekansı atlandı.")
 
 
 func _process(_delta):
@@ -397,8 +400,9 @@ func _on_boss_oldu_sinyali():
 
 	print("☠️ ZAR BOSS ÖLÜYOR...")
 
-	# 1 — Animasyonu durdur
+	# 1 — Animasyonu ve horlamayı durdur
 	_animasyonu_durdur()
+	if sfx_snore: sfx_snore.stop()
 
 	# 2 — Kamerayı oyuncuya iade et
 	_kamerayi_oyuncuya_ver()
@@ -641,11 +645,13 @@ func boss_durumu_sifirla():
 	if ilk_uyanisi_yapti_mi:
 		ayakta_beklemeye_gec()
 	else:
-		# UYUKLAMA durumuna geç
-		suanki_durum = "UYUKLAMA"
-		if not uyuklama_anim_adi.is_empty() and is_instance_valid(anim_player) and anim_player.has_animation(uyuklama_anim_adi):
-			anim_player.play(uyuklama_anim_adi)
-			print("💤 Boss temiz UYUKLAMA durumuna döndü.")
+		# UYUKLAMA durumuna geç (Eğer görünürse horlamayı da başlatır)
+		if visible:
+			uyuklamaya_basla()
+		else:
+			suanki_durum = "UYUKLAMA"
+			if not uyuklama_anim_adi.is_empty() and is_instance_valid(anim_player) and anim_player.has_animation(uyuklama_anim_adi):
+				anim_player.play(uyuklama_anim_adi)
 
 
 # ==========================================
@@ -663,13 +669,12 @@ func saldiri_baslat():
 		saldiri_tamamlandi.emit()
 		return
 
-	# 1. Boss kamerasını aktif et
+	# 1. Boss kamerasını aktif et ve horlamayı kesin durdur
 	_kamerayi_bossa_ver()
+	if sfx_snore: sfx_snore.stop()
 
 	# 2. Eğer uyukluyorsa → ayağa kalk (oturma animasyonu TERSTEN)
 	if suanki_durum == "UYUKLAMA":
-		if sfx_snore and sfx_snore.playing:
-			sfx_snore.stop()
 		
 		_animasyonu_durdur()
 

@@ -62,11 +62,11 @@
 [ext_resource type="PackedScene" uid="uid://bafdowoddcpqw" path="res://Scenes/zar.tscn" id="62_q606s"]
 [ext_resource type="Script" uid="uid://chuv2uyii3n14" path="res://Scripts/AcidBoss.gd" id="94_acid"]
 [ext_resource type="PackedScene" uid="uid://cx6msh67nsv5" path="res://acid_boss/AcidBoss_Model.tscn" id="95_acid_model"]
-[ext_resource type="Script" path="res://Scripts/StoneBoss.gd" id="96_stone"]
-[ext_resource type="PackedScene" path="res://stone_boss/StoneBoss_Model.tscn" id="97_stone_model"]
+[ext_resource type="Script" uid="uid://ccipx45kolsv8" path="res://Scripts/StoneBoss.gd" id="96_stone"]
+[ext_resource type="PackedScene" uid="uid://d033u0hvel1ax" path="res://stone_boss/StoneBoss_Model.tscn" id="97_stone_model"]
 [ext_resource type="Script" uid="uid://gdt0if15j8al" path="res://animated_gun/scene.gd" id="ag_gd"]
 [ext_resource type="PackedScene" uid="uid://hqgrge6ijj2s" path="res://animated_gun/scene.gltf" id="ag_gltf"]
-[ext_resource type="Script" path="res://Scripts/bariyer.gd" id="bariyer_gd"]
+[ext_resource type="Script" uid="uid://djwhsfpmo7ghc" path="res://Scripts/bariyer.gd" id="bariyer_gd"]
 [ext_resource type="Texture2D" uid="uid://dnpnexrcnpel5" path="res://Assets/bullet_1.png" id="bullet_img"]
 [ext_resource type="Shader" uid="uid://cuhlen0v736t0" path="res://Materials_Shaders/gore_vignette.gdshader" id="gore_shader_sphenks"]
 [ext_resource type="FontFile" uid="uid://hbyync0b8kyv" path="res://Assets/Fonts/Retro Shine.ttf" id="retro_font"]
@@ -1055,7 +1055,6 @@ horizontal_alignment = 1
 [node name="MantarEfekti" type="ColorRect" parent="OyunArayuzu" index="4"]
 visible = false
 material = SubResource("ShaderMaterial_48she")
-use_parent_material = true
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

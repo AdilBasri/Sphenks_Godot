@@ -281,3 +281,17 @@ func _animasyon_oynat_incele():
 			silah_gorsel.texture = animasyon_kareleri[i]
 			await get_tree().create_timer(0.06).timeout
 	islem_mesgul = false
+	
+func mantar_efekti_yonet(aktif: bool):
+	var efekt_node = get_node_or_null("MantarEfekti")
+	if not efekt_node:
+		efekt_node = find_child("MantarEfekti", true, false)
+		
+	if efekt_node:
+		efekt_node.visible = aktif
+		efekt_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		if efekt_node.material:
+			# Kullanıcı isteği: Şiddet ve bozulma yarı yarıya düşürüldü (0.02 -> 0.01)
+			var guc = 0.01 if aktif else 0.0
+			efekt_node.material.set_shader_parameter("strength", guc)
+			print("🍄 Mantar Efekti: ", "AKTİF" if aktif else "KAPALI", " (Giriş: ", guc, ")")
