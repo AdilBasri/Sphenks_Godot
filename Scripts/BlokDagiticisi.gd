@@ -178,17 +178,77 @@ func _on_blok_yerlesti() -> void:
 
 func _tur_sonu_hesaplamasi() -> void:
 	tur_bitti_mi = true
+	if _yer_kontrol_timer: _yer_kontrol_timer.stop()
+	
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
 	if not arayuz: return
 	var skor = 0
 	if "toplam_puan" in arayuz: skor = arayuz.toplam_puan
 	elif "puan" in arayuz: skor = arayuz.puan
 	
-	# Kazanma / Kaybetme Durumu
-	if skor >= arayuz.hedef_puan or boss_oldu_mu:
+	# Boss zaten öldüyse direkt yendik
+	if boss_oldu_mu:
 		_sahne_bitis_animasyonu() 
+		return
+
+	# Katman 1 (Eğitim) kontrolü — sınırsız oynayış ve mermi kısıtlamasız geçiş vs.
+	if LevelManager and LevelManager.suanki_katman == 1:
+		if skor >= arayuz.hedef_puan:
+			_sahne_bitis_animasyonu()
+		else:
+			_oyun_kaybedildi(arayuz)
+		return
+
+	# --- KATMAN > 1 İÇİN MERMİ VE KAÇMA KONTROLÜ ---
+	var boss_list = get_tree().get_nodes_in_group("Dusman")
+	var kalan_hp = 100
+	var aktif_boss_tipi = LevelManager.suanki_katman % 3 if LevelManager else 0
+	var hiyerarsideki_boss = null
+	
+	for boss in boss_list:
+		if is_instance_valid(boss) and "boss_hp" in boss:
+			if not boss.get("oldu_mu"):
+				kalan_hp = boss.boss_hp
+				hiyerarsideki_boss = boss
+				break
+	
+	var mermi_yeterli = GameManager and GameManager.mermi_sayisi >= kalan_hp
+	
+	if mermi_yeterli:
+		print("🔫 Blok bitti ama mermi var! Oyuncu ayağa kalkıp silahını çekmeli.")
+		if arayuz and arayuz.has_method("bilgi_goster"):
+			arayuz.bilgi_goster("Silahını Çek (Sağ Tık) ve Boss'u Öldür!", 6.0, true) # true -> Kalıcı yapıldı
+		
+		var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+		if oyuncu and oyuncu.has_method("stand_up"):
+			oyuncu.stand_up(true)
+		# Oyunu bitirme; boss beklesin, oyuncunun vurmasını sağla!
 	else:
-		_oyun_kaybedildi(arayuz)
+		if skor >= arayuz.hedef_puan:
+			print("👹 Mermisi yetersiz. Hedef puana ulaşıldı, boss kaçıyor.")
+			if arayuz and arayuz.has_method("bilgi_goster"):
+				arayuz.bilgi_goster("Mermi yetersiz! Boss kaçıyor...", 4.0)
+			
+			if GameManager:
+				GameManager.boss_kacti = true
+				GameManager.boss_kalan_hp = kalan_hp
+				GameManager.kacan_boss_tipi = aktif_boss_tipi
+			
+			for boss in boss_list:
+				if is_instance_valid(boss):
+					boss.set_process(false)
+					if "oldu_mu" in boss: boss.oldu_mu = true
+					
+					var tween = create_tween()
+					tween.tween_property(boss, "position:y", boss.position.y - 5.0, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+					tween.parallel().tween_property(boss, "scale", Vector3(0.01, 0.01, 0.01), 1.5)
+					tween.tween_callback(boss.queue_free)
+			
+			# Kaçış animasyonu bitince oyunu normal bir şekilde zaferle bitir
+			get_tree().create_timer(1.2).timeout.connect(_sahne_bitis_animasyonu)
+		else:
+			# Skor da yetmedi mermi de yok = KAYBETTİ
+			_oyun_kaybedildi(arayuz)
 
 func _sahne_bitis_animasyonu() -> void:
 	set_process_input(false)
@@ -376,83 +436,15 @@ func yer_yok_kontrolu_yap() -> void:
 		# Timer'ı durdur
 		if _yer_kontrol_timer: _yer_kontrol_timer.stop()
 		
-		var arayuz = get_tree().get_first_node_in_group("Arayuz")
-		
 		# Boss eğer saldırma modundaysa anında kes
-		if LevelManager:
-			LevelManager.is_boss_acting = false
-		var boss_list = get_tree().get_nodes_in_group("Dusman")
-		
-		# Kazanma / Kaybetme Durumu:
-		if boss_oldu_mu:
-			# Boss öldüyse ve şimdi yer kalmadıysa bu bir zaferdir, oyuncu kasacağını kastı
-			print(">>> BOSS ÖLMÜŞTÜ VE ŞİMDİ YER KALMADI. KAZANARAK ÇIKIYOR.")
-			if arayuz and arayuz.has_method("bilgi_goster"):
-				arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss"), 5.0)
-			
-			for boss in boss_list:
-				if is_instance_valid(boss):
-					boss.set_process(false)
-					if "oldu_mu" in boss:
-						boss.oldu_mu = true
-		else:
-			# Boss ölmediyse ve yer kalmadıysa — mermi kontrolü yap
-			var mermi_var = GameManager and GameManager.mermi_sayisi > 0
-			
-			if mermi_var:
-				# Mermi var ama blok koyacak yer yok — oyuncu silahla boss'u öldürebilir
-				print("🔫 Blok koyacak yer yok ama mermi var! Oyuncu boss'u silahla öldürebilir.")
-				if arayuz and arayuz.has_method("bilgi_goster"):
-					arayuz.bilgi_goster("Silahını kullan!", 3.0)
-				return  # Oyun devam etsin, oyuncu boss'u vurabilir
-			else:
-				# Mermi de yok, blok da yok — BOSS KAÇIYOR
-				print("👹 Mermi ve blok bitti! Boss küçülüp kaçıyor...")
-				if arayuz and arayuz.has_method("bilgi_goster"):
-					arayuz.bilgi_goster("Boss kaçtı!", 3.0)
-				
-				# Boss'u kaçır — kalan HP'yi kaydet
-				GameManager.boss_kacti = true
-				
-				# İlk hayatta olan boss'un HP'sini al
-				var kalan_hp = 0
-				for boss in boss_list:
-					if is_instance_valid(boss) and "boss_hp" in boss:
-						var oldu = boss.get("oldu_mu")
-						if not oldu:
-							kalan_hp = boss.boss_hp
-							break
-				GameManager.boss_kalan_hp = kalan_hp
-				
-				# Boss tipini belirle ve kaydet (LevelManager rotasyonu için)
-				var mod = LevelManager.suanki_katman % 3
-				GameManager.kacan_boss_tipi = mod
-				
-				print("👹 Boss kaçtı! Kalan HP: %d | Boss Tipi Index: %d" % [kalan_hp, mod])
-				
-				for boss in boss_list:
-					if is_instance_valid(boss):
-						boss.set_process(false)
-						if "oldu_mu" in boss:
-							boss.oldu_mu = true
-						# Küçülüp yok olma animasyonu
-						var tween = create_tween()
-						tween.tween_property(boss, "scale", Vector3(0.01, 0.01, 0.01), 1.0).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_IN)
-						tween.tween_callback(func():
-							if is_instance_valid(boss):
-								boss.visible = false
-						)
+		if LevelManager: LevelManager.is_boss_acting = false
 		
 		var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
 		if oyuncu:
 			# Oyuncunun elindeki bloklar dahil tüm aktif serbest blokları sil
 			get_tree().call_group("Blok", "queue_free")
-			if oyuncu.has_method("stand_up"):
-				oyuncu.stand_up()
 		
-		# Oyun bitirme animasyonuna geç
-		tur_bitti_mi = true
-		await get_tree().create_timer(1.5).timeout
-		_sahne_bitis_animasyonu()
+		# Bütün oyun sonu kuralları (mermi, boss kaçması vb.) _tur_sonu_hesaplamasi içinden yönetilir!
+		_tur_sonu_hesaplamasi()
 	else:
 		print(">>> Yer var, oyun devam ediyor.")

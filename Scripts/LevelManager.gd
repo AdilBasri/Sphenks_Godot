@@ -183,56 +183,50 @@ func _boss_sistemini_ayarla():
 	var aktif_boss: Node3D = null
 	var mod_katman = suanki_katman % 3
 	
-	# Eğer boss kaçtıysa, aynı boss tipini (Normal, Acid, Stone) koruyoruz
-	if GameManager and GameManager.boss_kacti and GameManager.kacan_boss_tipi != -1:
-		mod_katman = GameManager.kacan_boss_tipi
-		print("👹 KAÇAN BOSS TAKİP EDİYOR! Tip Index: %d" % mod_katman)
-	
-	if mod_katman == 1:
-		aktif_boss = acid_boss_ref
-	elif mod_katman == 2:
-		aktif_boss = stone_boss_ref
-	else: # 0
-		aktif_boss = normal_boss_ref
+	if mod_katman == 1: aktif_boss = acid_boss_ref
+	elif mod_katman == 2: aktif_boss = stone_boss_ref
+	else: aktif_boss = normal_boss_ref
 	
 	if aktif_boss:
 		aktif_boss.visible = true
 		aktif_boss.add_to_group("Dusman")
 		if aktif_boss.has_method("boss_durumu_sifirla"):
 			aktif_boss.boss_durumu_sifirla()
+		aktif_boss.scale = Vector3(1.5, 1.5, 1.5)
 		
-		# --- 👹 BOSS KAÇTI: İKİZ BOSS SPAWN (V2) ---
+		# --- 👹 BOSS KAÇTI: YANCI BOSS SPAWN ---
 		if GameManager and GameManager.boss_kacti:
 			var kalan = GameManager.boss_kalan_hp
-			print("👹 BOSS KAÇMIŞTI! Bu sefer İKİZ olarak kalan HP ile geri geliyorlar: %d" % kalan)
+			var kacan_tip = GameManager.kacan_boss_tipi
 			
-			# İkinci'yi oluştur
-			var twin_boss = aktif_boss.duplicate()
-			aktif_boss.get_parent().add_child(twin_boss)
-			twin_boss.name = aktif_boss.name + "_Twin"
-			twin_boss.visible = true
-			twin_boss.add_to_group("Dusman")
+			var yanci_ref: Node3D = null
+			if kacan_tip == 1: yanci_ref = acid_boss_ref
+			elif kacan_tip == 2: yanci_ref = stone_boss_ref
+			else: yanci_ref = normal_boss_ref
 			
-			# Yan yana dize
-			aktif_boss.global_position.x -= 0.8
-			twin_boss.global_position.x += 0.8
+			if yanci_ref:
+				print("👹 KAÇAN BOSS YANCI OLARAK GELDİ! Tip:", kacan_tip, " HP:", kalan)
+				var twin_boss = yanci_ref.duplicate()
+				aktif_boss.get_parent().add_child(twin_boss)
+				twin_boss.name = yanci_ref.name + "_Minion"
+				twin_boss.visible = true
+				twin_boss.add_to_group("Dusman")
+				
+				# Ana boss merkezde, yancı sağda doğar
+				twin_boss.global_position = aktif_boss.global_position + Vector3(2.5, 0, -0.5)
+				twin_boss.scale = Vector3(1.0, 1.0, 1.0) # Bir tık daha küçük
+				
+				# Gecikmeli HP ataması
+				if kalan > 0:
+					get_tree().create_timer(0.2).timeout.connect(func():
+						if is_instance_valid(twin_boss):
+							twin_boss.boss_hp = kalan
+							if twin_boss.has_method("boss_durumu_sifirla"): 
+								twin_boss.boss_durumu_sifirla()
+					)
 			
-			# HP'lerini ayarla (Kısa bekleme ile _ready'nin bitmesini sağla)
-			if kalan > 0:
-				await get_tree().create_timer(0.2).timeout
-				if is_instance_valid(aktif_boss):
-					aktif_boss.boss_hp = kalan
-				if is_instance_valid(twin_boss):
-					twin_boss.boss_hp = kalan
-					if twin_boss.has_method("boss_durumu_sifirla"): twin_boss.boss_durumu_sifirla()
-				print("👹 Her iki boss HP'si override edildi → %d" % kalan)
-			
-			# Flagleri sıfırla
 			GameManager.boss_kacti = false
 			GameManager.boss_kalan_hp = 0
-		else:
-			# Normal ölçeklendirme (Kaçıştan gelmiyorsa)
-			aktif_boss.scale = Vector3(1.5, 1.5, 1.5)
 		
 		# Birleşik Boss kamerasını bul ve başlangıçta kapat
 		var boss_cam = oyun_odasi_ref.find_child("BossCamera", true, false)

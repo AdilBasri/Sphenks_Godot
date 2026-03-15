@@ -219,7 +219,10 @@ func _on_boss_oldu():
 	
 	# Arayüze mesaj gönder
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
-	if arayuz: arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss"), 5.0)
+	if arayuz: 
+		if arayuz.has_method("kalici_bilgi_gizle"):
+			arayuz.kalici_bilgi_gizle()
+		arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss"), 5.0)
 	
 	# Kapı otomatik açılacak (boss scriptleri tarafından)
 	print("🚪 Boss öldü — Kapı açılıyor.")

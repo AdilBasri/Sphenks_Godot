@@ -187,11 +187,15 @@ func totem_sayacini_guncelle():
 		var maks = GameManager.max_totem_sayisi
 		sayac.text = DilYoneticisi.metin_al("totem_sayisi") % [mevcut, maks]
 
+var _gerekli_puan_ulasildi_bilgisi_verildi: bool = false
+
 func bolum_kurulumu(yeni_hedef: int):
 	toplam_puan = 0
 	hedef_puan = yeni_hedef
+	_gerekli_puan_ulasildi_bilgisi_verildi = false
 	if liste:
 		for child in liste.get_children(): child.queue_free()
+	kalici_bilgi_gizle() # Önceki turdan kalma mesajları temizle
 	guncelle_ekran()
 
 func katman_yazisi_goster(kat_no: int):
@@ -223,14 +227,59 @@ func guncelle_ekran():
 	if score_label:
 		score_label.text = str(toplam_puan)
 		score_label.modulate = Color.GREEN if toplam_puan >= hedef_puan else Color.WHITE
+	
+	if toplam_puan >= hedef_puan and hedef_puan > 0:
+		if LevelManager and LevelManager.suanki_katman > 1:
+			_erken_hedef_kontrolu()
 
-func bilgi_goster(mesaj: String, sure: float = 2.0):
+func _erken_hedef_kontrolu():
+	if _gerekli_puan_ulasildi_bilgisi_verildi: return
+	
+	var boss_list = get_tree().get_nodes_in_group("Dusman")
+	var kalan_hp = 100
+	var boss_yasiyor = false
+	
+	for boss in boss_list:
+		if is_instance_valid(boss) and "boss_hp" in boss:
+			if not boss.get("oldu_mu"):
+				kalan_hp = boss.boss_hp
+				boss_yasiyor = true
+				break
+				
+	if not boss_yasiyor: return # Zaten boss öldüyse gerek yok
+	
+	var mermi_yeterli = GameManager and GameManager.mermi_sayisi >= kalan_hp
+	
+	if mermi_yeterli:
+		_gerekli_puan_ulasildi_bilgisi_verildi = true
+		bilgi_goster("Silahını Çek (Sağ Tık) ve Boss'u Öldür!", 6.0, true)
+		
+		# Boss sırası ondaysa oyuncuyu sabırsız bırakmamak için kamerasını ve Inputu zorla kaldır
+		var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+		if oyuncu and oyuncu.has_method("stand_up"):
+			oyuncu.stand_up(true)
+
+var _kalici_mesaj_aktif: bool = false
+
+func bilgi_goster(mesaj: String, sure: float = 2.0, kalici_mi: bool = false):
+	if _kalici_mesaj_aktif and not kalici_mi: return # Eğer kalıcı bir mesaj varsa standart bilgi mesajlarını reddet!
+	
+	if kalici_mi: _kalici_mesaj_aktif = true
+	
 	if not bilgi_label: return
 	if bilgi_tween: bilgi_tween.kill()
 	bilgi_label.text = mesaj
 	bilgi_label.modulate.a = 1.0
-	bilgi_tween = create_tween()
-	bilgi_tween.tween_property(bilgi_label, "modulate:a", 0.0, sure).set_delay(1.5)
+	
+	if not kalici_mi:
+		bilgi_tween = create_tween()
+		bilgi_tween.tween_property(bilgi_label, "modulate:a", 0.0, sure).set_delay(1.5)
+
+func kalici_bilgi_gizle():
+	_kalici_mesaj_aktif = false
+	if bilgi_label:
+		if bilgi_tween: bilgi_tween.kill()
+		bilgi_label.modulate.a = 0.0
 
 func perde_ac():
 	if perde: create_tween().tween_property(perde, "color:a", 0.0, 1.0)
