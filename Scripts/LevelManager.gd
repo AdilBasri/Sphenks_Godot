@@ -206,6 +206,12 @@ func _boss_sistemini_ayarla():
 			
 			if yanci_ref:
 				print("👹 KAÇAN BOSS YANCI OLARAK GELDİ! Tip:", kacan_tip, " HP:", kalan)
+				
+				# ÖNCE ESKİ MINIONLARI TEMİZLE (Race condition / persist fix)
+				var old_minions = get_tree().get_nodes_in_group("Dusman")
+				for m in old_minions:
+					if "_Minion" in m.name: m.queue_free()
+				
 				var twin_boss = yanci_ref.duplicate()
 				aktif_boss.get_parent().add_child(twin_boss)
 				twin_boss.name = yanci_ref.name + "_Minion"

@@ -248,6 +248,17 @@ func _etkilesim_kontrol():
 			check = check.get_parent()
 	
 	if kapi_carpti:
+		# ÖZEL: Mezar Odası tespiti
+		var is_mezar = false
+		if "mezar" in name.to_lower() or (get_parent() and "mezar" in get_parent().name.to_lower()):
+			is_mezar = true
+		if get_tree().current_scene and "mezar" in get_tree().current_scene.name.to_lower():
+			is_mezar = true
+			
+		if is_mezar:
+			if etkilesim_label: etkilesim_label.text = ""
+			return
+
 		var mesafe = oyuncu_node.global_position.distance_to(kapi_node.global_position)
 		if mesafe <= 3.0:
 			var kilitli = kapi_node.get("kilitli_mi")

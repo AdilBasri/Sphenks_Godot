@@ -163,6 +163,18 @@ func kilitle():
 
 func _on_static_body_3d_input_event(_camera, event, _position, _normal, _shape_idx):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if e_etkilesimi_devre_disi: return
+		
+		# ÖZEL: Tüm hiyerarşide mezar kontrolü (Input event için)
+		var is_mezar = false
+		var test_node = self
+		while test_node:
+			if "mezar" in test_node.name.to_lower():
+				is_mezar = true
+				break
+			test_node = test_node.get_parent()
+		if is_mezar: return
+
 		if _kapi_engellendi_mi(): return
 		
 		if kilitli_mi:
@@ -171,14 +183,19 @@ func _on_static_body_3d_input_event(_camera, event, _position, _normal, _shape_i
 			var arayuz = get_tree().get_first_node_in_group("Arayuz")
 			if arayuz and get_tree().current_scene.name == "Sandik_Odasi":
 				arayuz.bilgi_goster(DilYoneticisi.metin_al("anahtar_yok"), 2.0)
-		if e_etkilesimi_devre_disi: return
+		
 		kapiyi_ac()
 
 func _kapi_engellendi_mi() -> bool:
+	if e_etkilesimi_devre_disi: return false
+	
 	# Blok masası olan sahnelerde, masa aşağı inip kaybolana kadar kapı TIKLANAMAZ!
 	var blok_d = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
 	if blok_d and blok_d.get("masa_objesi") != null:
 		if is_instance_valid(blok_d.masa_objesi) and not blok_d.masa_objesi.is_queued_for_deletion():
-			print("🚪 Masa hala sahnede olduğu için kapıya tıklanılamaz!")
+			# Sadece mezar odası DEĞİLSE yazdır
+			var is_mezar = "mezar" in get_tree().current_scene.name.to_lower()
+			if not is_mezar:
+				print("门 Masa hala sahnede olduğu için kapıya tıklanılamaz!")
 			return true
 	return false

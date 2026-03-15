@@ -1171,6 +1171,7 @@ func check_ui_text():
 					mezar_odasi_mi = true
 			
 			if devre_disi or mezar_odasi_mi:
+				etkilesim_label.text = ""
 				return
 				
 			# KAPI KİLİTLİYSE VEYA KARTLAR SEÇİLMEDİYSE ETKİLEŞİM YAZMA
@@ -1651,6 +1652,9 @@ func stand_up(forced: bool = false):
 	yere_dustu_mu = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	mouse_serbest_modu = false
+	
+	if kamera:
+		kamera.make_current()
 	
 	# --- MASADAN KALKARKEN HER ZAMAN BOSS'A BAKAN KONUMA DÖN ---
 	# Hangi açıda olursa olsun, önce Tabureyi başlangıç konumuna (Index 1 = Z+ = Boss'un karşısı) sıfırla.

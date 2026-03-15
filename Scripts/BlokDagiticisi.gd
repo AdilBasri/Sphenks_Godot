@@ -68,14 +68,14 @@ func yeni_bolumu_baslat():
 					boss_objesi.texture = doku
 				elif boss_objesi is MeshInstance3D:
 					var mat = boss_objesi.get_active_material(0)
-					if mat:
-						mat.albedo_texture = doku
-					else:
-						# Materyal yoksa yeni oluştur
+					if not mat:
+						# Materyal yoksa veya hata veriyorsa yeni oluştur (Godot null material check)
 						var yeni_mat = StandardMaterial3D.new()
-						yeni_mat.albedo_texture = doku
 						yeni_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 						boss_objesi.material_override = yeni_mat
+						mat = yeni_mat
+					
+					mat.albedo_texture = doku
 			else:
 				print("HATA: Boss resmi yüklenemedi! Yol: ", boss_yolu)
 	else:
@@ -229,23 +229,30 @@ func _tur_sonu_hesaplamasi() -> void:
 			if arayuz and arayuz.has_method("bilgi_goster"):
 				arayuz.bilgi_goster("Mermi yetersiz! Boss kaçıyor...", 4.0)
 			
-			if GameManager:
-				GameManager.boss_kacti = true
-				GameManager.boss_kalan_hp = kalan_hp
-				GameManager.kacan_boss_tipi = aktif_boss_tipi
+			GameManager.boss_kacti = true
+			GameManager.boss_kalan_hp = kalan_hp
+			GameManager.kacan_boss_tipi = aktif_boss_tipi
 			
+			# TÜM DÜŞMANLARI (ANA VE YANCI) TEMİZLE
 			for boss in boss_list:
 				if is_instance_valid(boss):
 					boss.set_process(false)
 					if "oldu_mu" in boss: boss.oldu_mu = true
 					
 					var tween = create_tween()
-					tween.tween_property(boss, "position:y", boss.position.y - 5.0, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-					tween.parallel().tween_property(boss, "scale", Vector3(0.01, 0.01, 0.01), 1.5)
+					tween.tween_property(boss, "position:y", boss.position.y - 10.0, 2.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+					tween.parallel().tween_property(boss, "scale", Vector3(0.01, 0.01, 0.01), 2.0)
 					tween.tween_callback(boss.queue_free)
 			
 			# Kaçış animasyonu bitince oyunu normal bir şekilde zaferle bitir
-			get_tree().create_timer(1.2).timeout.connect(_sahne_bitis_animasyonu)
+			get_tree().create_timer(1.5).timeout.connect(func():
+				# Kamera kontrolünü oyuncuya ver (Eğer zar kamerasındaysa)
+				var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+				if oyuncu and oyuncu.has_node("Camera3D"):
+					oyuncu.get_node("Camera3D").make_current()
+				
+				_sahne_bitis_animasyonu()
+			)
 		else:
 			# Skor da yetmedi mermi de yok = KAYBETTİ
 			_oyun_kaybedildi(arayuz)
@@ -256,13 +263,22 @@ func _sahne_bitis_animasyonu() -> void:
 	if oyuncu and oyuncu.has_method("stand_up"):
 		oyuncu.stand_up(true) # Direkt ve zorunlu kaldır
 		
+	if LevelManager:
+		LevelManager.is_boss_acting = false
+		
 	var tween = create_tween()
 	tween.set_parallel(true)
-	
+		
 	if is_instance_valid(masa_objesi):
 		_disable_all_collisions(masa_objesi)
 		tween.tween_property(masa_objesi, "position:y", -10.0, 4.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	
+	# TÜM DÜŞMANLARI EKSTRA GÜVENLİK İÇİN TEMİZLE (Kalan yancılar olabilir)
+	var boss_list = get_tree().get_nodes_in_group("Dusman")
+	for b in boss_list:
+		if is_instance_valid(b) and b != boss_objesi:
+			b.queue_free()
+
 	tween.chain().tween_callback(func(): 
 		if is_instance_valid(boss_objesi): boss_objesi.visible = false
 		if is_instance_valid(masa_objesi): masa_objesi.queue_free()

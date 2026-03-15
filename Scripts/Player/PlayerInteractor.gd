@@ -37,8 +37,16 @@ func check_interaction():
 			if aday.get("e_etkilesimi_devre_disi") == true:
 				devre_disi = true
 				break
+			if "mezar" in aday.name.to_lower():
+				devre_disi = true
+				break
 			aday = aday.get_parent()
 			limit -= 1
+		
+		# Sahne ismi kontrolü
+		if not devre_disi and get_tree().current_scene:
+			if "mezar" in get_tree().current_scene.name.to_lower():
+				devre_disi = true
 			
 		if devre_disi:
 			if interaction_label: interaction_label.text = ""
