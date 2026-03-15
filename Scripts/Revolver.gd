@@ -27,6 +27,8 @@ var hedef_puan: int = 300
 var flash_rect: ColorRect = null
 var oyuncu_ref: Node = null
 var _3d_gun: Node = null
+var _3d_shotgun: Node = null
+var active_weapon_index: int = 1 # 1: Gun, 2: Shotgun
 var perde: ColorRect = null
 var bilgi_tween: Tween 
 
@@ -96,6 +98,7 @@ func _ready():
 	oyuncu_ref = get_tree().get_first_node_in_group("Oyuncu")
 	if oyuncu_ref:
 		_3d_gun = oyuncu_ref.get_node_or_null("Camera3D/Sketchfab_Scene")
+		_3d_shotgun = oyuncu_ref.get_node_or_null("Camera3D/Sketchfab_Scene2")
 
 func _process(_delta):
 	# Nişangah ve Filtre kontrolü
@@ -138,6 +141,37 @@ func _input(event):
 		sfx_inspect.play()
 		_animasyon_oynat_incele()
 
+	# --- WEAPON SWITCHING (1 & 2 KEYS) ---
+	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_1 and active_weapon_index != 1:
+			_switch_weapon(1)
+		elif event.keycode == KEY_2 and active_weapon_index != 2:
+			_switch_weapon(2)
+
+func _switch_weapon(index: int):
+	var old_weapon = _3d_gun if active_weapon_index == 1 else _3d_shotgun
+	var new_weapon = _3d_gun if index == 1 else _3d_shotgun
+	
+	active_weapon_index = index
+	print("Weapon Selection Switched to: ", "Gun" if index == 1 else "Shotgun")
+
+	if GameManager.silah_cekildi:
+		islem_mesgul = true
+		if is_instance_valid(old_weapon) and old_weapon.has_method("hide_weapon"):
+			old_weapon.hide_weapon()
+		
+		# Animasyon bitene kadar bekle (hide_weapon süresi yaklaşık 0.25s)
+		await get_tree().create_timer(0.25).timeout
+		
+		# Switching sırasında kullanıcı tekrar basmış olabilir, en güncel seçimi al
+		new_weapon = _3d_gun if active_weapon_index == 1 else _3d_shotgun
+		
+		if is_instance_valid(new_weapon) and new_weapon.has_method("show_weapon"):
+			new_weapon.show_weapon()
+		
+		await get_tree().create_timer(0.35).timeout
+		islem_mesgul = false
+
 func toggle_panel():
 	panel_acik = !panel_acik
 	if panel: panel.visible = panel_acik
@@ -148,16 +182,18 @@ func _silah_durumunu_degistir():
 	
 	if mermi_hud: mermi_hud.visible = GameManager.silah_cekildi
 	
+	var current_weapon = _3d_gun if active_weapon_index == 1 else _3d_shotgun
+
 	if GameManager.silah_cekildi:
-		if _3d_gun and is_instance_valid(_3d_gun):
-			if _3d_gun.has_method("show_weapon"): _3d_gun.show_weapon()
+		if current_weapon and is_instance_valid(current_weapon):
+			if current_weapon.has_method("show_weapon"): current_weapon.show_weapon()
 		elif silah_gorsel:
 			silah_gorsel.visible = true
 			silah_gorsel.position.y = get_viewport().size.y + 200
 			create_tween().tween_property(silah_gorsel, "position", orjinal_pos, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	else:
-		if _3d_gun and is_instance_valid(_3d_gun):
-			if _3d_gun.has_method("hide_weapon"): _3d_gun.hide_weapon()
+		if current_weapon and is_instance_valid(current_weapon):
+			if current_weapon.has_method("hide_weapon"): current_weapon.hide_weapon()
 		elif silah_gorsel:
 			var tw = create_tween()
 			tw.tween_property(silah_gorsel, "position:y", get_viewport().size.y + 200, 0.2).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)

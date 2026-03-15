@@ -40,7 +40,9 @@ func _ready() -> void:
 	anim_player.animation_finished.connect(_on_anim_finished)
 	
 	sfx_fire = AudioStreamPlayer.new()
-	sfx_fire.stream = load("res://Assets/Audio/gun_fire.mp3")
+	sfx_fire.stream = load("res://Assets/Audio/shotgun_fire.mp3")
+	if not sfx_fire.stream: # Failsafe
+		sfx_fire.stream = load("res://Assets/Audio/gun_fire.mp3")
 	add_child(sfx_fire)
 
 func _process(delta: float) -> void:
@@ -88,7 +90,6 @@ func show_weapon() -> void:
 
 func hide_weapon() -> void:
 	if not _is_visible:
-		# VISIBILITY FAILSAFE: Eğer visible ise ve animasyon takıldıysa gizle
 		if visible: visible = false
 		return
 	_is_visible = false
