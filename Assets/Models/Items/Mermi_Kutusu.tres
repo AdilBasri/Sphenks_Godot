@@ -5,10 +5,10 @@
 
 [resource]
 script = ExtResource("1_mrmkt")
-etki_id = "mermi_kutusu"
+etki_id = "shotgun_mermi"
 animasyon_tipi = "kirma"
-esya_adi = "mermi_isi"
-aciklama = "mermi_ac"
-fiyat = 5
+esya_adi = "shotgun_mermi_isi"
+aciklama = "shotgun_mermi_ac"
+fiyat = 4
 ikon = ExtResource("2_mrmkp")
 metadata/_custom_type_script = "uid://drbl7e8h0wosy"

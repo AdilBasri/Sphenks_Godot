@@ -40,9 +40,7 @@ func _ready() -> void:
 	anim_player.animation_finished.connect(_on_anim_finished)
 	
 	sfx_fire = AudioStreamPlayer.new()
-	sfx_fire.stream = load("res://Assets/Audio/shotgun_fire.mp3")
-	if not sfx_fire.stream: # Failsafe
-		sfx_fire.stream = load("res://Assets/Audio/gun_fire.mp3")
+	sfx_fire.stream = load("res://Assets/Audio/gun_fire.mp3")
 	add_child(sfx_fire)
 
 func _process(delta: float) -> void:
@@ -106,7 +104,7 @@ func fire() -> void:
 	if _is_busy or not _is_visible:
 		return
 	
-	if not GameManager.mermiyi_kullan():
+	if not GameManager.shotgun_mermiyi_kullan():
 		# Mermi yoksa ateşleme
 		return
 

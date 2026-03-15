@@ -660,28 +660,30 @@ func satin_al(urun_node):
 		var veri = urun_node.get("esya_verisi")
 		if not veri: return
 
-		# --- MERMİ KUTUSU: Envantere eklemez, direkt 8 mermi verir ---
-		if veri.etki_id == "mermi_kutusu":
+		# --- SHOTGUN MERMİ: 4 Altın = 2 Mermi ---
+		if veri.etki_id == "shotgun_mermi":
 			var gercek_fiyat = veri.fiyat
 			if GameManager and GameManager.get("kanli_indirim_aktif") and GameManager.kanli_indirim_aktif:
 				gercek_fiyat = int(veri.fiyat * 0.5)
+			
 			if GameManager.altin_harca(gercek_fiyat):
-				GameManager.mermi_ekle(8)
+				GameManager.shotgun_mermi_ekle(2)
 				var arayuz = _get_arayuz()
 				if arayuz:
-					arayuz.bilgi_goster("🔫 +8 Mermi Eklendi!", 3.0)
-					if arayuz.has_method("mermi_flash_goster"):
-						arayuz.mermi_flash_goster()
+					arayuz.bilgi_goster("🔫 +2 Shotgun Mermisi!", 3.0)
+				
+				# Ses ve Animasyon aynı
 				var sfx2 = AudioStreamPlayer.new()
 				sfx2.stream = load("res://Assets/Audio/buy.mp3")
 				sfx2.bus = "Master"
 				get_tree().current_scene.add_child(sfx2)
 				sfx2.play()
 				sfx2.finished.connect(sfx2.queue_free)
+				
 				var tw2 = create_tween()
 				tw2.tween_property(urun_node, "scale", Vector3(0.01, 0.01, 0.01), 0.2)
 				tw2.tween_callback(urun_node.queue_free)
-				print("🔫 Mermi Kutusu market'ten alındı: +8 mermi.")
+				return
 			else:
 				if market.has_method("_hata_sesi_cal"):
 					market._hata_sesi_cal()

@@ -8,6 +8,7 @@ signal boss_oldu
 signal saglik_guncellendi(bar, hp) 
 signal altin_guncellendi(miktar)   
 signal mermi_degisti(yeni_sayi)
+signal shotgun_mermi_degisti(yeni_sayi)
 signal mide_guncellendi(doluluk, kapasite)
 
 # --- OYUNCU SAĞLIK VERİLERİ ---
@@ -55,6 +56,8 @@ var pyro_aktif: bool = false
 var mermi_sayisi: int = 10
 var max_mermi: int = 40
 var mermi_parcasi_sayisi: int = 0  # 3 parça = 1 mermi
+var shotgun_mermi_count: int = 0
+var max_shotgun_mermi: int = 10
 var silah_cekildi: bool = false 
 var yeme_aktif_mi: bool = false  # Oyuncu uzuv yerken true — pyro_filtresi gizlenir
 var pyro_dogacak_dusman: int = 0 # Pyro modunda doğması beklenen düşman sayısı
@@ -270,6 +273,7 @@ func verileri_sifirla():
 	mermi_parcasi_sayisi = 0
 	pyro_aktif = false
 	silah_cekildi = false
+	shotgun_mermi_count = 0
 	envanter.clear()
 	bolum_bufflarini_sifirla()
 	zar_atlama_hakki = 0
@@ -328,6 +332,7 @@ func _arayuz_guncelle():
 	emit_signal("envanter_guncellendi")
 	emit_signal("altin_guncellendi", toplam_altin)
 	emit_signal("mermi_degisti", mermi_sayisi)
+	emit_signal("shotgun_mermi_degisti", shotgun_mermi_count)
 
 func bolum_bufflarini_sifirla():
 	puan_carpani = 1.0
@@ -359,6 +364,7 @@ func oyunu_kaydet():
 	config.set_value("Oyuncu", "SuankiHP", oyuncu_suanki_hp)
 	config.set_value("Oyuncu", "MermiSayisi", mermi_sayisi)
 	config.set_value("Oyuncu", "MermiParcasi", mermi_parcasi_sayisi)
+	config.set_value("Oyuncu", "ShotgunMermi", shotgun_mermi_count)
 	config.set_value("Oyuncu", "PyroAktif", pyro_aktif)
 	config.set_value("Oyuncu", "GoreIntensity", gore_intensity)
 	
@@ -405,6 +411,7 @@ func oyunu_yukle():
 		oyuncu_suanki_hp = config.get_value("Oyuncu", "SuankiHP", 10)
 		mermi_sayisi = config.get_value("Oyuncu", "MermiSayisi", 10)
 		mermi_parcasi_sayisi = config.get_value("Oyuncu", "MermiParcasi", 0)
+		shotgun_mermi_count = config.get_value("Oyuncu", "ShotgunMermi", 0)
 		pyro_aktif = config.get_value("Oyuncu", "PyroAktif", false)
 		gore_intensity = config.get_value("Oyuncu", "GoreIntensity", 0.0)
 		
@@ -504,6 +511,7 @@ func _etki_id_den_item_yukle(etki_id: String) -> ItemData:
 		"cloak":       "res://Assets/Models/Items/Cloak.tres",
 		"dice":        "res://Assets/Models/Items/Dice.tres",
 		"kedimamasi":  "res://Assets/Models/Items/KediMamasi.tres",
+		"shotgun_mermi":"res://Assets/Models/Items/Mermi_Kutusu.tres",
 		"mermi_kutusu":"res://Assets/Models/Items/Mermi_Kutusu.tres",
 		"curuk_temel": "",  # Dinamik yaratılan, .tres yok — özel yarat
 	}
@@ -547,7 +555,20 @@ func mermi_ekle(miktar: int) -> bool:
 func mermiyi_kullan():
 	if mermi_sayisi > 0:
 		mermi_sayisi -= 1
-		_arayuz_guncelle()
+		emit_signal("mermi_degisti", mermi_sayisi)
+		return true
+	return false
+
+func shotgun_mermi_ekle(miktar: int) -> bool:
+	if shotgun_mermi_count >= max_shotgun_mermi: return false
+	shotgun_mermi_count = min(shotgun_mermi_count + miktar, max_shotgun_mermi)
+	emit_signal("shotgun_mermi_degisti", shotgun_mermi_count)
+	return true
+
+func shotgun_mermiyi_kullan() -> bool:
+	if shotgun_mermi_count > 0:
+		shotgun_mermi_count -= 1
+		emit_signal("shotgun_mermi_degisti", shotgun_mermi_count)
 		return true
 	return false
 

@@ -603,7 +603,22 @@ var ceviriler = {
 	"guc_isi": { "tr": "Altın Şerbet", "en": "Gold Sherbet" },
 	"guc_ac": { "tr": "Bölümde kazanılan puanları 1.3x çarpar.", "en": "Multiplies earned score by 1.3x in the level." },
 	"mermi_isi": { "tr": "Mermi Kutusu", "en": "Ammo Crate" },
-	"mermi_ac": { "tr": "İçinden 8 mermi çıkar.", "en": "Contains 8 bullets." },
+	"mermi_ac": {
+		"tr": "İçinden 8 mermi çıkar.",
+		"en": "Contains 8 bullets."
+	},
+	"shotgun_mermi_isi": {
+		"tr": "Shotgun Mermisi",
+		"en": "Shotgun Shells"
+	},
+	"shotgun_mermi_ac": {
+		"tr": "İçinden 2 shotgun mermisi çıkar.",
+		"en": "Contains 2 shotgun shells."
+	},
+	"shotgun_mermi_sayisi": {
+		"tr": "SHOTGUN: %d / %d",
+		"en": "SHOTGUN: %d / %d"
+	},
 	"dig_isi": { "tr": "Altın Kazma", "en": "Gold Pickaxe" },
 	"dig_ac": { "tr": "Bir bloku kırar ve anında +10 Altın verir.", "en": "Breaks a block and instantly grants +10 Gold." },
 	"ev_diyalog_1": { "tr": "Mısır hep ilgimi çekmiştir...", "en": "Egypt has always interested me..." },

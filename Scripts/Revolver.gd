@@ -51,12 +51,15 @@ func _ready():
 	if GameManager:
 		if not GameManager.mermi_degisti.is_connected(_on_mermi_degisti):
 			GameManager.mermi_degisti.connect(_on_mermi_degisti)
+		if not GameManager.shotgun_mermi_degisti.is_connected(_on_shotgun_mermi_degisti):
+			GameManager.shotgun_mermi_degisti.connect(_on_shotgun_mermi_degisti)
 		if not GameManager.altin_guncellendi.is_connected(_on_altin_guncellendi):
 			GameManager.altin_guncellendi.connect(_on_altin_guncellendi)
 		if not GameManager.envanter_guncellendi.is_connected(totem_sayacini_guncelle):
 			GameManager.envanter_guncellendi.connect(totem_sayacini_guncelle)
 			
 		_on_mermi_degisti(GameManager.mermi_sayisi)
+		_on_shotgun_mermi_degisti(GameManager.shotgun_mermi_count)
 		_on_altin_guncellendi(GameManager.toplam_altin)
 		totem_sayacini_guncelle()
 
@@ -143,10 +146,19 @@ func _input(event):
 		_silah_durumunu_degistir()
 	
 	if GameManager.silah_cekildi and event.is_action_pressed("ates_et") and not islem_mesgul:
-		if _3d_gun and is_instance_valid(_3d_gun):
-			pass
-		else:
+		# 3D Silah varsa o kendisi hallediyor, burada bir şey yapma
+		if active_weapon_index == 1 and _3d_gun and is_instance_valid(_3d_gun):
+			return
+		if active_weapon_index == 2 and _3d_shotgun and is_instance_valid(_3d_shotgun):
+			return
+			
+		if active_weapon_index == 1:
 			if GameManager.mermiyi_kullan():
+				_animasyon_oynat_ates()
+			else:
+				_mermi_yok_uyarisi()
+		else: # Shotgun
+			if GameManager.shotgun_mermiyi_kullan():
 				_animasyon_oynat_ates()
 			else:
 				_mermi_yok_uyarisi()
@@ -189,6 +201,12 @@ func _switch_weapon(index: int):
 		
 		await get_tree().create_timer(0.35).timeout
 		islem_mesgul = false
+		
+		# Update UI immediately after switch
+		if active_weapon_index == 1:
+			_on_mermi_degisti(GameManager.mermi_sayisi)
+		else:
+			_on_shotgun_mermi_degisti(GameManager.shotgun_mermi_count)
 
 func toggle_panel():
 	panel_acik = !panel_acik
@@ -218,14 +236,60 @@ func _silah_durumunu_degistir():
 			tw.tween_callback(func(): silah_gorsel.visible = false)
 
 func _on_mermi_degisti(sayi):
+	if active_weapon_index != 1: return
+	_guncelle_mermi_hud(sayi, GameManager.max_mermi, false)
+
+func _on_shotgun_mermi_degisti(sayi):
+	if active_weapon_index != 2: return
+	_guncelle_mermi_hud(sayi, GameManager.max_shotgun_mermi, true)
+
+func _guncelle_mermi_hud(sayi: int, maks_sayi: int, is_shotgun: bool):
 	var m_label = find_child("MermiSayisi", true, false)
+	var h_box = find_child("HBoxContainer", true, false) # MermiKonteyner içindeki HBox
+	
 	if m_label:
-		var parca = GameManager.mermi_parcasi_sayisi if GameManager else 0
-		if parca > 0:
-			m_label.text = "%d/%d (🔩%d/3)" % [sayi, GameManager.max_mermi, parca]
+		if is_shotgun:
+			m_label.text = "%d/%d" % [sayi, maks_sayi]
 		else:
-			m_label.text = "%d/%d" % [sayi, GameManager.max_mermi]
-		m_label.modulate = Color.RED if sayi == 0 else (Color(1, 0.55, 0) if sayi <= 5 else Color.WHITE)
+			var parca = GameManager.mermi_parcasi_sayisi if GameManager else 0
+			if parca > 0:
+				m_label.text = "%d/%d (🔩%d/3)" % [sayi, maks_sayi, parca]
+			else:
+				m_label.text = "%d/%d" % [sayi, maks_sayi]
+		
+		# Shotgun için mermi kritik sınırı 2, normal için 5
+		var kritik = 2 if is_shotgun else 5
+		m_label.modulate = Color.RED if sayi == 0 else (Color(1, 0.55, 0) if sayi <= kritik else Color.WHITE)
+	
+	# İkon yönetimi (Yan yana 2 ikon)
+	if h_box:
+		h_box.alignment = BoxContainer.ALIGNMENT_END # Sağa daya
+		h_box.add_theme_constant_override("separation", 5) # Daha bitişik (5 px)
+		
+		if m_label:
+			m_label.size_flags_horizontal = Control.SIZE_SHRINK_END
+			m_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		
+		var ikonlar = []
+		for child in h_box.get_children():
+			if child is TextureRect:
+				ikonlar.append(child)
+		
+		if ikonlar.size() > 0:
+			var ana_ikon = ikonlar[0]
+			if is_shotgun:
+				ana_ikon.visible = true
+				if ikonlar.size() < 2:
+					# İkinci ikonu yarat
+					var yeni_ikon = ana_ikon.duplicate()
+					yeni_ikon.name = "ShotgunExtraIcon"
+					h_box.add_child(yeni_ikon)
+				else:
+					ikonlar[1].visible = true
+			else:
+				ana_ikon.visible = true
+				if ikonlar.size() >= 2:
+					ikonlar[1].visible = false
 
 func _on_altin_guncellendi(miktar):
 	if altin_label:
