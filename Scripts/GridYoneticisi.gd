@@ -322,18 +322,15 @@ func satirlari_kontrol_et() -> void:
 				
 				print("🔩 SATIR PATLADI! [%d blok] -> Her blok için ayrı drop şansı (%d deneme)..." % [toplam_patlayan_blok, parca_sansi_sayisi])
 				
-				var dusen_parca_toplam = 0
-				for i in range(parca_sansi_sayisi):
+				var i = 0
+				for hucre in patlayacak_hucreler:
 					var sans = randi() % 100
 					if sans < 20: # Her blok için %20 ihtimal
-						dusen_parca_toplam += 1
 						if gm.has_method("mermi_parcasi_ekle"):
 							gm.mermi_parcasi_ekle(1)
-				
-				if dusen_parca_toplam > 0:
-					print("🔩 TOPLAM DÜŞEN MERMİ PARÇASI: %d" % dusen_parca_toplam)
-				else:
-					print("🔩 Maalesef hiç parça düşmedi.")
+							# Görsel efekt: Bloğun patladığı yerde fiziksel mermi parçası göster
+							var blok_pos = cell_center_world(hucre)
+							_mermi_parcasi_gorsel_olustur(blok_pos)
 			else:
 				print("⚠️ UYARI: GameManager bulunamadı (Drop yapılamadı)")
 		
@@ -570,3 +567,36 @@ func _blok_kaydir_animasyonu(blok: Node3D, hedef_hucre: Vector2i):
 	var tween = create_tween()
 	tween.tween_property(blok, "global_position:x", hedef_pos.x, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.parallel().tween_property(blok, "global_position:z", hedef_pos.z, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+func _mermi_parcasi_gorsel_olustur(pos: Vector3):
+	# Fiziksel görünümlü bir mermi parçası (küçük sarı silindir/kutu) yarat
+	var parca = MeshInstance3D.new()
+	var box = BoxMesh.new()
+	box.size = Vector3(0.15, 0.15, 0.35)
+	parca.mesh = box
+	
+	var mat = StandardMaterial3D.new()
+	mat.albedo_color = Color(1.0, 0.84, 0.0) # Altın/Sarı mermi rengi
+	mat.metallic = 1.0
+	mat.roughness = 0.2
+	mat.emission_enabled = true
+	mat.emission = Color(0.5, 0.4, 0.0)
+	parca.material_override = mat
+	
+	get_tree().current_scene.add_child(parca)
+	parca.global_position = pos + Vector3(0, 0.5, 0)
+	
+	# Zıplama ve Yok Olma Animasyonu
+	var tween = create_tween()
+	var havaya = pos + Vector3(randf_range(-0.5, 0.5), 1.5, randf_range(-0.5, 0.5))
+	
+	tween.set_parallel(false)
+	tween.tween_property(parca, "global_position", havaya, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(parca, "scale", Vector3(1.5, 1.5, 1.5), 0.4)
+	tween.parallel().tween_property(parca, "rotation", Vector3(randf(), randf(), randf()) * 10, 0.4)
+	
+	tween.tween_interval(0.2)
+	
+	# Kameraya doğru uçabilir veya sadece küçülüp yok olabilir
+	tween.tween_property(parca, "scale", Vector3.ZERO, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	tween.tween_callback(parca.queue_free)

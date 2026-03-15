@@ -99,13 +99,14 @@ func _ready():
 
 func _process(_delta):
 	# Nişangah ve Filtre kontrolü
-	# Nişangah artık sadece silahın çekili olup olmamasına bakıyor (Sphenks uyumu için)
-	var nisangah_aktif = GameManager.silah_cekildi
+	# Mermi HUD her zaman görünür olmalı (Silah çekili olsun olmasın)
+	if mermi_hud and not mermi_hud.visible:
+		mermi_hud.visible = true
+	
+	# Nişangah artık sadece silahın çekili olup olmamasına ve yeme durumuna bakıyor
+	var nisangah_aktif = GameManager.silah_cekildi and not GameManager.yeme_aktif_mi
 	if nisangah and nisangah.visible != nisangah_aktif:
 		nisangah.visible = nisangah_aktif
-	
-	if mermi_hud and mermi_hud.visible != nisangah_aktif:
-		mermi_hud.visible = nisangah_aktif
 	
 	if pyro_filtresi:
 		var filtre_gorunur = GameManager.pyro_aktif and not GameManager.yeme_aktif_mi
