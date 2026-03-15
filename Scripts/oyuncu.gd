@@ -1623,6 +1623,18 @@ func stand_up(forced: bool = false):
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	mouse_serbest_modu = false
 	
+	# --- MASADAN KALKARKEN HER ZAMAN BOSS'A BAKAN KONUMA DÖN ---
+	# Hangi açıda olursa olsun, önce Tabureyi başlangıç konumuna (Index 1 = Z+ = Boss'un karşısı) sıfırla.
+	if current_stool and is_instance_valid(current_stool):
+		var radius = 1.7
+		# Index 1 pozisyonu: Z Pozitif (Boss'un karşısı)
+		var baslangic_pos = Vector3(0, -0.38, radius)
+		var baslangic_rot = Vector3(0, deg_to_rad(0), 0)
+		
+		current_stool.global_position = baslangic_pos
+		current_stool.global_rotation = baslangic_rot
+		table_angle_index = 1 # Başlangıç indexine sıfırla
+	
 	# Kamerayı eski yerine (veya çıkış noktasına) taşı
 	if current_stool and is_instance_valid(current_stool) and current_stool.exit_position_marker:
 		var exit_pos = current_stool.exit_position_marker.global_position
