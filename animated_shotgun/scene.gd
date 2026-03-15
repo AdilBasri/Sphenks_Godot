@@ -40,7 +40,9 @@ func _ready() -> void:
 	anim_player.animation_finished.connect(_on_anim_finished)
 	
 	sfx_fire = AudioStreamPlayer.new()
-	sfx_fire.stream = load("res://Assets/Audio/gun_fire.mp3")
+	sfx_fire.stream = load("res://Assets/Audio/shotgun_fire.mp3")
+	if not sfx_fire.stream: # Failsafe
+		sfx_fire.stream = load("res://Assets/Audio/gun_fire.mp3")
 	add_child(sfx_fire)
 
 func _process(delta: float) -> void:
@@ -88,7 +90,6 @@ func show_weapon() -> void:
 
 func hide_weapon() -> void:
 	if not _is_visible:
-		# VISIBILITY FAILSAFE: Eğer visible ise ve animasyon takıldıysa gizle
 		if visible: visible = false
 		return
 	_is_visible = false
@@ -125,21 +126,52 @@ func fire() -> void:
 		_play_idle()
 
 func _ates_et_mermi() -> void:
-	if not mermi_sahnesi or not _camera: return
+	if not _camera: return
 	
-	var mermi = mermi_sahnesi.instantiate()
-	get_tree().current_scene.add_child(mermi)
-	mermi.scale = Vector3(0.5, 0.5, 0.5) # Boyutu yarıya düşür
+	var bu_round_hasar_alanlar = [] # Aynı ateşte aynı boss ikinci kez hasar alamaz
+	var angles = [-8, 0, 8]
+	var range = 8.0
 	
-	var ekran_ortasi = get_viewport().get_visible_rect().size / 2.0
-	var hedef_yonu = _camera.project_ray_normal(ekran_ortasi)
+	# Kameranın bakış yönünü ve merkezini al
+	var viewport_size = get_viewport().get_visible_rect().size / 2.0
+	var ray_origin = _camera.project_ray_origin(viewport_size)
+	var ray_dir = _camera.project_ray_normal(viewport_size)
 	
-	# Namlu ucu tahmini pozisyonu (silahın biraz önünde ve üstünde)
-	var namlu_pos = global_position + _camera.global_transform.basis.z * -0.6 + _camera.global_transform.basis.y * 0.1
-	mermi.global_position = namlu_pos + (hedef_yonu * 0.5)
+	var space_state = get_world_3d().direct_space_state
 	
-	if mermi.has_method("baslat"):
-		mermi.baslat(hedef_yonu)
+	for angle in angles:
+		var rad = deg_to_rad(angle)
+		# Sağa veya sola rotasyon (Kameranın Y ekseni etrafında)
+		var rotated_dir = ray_dir.rotated(_camera.global_transform.basis.y, rad)
+		
+		var ray_query = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + rotated_dir * range)
+		ray_query.collide_with_areas = true
+		ray_query.collide_with_bodies = true
+		# Raycast mask 4 (Mermi katmanı) kullanıyorsak ayarlanabilir. Ama boss hitboxları Area3D.
+		
+		var result = space_state.intersect_ray(ray_query)
+		
+		if result:
+			var collider = result.collider
+			var hit_pos = result.position
+			
+			# Scripti bul (Mermi.gd'deki mantığın benzeri)
+			var target = _hitbox_veya_boss_bul(collider)
+			if target and target.is_in_group("boss"):
+				if not bu_round_hasar_alanlar.has(target):
+					if target.has_method("hasar_al"):
+						target.hasar_al(1, hit_pos)
+						bu_round_hasar_alanlar.append(target)
+
+func _hitbox_veya_boss_bul(node: Node) -> Node:
+	var aday = node
+	var limit = 10
+	while aday and limit > 0:
+		if aday.is_in_group("boss") or aday.has_method("hasar_al") or aday.has_method("mermi_hasari_al"):
+			return aday
+		aday = aday.get_parent()
+		limit -= 1
+	return null
 
 func reload() -> void:
 	if _is_busy or not _is_visible:

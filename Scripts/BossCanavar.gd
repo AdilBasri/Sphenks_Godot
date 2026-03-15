@@ -57,6 +57,7 @@ var sfx_snore: AudioStreamPlayer3D
 
 func _ready():
 	add_to_group("Dusman")
+	add_to_group("boss") # Shotgun fan pattern desteği
 	
 	# Birleşik Boss kamerasını bul
 	kamera_boss = get_parent().find_child("BossCamera", true, false)
@@ -521,6 +522,11 @@ func mermi_hasari_al(hit_pos: Vector3, hit_dir: Vector3):
 	
 	if boss_hp <= 0:
 		_boss_oldu_mermi()
+
+func hasar_al(miktar: int, hit_pos: Vector3 = Vector3.ZERO):
+	"""Shotgun vb. için genel hasar fonksiyonu."""
+	if mermi_hasari_al(hit_pos, Vector3.ZERO):
+		pass # mermi_hasari_al zaten her şeyi yapıyor
 
 func _kan_efekti_olustur(pos: Vector3, dir: Vector3):
 	var kan_sahne = load("res://Scenes/KanSpreyi.tscn")

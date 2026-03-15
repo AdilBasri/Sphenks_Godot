@@ -17,6 +17,7 @@ var glitch_ui_rect: TextureRect = null
 
 func _ready():
 	add_to_group("Dusman")
+	add_to_group("boss")
 	
 	# Animatoru dinamik bul (Direct cocuk veya model icindeki)
 	if not anim_player:
