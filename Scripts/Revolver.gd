@@ -115,6 +115,18 @@ func _process(_delta):
 		var filtre_gorunur = GameManager.pyro_aktif and not GameManager.yeme_aktif_mi
 		if pyro_filtresi.visible != filtre_gorunur:
 			pyro_filtresi.visible = filtre_gorunur
+	
+	# --- MASAYA OTURMA & MARKET KONTROLÜ ---
+	# Eğer masaya oturulmuşsa veya Marketteysek (kese elindeyse) silahı zorla kapat.
+	var market = get_tree().get_first_node_in_group("Market") # Market script'i Dusman yerine Market grubunda olabilir veya name ile bulunur
+	if not market: market = get_tree().current_scene.find_child("Market", true, false)
+	
+	var markette_mi = market and market.get("iceride_mi") == true
+	var oturuyor_mu = oyuncu_ref and oyuncu_ref.get("is_sitting") == true
+	
+	if oturuyor_mu or markette_mi:
+		if GameManager.silah_cekildi:
+			_silah_durumunu_degistir()
 
 func _input(event):
 	if event.is_action_pressed("panel_ac"):
@@ -124,7 +136,9 @@ func _input(event):
 	if oyuncu_ref and oyuncu_ref.get("oldu_mu") == true: return
 	
 	if event.is_action_pressed("sag_tik"):
-		if oyuncu_ref and oyuncu_ref.get("is_sitting") == true:
+		var market = get_tree().current_scene.find_child("Market", true, false)
+		var markette_mi = market and market.get("iceride_mi") == true
+		if (oyuncu_ref and oyuncu_ref.get("is_sitting") == true) or markette_mi:
 			return
 		_silah_durumunu_degistir()
 	
@@ -143,6 +157,10 @@ func _input(event):
 
 	# --- WEAPON SWITCHING (1 & 2 KEYS) ---
 	if event is InputEventKey and event.pressed:
+		var market = get_tree().current_scene.find_child("Market", true, false)
+		var markette_mi = market and market.get("iceride_mi") == true
+		if (oyuncu_ref and oyuncu_ref.get("is_sitting") == true) or markette_mi: return
+		
 		if event.keycode == KEY_1 and active_weapon_index != 1:
 			_switch_weapon(1)
 		elif event.keycode == KEY_2 and active_weapon_index != 2:

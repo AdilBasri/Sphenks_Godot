@@ -224,6 +224,12 @@ func _on_boss_oldu():
 			arayuz.kalici_bilgi_gizle()
 		arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss"), 5.0)
 	
+	# MASA İNDİRME: BlokDagiticisi'ni bul ve sahnede bitiş animasyonunu tetikle
+	var spawner = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
+	if spawner and spawner.has_method("_sahne_bitis_animasyonu"):
+		spawner._sahne_bitis_animasyonu()
+		print("⬇️ Boss öldü — Masa aşağı indiriliyor.")
+	
 	# Kapı otomatik açılacak (boss scriptleri tarafından)
 	print("🚪 Boss öldü — Kapı açılıyor.")
 
