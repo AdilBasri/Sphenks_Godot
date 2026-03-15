@@ -29,6 +29,20 @@ func check_interaction():
 
 	# TODO: Expand interaction logic based on groups or classes
 	if collider.is_in_group("Etkilesim"):
+		# Özel durum: Kapı veya nesne (veya babası) etkileşimi kapatmış olabilir
+		var aday = collider
+		var devre_disi = false
+		var limit = 3
+		while aday and limit > 0:
+			if aday.get("e_etkilesimi_devre_disi") == true:
+				devre_disi = true
+				break
+			aday = aday.get_parent()
+			limit -= 1
+			
+		if devre_disi:
+			if interaction_label: interaction_label.text = ""
+			return
 		if interaction_label: interaction_label.text = "[E] Etkileşim"
 	else:
 		if interaction_label: interaction_label.text = ""

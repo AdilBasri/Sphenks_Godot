@@ -11,6 +11,7 @@ var oldu_mu: bool = false
 var _saldiri_resume_ediliyor: bool = false
 var glitch_canvas: CanvasLayer = null
 var glitch_ui_rect: TextureRect = null
+var last_damage_time: float = 0.0
 
 @export_group("QTE Ayarları")
 @export var glitch_yuzu_dokusu: Texture2D
@@ -230,8 +231,13 @@ func mermi_hasari_al(hit_pos: Vector3, hit_dir: Vector3):
 	"""Oyuncunun mermisi boss'a çarptığında çağrılır. HP 1 azalır."""
 	if oldu_mu: return
 	
+	var now = Time.get_ticks_msec() / 1000.0
+	if now - last_damage_time < 0.05:
+		return
+	last_damage_time = now
+	
 	boss_hp -= 1
-	print("🔫 ACID BOSS'a mermi çarptı! Kalan HP: %d" % boss_hp)
+	print("🔫 ACID BOSS'a vuruş yapıldı! Kalan HP: %d" % boss_hp)
 	
 	# 1 — Kan Efekti Spawn
 	_kan_efekti_olustur(hit_pos, hit_dir)

@@ -1153,6 +1153,26 @@ func check_ui_text():
 	if bulunan_etkilesim:
 		# KAPI İSE FARKLI YAZI
 		if "Kapi" in bulunan_etkilesim.name or "Door" in bulunan_etkilesim.name or bulunan_etkilesim.has_method("kapiyi_ac"):
+			# ÖZEL: Etkileşim devre dışıysa VEYA Mezar Odası ise yazma
+			var devre_disi = bulunan_etkilesim.get("e_etkilesimi_devre_disi") == true
+			
+			# ÇOK DAHA AGRESİF MEZAR KONTROLÜ (Tüm hiyerarşide arar)
+			var mezar_odasi_mi = false
+			var test_node = bulunan_etkilesim
+			while test_node:
+				if "mezar" in test_node.name.to_lower():
+					mezar_odasi_mi = true
+					break
+				test_node = test_node.get_parent()
+			
+			# Sahne ismine de bak
+			if not mezar_odasi_mi and get_tree().current_scene:
+				if "mezar" in get_tree().current_scene.name.to_lower():
+					mezar_odasi_mi = true
+			
+			if devre_disi or mezar_odasi_mi:
+				return
+				
 			# KAPI KİLİTLİYSE VEYA KARTLAR SEÇİLMEDİYSE ETKİLEŞİM YAZMA
 			if bulunan_etkilesim.get("kilitli_mi") == true:
 				return

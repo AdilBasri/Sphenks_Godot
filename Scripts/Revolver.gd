@@ -42,7 +42,12 @@ func _ready():
 	visible = true # CanvasLayer her zaman açık kalmalı
 	
 	# Silah parçalarını başlangıçta gizle
-	if mermi_hud: mermi_hud.visible = false
+	if mermi_hud:
+		mermi_hud.visible = false
+		mermi_hud.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 20)
+		mermi_hud.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+		mermi_hud.grow_vertical = Control.GROW_DIRECTION_BEGIN
+		
 	if nisangah: nisangah.visible = false
 	if panel: panel.visible = false
 	GameManager.silah_cekildi = false 
@@ -245,7 +250,7 @@ func _on_shotgun_mermi_degisti(sayi):
 
 func _guncelle_mermi_hud(sayi: int, maks_sayi: int, is_shotgun: bool):
 	var m_label = find_child("MermiSayisi", true, false)
-	var h_box = find_child("HBoxContainer", true, false) # MermiKonteyner içindeki HBox
+	var h_box = find_child("HBoxContainer", true, false)
 	
 	if m_label:
 		if is_shotgun:
@@ -257,18 +262,16 @@ func _guncelle_mermi_hud(sayi: int, maks_sayi: int, is_shotgun: bool):
 			else:
 				m_label.text = "%d/%d" % [sayi, maks_sayi]
 		
-		# Shotgun için mermi kritik sınırı 2, normal için 5
 		var kritik = 2 if is_shotgun else 5
 		m_label.modulate = Color.RED if sayi == 0 else (Color(1, 0.55, 0) if sayi <= kritik else Color.WHITE)
+		m_label.size_flags_horizontal = Control.SIZE_SHRINK_END
+		m_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		m_label.custom_minimum_size = Vector2.ZERO # Reset any fixed width
 	
-	# İkon yönetimi (Yan yana 2 ikon)
 	if h_box:
-		h_box.alignment = BoxContainer.ALIGNMENT_END # Sağa daya
-		h_box.add_theme_constant_override("separation", 5) # Daha bitişik (5 px)
-		
-		if m_label:
-			m_label.size_flags_horizontal = Control.SIZE_SHRINK_END
-			m_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		h_box.alignment = BoxContainer.ALIGNMENT_END
+		h_box.add_theme_constant_override("separation", 2) # İkonlar arası çok az boşluk (2px)
+		h_box.size_flags_horizontal = Control.SIZE_SHRINK_END
 		
 		var ikonlar = []
 		for child in h_box.get_children():
@@ -279,6 +282,7 @@ func _guncelle_mermi_hud(sayi: int, maks_sayi: int, is_shotgun: bool):
 			var ana_ikon = ikonlar[0]
 			if is_shotgun:
 				ana_ikon.visible = true
+				ana_ikon.size_flags_horizontal = Control.SIZE_SHRINK_END
 				if ikonlar.size() < 2:
 					# İkinci ikonu yarat
 					var yeni_ikon = ana_ikon.duplicate()
@@ -286,8 +290,10 @@ func _guncelle_mermi_hud(sayi: int, maks_sayi: int, is_shotgun: bool):
 					h_box.add_child(yeni_ikon)
 				else:
 					ikonlar[1].visible = true
+					ikonlar[1].size_flags_horizontal = Control.SIZE_SHRINK_END
 			else:
 				ana_ikon.visible = true
+				ana_ikon.size_flags_horizontal = Control.SIZE_SHRINK_END
 				if ikonlar.size() >= 2:
 					ikonlar[1].visible = false
 

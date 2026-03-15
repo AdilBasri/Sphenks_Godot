@@ -11,6 +11,7 @@ enum HedefTipi { SADECE_ACIL, SONRAKI_LEVEL, MARKET, CAMPFIRE }
 @export var kapi_isigi: SpotLight3D 
 @export var gecit_efektleri: Node3D 
 @export var kilitli_olsun_mu: bool = false 
+@export var e_etkilesimi_devre_disi: bool = false # E ile ve yazı ile etkileşimi kapatır
 
 var kilitli_mi: bool = false
 var acik_mi: bool = false
@@ -24,6 +25,17 @@ func _ready():
 	kapali_rot_y = rotation.y
 	if kilitli_olsun_mu:
 		kilitle()
+	
+	# ÖZEL: Mezar Odası tespiti (Case-insensitive)
+	var parent_name = get_parent().name.to_lower()
+	var scene_name = get_tree().current_scene.name.to_lower()
+	if "mezarodasi" in parent_name or "mezar_odasi" in scene_name or "mezar" in parent_name:
+		e_etkilesimi_devre_disi = true
+		print("🔕 Mezar Odası Kapısı: Etkileşim devre dışı bırakıldı.")
+		
+	if not e_etkilesimi_devre_disi:
+		add_to_group("Etkilesim")
+	
 	# Body Entered sinyalini bağla (varsa)
 	_gecisin_sensorunu_bagla()
 
@@ -59,6 +71,7 @@ func interact(_oyuncu):
 	etkilesim()
 
 func etkilesim():
+	if e_etkilesimi_devre_disi: return
 	if _kapi_engellendi_mi(): return
 	kapiyi_ac()
 
@@ -158,8 +171,7 @@ func _on_static_body_3d_input_event(_camera, event, _position, _normal, _shape_i
 			var arayuz = get_tree().get_first_node_in_group("Arayuz")
 			if arayuz and get_tree().current_scene.name == "Sandik_Odasi":
 				arayuz.bilgi_goster(DilYoneticisi.metin_al("anahtar_yok"), 2.0)
-			return
-			
+		if e_etkilesimi_devre_disi: return
 		kapiyi_ac()
 
 func _kapi_engellendi_mi() -> bool:

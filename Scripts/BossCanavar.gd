@@ -45,6 +45,7 @@ var tabure_pozisyonu: Vector3 = Vector3.ZERO
 var tabure_pozisyonu_kaydedildi: bool = false
 var _saldiri_resume_ediliyor: bool = false
 var is_shaking: bool = false # Sarsılma kontrolü
+var last_damage_time: float = 0.0 # Hit registration cooldown
 
 # --- HARİCİ ANİMASYON YÜKLEYİCİ ---
 @export var harici_ayakta_anim_fbx: PackedScene = preload("res://Assets/Animations/AyaktaAnimasyon/Meshy_AI_Animation_Idle_11_withSkin.fbx")
@@ -510,8 +511,14 @@ func mermi_hasari_al(hit_pos: Vector3, hit_dir: Vector3):
 	"""Oyuncunun mermisi boss'a çarptığında çağrılır. HP 1 azalır."""
 	if oldu_mu: return
 	
+	# Mini cooldown (0.05s) to prevent overlapping hits from different weapons or multi-raycasts
+	var now = Time.get_ticks_msec() / 1000.0
+	if now - last_damage_time < 0.05:
+		return
+	last_damage_time = now
+	
 	boss_hp -= 1
-	print("🔫 ZAR BOSS'a mermi çarptı! Kalan HP: %d" % boss_hp)
+	print("🔫 ZAR BOSS'a vuruş yapıldı! Kalan HP: %d" % boss_hp)
 	
 	# 1 — Kan Efekti Spawn
 	_kan_efekti_olustur(hit_pos, hit_dir)
@@ -525,8 +532,7 @@ func mermi_hasari_al(hit_pos: Vector3, hit_dir: Vector3):
 
 func hasar_al(miktar: int, hit_pos: Vector3 = Vector3.ZERO):
 	"""Shotgun vb. için genel hasar fonksiyonu."""
-	if mermi_hasari_al(hit_pos, Vector3.ZERO):
-		pass # mermi_hasari_al zaten her şeyi yapıyor
+	mermi_hasari_al(hit_pos, Vector3.ZERO)
 
 func _kan_efekti_olustur(pos: Vector3, dir: Vector3):
 	var kan_sahne = load("res://Scenes/KanSpreyi.tscn")
