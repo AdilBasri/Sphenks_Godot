@@ -34,7 +34,7 @@ func _on_area_entered(area):
 			carpti_mi = true
 			set_deferred("monitoring", false)
 			set_deferred("monitorable", false)
-			boss.mermi_hasari_al()
+			boss.mermi_hasari_al(global_position, yon)
 			queue_free()
 			return
 	

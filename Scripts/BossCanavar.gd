@@ -44,6 +44,7 @@ var ilk_uyanisi_yapti_mi: bool = false
 var tabure_pozisyonu: Vector3 = Vector3.ZERO
 var tabure_pozisyonu_kaydedildi: bool = false
 var _saldiri_resume_ediliyor: bool = false
+var is_shaking: bool = false # Sarsılma kontrolü
 
 # --- HARİCİ ANİMASYON YÜKLEYİCİ ---
 @export var harici_ayakta_anim_fbx: PackedScene = preload("res://Assets/Animations/AyaktaAnimasyon/Meshy_AI_Animation_Idle_11_withSkin.fbx")
@@ -379,6 +380,7 @@ func _apply_transparency(node: Node, val: float):
 
 func _pozisyonu_tabureye_sabitle():
 	"""Boss'u kayıtlı tabure pozisyonuna geri sabitler."""
+	if is_shaking: return
 	if tabure_pozisyonu_kaydedildi:
 		global_position = tabure_pozisyonu
 
@@ -470,19 +472,9 @@ func _kapiyi_otomatik_ac():
 # ==========================================
 
 func _hp_ayarla():
-	"""Katmana göre boss HP değerini belirler."""
-	var katman = 1
-	if LevelManager:
-		katman = LevelManager.suanki_katman
-	
-	if katman <= 3:
-		boss_hp = 2
-	elif katman <= 9:
-		boss_hp = 3
-	else:
-		boss_hp = 4
-	
-	print("🎲 ZAR BOSS HP: %d (Katman: %d)" % [boss_hp, katman])
+	"""Katmana ve dengelere göre boss HP değerini her zaman 2'ye sabitler."""
+	boss_hp = 2
+	print("🎲 ZAR BOSS HP: %d (Sabit)" % boss_hp)
 
 # ==========================================
 # MERMİ HITBOX OLUŞTURMA
@@ -513,15 +505,93 @@ func _hitbox_olustur():
 # MERMİ HASARI ALMA
 # ==========================================
 
-func mermi_hasari_al():
+func mermi_hasari_al(hit_pos: Vector3, hit_dir: Vector3):
 	"""Oyuncunun mermisi boss'a çarptığında çağrılır. HP 1 azalır."""
 	if oldu_mu: return
 	
 	boss_hp -= 1
 	print("🔫 ZAR BOSS'a mermi çarptı! Kalan HP: %d" % boss_hp)
 	
+	# 1 — Kan Efekti Spawn
+	_kan_efekti_olustur(hit_pos, hit_dir)
+	
+	# 2 — Görsel Darbe Efekti (Sarsılma ve Parlama)
+	# Not: AnimasyonPlayer'ı kesmiyoruz ki saldırı bozulmasın, Tween kullanıyoruz.
+	_darbe_efekti_oynat()
+	
 	if boss_hp <= 0:
 		_boss_oldu_mermi()
+
+func _kan_efekti_olustur(pos: Vector3, dir: Vector3):
+	var kan_sahne = load("res://Scenes/KanSpreyi.tscn")
+	if kan_sahne:
+		var kan = kan_sahne.instantiate()
+		get_tree().current_scene.add_child(kan)
+		
+		# Kan efektini boss'un biraz daha içine itiyoruz (0.4 birim)
+		kan.global_position = pos + (dir * 0.4)
+		
+		if kan is CPUParticles3D:
+			kan.direction = dir
+			kan.spread = 15.0 
+			kan.gravity = Vector3(0, -10, 0)
+			kan.initial_velocity_min = 8.0
+			kan.initial_velocity_max = 15.0
+			
+			# Efekt süresini kısaltıyoruz (0.3 saniye)
+			kan.lifetime = 0.3
+			kan.emitting = true
+			
+			# Ses Ekleme: Kan Sıçrama
+			var sfx = AudioStreamPlayer3D.new()
+			sfx.stream = load("res://Assets/Audio/BloodSplatter.mp3")
+			sfx.bus = "SFX"
+			sfx.max_distance = 20.0
+			kan.add_child(sfx)
+			sfx.play()
+			
+			# Daha hızlı temizle
+			get_tree().create_timer(0.5).timeout.connect(kan.queue_free)
+
+func _darbe_efekti_oynat():
+	# 1 — Violent Shake (Root Node sarsılır ki AnimationPlayer karışmasın)
+	var orj_pos = global_position
+	var tween = create_tween()
+	var sarsma_gucu = 0.35 
+	
+	is_shaking = true
+	
+	for i in range(3):
+		var rand_offset = Vector3(randf_range(-1, 1), randf_range(0.5, 1), randf_range(-1, 1)).normalized() * sarsma_gucu
+		tween.tween_property(self, "global_position", orj_pos + rand_offset, 0.03)
+		tween.tween_property(self, "global_position", orj_pos, 0.03)
+		
+	tween.tween_callback(func(): is_shaking = false)
+	
+	# 2 — Hit Flash (Parlamayı güçlendirdim)
+	_modulate_recursive(self, Color(10.0, 1.0, 1.0), 0.08)
+
+func _modulate_recursive(node: Node, color: Color, duration: float):
+	if node is Sprite3D:
+		var tween = create_tween()
+		tween.tween_property(node, "modulate", color, duration)
+		tween.tween_property(node, "modulate", Color.WHITE, duration)
+	elif node is MeshInstance3D:
+		var org_overlay = node.material_overlay
+		var hit_mat = StandardMaterial3D.new()
+		hit_mat.albedo_color = Color(1.0, 0.0, 0.0, 0.5) # Kırmızı overlay
+		hit_mat.emission_enabled = true
+		hit_mat.emission = Color(1.0, 0.0, 0.0)
+		hit_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		node.material_overlay = hit_mat
+		
+		get_tree().create_timer(duration * 1.5).timeout.connect(func():
+			if is_instance_valid(node):
+				node.material_overlay = org_overlay
+		)
+	
+	for child in node.get_children():
+		_modulate_recursive(child, color, duration)
 
 func _boss_oldu_mermi():
 	"""Boss mermiyle öldürüldüğünde çağrılır — kapıyı otomatik açar."""
