@@ -163,7 +163,8 @@ func _ready():
 	
 	# --- BARIYER KONTROLU (Layer 10) ---
 	set_collision_mask_value(10, true)
-	raycast.set_collision_mask_value(10, true)
+	if raycast != null:
+		raycast.set_collision_mask_value(10, false) # Raycast bariyeri (Layer 10) görmezden gelsin ki bloklar tutulabilsin
 
 	# --- BİLEŞENLERİ RAYCAST İLE GÜNCELLE ---
 	if interactor:

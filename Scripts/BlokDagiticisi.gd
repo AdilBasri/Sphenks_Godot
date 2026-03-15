@@ -286,11 +286,11 @@ func _sahne_bitis_animasyonu() -> void:
 func _disable_all_collisions(node: Node) -> void:
 	if not is_instance_valid(node): return
 	if node is CollisionShape3D or node is CollisionPolygon3D:
-		node.disabled = true
+		node.set_deferred("disabled", true)
 	# if StaticBody3D or AnimatableBody3D, disable masks/layers just in case
 	if node is PhysicsBody3D:
-		node.collision_layer = 0
-		node.collision_mask = 0
+		node.set_deferred("collision_layer", 0)
+		node.set_deferred("collision_mask", 0)
 	for child in node.get_children():
 		_disable_all_collisions(child)
 

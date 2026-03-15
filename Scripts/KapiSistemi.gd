@@ -59,6 +59,7 @@ func interact(_oyuncu):
 	etkilesim()
 
 func etkilesim():
+	if _kapi_engellendi_mi(): return
 	kapiyi_ac()
 
 func kapiyi_ac():
@@ -149,6 +150,8 @@ func kilitle():
 
 func _on_static_body_3d_input_event(_camera, event, _position, _normal, _shape_idx):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if _kapi_engellendi_mi(): return
+		
 		if kilitli_mi:
 			# Sandık odasındaysak falan uyar, ama KAPIYI AÇMA
 			print("KAPI KİLİTLİ, TIKLAYARAK AÇILMAZ.")
@@ -158,3 +161,12 @@ func _on_static_body_3d_input_event(_camera, event, _position, _normal, _shape_i
 			return
 			
 		kapiyi_ac()
+
+func _kapi_engellendi_mi() -> bool:
+	# Blok masası olan sahnelerde, masa aşağı inip kaybolana kadar kapı TIKLANAMAZ!
+	var blok_d = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
+	if blok_d and blok_d.get("masa_objesi") != null:
+		if is_instance_valid(blok_d.masa_objesi) and not blok_d.masa_objesi.is_queued_for_deletion():
+			print("🚪 Masa hala sahnede olduğu için kapıya tıklanılamaz!")
+			return true
+	return false
