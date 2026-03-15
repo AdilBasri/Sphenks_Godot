@@ -1471,6 +1471,12 @@ func _get_stool_camera_transform() -> Transform3D:
 func _update_orbit_camera():
 	if not current_stool: return
 	
+	# --- ÖNCEKİ TWEEN'İ ÖLDÜR ---
+	# A/D hızlıca basıldığında birden fazla tween birikip kamerayı sürüklemesini engelle.
+	if active_tween and active_tween.is_valid():
+		active_tween.kill()
+		active_tween = null
+	
 	# Masa Merkezi (Grid'in olduğu yer)
 	var _pivot = Vector3(0, 0, 0)
 	
@@ -1509,9 +1515,6 @@ func _update_orbit_camera():
 	tween.tween_property(current_stool, "global_rotation", final_stool_rot, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
 	# OYUNCUYU DA TAŞI (BOSS İÇİN)
-	# Oyuncuyu Taburenin tam içine veya biraz üstüne taşıyalım. 
-	# Collision çakışması olabilir, bu yüzden collision'ı kapatmak iyi olabilir ama Boss raycast atıyorsa CollisionShape yerinde durmalı.
-	# Oyuncunun global pozisyonunu Tabureye eşitleyelim (Yükseklik ayarı ile).
 	var player_target_pos = target_pos
 	player_target_pos.y += 0.5 # Biraz yukarıda otursun
 	tween.tween_property(self, "global_position", player_target_pos, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
@@ -1594,10 +1597,16 @@ func stand_up(forced: bool = false):
 		if LevelManager and LevelManager.is_boss_acting:
 			return
 	
-	# Eğer oyuncu üzerinde aktif bir tween varsa (Tabure ile hareket ediyorsa) durduralım.
-	# Yoksa tween devam edip oyuncuyu tekrar tabureye çekebilir.
+	# --- TÜM AKTİF TWEEN'LERİ ÖLDÜR ---
+	# Orbit kamera tweeni devam ediyorsa kamerayi havada birakabilir.
 	if active_tween and active_tween.is_valid():
 		active_tween.kill()
+		active_tween = null
+	
+	# Sahne üzerindeki tüm tweenleri de temizle (stool ve kamera ile ilgili olanlar)
+	# get_tree().get_processed_tweens() vs. ile temizleme Godot 4'te yok,
+	# ama SceneTreeTween'ler node üzerinde create_tween ile oluşturulmuştu.
+	# Ekstra güvenlik: Tabure ve kamera üzerindeki tüm tweenleri durdur.
 	
 	# Kalkma işlemi
 	
@@ -1631,21 +1640,30 @@ func stand_up(forced: bool = false):
 		var baslangic_pos = Vector3(0, -0.38, radius)
 		var baslangic_rot = Vector3(0, deg_to_rad(0), 0)
 		
+		# Tabureyi ANINDA başlangıç konumuna taşı (tween yok, direkt set)
 		current_stool.global_position = baslangic_pos
 		current_stool.global_rotation = baslangic_rot
 		table_angle_index = 1 # Başlangıç indexine sıfırla
+	
+	# --- BLOK DAĞITICISINI DA BAŞLANGIÇ KONUMUNA SIFIRLA ---
+	# Index 1 için spawner rotasyonu: final_stool_rot_y(0) - deg_to_rad(90) = deg_to_rad(-90)
+	if spawner:
+		spawner.rotation.y = deg_to_rad(-90) # Başlangıç konumu (Index 1 için)
+		if "sag_tarafta_mi" in spawner:
+			spawner.sag_tarafta_mi = false
 	
 	# Kamerayı eski yerine (veya çıkış noktasına) taşı
 	if current_stool and is_instance_valid(current_stool) and current_stool.exit_position_marker:
 		var exit_pos = current_stool.exit_position_marker.global_position
 		velocity = Vector3.ZERO
-		global_position = exit_pos + Vector3(0, 0.5, 0) # Kliplemeyi onlemek icin += 0.5
+		global_position = exit_pos + Vector3(0, 0.5, 0)
 
+		# BOSS'A DOĞRU BAK (Masadan uzağa, -Z yönüne)
+		# Tabure Z+ tarafında, boss Z- tarafında. Oyuncu masadan kalkınca -Z yönüne bakmalı.
+		var look_dir = Vector3(0, global_position.y, -10.0) # Z negatif = Boss'un olduğu taraf
+		look_at(look_dir, Vector3.UP)
 		
-		# TABURENİN ARKASINDAN GRİDE (MERKEZE) BAK
-		var look_target = Vector3(0, global_position.y, 0)
-		look_at(look_target, Vector3.UP)
-		
+		# Kamerayı sıfırla (lokal pozisyon ve rotasyon)
 		kamera.position = Vector3(0, 0.6, 0)
 		kamera.rotation = Vector3.ZERO
 		x_rotasyonu = 0.0
@@ -1653,14 +1671,12 @@ func stand_up(forced: bool = false):
 			looker.x_rotation = 0.0
 	else:
 		# Fallback if table already deleted (game over)
-		var tween = create_tween()
-		active_tween = tween
-		tween.tween_property(kamera, "global_transform", original_camera_transform, 1.0)
-		tween.tween_callback(func(): 
-			x_rotasyonu = kamera.rotation.x
-			if looker:
-				looker.x_rotation = x_rotasyonu
-		)
+		# Orijinal kamera pozisyonuna geri dön
+		kamera.position = Vector3(0, 0.6, 0)
+		kamera.rotation = Vector3.ZERO
+		x_rotasyonu = 0.0
+		if looker:
+			looker.x_rotation = 0.0
 	
 	current_stool = null
 	print("🚶 Tabureden kalkıldı.")
