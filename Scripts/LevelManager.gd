@@ -178,6 +178,9 @@ func _boss_sistemini_ayarla():
 	if stone_boss_ref:
 		stone_boss_ref.visible = false
 		stone_boss_ref.remove_from_group("Dusman")
+	
+	# Garanti collision temizliği
+	disable_all_boss_collisions()
 
 	# 2. Aktif Boss'u Belirle
 	var aktif_boss: Node3D = null
@@ -190,6 +193,7 @@ func _boss_sistemini_ayarla():
 	if aktif_boss:
 		aktif_boss.visible = true
 		aktif_boss.add_to_group("Dusman")
+		_set_boss_collision(aktif_boss, true) # Aktif boss collision aç
 		if aktif_boss.has_method("boss_durumu_sifirla"):
 			aktif_boss.boss_durumu_sifirla()
 		aktif_boss.scale = Vector3(1.5, 1.5, 1.5)
@@ -370,3 +374,35 @@ func oyuncuya_saldir(hasar_miktari: int):
 
 	if oyuncu_ref:
 		oyuncu_ref.hasar_al(hasar_miktari)
+
+# --- COLLISION YONETIMI ---
+func disable_all_boss_collisions():
+	if normal_boss_ref: _set_boss_collision(normal_boss_ref, false)
+	if acid_boss_ref: _set_boss_collision(acid_boss_ref, false)
+	if stone_boss_ref: _set_boss_collision(stone_boss_ref, false)
+	# Tum yanci bosslari da bul ve kapat
+	get_tree().call_group("Dusman", "set_collision_layer_value", 8, false)
+	get_tree().call_group("Dusman", "set_collision_mask_value", 8, false)
+
+func _set_boss_collision(boss_node: Node, enabled: bool):
+	if not is_instance_valid(boss_node): return
+	
+	# Ust seviye CharacterBody3D veya StaticBody3D ise 
+	if boss_node is CollisionObject3D:
+		boss_node.set_collision_layer_value(8, enabled) # Boss Layer: 8
+		boss_node.set_collision_mask_value(8, enabled)
+	
+	# Cocuklar arasindaki CollisionShape ve Area'lari bul
+	for child in boss_node.get_children(true):
+		if child is CollisionShape3D:
+			child.disabled = !enabled
+		elif child is CollisionObject3D:
+			child.set_collision_layer_value(8, enabled)
+			child.set_collision_mask_value(8, enabled)
+		elif child is Area3D:
+			child.monitoring = enabled
+			child.monitorable = enabled
+		
+		# Rekursif devam et (alt node'lar icin)
+		if child.get_child_count() > 0:
+			_set_boss_collision(child, enabled)

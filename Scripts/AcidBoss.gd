@@ -348,6 +348,7 @@ func _olum_sekans():
 
 	if LevelManager:
 		LevelManager.is_boss_acting = false
+		LevelManager.disable_all_boss_collisions()
 	
 	# 1 — Patlama efekti spawn (Modelin tam konumunda)
 	var patlama_sahne = load("res://efektler/boss_patlama.tscn")

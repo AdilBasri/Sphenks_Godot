@@ -233,6 +233,9 @@ func _tur_sonu_hesaplamasi() -> void:
 			GameManager.boss_kalan_hp = kalan_hp
 			GameManager.kacan_boss_tipi = aktif_boss_tipi
 			
+			# Garanti collision temizliği (Kaçış başlamadan önce)
+			if LevelManager: LevelManager.disable_all_boss_collisions()
+			
 			# TÜM DÜŞMANLARI (ANA VE YANCI) TEMİZLE
 			for boss in boss_list:
 				if is_instance_valid(boss):
@@ -265,6 +268,10 @@ func _sahne_bitis_animasyonu() -> void:
 		
 	if LevelManager:
 		LevelManager.is_boss_acting = false
+		LevelManager.disable_all_boss_collisions()
+		
+	# Mekan bariyerlerini erkenden kaldır ki oyuncu kapıya gidebilsin
+	get_tree().call_group("Bariyer", "bolum_bitti")
 		
 	var tween = create_tween()
 	tween.set_parallel(true)

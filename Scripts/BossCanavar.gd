@@ -414,6 +414,7 @@ func _on_boss_oldu_sinyali():
 	# 3 — Kilitleri aç
 	if LevelManager:
 		LevelManager.is_boss_acting = false
+		LevelManager.disable_all_boss_collisions()
 	
 	# 4 — Patlama efekti spawn (Modelin tam konumunda)
 	var patlama_sahne = load("res://efektler/boss_patlama.tscn")
