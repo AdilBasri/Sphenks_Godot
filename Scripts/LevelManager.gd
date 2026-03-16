@@ -28,6 +28,7 @@ var normal_boss_ref: Node3D = null
 var acid_boss_ref: Node3D = null
 var stone_boss_ref: Node3D = null
 var aktif_ana_boss: Node3D = null # Suanki seviyenin ana bossu
+var boss_konumlari: Dictionary = {} # Boss Ismi -> Vector3 (Orijinal Sahne Konumlari)
 var yanci_markerlari: Array[Node3D] = [] # Sahnedeki Yancilar node'u icindeki Marker3D'ler
 
 func is_acid_boss_level() -> bool:
@@ -184,6 +185,11 @@ func _boss_sistemini_ayarla():
 	print("Katman: ", suanki_katman)
 
 	# Bölüm başında blok sayacını sıfırla (Zar Bossu kuralı için)
+	boss_konumlari.clear()
+	if normal_boss_ref: boss_konumlari["NormalBoss"] = normal_boss_ref.global_position
+	if acid_boss_ref: boss_konumlari["AcidBoss"] = acid_boss_ref.global_position
+	if stone_boss_ref: boss_konumlari["StoneBoss"] = stone_boss_ref.global_position
+	
 	if "blok_sayaci" in oyun_odasi_ref:
 		oyun_odasi_ref.blok_sayaci = 0
 		print("🔄 Blok sayacı sıfırlandı.")
@@ -218,12 +224,13 @@ func _boss_sistemini_ayarla():
 	
 	aktif_boss = aktif_ana_boss
 	
-	if aktif_boss:
-		aktif_boss.visible = true
-		aktif_boss.add_to_group("Dusman")
-		_set_boss_collision(aktif_boss, true) # Aktif boss collision aç
-		if aktif_boss.has_method("boss_durumu_sifirla"):
-			aktif_boss.boss_durumu_sifirla()
+	if is_instance_valid(aktif_ana_boss):
+		aktif_ana_boss.visible = true
+		aktif_ana_boss.add_to_group("Dusman")
+		_set_boss_collision(aktif_ana_boss, true) # Aktif boss collision aç
+		print("🎯 Aktif Ana Boss Belirlendi: ", aktif_ana_boss.name)
+		if aktif_ana_boss.has_method("boss_durumu_sifirla"):
+			aktif_ana_boss.boss_durumu_sifirla()
 		# Boss ana pozisyonunda - SAHNEDEKİ KONUM KULLANILIYOR
 		# aktif_boss.global_position = start_pos + Vector3(0, -0.5, -4.5) 
 		
@@ -305,10 +312,18 @@ func _bosslari_yeniden_konumlandir():
 		
 		if i == 0: # ANA BOSS (MERKEZ)
 			# Sahnedeki pozisyonunu ("tek başına olduklarındaki konumları doğru") koruyor.
-			# Eğer ana boss değil de bir yancıysa (ana boss ölmüşse), sahnenin merkezine ışınla
-			if b != aktif_ana_boss:
-				b.global_position = start_pos + Vector3(0, -0.5, -4.5)
+			# Eğer ana boss değil de bir yancıysa (ana boss ölmüşse), KENDİ tipine ait orijinal sahne pozisyonuna geç
+			var b_adi = b.name.to_lower()
+			var target_ana_pos = b.global_position
 			
+			if "normalboss" in b_adi and boss_konumlari.has("NormalBoss"):
+				target_ana_pos = boss_konumlari["NormalBoss"]
+			elif "acidboss" in b_adi and boss_konumlari.has("AcidBoss"):
+				target_ana_pos = boss_konumlari["AcidBoss"]
+			elif "stoneboss" in b_adi and boss_konumlari.has("StoneBoss"):
+				target_ana_pos = boss_konumlari["StoneBoss"]
+			
+			b.global_position = target_ana_pos
 			b.scale = Vector3(1.5, 1.5, 1.5) # Ana boss boyutu
 			
 			if b.has_method("update_base_position"):
