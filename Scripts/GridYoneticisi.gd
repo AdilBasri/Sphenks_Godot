@@ -106,13 +106,23 @@ func get_masa_world_noktasi() -> Variant:
 	
 	# FARE POZİSYONUNU SHADER DISTORTION'INA GÖRE TERSİNE ÇEVİR (INVERSE)
 	var uv = fare_pos / screen_size
-	var strength = 0.18 # Shadıer'daki distortion_strength (oyuncu.gd'deki ile aynı olmalı)
+	var strength = 0.42
+	
+	# GlobalFiltre'den shader gücünü çekmeye çalış (Senkronizasyon için)
+	var oyuncu = get_tree().get_first_node_in_group("oyuncu")
+	if oyuncu:
+		var color_rect = oyuncu.get_node_or_null("Camera3D/GlobalFiltre/ColorRect")
+		if color_rect and color_rect.material:
+			var s = color_rect.material.get_shader_parameter("distortion_strength")
+			if s != null: strength = s
+			
 	var p = uv * 2.0 - Vector2.ONE
 	var p_lin = p
 	
-	for i in range(5):
-		var r2 = p_lin.dot(p_lin)
-		p_lin = p / (1.0 + strength * r2)
+	# Edge-Pinned Inverse Solver (Multiplication is inverse of Shader's Division)
+	for i in range(10):
+		var factor = (1.0 - p_lin.x * p_lin.x) * (1.0 - p_lin.y * p_lin.y)
+		p_lin = p * (1.0 + strength * factor)
 	
 	var corrected_uv = p_lin * 0.5 + Vector2.ONE * 0.5
 	var corrected_fare_pos = corrected_uv * screen_size

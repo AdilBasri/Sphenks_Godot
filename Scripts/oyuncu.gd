@@ -138,6 +138,7 @@ func _get_silah_katmani() -> Node:
 	return _cached_silah_katmani
 
 func _ready():
+	add_to_group("oyuncu")
 	_bileşenleri_hazirla()
 	# Reset scale to identity to prevent physics glitches if scene scale was modified
 	scale = Vector3.ONE
@@ -247,6 +248,24 @@ func _ready():
 	if fener_node:
 		fener_node.visible = fener_acik
 		fener_node.light_energy = 80.0 if fener_acik else 0.0
+	
+	# FOV TELAFİSİ (Barrel Zoom-in etkisini geri almak için)
+	_fov_telafi_uygula()
+
+func _fov_telafi_uygula():
+	if not kamera: return
+	var strength = 0.42
+	var color_rect = get_node_or_null("Camera3D/GlobalFiltre/ColorRect")
+	if color_rect and color_rect.material:
+		var s = color_rect.material.get_shader_parameter("distortion_strength")
+		if s != null: strength = s
+	
+	# Shader görüntüyü merkezde (1 + strength) oranında büyütüyor (Bulge).
+	# Bunu FOV'u o oranda ARTIRARAK (zoom out) geri alıyoruz.
+	var telafi_orani = 1.0 + strength
+	var eski_fov_rad = deg_to_rad(orijinal_fov)
+	var yeni_fov_rad = 2.0 * atan(telafi_orani * tan(eski_fov_rad / 2.0))
+	kamera.fov = rad_to_deg(yeni_fov_rad)
 
 func _bileşenleri_hazirla():
 	mover = PlayerMovement.new()
@@ -513,21 +532,20 @@ func get_corrected_mouse_pos() -> Vector2:
 	var screen_size = get_viewport().get_visible_rect().size
 	var uv = fare_pos / screen_size
 	
-	# Shader gücünü oku (Default 0.18)
-	var strength = 0.18
+	var strength = 0.42 # Updated to match shader boost
 	var color_rect = get_node_or_null("Camera3D/GlobalFiltre/ColorRect")
 	if color_rect and color_rect.material:
 		var s = color_rect.material.get_shader_parameter("distortion_strength")
 		if s != null: strength = s
 	
 	var p = uv * 2.0 - Vector2.ONE
-	var p_lin = p # İlk tahmin
+	var p_lin = p 
 	
-	# Shader'da artık normalizasyon yok: p_dist = p_lin * (1 + s*r_lin^2)
-	# Tersini çözüyoruz: p_lin = p_dist / (1 + s*r_lin^2)
-	for i in range(5):
-		var r2 = p_lin.dot(p_lin)
-		p_lin = p / (1.0 + strength * r2)
+	# Edge-Pinned Inverse Solver (Multiplication is inverse of Shader's Division)
+	# p_lin = p_dist * (1.0 + s * (1-p_lin.x^2) * (1-p_lin.y^2))
+	for i in range(10): # 10 iterations for high strength (0.42)
+		var factor = (1.0 - p_lin.x * p_lin.x) * (1.0 - p_lin.y * p_lin.y)
+		p_lin = p * (1.0 + strength * factor)
 	
 	var corrected_uv = p_lin * 0.5 + Vector2.ONE * 0.5
 	return corrected_uv * screen_size
