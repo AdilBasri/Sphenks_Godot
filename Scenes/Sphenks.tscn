@@ -369,7 +369,7 @@ size = Vector3(1.5, 3, 2.2)
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -3.2961266, -0.3699206, 0)
 
 [node name="NormalBoss" parent="MezarOdasi" index="6" instance=ExtResource("13_bjfsn")]
-transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.16618979, -0.7297865, -1.4664116)
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.16618979, -0.78066754, -1.4664116)
 visible = false
 script = ExtResource("14_2531s")
 glitch_yuzu_dokusu = ExtResource("15_qrobu")

@@ -70,6 +70,22 @@ func konumlari_kaydet(p1: Vector3, p2: Vector3, p3: Vector3, oyuncu: CharacterBo
 	# Boss referanslarını bul ve ayarla
 	_boss_sistemini_ayarla()
 	
+	# --- 📍 YANCI MARKERLARINI KAYDET (YENİ) ---
+	yanci_markerlari.clear()
+	if is_instance_valid(oda_ref):
+		var yanci_node = oda_ref.find_child("Yancilar", true, false)
+		if yanci_node:
+			var markers = []
+			for child in yanci_node.get_children():
+				if child is Marker3D:
+					markers.append(child)
+			
+			# İsim sırasına göre diz (yanci1, yanci2...)
+			markers.sort_custom(func(a, b): return a.name < b.name)
+			for m in markers:
+				yanci_markerlari.append(m)
+			print("📍 LevelManager'a ", yanci_markerlari.size(), " adet sıralı yanci marker'i kaydedildi.")
+	
 	# Bölüm yüklendiğinde oyuncuyu spawn noktasına ışınla
 	if suanki_katman > 1 and oyuncu_ref:
 		# Oyuncu grid üstüne oturmuş veya move_and_slide'da sıkışmış olabilir. 
@@ -97,7 +113,6 @@ func odaya_don_ve_level_atla():
 			print("🎲 Zar atıldı: Rastgele Pyro karşına çıktı!")
 		else:
 			is_pyro_encounter = false
-	
 	if SaveManager:
 		var alinacak_yildiz = 3
 		if GameManager and GameManager.oyuncu_suanki_hp <= 5:
@@ -268,7 +283,7 @@ func _bosslari_yeniden_konumlandir():
 		if is_instance_valid(d) and not d.get("oldu_mu"):
 			yasayanlar.append(d)
 	
-	var merkez = start_pos + Vector3(0, -1.76, -4.5)
+	var merkez = start_pos + Vector3(0, -2.16, -4.5)
 	
 	# Sıralama: Aktif ana boss hayattaysa onu merkez (index 0) yap
 	var sirali_yasayanlar = []
@@ -284,34 +299,34 @@ func _bosslari_yeniden_konumlandir():
 		var target_pos = merkez
 		var target_scale = Vector3(1.5, 1.5, 1.5) # DEFAULT: Ana Boss boyutu
 		
-		if sirali_yasayanlar.size() == 1:
+		if i == 0: # ANA BOSS (MERKEZ)
 			target_pos = merkez
 			target_scale = Vector3(1.5, 1.5, 1.5)
 		else:
-			if i == 0: # ANA BOSS (HER ZAMAN MERKEZDE)
-				target_pos = merkez
-				target_scale = Vector3(1.5, 1.5, 1.5)
+			# Yanci Marker'lari (i=1 -> marker[0], i=2 -> marker[1])
+			var marker_idx = i - 1
+			if marker_idx < yanci_markerlari.size() and is_instance_valid(yanci_markerlari[marker_idx]):
+				target_pos = yanci_markerlari[marker_idx].global_position
+				target_scale = Vector3(0.9, 0.9, 0.9)
 			else:
-				# Yanci Marker'lari var mi kontrol et
-				var marker_idx = i - 1
-				if marker_idx < yanci_markerlari.size() and is_instance_valid(yanci_markerlari[marker_idx]):
-					target_pos = yanci_markerlari[marker_idx].global_position
-					target_scale = Vector3(0.9, 0.9, 0.9)
-					print("📍 Yanci ", i, " marker pozisyonuna yerlestirildi: ", target_pos)
-				else:
-					# Yedek hesaplama (Marker yoksa eski mantik)
-					var yon = 1 if i % 2 != 0 else -1
-					var carpak = ceil(float(i) / 2.0)
-					target_pos = merkez + Vector3(2.5 * yon * carpak, 0, -0.8)
-					target_scale = Vector3(0.9, 0.9, 0.9)
-					print("⚠️ Yanci marker bulunamadi, yedek pozisyon kullaniliyor.")
+				# Marker yoksa veya fazla yancı varsa: Hafif yana açıl (Yedek)
+				var yon = 1 if i % 2 != 0 else -1
+				target_pos = merkez + Vector3(2.5 * yon, 0, -0.8)
+				target_scale = Vector3(0.9, 0.9, 0.9)
 		
-		b.global_position = target_pos
+		# DÜZELTME: Boss türüne göre zemin yüksekliği ayarı (Yerin altında kalmayı önler)
+		var final_target_pos = target_pos
+		if b == normal_boss_ref or b.name.contains("NormalBoss"):
+			final_target_pos.y += 0.45 # Zar Boss'u yükselt
+		else:
+			final_target_pos.y += 0.40 # Diğerlerini (Acid/Stone) yükselt
+		
+		b.global_position = final_target_pos
 		b.scale = target_scale
 		
 		# Normal Boss (BossCanavar) ise animasyon driftini önlemek için base position'ı güncelle
 		if b.has_method("update_base_position"):
-			b.update_base_position(target_pos)
+			b.update_base_position(final_target_pos)
 
 func _sahne_yenile():
 	_sahne_yukle_ve_kontrol_et()
