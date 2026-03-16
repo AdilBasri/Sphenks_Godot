@@ -108,7 +108,6 @@ func _on_area_3d_input_event(_camera, event, _position, _normal, _shape_idx) -> 
 	if LevelManager and LevelManager.is_boss_acting: return
 	
 	var dagitici = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
-	if dagitici and dagitici.get("tur_bitti_mi") == true: return
 	
 	if kilitlendi: return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:

@@ -330,6 +330,9 @@ func _on_boss_oldu_sinyali():
 
 func _olum_sekans():
 	"""Ölüm animasyonu, patlama efekti ve kapı açma."""
+	# 0 — KAPIYI HEMEN AÇ
+	_kapiyi_otomatik_ac()
+
 	if anim_player:
 		anim_player.stop()
 
@@ -364,9 +367,7 @@ func _olum_sekans():
 	if bariyer and bariyer.has_method("bolum_bitti"):
 		bariyer.bolum_bitti()
 	
-	# 3 — KAPIYI OTOMATİK AÇ
-	_kapiyi_otomatik_ac()
-	
+
 	if LevelManager and LevelManager.has_method("_bosslari_yeniden_konumlandir"):
 		LevelManager._bosslari_yeniden_konumlandir()
 		

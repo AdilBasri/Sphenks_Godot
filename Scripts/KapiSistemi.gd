@@ -110,7 +110,7 @@ func kapiyi_ac():
 	
 	# 4. ÖZEL DURUM: Sadece "SONRAKI LEVEL" kapısıysa sahneyi resetle
 	if hedef_tipi == HedefTipi.SONRAKI_LEVEL:
-		await get_tree().create_timer(1.0).timeout
+		await get_tree().create_timer(0.7).timeout
 		LevelManager.odaya_don_ve_level_atla()
 	
 	# DİKKAT: Market ve Campfire için hiçbir şey yapmıyoruz. 

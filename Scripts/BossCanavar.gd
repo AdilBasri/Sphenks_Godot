@@ -381,6 +381,13 @@ func _pozisyonu_tabureye_sabitle():
 	if tabure_pozisyonu_kaydedildi:
 		global_position = tabure_pozisyonu
 
+func update_base_position(new_pos: Vector3):
+	"""LevelManager tarafından boss yerleri değiştiğinde çağrılır."""
+	tabure_pozisyonu = new_pos
+	global_position = new_pos
+	tabure_pozisyonu_kaydedildi = true
+	print("📌 %s yeni tabure pozisyonuna güncellendi: %s" % [boss_adi, new_pos])
+
 
 # ==========================================
 # ÖLÜM KONTROLÜ
@@ -394,6 +401,10 @@ func _oldu_mu_kontrol() -> bool:
 func _on_boss_oldu_sinyali():
 	"""GameManager'dan gelen ölüm sinyali (Zar Boss için)."""
 	if oldu_mu: return
+	
+	# 0 — KAPIYI HEMEN AÇ (Gecikmeyi önlemek için başa alındı)
+	_kapiyi_otomatik_ac()
+
 	oldu_mu = true
 	suanki_durum = str(DURUM_OLDU)
 
@@ -437,9 +448,6 @@ func _on_boss_oldu_sinyali():
 	var bariyer = get_tree().get_first_node_in_group("Bariyer")
 	if bariyer and bariyer.has_method("bolum_bitti"):
 		bariyer.bolum_bitti()
-	
-	# 7 — KAPIYI OTOMATİK AÇ
-	_kapiyi_otomatik_ac()
 	
 	# 8 — DİĞER BOSS'LARI MERKEZE ÇEK
 	if LevelManager and LevelManager.has_method("_bosslari_yeniden_konumlandir"):

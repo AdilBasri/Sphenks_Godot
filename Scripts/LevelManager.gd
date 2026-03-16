@@ -27,6 +27,7 @@ var oyun_odasi_ref: Node = null
 var normal_boss_ref: Node3D = null
 var acid_boss_ref: Node3D = null
 var stone_boss_ref: Node3D = null
+var aktif_ana_boss: Node3D = null # Suanki seviyenin ana bossu
 
 func is_acid_boss_level() -> bool:
 	# 1, 4, 7... pattern (katman % 3 == 1)
@@ -186,9 +187,11 @@ func _boss_sistemini_ayarla():
 	var aktif_boss: Node3D = null
 	var mod_katman = suanki_katman % 3
 	
-	if mod_katman == 1: aktif_boss = acid_boss_ref
-	elif mod_katman == 2: aktif_boss = stone_boss_ref
-	else: aktif_boss = normal_boss_ref
+	if mod_katman == 1: aktif_ana_boss = acid_boss_ref
+	elif mod_katman == 2: aktif_ana_boss = stone_boss_ref
+	else: aktif_ana_boss = normal_boss_ref
+	
+	aktif_boss = aktif_ana_boss
 	
 	if aktif_boss:
 		aktif_boss.visible = true
@@ -249,9 +252,10 @@ func _yanci_spawn_et(tip: int, hp: int):
 		twin.scale = Vector3(1.0, 1.0, 1.0) # Yancılar daha küçük
 		
 		if hp > 0:
+			# HP atamasını hemen yap (BlokDagiticisi HP kontrolü için beklememeli)
+			twin.boss_hp = hp
 			get_tree().create_timer(0.2).timeout.connect(func():
 				if is_instance_valid(twin):
-					twin.boss_hp = hp
 					if twin.has_method("boss_durumu_sifirla"): twin.boss_durumu_sifirla()
 			)
 
@@ -264,21 +268,47 @@ func _bosslari_yeniden_konumlandir():
 	
 	var merkez = start_pos + Vector3(0, -1.76, -4.5)
 	
-	if yasayanlar.size() == 1:
-		yasayanlar[0].global_position = merkez
-		yasayanlar[0].scale = Vector3(1.5, 1.5, 1.5) # Tek kalınca büyüsün (Ana Boss)
-	elif yasayanlar.size() == 2:
-		yasayanlar[0].global_position = merkez + Vector3(1.5, 0, 0.5)
-		yasayanlar[1].global_position = merkez + Vector3(-1.5, 0, 0.5)
-		yasayanlar[0].scale = Vector3(1.2, 1.2, 1.2)
-		yasayanlar[1].scale = Vector3(1.2, 1.2, 1.2)
-	elif yasayanlar.size() >= 3:
-		yasayanlar[0].global_position = merkez # Ana boss ortada
-		yasayanlar[1].global_position = merkez + Vector3(2.5, 0, 0.8) # Sağ
-		yasayanlar[2].global_position = merkez + Vector3(-2.5, 0, 0.8) # Sol
-		yasayanlar[0].scale = Vector3(1.4, 1.4, 1.4)
-		yasayanlar[1].scale = Vector3(0.9, 0.9, 0.9)
-		yasayanlar[2].scale = Vector3(0.9, 0.9, 0.9)
+	# Sıralama: Aktif ana boss hayattaysa onu merkez (index 0) yap
+	var sirali_yasayanlar = []
+	if is_instance_valid(aktif_ana_boss) and not aktif_ana_boss.get("oldu_mu"):
+		sirali_yasayanlar.append(aktif_ana_boss)
+	
+	for d in yasayanlar:
+		if d != aktif_ana_boss:
+			sirali_yasayanlar.append(d)
+	
+	for i in range(sirali_yasayanlar.size()):
+		var b = sirali_yasayanlar[i]
+		var target_pos = merkez
+		var target_scale = Vector3(1.5, 1.5, 1.5) # DEFAULT: Ana Boss boyutu
+		
+		if sirali_yasayanlar.size() == 1:
+			target_pos = merkez
+			target_scale = Vector3(1.5, 1.5, 1.5)
+		elif sirali_yasayanlar.size() == 2:
+			if i == 0: # MERKEZ/ANA BOSS (Eğer aktif_ana_boss ise merkeze yakın durur)
+				target_pos = merkez + Vector3(1.0, 0, 0.4)
+				target_scale = Vector3(1.4, 1.4, 1.4)
+			else: # Yanci
+				target_pos = merkez + Vector3(-1.8, 0, 0.5)
+				target_scale = Vector3(0.9, 0.9, 0.9)
+		elif sirali_yasayanlar.size() >= 3:
+			if i == 0: # ANA BOSS ORTADA
+				target_pos = merkez
+				target_scale = Vector3(1.5, 1.5, 1.5)
+			elif i == 1: # Sağ
+				target_pos = merkez + Vector3(2.5, 0, 0.8)
+				target_scale = Vector3(0.9, 0.9, 0.9)
+			else: # Sol
+				target_pos = merkez + Vector3(-2.5, 0, 0.8)
+				target_scale = Vector3(0.9, 0.9, 0.9)
+		
+		b.global_position = target_pos
+		b.scale = target_scale
+		
+		# Normal Boss (BossCanavar) ise animasyon driftini önlemek için base position'ı güncelle
+		if b.has_method("update_base_position"):
+			b.update_base_position(target_pos)
 
 func _sahne_yenile():
 	_sahne_yukle_ve_kontrol_et()

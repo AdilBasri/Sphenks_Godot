@@ -22,6 +22,7 @@ var boss_oldu_mu: bool = false
 var sag_tarafta_mi: bool = false # Sağa alındığında blokların yönünü düzeltmek için
 var dongu_basladi_mi: bool = false # GHOST BUG FIX (Yedekte duruyor)
 var _yer_kontrol_timer: Timer = null
+var puzzle_tamamlandi: bool = false # Skora ulaşıldı veya kaynaklar bitti ama masa henüz durabilir
 
 
 signal stok_bitti 
@@ -31,6 +32,7 @@ signal bolum_temizlendi
 func _ready() -> void:
 	# Başlangıçta biraz bekle ki sahne yüklensin
 	await get_tree().create_timer(0.1).timeout
+	puzzle_tamamlandi = false
 	yeni_bolumu_baslat()
 	
 	if GameManager:
@@ -40,12 +42,19 @@ func _ready() -> void:
 
 func _on_mermi_degisti_kontrol(yeni_sayi: int) -> void:
 	# Eğer mermi 0 olduysa 1.2 saniye bekle (merminin hedefe ulaşması için)
-	if yeni_sayi == 0:
+	# AMA: Eğer boss zaten öldüyse beklemeye gerek yok
+	var yasayan_var_mi = false
+	var bosslar = get_tree().get_nodes_in_group("Dusman")
+	for b in bosslar:
+		if is_instance_valid(b) and not b.get("oldu_mu"):
+			yasayan_var_mi = true; break
+
+	if yeni_sayi == 0 and yasayan_var_mi:
 		await get_tree().create_timer(1.2).timeout
 		
 	# Eğer mermi değiştiyse ve boss yaşıyorsa
-	var bosslar = get_tree().get_nodes_in_group("Dusman")
-	var yasayan_var_mi = false
+	# (Yukarıda tekrar kontrol etmeliyiz çünkü timer süresince ölmüş olabilir)
+	yasayan_var_mi = false
 	for b in bosslar:
 		if is_instance_valid(b) and not b.get("oldu_mu"):
 			yasayan_var_mi = true; break
@@ -216,11 +225,11 @@ func _tur_sonu_hesaplamasi() -> void:
 			if "boss_hp" in boss:
 				toplam_kalan_hp += boss.boss_hp
 
-	# Eğer boss zaten öldüyse veya kaçtıysa tekrar işlem yapma
-	if yasayan_boss_list.is_empty() or GameManager.boss_kacti:
+	# Eğer boss zaten öldüyse veya kaçtıysa ve masada blok kalmadıysa tekrar işlem yapma
+	if (yasayan_boss_list.is_empty() or GameManager.boss_kacti) and (kalan_stok <= 0 and masadaki_aktif_bloklar <= 0):
 		return
 
-	tur_bitti_mi = true
+	# tur_bitti_mi = true (SİLİNDİ — Sadece sahne biterken set edilecek)
 	if _yer_kontrol_timer: _yer_kontrol_timer.stop()
 	
 	var arayuz = get_tree().get_first_node_in_group("Arayuz")
@@ -229,8 +238,26 @@ func _tur_sonu_hesaplamasi() -> void:
 	if "toplam_puan" in arayuz: skor = arayuz.toplam_puan
 	elif "puan" in arayuz: skor = arayuz.puan
 	
-	# Eğer bütün düşmanlar öldüyse (HP 0 ise) direkt bitişe geç
+	# Eğer bütün düşmanlar öldüyse (HP 0 ise)
 	if toplam_kalan_hp <= 0:
+		boss_oldu_mu = true
+		
+		# KAPIYI AÇ (Ama masayı henüz kaldırma)
+		var kapi = kapi_sistemi
+		if not is_instance_valid(kapi):
+			kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
+		if kapi:
+			if "kilitli_mi" in kapi: kapi.kilitli_mi = false
+			if kapi.has_method("kapiyi_ac"): kapi.kapiyi_ac()
+			
+		# Eğer hala bloklar varsa çıkma, oyuncunun altın/mermi kasmaya devam etmesine izin ver
+		if kalan_stok > 0 or masadaki_aktif_bloklar > 0:
+			if not puzzle_tamamlandi:
+				puzzle_tamamlandi = true
+				print("✅ Boss öldü ama bloklar bitmedi. Oyuncu devam edebilir. Kapı açıldı.")
+			return
+
+		tur_bitti_mi = true
 		_sahne_bitis_animasyonu()
 		return
 		
@@ -256,20 +283,33 @@ func _tur_sonu_hesaplamasi() -> void:
 			oyuncu.stand_up(true)
 	else:
 		# Mermi tamamen bittiyse (0 ise)
-		# Hem skor yetersizse hem de mermi bittiyse yine de Boss kaçmalı (Tutsak kalmamak için)
-		print("👹 Kaynaklar tükendi. Boss kaçıyor.")
+		var mermisi_varken_mi_bitti = GameManager and (GameManager.mermi_sayisi <= 0 and GameManager.shotgun_mermi_count <= 0)
 		
-		if arayuz and arayuz.has_method("bilgi_goster"):
-			var msg = "Mermi yetersiz! Boss kaçıyor..."
-			if GameManager and (GameManager.mermi_sayisi <= 0 and GameManager.shotgun_mermi_count <= 0):
-				msg = "Mermin bitti! Boss kaçıyor..."
-			arayuz.bilgi_goster(msg, 4.0)
-		
-		# Eğer skor da yetmediyse "Kaybettin" mesajı ver ama oyun devam etsin (kilitlenmesin/tutsak kalmasın)
 		if skor < arayuz.hedef_puan:
-			_oyun_kaybedildi(arayuz)
+			# SKOR YETERSİZ VE MERMİ BİTTİ -> GAME OVER
+			print("💀 Mermi bitti ve hedef skor ulaşılamadı! OYUN BİTTİ.")
+			if arayuz and arayuz.has_method("bilgi_goster"):
+				arayuz.bilgi_goster(DilYoneticisi.metin_al("oyun_bitti") if DilYoneticisi else "OYUN BİTTİ", 5.0)
+			
+			var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+			if oyuncu and oyuncu.has_method("game_over"):
+				oyuncu.game_over()
+			return # Dur, ilerleme!
+			
+		# SKOR YETİYOR AMA MERMİ BİTTİ -> BOSS KAÇIŞI (ZAFERLE BİTİR)
+		print("👹 Kaynaklar tükendi ama skor yeterli. Boss kaçıyor.")
 		
+		# EĞER HALA BLOK VARSA KAÇMA BAŞLAMASIN (Oyuncu devam etsin)
+		if kalan_stok > 0 or masadaki_aktif_bloklar > 0:
+			if not puzzle_tamamlandi:
+				puzzle_tamamlandi = true
+				if arayuz and arayuz.has_method("bilgi_goster"):
+					arayuz.bilgi_goster("Mermin Bitti! Ama blokların var. Altın kasmaya devam et!", 4.0)
+			return
+
+		tur_bitti_mi = true
 		GameManager.boss_kacti = true
+		# ... (rest of escape logic)
 		GameManager.boss_kalan_hp = toplam_kalan_hp
 		var aktif_boss_tipi = LevelManager.suanki_katman % 3 if LevelManager else 0
 		GameManager.kacan_boss_tipi = aktif_boss_tipi
