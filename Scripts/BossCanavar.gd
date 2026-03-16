@@ -651,6 +651,9 @@ func _boss_oldu_mermi():
 	# GameManager'a boss öldü bildir (Sadece SON boss öldüyse)
 	if GameManager and not _hayatta_boss_var_mi():
 		GameManager.boss_oldu.emit()
+	
+	# Boss'un kendi ölüm animasyonunu başlat
+	_on_boss_oldu_sinyali()
 
 
 # ==========================================
