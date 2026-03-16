@@ -77,14 +77,14 @@ func konumlari_kaydet(p1: Vector3, p2: Vector3, p3: Vector3, oyuncu: CharacterBo
 		if yanci_node:
 			var markers = []
 			for child in yanci_node.get_children():
-				if child is Marker3D:
+				if child is Node3D: # Marker3D veya Node3D farketmeksizin al
 					markers.append(child)
 			
 			# İsim sırasına göre diz (yanci1, yanci2...)
-			markers.sort_custom(func(a, b): return a.name < b.name)
+			markers.sort_custom(func(a, b): return a.name.naturalnocasecmp_to(b.name) < 0)
 			for m in markers:
 				yanci_markerlari.append(m)
-			print("📍 LevelManager'a ", yanci_markerlari.size(), " adet sıralı yanci marker'i kaydedildi.")
+			print("📍 LevelManager'a ", yanci_markerlari.size(), " adet sıralı yanci noktası kaydedildi.")
 	
 	# Bölüm yüklendiğinde oyuncuyu spawn noktasına ışınla
 	if suanki_katman > 1 and oyuncu_ref:
@@ -215,10 +215,8 @@ func _boss_sistemini_ayarla():
 		_set_boss_collision(aktif_boss, true) # Aktif boss collision aç
 		if aktif_boss.has_method("boss_durumu_sifirla"):
 			aktif_boss.boss_durumu_sifirla()
-		aktif_boss.scale = Vector3(1.5, 1.5, 1.5)
-		
-		# Boss ana pozisyonunda
-		aktif_boss.global_position = start_pos + Vector3(0, -0.5, -4.5) 
+		# Boss ana pozisyonunda - SAHNEDEKİ KONUM KULLANILIYOR
+		# aktif_boss.global_position = start_pos + Vector3(0, -0.5, -4.5) 
 		
 		# --- 👹 BOSS KAÇTI: YANCI BOSS SPAWN ---
 		if GameManager and GameManager.boss_kacti:
@@ -266,7 +264,7 @@ func _yanci_spawn_et(tip: int, hp: int):
 		twin.add_to_group("Dusman")
 		if "oldu_mu" in twin: twin.oldu_mu = false
 		_set_boss_collision(twin, true)
-		twin.scale = Vector3(1.0, 1.0, 1.0) # Yancılar daha küçük
+		twin.scale = Vector3(1.2, 1.2, 1.2) # Yancılar daha küçük (USER REQUEST: 0.70)
 		
 		if hp > 0:
 			# HP atamasını hemen yap (BlokDagiticisi HP kontrolü için beklememeli)
@@ -280,8 +278,6 @@ func _bosslari_yeniden_konumlandir():
 		if is_instance_valid(d) and not d.get("oldu_mu"):
 			yasayanlar.append(d)
 	
-	var merkez = start_pos + Vector3(0, -2.16, -4.5)
-	
 	# Sıralama: Aktif ana boss hayattaysa onu merkez (index 0) yap
 	var sirali_yasayanlar = []
 	if is_instance_valid(aktif_ana_boss) and not aktif_ana_boss.get("oldu_mu"):
@@ -293,37 +289,27 @@ func _bosslari_yeniden_konumlandir():
 	
 	for i in range(sirali_yasayanlar.size()):
 		var b = sirali_yasayanlar[i]
-		var target_pos = merkez
-		var target_scale = Vector3(1.5, 1.5, 1.5) # DEFAULT: Ana Boss boyutu
 		
-		if i == 0: # ANA BOSS (MERKEZ)
-			target_pos = merkez
-			target_scale = Vector3(1.5, 1.5, 1.5)
-		else:
-			# Yanci Marker'lari (i=1 -> marker[0], i=2 -> marker[1])
-			var marker_idx = i - 1
-			if marker_idx < yanci_markerlari.size() and is_instance_valid(yanci_markerlari[marker_idx]):
-				target_pos = yanci_markerlari[marker_idx].global_position
-				target_scale = Vector3(0.9, 0.9, 0.9)
-			else:
-				# Marker yoksa veya fazla yancı varsa: Hafif yana açıl (Yedek)
-				var yon = 1 if i % 2 != 0 else -1
-				target_pos = merkez + Vector3(2.5 * yon, 0, -0.8)
-				target_scale = Vector3(0.9, 0.9, 0.9)
+		if i == 0: # ANA BOSS
+			# Sahnedeki ana konumunda kalacak, sadece base position güncellemesi yap (animasyonlar için)
+			if b.has_method("update_base_position"):
+				b.update_base_position(b.global_position)
+			continue
 		
-		# DÜZELTME: Boss türüne göre zemin yüksekliği ayarı (Yerin altında kalmayı önler)
-		var final_target_pos = target_pos
-		if b == normal_boss_ref or b.name.contains("NormalBoss"):
-			final_target_pos.y += 0.45 # Zar Boss'u yükselt
-		else:
-			final_target_pos.y += 0.40 # Diğerlerini (Acid/Stone) yükselt
+		# YANCI (Minion)
+		var target_pos = b.global_position
+		var target_scale = Vector3(1.2, 1.2, 1.2) # USER REQUEST: 0.70'den 1.2'ye çıkarıldı
 		
-		b.global_position = final_target_pos
+		# USER REQUEST: NormalBoss sırasındaysa yanci1 marker'ına git
+		var marker_idx = i - 1
+		if marker_idx < yanci_markerlari.size() and is_instance_valid(yanci_markerlari[marker_idx]):
+			target_pos = yanci_markerlari[marker_idx].global_position
+		
+		b.global_position = target_pos
 		b.scale = target_scale
 		
-		# Normal Boss (BossCanavar) ise animasyon driftini önlemek için base position'ı güncelle
 		if b.has_method("update_base_position"):
-			b.update_base_position(final_target_pos)
+			b.update_base_position(target_pos)
 
 func _sahne_yenile():
 	_sahne_yukle_ve_kontrol_et()

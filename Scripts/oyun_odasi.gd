@@ -60,15 +60,6 @@ func _ready():
 	if zar_kamerasi: zar_kamerasi.current = false
 	if oyuncu_kamerasi: oyuncu_kamerasi.current = true
 
-	# --- 📍 YANCI MARKERLARINI KAYDET (YENİ) ---
-	if LevelManager:
-		LevelManager.yanci_markerlari.clear()
-		var yanci_node = find_child("Yancilar", true, false)
-		if yanci_node:
-			for child in yanci_node.get_children():
-				if child is Node3D:
-					LevelManager.yanci_markerlari.append(child)
-			print("📍 LevelManager'a ", LevelManager.yanci_markerlari.size(), " adet yanci marker'i kaydedildi.")
 
 	# --- SİNYALLER ---
 	if GameManager:
