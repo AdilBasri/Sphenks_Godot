@@ -67,13 +67,22 @@ func konumlari_kaydet(p1: Vector3, p2: Vector3, p3: Vector3, oyuncu: CharacterBo
 	oyuncu_ref = oyuncu
 	oyun_odasi_ref = oda_ref
 	
-	# Boss referanslarını bul ve ayarla
+	# 1. Önce markerları kaydet (Boss sistemi bunlara ihtiyaç duyar)
+	_yanci_markerlarini_guncelle()
+	
+	# 2. Sonra boss referanslarını ve pozisyonlarını ayarla
 	_boss_sistemini_ayarla()
 	
-	# --- 📍 YANCI MARKERLARINI KAYDET (YENİ) ---
+	# Bölüm yüklendiğinde oyuncuyu spawn noktasına ışınla
+	if suanki_katman > 1 and oyuncu_ref:
+		# Oyuncu grid üstüne oturmuş veya move_and_slide'da sıkışmış olabilir. 
+		# Bu yüzden global_position atamasını bir frame sonra yaparız.
+		call_deferred("_oyuncuyu_baslangica_isinla")
+
+func _yanci_markerlarini_guncelle():
 	yanci_markerlari.clear()
-	if is_instance_valid(oda_ref):
-		var yanci_node = oda_ref.find_child("Yancilar", true, false)
+	if is_instance_valid(oyun_odasi_ref):
+		var yanci_node = oyun_odasi_ref.find_child("Yancilar", true, false)
 		if yanci_node:
 			var markers = []
 			for child in yanci_node.get_children():
@@ -223,14 +232,18 @@ func _boss_sistemini_ayarla():
 			var kacan_tip = GameManager.kacan_boss_tipi
 			var kacan_hp = GameManager.boss_kalan_hp
 			
-			# Kaçan boss'u sağa (Minion 1) veya sola (Minion 2) spawn et
-			# USER REQUEST: 3'lü spawn desteği (eğer zaten minion varsa öbürü dolu olmalı)
-			# Şimdilik kaçan boss'u sağa, eğer stone boss katmanı ise ve normal boss kaçtıysa sola da ekleyebiliriz
-			_yanci_spawn_et(kacan_tip, kacan_hp)
+			# Kaçan boss'u yanci1 veya yanci2 markerına spawn et
+			# ilk yancı olduğu için yanci1'e gidecek
+			var spawn_pos = Vector3.ZERO
+			if yanci_markerlari.size() > 0 and is_instance_valid(yanci_markerlari[0]):
+				spawn_pos = yanci_markerlari[0].global_position
+			
+			_yanci_spawn_et(kacan_tip, kacan_hp, spawn_pos)
 			
 			GameManager.boss_kacti = false
 			GameManager.boss_kalan_hp = 0
 		
+		# Tüm bossları (ana + yancılar) hizala
 		_bosslari_yeniden_konumlandir()
 		
 		# Birleşik Boss kamerasını bul ve başlangıçta kapat
@@ -250,7 +263,7 @@ func _boss_sistemini_ayarla():
 
 	print("--- YAPILANDIRMA BITTI ---")
 
-func _yanci_spawn_et(tip: int, hp: int):
+func _yanci_spawn_et(tip: int, hp: int, pos: Vector3 = Vector3.ZERO):
 	var yanci_prefab: Node3D = null
 	if tip == 1: yanci_prefab = acid_boss_ref
 	elif tip == 2: yanci_prefab = stone_boss_ref
@@ -260,14 +273,18 @@ func _yanci_spawn_et(tip: int, hp: int):
 		var twin = yanci_prefab.duplicate()
 		yanci_prefab.get_parent().add_child(twin)
 		twin.name = yanci_prefab.name + "_Minion_" + str(randi() % 1000)
+		
+		# Spawn edildiği anda pozisyonu ayarla (USER REQUEST: Marker3D'de spawn olsun)
+		if pos != Vector3.ZERO:
+			twin.global_position = pos
+		
 		twin.visible = true
 		twin.add_to_group("Dusman")
 		if "oldu_mu" in twin: twin.oldu_mu = false
 		_set_boss_collision(twin, true)
-		twin.scale = Vector3(1.2, 1.2, 1.2) # Yancılar daha küçük (USER REQUEST: 0.70)
+		twin.scale = Vector3(1.2, 1.2, 1.2) # Yancılar biraz daha küçük
 		
 		if hp > 0:
-			# HP atamasını hemen yap (BlokDagiticisi HP kontrolü için beklememeli)
 			twin.boss_hp = hp
 			get_tree().create_timer(0.2).timeout.connect(_reset_twin_state.bind(twin))
 
@@ -291,22 +308,27 @@ func _bosslari_yeniden_konumlandir():
 		var b = sirali_yasayanlar[i]
 		
 		if i == 0: # ANA BOSS
-			# Sahnedeki ana konumunda kalacak, sadece base position güncellemesi yap (animasyonlar için)
+			# Sahnedeki pozisyonunu ("tek başına olduklarındaki konumları doğru") koruyor.
+			# Sadece boss canavar scripti varsa base position güncellemesi yap (oturma/kalkma drift fix için)
 			if b.has_method("update_base_position"):
 				b.update_base_position(b.global_position)
 			continue
 		
 		# YANCI (Minion)
-		var target_pos = b.global_position
-		var target_scale = Vector3(1.2, 1.2, 1.2) # USER REQUEST: 0.70'den 1.2'ye çıkarıldı
-		
-		# USER REQUEST: NormalBoss sırasındaysa yanci1 marker'ına git
+		# USER REQUEST: yanci1, yanci2 Marker3D'lerine git
 		var marker_idx = i - 1
+		var target_pos = b.global_position
+		
 		if marker_idx < yanci_markerlari.size() and is_instance_valid(yanci_markerlari[marker_idx]):
 			target_pos = yanci_markerlari[marker_idx].global_position
+		else:
+			# Eğer marker yetmezse (2'den fazla yancı) son markerın yanına veya 
+			# ana boss'un uzağına yerleştir (üst üste binmeyi önle)
+			var offset_dir = Vector3(1.5, 0, 0) if i % 2 == 0 else Vector3(-1.5, 0, 0)
+			target_pos = start_pos + Vector3(0, -0.5, -4.5) + (offset_dir * floor(i / 2.0 + 1))
 		
 		b.global_position = target_pos
-		b.scale = target_scale
+		b.scale = Vector3(1.2, 1.2, 1.2)
 		
 		if b.has_method("update_base_position"):
 			b.update_base_position(target_pos)
