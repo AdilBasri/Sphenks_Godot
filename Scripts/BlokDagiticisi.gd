@@ -36,17 +36,21 @@ func _ready() -> void:
 	if GameManager:
 		if not GameManager.mermi_degisti.is_connected(_on_mermi_degisti_kontrol):
 			GameManager.mermi_degisti.connect(_on_mermi_degisti_kontrol)
-		if not GameManager.boss_oldu.is_connected(_on_boss_oldu_gm_sinyali):
-			GameManager.boss_oldu.connect(_on_boss_oldu_gm_sinyali)
+		# GameManager.boss_oldu bağlantısı kaldırıldı — her boss bağımsız ölmeli
 
-func _on_boss_oldu_gm_sinyali():
-	boss_oldu_mu = true
-
-func _on_mermi_degisti_kontrol(_yeni_sayi: int) -> void:
+func _on_mermi_degisti_kontrol(yeni_sayi: int) -> void:
+	# Eğer mermi 0 olduysa 1.2 saniye bekle (merminin hedefe ulaşması için)
+	if yeni_sayi == 0:
+		await get_tree().create_timer(1.2).timeout
+		
 	# Eğer mermi değiştiyse ve boss yaşıyorsa
-	if not boss_oldu_mu and not GameManager.boss_kacti:
-		# Puan hedefine çoktan ulaşılmış olabilir (erken kalkış)
-		# veya taşlar/stok bitmiş olabilir.
+	var bosslar = get_tree().get_nodes_in_group("Dusman")
+	var yasayan_var_mi = false
+	for b in bosslar:
+		if is_instance_valid(b) and not b.get("oldu_mu"):
+			yasayan_var_mi = true; break
+			
+	if yasayan_var_mi and not GameManager.boss_kacti:
 		var arayuz = get_tree().get_first_node_in_group("Arayuz")
 		var skor_yeterli = false
 		if arayuz:
@@ -55,7 +59,6 @@ func _on_mermi_degisti_kontrol(_yeni_sayi: int) -> void:
 			skor_yeterli = skor >= goal
 		
 		if tur_bitti_mi or skor_yeterli:
-			# Eğer mermi kalmadıysa veya yetersizse Boss'un kaçması gerekir
 			_tur_sonu_hesaplamasi()
 
 func yeni_bolumu_baslat():
@@ -202,8 +205,19 @@ func _on_blok_yerlesti() -> void:
 #	pass
 
 func _tur_sonu_hesaplamasi() -> void:
+	# Aktif düşman kontrolü
+	var boss_list = get_tree().get_nodes_in_group("Dusman")
+	var yasayan_boss_list = []
+	var toplam_kalan_hp = 0
+	
+	for boss in boss_list:
+		if is_instance_valid(boss) and not boss.get("oldu_mu"):
+			yasayan_boss_list.append(boss)
+			if "boss_hp" in boss:
+				toplam_kalan_hp += boss.boss_hp
+
 	# Eğer boss zaten öldüyse veya kaçtıysa tekrar işlem yapma
-	if boss_oldu_mu or GameManager.boss_kacti:
+	if yasayan_boss_list.is_empty() or GameManager.boss_kacti:
 		return
 
 	tur_bitti_mi = true
@@ -215,18 +229,8 @@ func _tur_sonu_hesaplamasi() -> void:
 	if "toplam_puan" in arayuz: skor = arayuz.toplam_puan
 	elif "puan" in arayuz: skor = arayuz.puan
 	
-	# 1. BOSS HP KONTROLÜ (Tüm düşmanların HP toplamını al)
-	var boss_list = get_tree().get_nodes_in_group("Dusman")
-	var toplam_kalan_hp = 0
-	var aktif_boss_tipi = LevelManager.suanki_katman % 3 if LevelManager else 0
-	
-	for boss in boss_list:
-		if is_instance_valid(boss) and not boss.get("oldu_mu"):
-			if "boss_hp" in boss:
-				toplam_kalan_hp += boss.boss_hp
-	
 	# Eğer bütün düşmanlar öldüyse (HP 0 ise) direkt bitişe geç
-	if toplam_kalan_hp <= 0 and boss_list.size() > 0:
+	if toplam_kalan_hp <= 0:
 		_sahne_bitis_animasyonu()
 		return
 		
@@ -267,6 +271,7 @@ func _tur_sonu_hesaplamasi() -> void:
 		
 		GameManager.boss_kacti = true
 		GameManager.boss_kalan_hp = toplam_kalan_hp
+		var aktif_boss_tipi = LevelManager.suanki_katman % 3 if LevelManager else 0
 		GameManager.kacan_boss_tipi = aktif_boss_tipi
 		
 		# UI güncellensin ve eski mesajlar silinsin

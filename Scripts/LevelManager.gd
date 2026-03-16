@@ -198,53 +198,28 @@ func _boss_sistemini_ayarla():
 			aktif_boss.boss_durumu_sifirla()
 		aktif_boss.scale = Vector3(1.5, 1.5, 1.5)
 		
+		# Boss ana pozisyonunda
+		aktif_boss.global_position = start_pos + Vector3(0, -0.5, -4.5) 
+		
 		# --- 👹 BOSS KAÇTI: YANCI BOSS SPAWN ---
 		if GameManager and GameManager.boss_kacti:
-			var kalan = GameManager.boss_kalan_hp
 			var kacan_tip = GameManager.kacan_boss_tipi
+			var kacan_hp = GameManager.boss_kalan_hp
 			
-			var yanci_ref: Node3D = null
-			if kacan_tip == 1: yanci_ref = acid_boss_ref
-			elif kacan_tip == 2: yanci_ref = stone_boss_ref
-			else: yanci_ref = normal_boss_ref
-			
-			if yanci_ref:
-				print("👹 KAÇAN BOSS YANCI OLARAK GELDİ! Tip:", kacan_tip, " HP:", kalan)
-				
-				# ÖNCE ESKİ MINIONLARI TEMİZLE (Race condition / persist fix)
-				var old_minions = get_tree().get_nodes_in_group("Dusman")
-				for m in old_minions:
-					if "_Minion" in m.name: m.queue_free()
-				
-				var twin_boss = yanci_ref.duplicate()
-				aktif_boss.get_parent().add_child(twin_boss)
-				twin_boss.name = yanci_ref.name + "_Minion"
-				twin_boss.visible = true
-				twin_boss.add_to_group("Dusman")
-				
-				# Ana boss merkezde, yancı sağda doğar
-				twin_boss.global_position = aktif_boss.global_position + Vector3(2.5, 0, -0.5)
-				twin_boss.scale = Vector3(1.0, 1.0, 1.0) # Bir tık daha küçük
-				
-				# Gecikmeli HP ataması
-				if kalan > 0:
-					get_tree().create_timer(0.2).timeout.connect(func():
-						if is_instance_valid(twin_boss):
-							twin_boss.boss_hp = kalan
-							if twin_boss.has_method("boss_durumu_sifirla"): 
-								twin_boss.boss_durumu_sifirla()
-					)
+			# Kaçan boss'u sağa (Minion 1) veya sola (Minion 2) spawn et
+			# USER REQUEST: 3'lü spawn desteği (eğer zaten minion varsa öbürü dolu olmalı)
+			# Şimdilik kaçan boss'u sağa, eğer stone boss katmanı ise ve normal boss kaçtıysa sola da ekleyebiliriz
+			_yanci_spawn_et(kacan_tip, kacan_hp)
 			
 			GameManager.boss_kacti = false
 			GameManager.boss_kalan_hp = 0
+		
+		_bosslari_yeniden_konumlandir()
 		
 		# Birleşik Boss kamerasını bul ve başlangıçta kapat
 		var boss_cam = oyun_odasi_ref.find_child("BossCamera", true, false)
 		if boss_cam and boss_cam is Camera3D:
 			boss_cam.current = false
-			print("Boss kamerasi beklemeye alindi.")
-			
-		print("AKTIF BOSS GORUNUR YAPILDI: ", aktif_boss.name)
 	else:
 		print("KRITIK HATA: Aktif boss bulunamadi!")
 
@@ -257,6 +232,53 @@ func _boss_sistemini_ayarla():
 			tabure.process_mode = Node.PROCESS_MODE_DISABLED
 
 	print("--- YAPILANDIRMA BITTI ---")
+
+func _yanci_spawn_et(tip: int, hp: int):
+	var yanci_prefab: Node3D = null
+	if tip == 1: yanci_prefab = acid_boss_ref
+	elif tip == 2: yanci_prefab = stone_boss_ref
+	else: yanci_prefab = normal_boss_ref
+	
+	if yanci_prefab:
+		var twin = yanci_prefab.duplicate()
+		yanci_prefab.get_parent().add_child(twin)
+		twin.name = yanci_prefab.name + "_Minion_" + str(randi() % 1000)
+		twin.visible = true
+		twin.add_to_group("Dusman")
+		_set_boss_collision(twin, true)
+		twin.scale = Vector3(1.0, 1.0, 1.0) # Yancılar daha küçük
+		
+		if hp > 0:
+			get_tree().create_timer(0.2).timeout.connect(func():
+				if is_instance_valid(twin):
+					twin.boss_hp = hp
+					if twin.has_method("boss_durumu_sifirla"): twin.boss_durumu_sifirla()
+			)
+
+func _bosslari_yeniden_konumlandir():
+	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
+	var yasayanlar = []
+	for d in dusmanlar:
+		if is_instance_valid(d) and not d.get("oldu_mu"):
+			yasayanlar.append(d)
+	
+	var merkez = start_pos + Vector3(0, -1.76, -4.5)
+	
+	if yasayanlar.size() == 1:
+		yasayanlar[0].global_position = merkez
+		yasayanlar[0].scale = Vector3(1.5, 1.5, 1.5) # Tek kalınca büyüsün (Ana Boss)
+	elif yasayanlar.size() == 2:
+		yasayanlar[0].global_position = merkez + Vector3(1.5, 0, 0.5)
+		yasayanlar[1].global_position = merkez + Vector3(-1.5, 0, 0.5)
+		yasayanlar[0].scale = Vector3(1.2, 1.2, 1.2)
+		yasayanlar[1].scale = Vector3(1.2, 1.2, 1.2)
+	elif yasayanlar.size() >= 3:
+		yasayanlar[0].global_position = merkez # Ana boss ortada
+		yasayanlar[1].global_position = merkez + Vector3(2.5, 0, 0.8) # Sağ
+		yasayanlar[2].global_position = merkez + Vector3(-2.5, 0, 0.8) # Sol
+		yasayanlar[0].scale = Vector3(1.4, 1.4, 1.4)
+		yasayanlar[1].scale = Vector3(0.9, 0.9, 0.9)
+		yasayanlar[2].scale = Vector3(0.9, 0.9, 0.9)
 
 func _sahne_yenile():
 	_sahne_yukle_ve_kontrol_et()

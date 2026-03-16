@@ -27,9 +27,6 @@ func _ready():
 	print("--- STONE BOSS HAZIRLANIYOR ---")
 	print("Animator: ", anim_player.name if anim_player else "BULUNAMADI")
 	
-	if GameManager:
-		GameManager.boss_oldu.connect(_on_boss_oldu_sinyali)
-	
 	# Katmana göre HP belirle
 	_hp_ayarla()
 	
@@ -369,6 +366,9 @@ func _olum_sekans():
 	
 	# 3 — KAPIYI OTOMATİK AÇ
 	_kapiyi_otomatik_ac()
+	
+	if LevelManager and LevelManager.has_method("_bosslari_yeniden_konumlandir"):
+		LevelManager._bosslari_yeniden_konumlandir()
 		
 	await get_tree().create_timer(1.0).timeout
 	queue_free()

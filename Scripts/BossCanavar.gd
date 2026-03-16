@@ -114,11 +114,6 @@ func _ready():
 	# (Böylece Boss grid içine girmek yerine sandalyenin önünde dikilir)
 	_ayakta_pozisyon_tracklarini_kaldir()
 
-	# Ölüm sinyalini dinle
-	if GameManager and GameManager.has_signal("boss_oldu"):
-		if not GameManager.boss_oldu.is_connected(_on_boss_oldu_sinyali):
-			GameManager.boss_oldu.connect(_on_boss_oldu_sinyali)
-
 	# Katmana göre HP belirle
 	_hp_ayarla()
 	
@@ -445,6 +440,10 @@ func _on_boss_oldu_sinyali():
 	
 	# 7 — KAPIYI OTOMATİK AÇ
 	_kapiyi_otomatik_ac()
+	
+	# 8 — DİĞER BOSS'LARI MERKEZE ÇEK
+	if LevelManager and LevelManager.has_method("_bosslari_yeniden_konumlandir"):
+		LevelManager._bosslari_yeniden_konumlandir()
 		
 	await get_tree().create_timer(1.0).timeout
 	queue_free()
