@@ -648,8 +648,8 @@ func _boss_oldu_mermi():
 	
 	print("☠️ ZAR BOSS MERMİYLE ÖLDÜRÜLDÜ!")
 	
-	# GameManager'a boss öldü bildir
-	if GameManager:
+	# GameManager'a boss öldü bildir (Sadece SON boss öldüyse)
+	if GameManager and not _hayatta_boss_var_mi():
 		GameManager.boss_oldu.emit()
 
 

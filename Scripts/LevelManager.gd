@@ -396,19 +396,18 @@ func boss_saldirisi_baslat():
 			yasayanlar.append(d)
 
 	if yasayanlar.size() > 0:
-		print("🔒 Boss saldırı sekansı başladı. Toplam: ", yasayanlar.size())
+		var lider_boss = yasayanlar[0]
+		print("🔒 Boss saldırı sırası: ", lider_boss.name, " (Lider). Diğerleri bekliyor.")
 		
-		# SIRAYLA SALDIRI
-		for boss in yasayanlar:
-			if is_instance_valid(boss) and not boss.get("oldu_mu"):
-				print("⚔️ ", boss.name, " saldırıyor...")
-				boss.saldiri_baslat()
-				
-				# Boss'un saldırı tamam sinyalini bekle
-				if boss.has_signal("saldiri_tamamlandi"):
-					await boss.saldiri_tamamlandi
-				else:
-					await get_tree().create_timer(2.0).timeout # Fallback
+		if is_instance_valid(lider_boss) and not lider_boss.get("oldu_mu"):
+			print("⚔️ Lider boss saldırıyor...")
+			lider_boss.saldiri_baslat()
+			
+			# Liderin saldırısını bekle
+			if lider_boss.has_signal("saldiri_tamamlandi"):
+				await lider_boss.saldiri_tamamlandi
+			else:
+				await get_tree().create_timer(2.0).timeout
 		
 		_on_boss_isi_bitti()
 	else:

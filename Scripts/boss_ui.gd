@@ -7,7 +7,7 @@ extends Control
 # ──────────────────────────────────────────────────────────────────────────────
 # AJUSTABLE CONSTANTS (DEĞİŞTİRİLEBİLİR AYARLAR)
 # ──────────────────────────────────────────────────────────────────────────────
-const BOSS_OFFSET_Y   : float = 80.0           # Bosslar arası dikey mesafe
+const BOSS_OFFSET_Y   : float = 135.0           # Bosslar arası dikey mesafe
 const BOSS_MARGIN_RIGHT: float = 40.0          # Ekranın sağından olan genel boşluk
 const BOSS_TOP_MARGIN : float = 40.0           # Ekranın üstünden olan boşluk
 

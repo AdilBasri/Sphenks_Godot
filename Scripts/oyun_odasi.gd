@@ -191,8 +191,14 @@ func _on_blok_yerlestirildi():
 	if LevelManager:
 		LevelManager.is_boss_acting = true
 	
-	# Saldırı Kararı
-	var boss = get_tree().get_first_node_in_group("Dusman")
+	# Saldırı Kararı - Hayatta olan ilk boss'u bul
+	var boss = null
+	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
+	for d in dusmanlar:
+		if is_instance_valid(d) and not d.get("oldu_mu"):
+			boss = d
+			break
+			
 	var saldiri_yapacak_mi = true
 	
 	# Eğer Zar Boss'u (NormalBoss) ise 2 adımda bir saldırır
@@ -207,7 +213,7 @@ func _on_blok_yerlestirildi():
 	if saldiri_yapacak_mi:
 		print("🚀 Boss saldırısı tetikleniyor...")
 		await get_tree().create_timer(1.0).timeout
-		if LevelManager and not boss_tamamen_oldu:
+		if LevelManager and boss: # Hayatta boss varsa saldır
 			LevelManager.boss_saldirisi_baslat()
 	else:
 		# Saldırı yoksa kilidi hemen aç
