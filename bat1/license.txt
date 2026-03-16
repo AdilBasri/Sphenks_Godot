@@ -1,0 +1,11 @@
+Model Information:
+* title:	Bat Attack
+* source:	https://sketchfab.com/3d-models/bat-attack-c6abf0e73f904f959522f7d9da6891a7
+* author:	LostBoyz2078 (https://sketchfab.com/LostModels2025)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Bat Attack" (https://sketchfab.com/3d-models/bat-attack-c6abf0e73f904f959522f7d9da6891a7) by LostBoyz2078 (https://sketchfab.com/LostModels2025) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

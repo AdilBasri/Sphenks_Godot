@@ -305,13 +305,14 @@ func _modulate_recursive(node: Node, color: Color, duration: float):
 		hit_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		node.material_overlay = hit_mat
 		
-		get_tree().create_timer(duration * 1.5).timeout.connect(func():
-			if is_instance_valid(node):
-				node.material_overlay = org_overlay
-		)
+		get_tree().create_timer(duration * 1.5).timeout.connect(_reset_material_overlay.bind(node, org_overlay))
 		
 	for child in node.get_children():
 		_modulate_recursive(child, color, duration)
+
+func _reset_material_overlay(node: MeshInstance3D, org_overlay: Material):
+	if is_instance_valid(node):
+		node.material_overlay = org_overlay
 
 func _boss_oldu_mermi():
 	"""Boss mermiyle öldürüldüğünde çağrılır — kapıyı otomatik açar."""

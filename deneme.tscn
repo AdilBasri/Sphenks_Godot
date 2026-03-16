@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://5r052hg2ato8"]
+[gd_scene load_steps=35 format=3 uid="uid://5r052hg2ato8"]
 
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="1_j5rsp"]
 [ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="2_tlklb"]
@@ -6,7 +6,6 @@
 [ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://Assets/Images/iç_bar.png" id="4_756oi"]
 [ext_resource type="Texture2D" uid="uid://b5k4ffrdw2m3u" path="res://Assets/carpi.png" id="5_nn26f"]
 [ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="6_e0pfg"]
-[ext_resource type="PackedScene" uid="uid://hqgrge6ijj2s" path="res://animated_gun/scene.gltf" id="7_tlklb"]
 [ext_resource type="Script" uid="uid://gdt0if15j8al" path="res://animated_gun/scene.gd" id="8_h6a0u"]
 [ext_resource type="Shader" uid="uid://bg3erydhe6l0u" path="res://hand.gdshader" id="9_756oi"]
 [ext_resource type="PackedScene" uid="uid://dvucb86havcwa" path="res://UI/oyun_arayuzu.tscn" id="10_u18ft"]
@@ -15,9 +14,11 @@
 [ext_resource type="Script" uid="uid://lcig2p1w37xb" path="res://Scripts/Revolver.gd" id="11_xl8ic"]
 [ext_resource type="Script" uid="uid://c3crxoiqjl3tw" path="res://animated_shotgun/scene.gd" id="12_t52yg"]
 [ext_resource type="Texture2D" uid="uid://b6qhtc7ov5oqy" path="res://Assets/Images/crosshair.png" id="12_xl8ic"]
+[ext_resource type="PackedScene" uid="uid://btu77vlp0tjsu" path="res://bat/scene.gltf" id="13_t52yg"]
 [ext_resource type="FontFile" uid="uid://cy77p676hbv6h" path="res://Assets/Fonts/Retro Shine.ttf" id="13_w84ue"]
 [ext_resource type="Texture2D" uid="uid://dnpnexrcnpel5" path="res://Assets/bullet_1.png" id="14_f3u4t"]
 [ext_resource type="Script" uid="uid://jep6dm3gok1q" path="res://deneme.gd" id="15_deneme"]
+[ext_resource type="PackedScene" uid="uid://hqgrge6ijj2s" path="res://animated_gun/scene.gltf" id="19_t52yg"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_m18cy"]
 size = Vector3(20, 20, 0.2)
@@ -69,6 +70,8 @@ shader_parameter/vignette_color = Color(0.04, 0, 0, 1)
 shader_parameter/scanline_intensity = 0.1
 shader_parameter/scanline_count = 300.0
 shader_parameter/dither_amount = 0.025
+shader_parameter/distortion_strength = 0.42
+shader_parameter/corner_rounding = 0.06
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_nn26f"]
 render_priority = 0
@@ -267,10 +270,13 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Sketchfab_Scene" parent="Oyuncu/Camera3D" instance=ExtResource("7_tlklb")]
-transform = Transform3D(-0.009992799, -0.00027612958, 0.00025981833, -0.00024250048, 0.009922487, 0.0012186932, -0.00029145594, 0.0012115176, -0.009922059, 0.10295622, -0.120666265, -0.24678564)
+[node name="Sketchfab_Scene" parent="Oyuncu/Camera3D" instance=ExtResource("19_t52yg")]
+transform = Transform3D(-0.00999281, -0.00027613036, 0.0002598183, -0.00024250073, 0.009922498, 0.001218696, -0.00029145658, 0.0012115191, -0.00992206, 0.10295622, -0.120666265, -0.24678564)
 visible = false
 script = ExtResource("8_h6a0u")
+
+[node name="Sketchfab_model" parent="Oyuncu/Camera3D/Sketchfab_Scene" index="0"]
+transform = Transform3D(0.01, 0, 0, 0, -4.3711387e-10, 0.01, 0, -0.01, -4.3711387e-10, 0, 0, 0)
 
 [node name="Skeleton3D" parent="Oyuncu/Camera3D/Sketchfab_Scene/Sketchfab_model/5eeddaa24ccf49d79eeee40e1990f1a2_fbx/Object_2/RootNode/Object_4" index="0"]
 bones/2/rotation = Quaternion(0.25796154, 0.9297814, 0.22787733, -0.1305158)
@@ -308,11 +314,14 @@ transform = Transform3D(0.9999998, -5.5879354e-09, 7.450581e-09, 1.8626451e-09, 
 surface_material_override/0 = SubResource("ShaderMaterial_nn26f")
 
 [node name="Sketchfab_Scene2" parent="Oyuncu/Camera3D" instance=ExtResource("11_f3u4t")]
-transform = Transform3D(-0.009988834, 0.00019228089, -0.00043151499, 0.00024378386, 0.009922065, -0.0012219584, 0.00040465608, -0.0012311138, -0.009915674, 0.17216614, -0.113432646, -0.16242838)
+transform = Transform3D(-0.009988834, 0.00019228087, -0.00043151507, 0.00024378388, 0.009922065, -0.0012219585, 0.00040465614, -0.0012311138, -0.009915674, 0.17216614, -0.113432646, -0.16242838)
 script = ExtResource("12_t52yg")
 
 [node name="AnimationPlayer" parent="Oyuncu/Camera3D/Sketchfab_Scene2" index="1"]
 root_node = NodePath("../../Sketchfab_Scene2")
+
+[node name="Sketchfab_Scene3" parent="Oyuncu/Camera3D" instance=ExtResource("13_t52yg")]
+transform = Transform3D(0.9988834, 0.019228086, 0.043151412, -0.024378378, 0.9922065, 0.12219585, -0.040465523, -0.12311137, 0.99156743, -18.419703, -1.2679509, 2.8485787)
 
 [node name="Revolver" parent="." groups=["Arayuz"] instance=ExtResource("10_u18ft")]
 script = ExtResource("11_xl8ic")
@@ -474,6 +483,10 @@ layout_mode = 2
 texture = ExtResource("14_f3u4t")
 expand_mode = 2
 
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("19_t52yg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8846855, 4.4229937, -2.255168)
+
 [editable path="Oyuncu/Camera3D/Sketchfab_Scene"]
 [editable path="Oyuncu/Camera3D/Sketchfab_Scene2"]
 [editable path="Revolver"]
+[editable path="Sketchfab_Scene"]
