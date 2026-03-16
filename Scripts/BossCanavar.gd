@@ -123,6 +123,12 @@ func _ready():
 	# 1 saniye sonra oturma sekansını başlat (Sadece görünürse)
 	await get_tree().create_timer(1.0).timeout
 	if _oldu_mu_kontrol(): return
+	
+	# Boss UI Ekle
+	var boss_ui = get_tree().get_first_node_in_group("boss_ui")
+	if boss_ui:
+		boss_ui.boss_ekle(self, "zar", boss_hp)
+
 	if visible:
 		otura_gec()
 	else:
@@ -423,6 +429,11 @@ func _on_boss_oldu_sinyali():
 	# 1 — Animasyonu ve horlamayı durdur
 	_animasyonu_durdur()
 	if sfx_snore: sfx_snore.stop()
+	
+	# Boss UI Kaldır
+	var boss_ui = get_tree().get_first_node_in_group("boss_ui")
+	if boss_ui:
+		boss_ui.boss_kaldir(self)
 
 	# 2 — Kamerayı oyuncuya iade et
 	_kamerayi_oyuncuya_ver()
@@ -539,6 +550,11 @@ func mermi_hasari_al(hit_pos: Vector3, hit_dir: Vector3):
 	
 	boss_hp -= 1
 	print("🔫 ZAR BOSS'a vuruş yapıldı! Kalan HP: %d" % boss_hp)
+	
+	# Boss UI HP Güncelle
+	var boss_ui = get_tree().get_first_node_in_group("boss_ui")
+	if boss_ui:
+		boss_ui.boss_hasar_guncelle(self, boss_hp)
 	
 	# 1 — Kan Efekti Spawn
 	_kan_efekti_olustur(hit_pos, hit_dir)

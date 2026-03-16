@@ -42,6 +42,12 @@ func _ready():
 	
 	# Başlangıçta Idle
 	idle_baslat()
+	
+	# Boss UI Ekle
+	await get_tree().create_timer(0.2).timeout
+	var boss_ui = get_tree().get_first_node_in_group("boss_ui")
+	if boss_ui:
+		boss_ui.boss_ekle(self, "asit", boss_hp)
 
 func _animasyonlari_yukle():
 	if not anim_player: return
@@ -236,6 +242,11 @@ func mermi_hasari_al(hit_pos: Vector3, hit_dir: Vector3):
 	boss_hp -= 1
 	print("🔫 ACID BOSS'a vuruş yapıldı! Kalan HP: %d" % boss_hp)
 	
+	# Boss UI HP Güncelle
+	var boss_ui = get_tree().get_first_node_in_group("boss_ui")
+	if boss_ui:
+		boss_ui.boss_hasar_guncelle(self, boss_hp)
+	
 	# 1 — Kan Efekti Spawn
 	_kan_efekti_olustur(hit_pos, hit_dir)
 	
@@ -353,6 +364,11 @@ func _olum_sekans():
 
 	if anim_player:
 		anim_player.stop()
+
+	# Boss UI Kaldır
+	var boss_ui = get_tree().get_first_node_in_group("boss_ui")
+	if boss_ui:
+		boss_ui.boss_kaldir(self)
 
 	_kamerayi_oyuncuya_ver()
 
