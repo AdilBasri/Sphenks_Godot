@@ -28,6 +28,7 @@ var normal_boss_ref: Node3D = null
 var acid_boss_ref: Node3D = null
 var stone_boss_ref: Node3D = null
 var aktif_ana_boss: Node3D = null # Suanki seviyenin ana bossu
+var yanci_markerlari: Array[Node3D] = [] # Sahnedeki Yancilar node'u icindeki Marker3D'ler
 
 func is_acid_boss_level() -> bool:
 	# 1, 4, 7... pattern (katman % 3 == 1)
@@ -248,6 +249,7 @@ func _yanci_spawn_et(tip: int, hp: int):
 		twin.name = yanci_prefab.name + "_Minion_" + str(randi() % 1000)
 		twin.visible = true
 		twin.add_to_group("Dusman")
+		if "oldu_mu" in twin: twin.oldu_mu = false
 		_set_boss_collision(twin, true)
 		twin.scale = Vector3(1.0, 1.0, 1.0) # Yancılar daha küçük
 		
@@ -285,23 +287,24 @@ func _bosslari_yeniden_konumlandir():
 		if sirali_yasayanlar.size() == 1:
 			target_pos = merkez
 			target_scale = Vector3(1.5, 1.5, 1.5)
-		elif sirali_yasayanlar.size() == 2:
-			if i == 0: # MERKEZ/ANA BOSS (Eğer aktif_ana_boss ise merkeze yakın durur)
-				target_pos = merkez + Vector3(1.0, 0, 0.4)
-				target_scale = Vector3(1.4, 1.4, 1.4)
-			else: # Yanci
-				target_pos = merkez + Vector3(-1.8, 0, 0.5)
-				target_scale = Vector3(0.9, 0.9, 0.9)
-		elif sirali_yasayanlar.size() >= 3:
-			if i == 0: # ANA BOSS ORTADA
+		else:
+			if i == 0: # ANA BOSS (HER ZAMAN MERKEZDE)
 				target_pos = merkez
 				target_scale = Vector3(1.5, 1.5, 1.5)
-			elif i == 1: # Sağ
-				target_pos = merkez + Vector3(2.5, 0, 0.8)
-				target_scale = Vector3(0.9, 0.9, 0.9)
-			else: # Sol
-				target_pos = merkez + Vector3(-2.5, 0, 0.8)
-				target_scale = Vector3(0.9, 0.9, 0.9)
+			else:
+				# Yanci Marker'lari var mi kontrol et
+				var marker_idx = i - 1
+				if marker_idx < yanci_markerlari.size() and is_instance_valid(yanci_markerlari[marker_idx]):
+					target_pos = yanci_markerlari[marker_idx].global_position
+					target_scale = Vector3(0.9, 0.9, 0.9)
+					print("📍 Yanci ", i, " marker pozisyonuna yerlestirildi: ", target_pos)
+				else:
+					# Yedek hesaplama (Marker yoksa eski mantik)
+					var yon = 1 if i % 2 != 0 else -1
+					var carpak = ceil(float(i) / 2.0)
+					target_pos = merkez + Vector3(2.5 * yon * carpak, 0, -0.8)
+					target_scale = Vector3(0.9, 0.9, 0.9)
+					print("⚠️ Yanci marker bulunamadi, yedek pozisyon kullaniliyor.")
 		
 		b.global_position = target_pos
 		b.scale = target_scale
@@ -345,27 +348,41 @@ func boss_saldirisi_baslat():
 	if GameManager.pyro_aktif: return
 	
 	if saldiri_devrede:
-		print("⚠️ Boss saldırısı zaten devrede, kopya çağrı engellendi.")
+		print("⚠️ Boss saldırısı zaten devrede, kopya çağrı engellendi. Kilit açılıyor...")
+		# Eğer kilitliysek ama saldırı başlatılamıyorsa oyuncuyu kurtar
+		await get_tree().create_timer(1.0).timeout
+		_on_boss_isi_bitti()
 		return
+		
 	saldiri_devrede = true
 
-	# is_boss_acting oyuncunun blok atmasını engellemek için dışarıdan (oyun_odasi) set edilir.
-	# Dolayısıyla boss'un kendi saldırmasını burada durdurmamalı.
-	# (Double-call vs olmaz çünkü dışarıdan kontrollü)
+	# Canlı bossları bul
+	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
+	var yasayan_boss: Node3D = null
+	
+	# Öncelik 1: Aktif ana boss hayatta mı?
+	if is_instance_valid(aktif_ana_boss) and not aktif_ana_boss.get("oldu_mu"):
+		yasayan_boss = aktif_ana_boss
+	else:
+		# Öncelik 2: Herhangi bir canlı boss bul
+		for d in dusmanlar:
+			if is_instance_valid(d) and not d.get("oldu_mu"):
+				yasayan_boss = d
+				break
 
-	var boss = get_tree().get_first_node_in_group("Dusman")
-	if boss:
+	if yasayan_boss:
 		# KİLİTLE — oyuncu blok koyamaz
 		is_boss_acting = true
 		get_tree().call_group("Blok", "iptal_et")
-		print("🔒 Boss sırası KİLİTLENDİ. Eldeki bloklar iptal edildi.")
+		print("🔒 Boss sırası KİLİTLENDİ (", yasayan_boss.name, "). Eldeki bloklar iptal edildi.")
 
-		if not boss.saldiri_tamamlandi.is_connected(_on_boss_isi_bitti):
-			boss.saldiri_tamamlandi.connect(_on_boss_isi_bitti)
+		if not yasayan_boss.saldiri_tamamlandi.is_connected(_on_boss_isi_bitti):
+			yasayan_boss.saldiri_tamamlandi.connect(_on_boss_isi_bitti)
 		
 		# Boss uyanma ve saldırı sürecini başlatır
-		boss.saldiri_baslat()
+		yasayan_boss.saldiri_baslat()
 	else:
+		print("❓ Saldiracak boss bulunamadi, kilit aciliyor.")
 		_on_boss_isi_bitti()
 
 func _on_boss_isi_bitti():

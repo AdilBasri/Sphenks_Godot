@@ -328,6 +328,15 @@ func _on_boss_oldu_sinyali():
 	print("☠️ STONE BOSS ÖLÜYOR...")
 	_olum_sekans()
 
+func _hayatta_boss_var_mi() -> bool:
+	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
+	for d in dusmanlar:
+		if is_instance_valid(d) and d != self:
+			var d_oldu = d.get("oldu_mu")
+			if d_oldu == null or d_oldu == false:
+				return true
+	return false
+
 func _olum_sekans():
 	"""Ölüm animasyonu, patlama efekti ve kapı açma."""
 	# 0 — KAPIYI HEMEN AÇ
@@ -339,8 +348,9 @@ func _olum_sekans():
 	_kamerayi_oyuncuya_ver()
 
 	if LevelManager:
-		LevelManager.is_boss_acting = false
-		LevelManager.disable_all_boss_collisions()
+		LevelManager._set_boss_collision(self, false) # Sadece kendimi kapat
+		if not _hayatta_boss_var_mi():
+			LevelManager.is_boss_acting = false
 	
 	# 1 — Patlama efekti spawn (Modelin tam konumunda)
 	var patlama_sahne = load("res://efektler/boss_patlama.tscn")

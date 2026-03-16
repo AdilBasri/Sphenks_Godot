@@ -234,7 +234,7 @@ func hucreyi_kilitle(hedef: Vector2i, tip: String = "TAS"):
 	add_child(engel)
 	
 	# 1. Grid'in Scale/Rotation ayarlarından etkilenmemesi için bağımsız yapıyoruz:
-	engel.set_as_top_level(true) 
+	# engel.set_as_top_level(true) # Masaya bağlı kalması için kapatıldı
 	
 	# 2. Boyutunun bozulmadığından emin oluyoruz:
 	engel.scale = Vector3.ONE 

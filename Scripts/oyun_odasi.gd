@@ -60,6 +60,16 @@ func _ready():
 	if zar_kamerasi: zar_kamerasi.current = false
 	if oyuncu_kamerasi: oyuncu_kamerasi.current = true
 
+	# --- 📍 YANCI MARKERLARINI KAYDET (YENİ) ---
+	if LevelManager:
+		LevelManager.yanci_markerlari.clear()
+		var yanci_node = find_child("Yancilar", true, false)
+		if yanci_node:
+			for child in yanci_node.get_children():
+				if child is Node3D:
+					LevelManager.yanci_markerlari.append(child)
+			print("📍 LevelManager'a ", LevelManager.yanci_markerlari.size(), " adet yanci marker'i kaydedildi.")
+
 	# --- SİNYALLER ---
 	if GameManager:
 		if not GameManager.blok_yerlestirildi.is_connected(_on_blok_yerlestirildi):
@@ -195,8 +205,11 @@ func _on_blok_yerlestirildi():
 	var saldiri_yapacak_mi = true
 	
 	# Eğer Zar Boss'u (NormalBoss) ise 2 adımda bir saldırır
-	if boss and boss.name == "NormalBoss":
-		if blok_sayaci % 2 != 0:
+	if boss:
+		var boss_adi = boss.name.to_lower()
+		var zar_bossu_mu = "normalboss" in boss_adi or boss.has_method("_zar_sekansi")
+		
+		if zar_bossu_mu and (blok_sayaci % 2 != 0):
 			saldiri_yapacak_mi = false
 			print("🎲 Zar Boss'u (Normal) bu adımı pas geçiyor.")
 	
@@ -287,6 +300,16 @@ func zar_at():
 		_tek_zar_olustur()
 	else:
 		print("🚫 İkinci zar iptal edildi (Tek Zar Modu).")
+		
+	# --- 🛡️ GÜVENLİK ZAMANLAYICISI (Deadlock Önleme) ---
+	# Eğer zarlar bir şekilde durmazsa (fizik hatası vb.), 10 sn sonra zorla bitir
+	get_tree().create_timer(10.0).timeout.connect(func():
+		if zar_firlatiliyor_mu:
+			print("⚠️ ZAR TIMEOUT: Zarlar durmadı, zorla bitiriliyor...")
+			# Eğer hala durmayan zar varsa onları zorla durdur veya 0 kabul et
+			if duran_zar_sayisi < beklenen_zar_sayisi:
+				_on_zar_durdu(0) # 0 hasar ile devam et (Donma olmasın)
+	)
 
 func _tek_zar_olustur():
 	if not zar_sahnesi or not zar_atik_noktasi: return

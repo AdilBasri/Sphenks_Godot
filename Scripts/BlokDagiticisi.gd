@@ -351,10 +351,19 @@ func _sahne_bitis_animasyonu() -> void:
 	if LevelManager:
 		LevelManager.is_boss_acting = false
 		LevelManager.disable_all_boss_collisions()
-		
+	
 	# Mekan bariyerlerini erkenden kaldır ki oyuncu kapıya gidebilsin
 	get_tree().call_group("Bariyer", "bolum_bitti")
 		
+	# 1. KAPIYI HEMEN AÇ (Masa gider gitmez)
+	var kapi = kapi_sistemi
+	if not is_instance_valid(kapi):
+		kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
+	if kapi:
+		if "kilitli_mi" in kapi: kapi.kilitli_mi = false
+		if kapi.has_method("kapiyi_ac"):
+			kapi.kapiyi_ac()
+
 	var tween = create_tween()
 	tween.set_parallel(true)
 		
@@ -374,14 +383,6 @@ func _sahne_bitis_animasyonu() -> void:
 		if grid and grid.has_method("engelleri_temizle"):
 			grid.engelleri_temizle()
 			
-		var kapi = kapi_sistemi
-		if not is_instance_valid(kapi):
-			kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
-		if kapi:
-			if "kilitli_mi" in kapi: kapi.kilitli_mi = false
-			if kapi.has_method("kapiyi_ac"):
-				kapi.kapiyi_ac()
-		
 		# Mekan bariyerlerini kaldır
 		get_tree().call_group("Bariyer", "bolum_bitti")
 		

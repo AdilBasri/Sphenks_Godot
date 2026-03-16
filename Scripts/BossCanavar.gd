@@ -393,6 +393,16 @@ func update_base_position(new_pos: Vector3):
 # ÖLÜM KONTROLÜ
 # ==========================================
 
+func _hayatta_boss_var_mi() -> bool:
+	"""Sahnede ölmemiş başka bir boss olup olmadığını kontrol eder."""
+	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
+	for d in dusmanlar:
+		if is_instance_valid(d) and d != self:
+			var d_oldu = d.get("oldu_mu")
+			if d_oldu == null or d_oldu == false:
+				return true
+	return false
+
 func _oldu_mu_kontrol() -> bool:
 	"""Her await sonrasında çağrılır. Ölmüşse true döner."""
 	return oldu_mu or suanki_durum == str(DURUM_OLDU)
@@ -417,10 +427,12 @@ func _on_boss_oldu_sinyali():
 	# 2 — Kamerayı oyuncuya iade et
 	_kamerayi_oyuncuya_ver()
 
-	# 3 — Kilitleri aç
+	# 3 — Kilitleri aç (Eğer başka boss yoksa)
 	if LevelManager:
-		LevelManager.is_boss_acting = false
-		LevelManager.disable_all_boss_collisions()
+		LevelManager._set_boss_collision(self, false) # Sadece kendimi kapat
+		if not _hayatta_boss_var_mi():
+			LevelManager.is_boss_acting = false
+			# LevelManager.disable_all_boss_collisions() # SİLİNDİ, bireysel yapıyoruz
 	
 	# 4 — Patlama efekti spawn (Modelin tam konumunda)
 	var patlama_sahne = load("res://efektler/boss_patlama.tscn")
