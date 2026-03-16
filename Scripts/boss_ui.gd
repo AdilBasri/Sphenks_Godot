@@ -12,6 +12,7 @@ const BOSS_MARGIN_RIGHT: float = 40.0          # Ekranın sağından olan genel 
 const BOSS_TOP_MARGIN : float = 40.0           # Ekranın üstünden olan boşluk
 
 const HEX_BUYUK_R    : float = 18.0            # Boss kafa (büyük hex) yarıçapı
+const HEX_ORTA_R     : float = 14.0            # İkincil boss kafa yarıçapı (orta boy)
 const HEX_KUCUK_R    : float = 9.0             # Atak (küçük hex) yarıçapı
 const KAFA_ATAK_ARASI: float = 72.0            # Kafa ile ilk atak arası boşluk
 const ATAK_ARASI     : float = 50.0             # Atak hexleri kendi arası boşluk
@@ -146,56 +147,71 @@ func _ui_yenile() -> void:
 			veri.container = null
 			continue
 
-		# Kartı sağa yaslıyoruz: Ellipsis en sağda olsun istendiği için x_pos'u buna göre kuruyoruz
-		# Boss Kafası (Local 0,0) en solda olacak.
-		# O zaman kafa.pos = screen_right - margin - kart_w
-		var x_pos: float = -BOSS_MARGIN_RIGHT - kart_toplam_w
+		var x_pos: float
 		var y_pos: float = BOSS_TOP_MARGIN + (visible_count * BOSS_OFFSET_Y)
-		
-		# Bosslar üst üste binmesin diye basamak etkisi (opsiyonel)
-		# x_pos -= visible_count * 20.0 
 
-		var container: Control = _boss_kart_olustur(veri, Vector2(x_pos, y_pos))
+		if visible_count == 0:
+			# Birincil boss: En soldan (kafa) başla
+			x_pos = -BOSS_MARGIN_RIGHT - kart_toplam_w
+		else:
+			# İkincil bosslar: Birinci boss'un atak hexlerinin başladığı noktaya hizala
+			x_pos = -BOSS_MARGIN_RIGHT - kart_toplam_w + (HEX_BUYUK_R * 2.0) + KAFA_ATAK_ARASI
+
+		var container: Control = _boss_kart_olustur(veri, Vector2(x_pos, y_pos), visible_count == 0)
 		veri.container = container
 		add_child(container)
 		visible_count += 1
 
-func _boss_kart_olustur(veri: Dictionary, offset: Vector2) -> Control:
+func _boss_kart_olustur(veri: Dictionary, offset: Vector2, birincil: bool = true) -> Control:
 	var c: Control = Control.new()
 	c.position = offset
 
-	# 1 — Büyük boss kafa hexagonu (EN SOLDA: x=0)
-	var kafa: Node2D = _hex_ciz(
-		Vector2(0, 0),
-		HEX_BUYUK_R,
-		BOSS_RENKLER.get(veri.tip, Color.WHITE),
-		veri.tip
-	)
-	c.add_child(kafa)
-
-	# 2 — Atak önizleme hexleri (Kafanın SAĞINDA sırayla)
-	var atak_baslangic_x: float = (HEX_BUYUK_R * 2.0) + KAFA_ATAK_ARASI
-	for j: int in 3:
-		var atak_x: float = atak_baslangic_x + j * (HEX_KUCUK_R * 2.0 + ATAK_ARASI)
-		var atak_hex: Node2D = _atak_hex_ciz(
-			Vector2(atak_x, (HEX_BUYUK_R - HEX_KUCUK_R)), # Merkeze hizalı
-			HEX_KUCUK_R,
-			veri.gelecek_ataklar[j] if j < veri.gelecek_ataklar.size() else ""
+	if birincil:
+		# 1 — Büyük boss kafa hexagonu (EN SOLDA: x=0)
+		var kafa: Node2D = _hex_ciz(
+			Vector2(0, 0),
+			HEX_BUYUK_R,
+			BOSS_RENKLER.get(veri.tip, Color.WHITE),
+			veri.tip
 		)
-		c.add_child(atak_hex)
+		c.add_child(kafa)
 
-	# ... hex (EN SAĞDA)
-	var nokta_x: float = atak_baslangic_x + 3 * (HEX_KUCUK_R * 2.0 + ATAK_ARASI)
-	var nokta_hex: Node2D = _nokta_hex_ciz(Vector2(nokta_x, (HEX_BUYUK_R - HEX_KUCUK_R)), HEX_KUCUK_R)
-	c.add_child(nokta_hex)
+		# 2 — Atak önizleme hexleri (Kafanın SAĞINDA sırayla)
+		var atak_baslangic_x: float = (HEX_BUYUK_R * 2.0) + KAFA_ATAK_ARASI
+		for j: int in 3:
+			var atak_x: float = atak_baslangic_x + j * (HEX_KUCUK_R * 2.0 + ATAK_ARASI)
+			var atak_hex: Node2D = _atak_hex_ciz(
+				Vector2(atak_x, (HEX_BUYUK_R - HEX_KUCUK_R)), # Merkeze hizalı
+				HEX_KUCUK_R,
+				veri.gelecek_ataklar[j] if j < veri.gelecek_ataklar.size() else ""
+			)
+			c.add_child(atak_hex)
 
-	# 3 — Can barı (KAFANIN TAM ALTINDA merkezlenmiş)
-	var canbar: Control = _canbar_olustur(veri)
-	# canbar genişliği kafa genişliği kadar (2*R)
-	canbar.position = Vector2(0, HEX_BUYUK_R * 2.0 + CANBAR_OFFSET_Y)
-	c.add_child(canbar)
+		# ... hex (EN SAĞDA)
+		var nokta_x: float = atak_baslangic_x + 3 * (HEX_KUCUK_R * 2.0 + ATAK_ARASI)
+		var nokta_hex: Node2D = _nokta_hex_ciz(Vector2(nokta_x, (HEX_BUYUK_R - HEX_KUCUK_R)), HEX_KUCUK_R)
+		c.add_child(nokta_hex)
 
-	# Container boyutunu ayarla (mouse filter yok — tıklanamaz)
+		# 3 — Can barı (KAFANIN TAM ALTINDA merkezlenmiş)
+		var canbar: Control = _canbar_olustur(veri, HEX_BUYUK_R)
+		canbar.position = Vector2(0, HEX_BUYUK_R * 2.0 + CANBAR_OFFSET_Y)
+		c.add_child(canbar)
+	else:
+		# Küçük — orta boy kafa + sağına can barı
+		var r_orta: float = HEX_ORTA_R
+		var kafa: Node2D = _hex_ciz(
+			Vector2(0, 0),
+			r_orta,
+			BOSS_RENKLER.get(veri.tip, Color.WHITE),
+			veri.tip
+		)
+		c.add_child(kafa)
+		
+		var canbar: Control = _canbar_olustur(veri, HEX_BUYUK_R) # Boyutu küçülmesin dendi
+		# Kafanın sağına hizala (kafa genişliği + gap, kafa ortasına dikey hizalı)
+		canbar.position = Vector2(r_orta * 2.0 + 8.0, r_orta - (CANBAR_H / 2.0))
+		c.add_child(canbar)
+
 	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return c
 
@@ -238,10 +254,13 @@ func _hex_ciz(pos: Vector2, r: float, renk: Color, tip: String) -> Node2D:
 	var tex_path: String = "res://Assets/" + dosya_tipi + "_hex.png"
 	if ResourceLoader.exists(tex_path):
 		var sprite: Sprite2D = Sprite2D.new()
-		sprite.texture = load(tex_path)
+		var tex: Texture2D = load(tex_path)
+		sprite.texture = tex
 		sprite.position = Vector2(r, r)
-		# 1024'lük texture için r=18 d=36. 36/1024 = 0.035
-		sprite.scale = Vector2(0.035, 0.035) 
+		# Dinamik ölçekleme: Texture'ı kafa boyutuna (2r) tam sığdır
+		var tex_size: Vector2 = tex.get_size()
+		var target_size: float = r * 2.0
+		sprite.scale = Vector2(target_size / tex_size.x, target_size / tex_size.y)
 		n.add_child(sprite)
 	else:
 		# Placeholder: renkli daire
@@ -278,10 +297,13 @@ func _atak_hex_ciz(pos: Vector2, r: float, atak_tipi: String) -> Node2D:
 	var tex_path: String = ATAK_IKONLAR.get(atak_tipi, "")
 	if tex_path != "" and ResourceLoader.exists(tex_path):
 		var sprite: Sprite2D = Sprite2D.new()
-		sprite.texture = load(tex_path)
+		var tex: Texture2D = load(tex_path)
+		sprite.texture = tex
 		sprite.position = Vector2(r, r)
-		# Küçük hex r=9 d=18. 18/1024 = 0.0175.
-		sprite.scale = Vector2(0.018, 0.018)
+		# Dinamik ölçekleme: Atak hex boyutuna (2r) tam sığdır
+		var tex_size: Vector2 = tex.get_size()
+		var target_size: float = r * 2.0
+		sprite.scale = Vector2(target_size / tex_size.x, target_size / tex_size.y)
 		n.add_child(sprite)
 	else:
 		# Placeholder: atak tipine göre renk
@@ -327,9 +349,9 @@ func _nokta_hex_ciz(pos: Vector2, r: float) -> Node2D:
 
 # ── CAN BARI ──────────────────────────────────────────────────────────────────
 
-func _canbar_olustur(veri: Dictionary) -> Control:
+func _canbar_olustur(veri: Dictionary, r: float = HEX_BUYUK_R) -> Control:
 	var c: Control = Control.new()
-	var toplam_genislik: float = HEX_BUYUK_R * 2.0
+	var toplam_genislik: float = r * 2.0
 	var parca_sayisi: int = veri.max_hp
 	var bosluk: float = 2.0
 	var parca_genislik: float = (toplam_genislik - bosluk * (parca_sayisi - 1)) / float(parca_sayisi)
