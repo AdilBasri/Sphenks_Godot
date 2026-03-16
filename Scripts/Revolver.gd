@@ -379,9 +379,9 @@ func _erken_hedef_kontrolu():
 		bilgi_goster("Silahını Çek (Sağ Tık) ve Boss'u Öldür!", 6.0, true)
 		
 		# Boss sırası ondaysa oyuncuyu sabırsız bırakmamak için kamerasını ve Inputu zorla kaldır
-		var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
-		if oyuncu and oyuncu.has_method("stand_up"):
-			oyuncu.stand_up(true)
+		# var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+		# if oyuncu and oyuncu.has_method("stand_up"):
+		# 	oyuncu.stand_up(true)
 
 var _kalici_mesaj_aktif: bool = false
 
