@@ -1695,11 +1695,13 @@ func stand_up(forced: bool = false):
 	if not is_sitting: return
 	
 	if not forced:
-		# GHOST MOVE veya BOSS atağı sırasında inemez (Normal oyun akışı)
-		if GameManager and GameManager.ghost_move_active:
-			return
+		# BOSS atağı sırasında inemez (Normal oyun akışı)
 		if LevelManager and LevelManager.is_boss_acting:
 			return
+	
+	# GHOST MOVE (B&W Shader) sırasında HİÇBİR ŞEKİLDE inemez (Mermi israfı ve hitbox bugu önlemi)
+	if GameManager and GameManager.ghost_move_active:
+		return
 	
 	# --- TÜM AKTİF TWEEN'LERİ ÖLDÜR ---
 	# Orbit kamera tweeni devam ediyorsa kamerayi havada birakabilir.

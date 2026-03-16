@@ -256,10 +256,7 @@ func _yanci_spawn_et(tip: int, hp: int):
 		if hp > 0:
 			# HP atamasını hemen yap (BlokDagiticisi HP kontrolü için beklememeli)
 			twin.boss_hp = hp
-			get_tree().create_timer(0.2).timeout.connect(func():
-				if is_instance_valid(twin):
-					if twin.has_method("boss_durumu_sifirla"): twin.boss_durumu_sifirla()
-			)
+			get_tree().create_timer(0.2).timeout.connect(_reset_twin_state.bind(twin))
 
 func _bosslari_yeniden_konumlandir():
 	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
@@ -458,20 +455,25 @@ func _set_boss_collision(boss_node: Node, enabled: bool):
 	
 	# Ust seviye CharacterBody3D veya StaticBody3D ise 
 	if boss_node is CollisionObject3D:
-		boss_node.set_collision_layer_value(8, enabled) # Boss Layer: 8
-		boss_node.set_collision_mask_value(8, enabled)
+		boss_node.call_deferred("set_collision_layer_value", 8, enabled) # Boss Layer: 8
+		boss_node.call_deferred("set_collision_mask_value", 8, enabled)
 	
 	# Cocuklar arasindaki CollisionShape ve Area'lari bul
 	for child in boss_node.get_children(true):
 		if child is CollisionShape3D:
-			child.disabled = !enabled
+			child.set_deferred("disabled", !enabled)
 		elif child is CollisionObject3D:
-			child.set_collision_layer_value(8, enabled)
-			child.set_collision_mask_value(8, enabled)
+			child.call_deferred("set_collision_layer_value", 8, enabled)
+			child.call_deferred("set_collision_mask_value", 8, enabled)
 		elif child is Area3D:
-			child.monitoring = enabled
-			child.monitorable = enabled
+			child.set_deferred("monitoring", enabled)
+			child.set_deferred("monitorable", enabled)
 		
 		# Rekursif devam et (alt node'lar icin)
 		if child.get_child_count() > 0:
 			_set_boss_collision(child, enabled)
+
+func _reset_twin_state(twin: Node):
+	if is_instance_valid(twin):
+		if twin.has_method("boss_durumu_sifirla"):
+			twin.boss_durumu_sifirla()

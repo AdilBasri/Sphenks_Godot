@@ -170,7 +170,7 @@ func _play_idle() -> void:
 	anim_player.play("allanims")
 	
 	if _idle_forward:
-		anim_player.speed_scale = 1.0
+		anim_player.speed_scale = 0.01
 		anim_player.seek(T_IDLE_START, true)
 	else:
 		anim_player.speed_scale = -1.0
