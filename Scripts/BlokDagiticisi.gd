@@ -278,9 +278,9 @@ func _tur_sonu_hesaplamasi() -> void:
 		if arayuz and arayuz.has_method("bilgi_goster"):
 			arayuz.bilgi_goster("Silahını Çek (Sağ Tık) ve Boss'u Öldür!", 3.0) 
 		
-		var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
-		if oyuncu and oyuncu.has_method("stand_up"):
-			oyuncu.stand_up(true)
+		# var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+		# if oyuncu and oyuncu.has_method("stand_up"):
+		# 	oyuncu.stand_up(true)
 	else:
 		# Mermi tamamen bittiyse (0 ise)
 		var mermisi_varken_mi_bitti = GameManager and (GameManager.mermi_sayisi <= 0 and GameManager.shotgun_mermi_count <= 0)
