@@ -422,7 +422,7 @@ shape = SubResource("BoxShape3D_0o22n")
 transform = Transform3D(0.8947662, 0.09763501, -0.43573022, -0.087779894, 0.9952223, 0.042746756, 0.437822, 0, 0.8990617, -2.178694, 0.90977776, 0)
 
 [node name="Yancilar" type="Node3D" parent="MezarOdasi" index="10"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.1004524, -2.802431)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, -2.802)
 
 [node name="yanci1" type="Marker3D" parent="MezarOdasi/Yancilar" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)

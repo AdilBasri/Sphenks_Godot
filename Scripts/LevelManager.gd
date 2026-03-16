@@ -227,21 +227,18 @@ func _boss_sistemini_ayarla():
 		# Boss ana pozisyonunda - SAHNEDEKİ KONUM KULLANILIYOR
 		# aktif_boss.global_position = start_pos + Vector3(0, -0.5, -4.5) 
 		
-		# --- 👹 BOSS KAÇTI: YANCI BOSS SPAWN ---
+		# --- 👹 BOSS KAÇTI: TÜM YANCILARI SPAWN ET ---
 		if GameManager and GameManager.boss_kacti:
-			var kacan_tip = GameManager.kacan_boss_tipi
-			var kacan_hp = GameManager.boss_kalan_hp
-			
-			# Kaçan boss'u yanci1 veya yanci2 markerına spawn et
-			# ilk yancı olduğu için yanci1'e gidecek
-			var spawn_pos = Vector3.ZERO
-			if yanci_markerlari.size() > 0 and is_instance_valid(yanci_markerlari[0]):
-				spawn_pos = yanci_markerlari[0].global_position
-			
-			_yanci_spawn_et(kacan_tip, kacan_hp, spawn_pos)
+			for i in range(GameManager.kacan_bosslar.size()):
+				var data = GameManager.kacan_bosslar[i]
+				var spawn_pos = Vector3.ZERO
+				if i < yanci_markerlari.size() and is_instance_valid(yanci_markerlari[i]):
+					spawn_pos = yanci_markerlari[i].global_position
+				
+				_yanci_spawn_et(data["tip"], data["hp"], spawn_pos)
 			
 			GameManager.boss_kacti = false
-			GameManager.boss_kalan_hp = 0
+			GameManager.kacan_bosslar.clear()
 		
 		# Tüm bossları (ana + yancılar) hizala
 		_bosslari_yeniden_konumlandir()
@@ -282,7 +279,6 @@ func _yanci_spawn_et(tip: int, hp: int, pos: Vector3 = Vector3.ZERO):
 		twin.add_to_group("Dusman")
 		if "oldu_mu" in twin: twin.oldu_mu = false
 		_set_boss_collision(twin, true)
-		twin.scale = Vector3(1.2, 1.2, 1.2) # Yancılar biraz daha küçük
 		
 		if hp > 0:
 			twin.boss_hp = hp
@@ -307,9 +303,14 @@ func _bosslari_yeniden_konumlandir():
 	for i in range(sirali_yasayanlar.size()):
 		var b = sirali_yasayanlar[i]
 		
-		if i == 0: # ANA BOSS
+		if i == 0: # ANA BOSS (MERKEZ)
 			# Sahnedeki pozisyonunu ("tek başına olduklarındaki konumları doğru") koruyor.
-			# Sadece boss canavar scripti varsa base position güncellemesi yap (oturma/kalkma drift fix için)
+			# Eğer ana boss değil de bir yancıysa (ana boss ölmüşse), sahnenin merkezine ışınla
+			if b != aktif_ana_boss:
+				b.global_position = start_pos + Vector3(0, -0.5, -4.5)
+			
+			b.scale = Vector3(1.5, 1.5, 1.5) # Ana boss boyutu
+			
 			if b.has_method("update_base_position"):
 				b.update_base_position(b.global_position)
 			continue
@@ -322,13 +323,17 @@ func _bosslari_yeniden_konumlandir():
 		if marker_idx < yanci_markerlari.size() and is_instance_valid(yanci_markerlari[marker_idx]):
 			target_pos = yanci_markerlari[marker_idx].global_position
 		else:
-			# Eğer marker yetmezse (2'den fazla yancı) son markerın yanına veya 
-			# ana boss'un uzağına yerleştir (üst üste binmeyi önle)
+			# Eğer marker yetmezse (2'den fazla yancı) son markerın yanına yerleştir
 			var offset_dir = Vector3(1.5, 0, 0) if i % 2 == 0 else Vector3(-1.5, 0, 0)
-			target_pos = start_pos + Vector3(0, -0.5, -4.5) + (offset_dir * floor(i / 2.0 + 1))
+			target_pos = start_pos + Vector3(2.3, -0.5, -4.5) + (offset_dir * floor(i / 2.0))
 		
 		b.global_position = target_pos
-		b.scale = Vector3(1.2, 1.2, 1.2)
+		
+		# --- 📍 NORMALBOSS SCALE FIX ---
+		var scale_val = 1.2
+		if "normalboss" in b.name.to_lower():
+			scale_val *= 1.4 # NormalBoss yancı iken x1.4 daha büyük olsun
+		b.scale = Vector3(scale_val, scale_val, scale_val)
 		
 		if b.has_method("update_base_position"):
 			b.update_base_position(target_pos)
@@ -375,32 +380,37 @@ func boss_saldirisi_baslat():
 		return
 		
 	saldiri_devrede = true
+	is_boss_acting = true # Hemen kilitle
+	get_tree().call_group("Blok", "iptal_et")
 
-	# Canlı bossları bul
+	# Canlı bossları bul ve sırala (Önce ana boss, sonra yancılar)
 	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
-	var yasayan_boss: Node3D = null
+	var yasayanlar = []
 	
-	# Öncelik 1: Aktif ana boss hayatta mı?
+	# Ana boss hayattaysa başa ekle
 	if is_instance_valid(aktif_ana_boss) and not aktif_ana_boss.get("oldu_mu"):
-		yasayan_boss = aktif_ana_boss
-	else:
-		# Öncelik 2: Herhangi bir canlı boss bul
-		for d in dusmanlar:
-			if is_instance_valid(d) and not d.get("oldu_mu"):
-				yasayan_boss = d
-				break
+		yasayanlar.append(aktif_ana_boss)
+	
+	for d in dusmanlar:
+		if is_instance_valid(d) and not d.get("oldu_mu") and d != aktif_ana_boss:
+			yasayanlar.append(d)
 
-	if yasayan_boss:
-		# KİLİTLE — oyuncu blok koyamaz
-		is_boss_acting = true
-		get_tree().call_group("Blok", "iptal_et")
-		print("🔒 Boss sırası KİLİTLENDİ (", yasayan_boss.name, "). Eldeki bloklar iptal edildi.")
-
-		if not yasayan_boss.saldiri_tamamlandi.is_connected(_on_boss_isi_bitti):
-			yasayan_boss.saldiri_tamamlandi.connect(_on_boss_isi_bitti)
+	if yasayanlar.size() > 0:
+		print("🔒 Boss saldırı sekansı başladı. Toplam: ", yasayanlar.size())
 		
-		# Boss uyanma ve saldırı sürecini başlatır
-		yasayan_boss.saldiri_baslat()
+		# SIRAYLA SALDIRI
+		for boss in yasayanlar:
+			if is_instance_valid(boss) and not boss.get("oldu_mu"):
+				print("⚔️ ", boss.name, " saldırıyor...")
+				boss.saldiri_baslat()
+				
+				# Boss'un saldırı tamam sinyalini bekle
+				if boss.has_signal("saldiri_tamamlandi"):
+					await boss.saldiri_tamamlandi
+				else:
+					await get_tree().create_timer(2.0).timeout # Fallback
+		
+		_on_boss_isi_bitti()
 	else:
 		print("❓ Saldiracak boss bulunamadi, kilit aciliyor.")
 		_on_boss_isi_bitti()

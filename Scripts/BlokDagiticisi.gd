@@ -308,11 +308,18 @@ func _tur_sonu_hesaplamasi() -> void:
 			return
 
 		tur_bitti_mi = true
-		GameManager.boss_kacti = true
-		# ... (rest of escape logic)
-		GameManager.boss_kalan_hp = toplam_kalan_hp
-		var aktif_boss_tipi = LevelManager.suanki_katman % 3 if LevelManager else 0
-		GameManager.kacan_boss_tipi = aktif_boss_tipi
+		
+		# --- TÜM DÜŞMANLARI KAÇANLAR LİSTESİNE EKLE ---
+		if GameManager:
+			GameManager.kacan_bosslar.clear() # Önce temizle
+			for boss in boss_list:
+				if is_instance_valid(boss) and not boss.get("oldu_mu"):
+					var tip = 0 # Default Normal
+					if "acid" in boss.name.to_lower(): tip = 1
+					elif "stone" in boss.name.to_lower(): tip = 2
+					
+					var hp = boss.boss_hp if "boss_hp" in boss else 1
+					GameManager.boss_kacti_ekle(tip, hp)
 		
 		# UI güncellensin ve eski mesajlar silinsin
 		if arayuz and arayuz.has_method("kalici_bilgi_gizle"):

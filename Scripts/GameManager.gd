@@ -70,8 +70,7 @@ var ghost_canvas: CanvasLayer = null
 
 # --- 👹 BOSS KAÇTI SİSTEMİ ---
 var boss_kacti: bool = false  # Boss öldürülemeden kaçtıysa, bir sonraki bölümde tekrar gelir
-var boss_kalan_hp: int = 0    # Boss kaçtığında kalan HP'si (sonraki bölümde bu HP ile spawn olur)
-var kacan_boss_tipi: int = -1 # Hangi boss'un kaçtığını hatırlar (-1: yok, 0: Normal, 1: Acid, 2: Stone)
+var kacan_bosslar: Array = [] # [{ "tip": int, "hp": int }, ...] dizisi
 
 func _ready():
 	randomize()
@@ -87,10 +86,20 @@ func _ready():
 
 func _on_boss_oldu_gm():
 	boss_kacti = false
-	boss_kalan_hp = 0
-	kacan_boss_tipi = -1
+	kacan_bosslar.clear()
 	if ghost_move_active:
 		end_ghost_move()
+
+func boss_kacti_ekle(tip: int, hp: int):
+	"""Kaçan bossları listeye ekler (max 2 yancı desteklenir)."""
+	if kacan_bosslar.size() >= 2:
+		# En eski kaçanı çıkarıp yeniye yer açabiliriz veya doluluğu koruruz
+		# Genelde 2 yancı sınırı olduğu için limitli tutuyoruz
+		return
+	
+	kacan_bosslar.append({"tip": tip, "hp": hp})
+	boss_kacti = true
+	print("👹 Kaçan boss listeye eklendi (Tip: %d, HP: %d). Toplam: %d" % [tip, hp, kacan_bosslar.size()])
 
 var bgm_player: AudioStreamPlayer
 var suanki_muzik: int = 1
@@ -282,7 +291,7 @@ func verileri_sifirla():
 	kanli_indirim_aktif = false
 	sonraki_boss_saldirisi = ""
 	boss_kacti = false
-	boss_kalan_hp = 0
+	kacan_bosslar.clear()
 	
 	mide_doluluk = 0
 	limbs_eaten_this_round = 0
@@ -396,7 +405,7 @@ func oyunu_kaydet():
 	config.set_value("Oyun", "CompletedTutorials", completed_tutorials)
 	config.set_value("Oyun", "UykuSahnesiGirisSayisi", uyku_sahnesi_giris_sayisi)
 	config.set_value("Oyun", "BossKacti", boss_kacti)
-	config.set_value("Oyun", "BossKalanHP", boss_kalan_hp)
+	config.set_value("Oyun", "KacanBosslar", kacan_bosslar)
 	config.save("user://savegame.cfg")
 	print("💾 Oyun kaydedildi. (Seviye: %d, Envanter: %s)" % [kayit_seviyesi, str(esya_id_listesi)])
 
@@ -463,7 +472,7 @@ func oyunu_yukle():
 		# suanki_seviye'yi de senkronize et ki LevelManager doğru okusun
 		suanki_seviye = kayitli_seviye
 		boss_kacti = config.get_value("Oyun", "BossKacti", false)
-		boss_kalan_hp = config.get_value("Oyun", "BossKalanHP", 0)
+		kacan_bosslar = config.get_value("Oyun", "KacanBosslar", [])
 
 		# Corrupt save fix: HP sıfırsa tam sağlığa döndür
 		if oyuncu_kalan_bar <= 0 or oyuncu_suanki_hp <= 0:
