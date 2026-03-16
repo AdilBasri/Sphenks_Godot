@@ -32,6 +32,31 @@ func _ready() -> void:
 	# Başlangıçta biraz bekle ki sahne yüklensin
 	await get_tree().create_timer(0.1).timeout
 	yeni_bolumu_baslat()
+	
+	if GameManager:
+		if not GameManager.mermi_degisti.is_connected(_on_mermi_degisti_kontrol):
+			GameManager.mermi_degisti.connect(_on_mermi_degisti_kontrol)
+		if not GameManager.boss_oldu.is_connected(_on_boss_oldu_gm_sinyali):
+			GameManager.boss_oldu.connect(_on_boss_oldu_gm_sinyali)
+
+func _on_boss_oldu_gm_sinyali():
+	boss_oldu_mu = true
+
+func _on_mermi_degisti_kontrol(_yeni_sayi: int) -> void:
+	# Eğer mermi değiştiyse ve boss yaşıyorsa
+	if not boss_oldu_mu and not GameManager.boss_kacti:
+		# Puan hedefine çoktan ulaşılmış olabilir (erken kalkış)
+		# veya taşlar/stok bitmiş olabilir.
+		var arayuz = get_tree().get_first_node_in_group("Arayuz")
+		var skor_yeterli = false
+		if arayuz:
+			var skor = arayuz.toplam_puan if "toplam_puan" in arayuz else 0
+			var goal = arayuz.hedef_puan if "hedef_puan" in arayuz else 1
+			skor_yeterli = skor >= goal
+		
+		if tur_bitti_mi or skor_yeterli:
+			# Eğer mermi kalmadıysa veya yetersizse Boss'un kaçması gerekir
+			_tur_sonu_hesaplamasi()
 
 func yeni_bolumu_baslat():
 	var veri = LevelManager.bolum_verilerini_getir()
@@ -177,6 +202,10 @@ func _on_blok_yerlesti() -> void:
 #	pass
 
 func _tur_sonu_hesaplamasi() -> void:
+	# Eğer boss zaten öldüyse veya kaçtıysa tekrar işlem yapma
+	if boss_oldu_mu or GameManager.boss_kacti:
+		return
+
 	tur_bitti_mi = true
 	if _yer_kontrol_timer: _yer_kontrol_timer.stop()
 	
@@ -186,11 +215,21 @@ func _tur_sonu_hesaplamasi() -> void:
 	if "toplam_puan" in arayuz: skor = arayuz.toplam_puan
 	elif "puan" in arayuz: skor = arayuz.puan
 	
-	# Boss zaten öldüyse direkt yendik
-	if boss_oldu_mu:
-		_sahne_bitis_animasyonu() 
+	# 1. BOSS HP KONTROLÜ (Tüm düşmanların HP toplamını al)
+	var boss_list = get_tree().get_nodes_in_group("Dusman")
+	var toplam_kalan_hp = 0
+	var aktif_boss_tipi = LevelManager.suanki_katman % 3 if LevelManager else 0
+	
+	for boss in boss_list:
+		if is_instance_valid(boss) and not boss.get("oldu_mu"):
+			if "boss_hp" in boss:
+				toplam_kalan_hp += boss.boss_hp
+	
+	# Eğer bütün düşmanlar öldüyse (HP 0 ise) direkt bitişe geç
+	if toplam_kalan_hp <= 0 and boss_list.size() > 0:
+		_sahne_bitis_animasyonu()
 		return
-
+		
 	# Katman 1 (Eğitim) kontrolü — sınırsız oynayış ve mermi kısıtlamasız geçiş vs.
 	if LevelManager and LevelManager.suanki_katman == 1:
 		if skor >= arayuz.hedef_puan:
@@ -200,65 +239,63 @@ func _tur_sonu_hesaplamasi() -> void:
 		return
 
 	# --- KATMAN > 1 İÇİN MERMİ VE KAÇMA KONTROLÜ ---
-	var boss_list = get_tree().get_nodes_in_group("Dusman")
-	var kalan_hp = 100
-	var aktif_boss_tipi = LevelManager.suanki_katman % 3 if LevelManager else 0
-	var hiyerarsideki_boss = null
+	# Kullanıcı isteği: mermi yeterli olmasa bile sıfır olana kadar ateş edebilsin
+	var mermisi_varm_mi = GameManager and (GameManager.mermi_sayisi > 0 or GameManager.shotgun_mermi_count > 0)
 	
-	for boss in boss_list:
-		if is_instance_valid(boss) and "boss_hp" in boss:
-			if not boss.get("oldu_mu"):
-				kalan_hp = boss.boss_hp
-				hiyerarsideki_boss = boss
-				break
-	
-	var mermi_yeterli = GameManager and GameManager.mermi_sayisi >= kalan_hp
-	
-	if mermi_yeterli:
-		print("🔫 Blok bitti ama mermi var! Oyuncu ayağa kalkıp silahını çekmeli.")
+	if mermisi_varm_mi:
+		# Eğer mermi varsa ve henüz mesaj verilmediyse uyar
 		if arayuz and arayuz.has_method("bilgi_goster"):
-			arayuz.bilgi_goster("Silahını Çek (Sağ Tık) ve Boss'u Öldür!", 6.0, true) # true -> Kalıcı yapıldı
+			arayuz.bilgi_goster("Silahını Çek (Sağ Tık) ve Boss'u Öldür!", 3.0) 
 		
 		var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
 		if oyuncu and oyuncu.has_method("stand_up"):
 			oyuncu.stand_up(true)
-		# Oyunu bitirme; boss beklesin, oyuncunun vurmasını sağla!
 	else:
-		if skor >= arayuz.hedef_puan:
-			print("👹 Mermisi yetersiz. Hedef puana ulaşıldı, boss kaçıyor.")
-			if arayuz and arayuz.has_method("bilgi_goster"):
-				arayuz.bilgi_goster("Mermi yetersiz! Boss kaçıyor...", 4.0)
-			
-			GameManager.boss_kacti = true
-			GameManager.boss_kalan_hp = kalan_hp
-			GameManager.kacan_boss_tipi = aktif_boss_tipi
-			
-			# Garanti collision temizliği (Kaçış başlamadan önce)
-			if LevelManager: LevelManager.disable_all_boss_collisions()
-			
-			# TÜM DÜŞMANLARI (ANA VE YANCI) TEMİZLE
-			for boss in boss_list:
-				if is_instance_valid(boss):
-					boss.set_process(false)
-					if "oldu_mu" in boss: boss.oldu_mu = true
-					
-					var tween = create_tween()
-					tween.tween_property(boss, "position:y", boss.position.y - 10.0, 2.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-					tween.parallel().tween_property(boss, "scale", Vector3(0.01, 0.01, 0.01), 2.0)
-					tween.tween_callback(boss.queue_free)
-			
-			# Kaçış animasyonu bitince oyunu normal bir şekilde zaferle bitir
-			get_tree().create_timer(1.5).timeout.connect(func():
-				# Kamera kontrolünü oyuncuya ver (Eğer zar kamerasındaysa)
-				var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
-				if oyuncu and oyuncu.has_node("Camera3D"):
-					oyuncu.get_node("Camera3D").make_current()
-				
-				_sahne_bitis_animasyonu()
-			)
-		else:
-			# Skor da yetmedi mermi de yok = KAYBETTİ
+		# Mermi tamamen bittiyse (0 ise)
+		# Hem skor yetersizse hem de mermi bittiyse yine de Boss kaçmalı (Tutsak kalmamak için)
+		print("👹 Kaynaklar tükendi. Boss kaçıyor.")
+		
+		if arayuz and arayuz.has_method("bilgi_goster"):
+			var msg = "Mermi yetersiz! Boss kaçıyor..."
+			if GameManager and (GameManager.mermi_sayisi <= 0 and GameManager.shotgun_mermi_count <= 0):
+				msg = "Mermin bitti! Boss kaçıyor..."
+			arayuz.bilgi_goster(msg, 4.0)
+		
+		# Eğer skor da yetmediyse "Kaybettin" mesajı ver ama oyun devam etsin (kilitlenmesin/tutsak kalmasın)
+		if skor < arayuz.hedef_puan:
 			_oyun_kaybedildi(arayuz)
+		
+		GameManager.boss_kacti = true
+		GameManager.boss_kalan_hp = toplam_kalan_hp
+		GameManager.kacan_boss_tipi = aktif_boss_tipi
+		
+		# UI güncellensin ve eski mesajlar silinsin
+		if arayuz and arayuz.has_method("kalici_bilgi_gizle"):
+			arayuz.kalici_bilgi_gizle()
+		
+		# Garanti collision temizliği (Kaçış başlamadan önce)
+		if LevelManager: LevelManager.disable_all_boss_collisions()
+		
+		# TÜM DÜŞMANLARI (ANA VE YANCI) TEMİZLE
+		for boss in boss_list:
+			if is_instance_valid(boss):
+				boss.set_process(false)
+				if "oldu_mu" in boss: boss.oldu_mu = true
+				
+				var tween = create_tween()
+				tween.tween_property(boss, "position:y", boss.position.y - 10.0, 2.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+				tween.parallel().tween_property(boss, "scale", Vector3(0.01, 0.01, 0.01), 2.0)
+				tween.tween_callback(boss.queue_free)
+		
+		# Kaçış animasyonu bitince oyunu bitir
+		get_tree().create_timer(1.5).timeout.connect(func():
+			# Kamera kontrolünü oyuncuya ver
+			var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+			if oyuncu and oyuncu.has_node("Camera3D"):
+				oyuncu.get_node("Camera3D").make_current()
+			
+			_sahne_bitis_animasyonu()
+		)
 
 func _sahne_bitis_animasyonu() -> void:
 	set_process_input(false)

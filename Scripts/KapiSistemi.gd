@@ -189,10 +189,18 @@ func _on_static_body_3d_input_event(_camera, event, _position, _normal, _shape_i
 func _kapi_engellendi_mi() -> bool:
 	if e_etkilesimi_devre_disi: return false
 	
+	# Boss kaçtıysa veya öldüyse kapı her zaman açılabilir (Masa animasyonu bitmemiş olsa bile)
+	if GameManager and GameManager.boss_kacti:
+		return false
+	
 	# Blok masası olan sahnelerde, masa aşağı inip kaybolana kadar kapı TIKLANAMAZ!
 	var blok_d = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
 	if blok_d and blok_d.get("masa_objesi") != null:
 		if is_instance_valid(blok_d.masa_objesi) and not blok_d.masa_objesi.is_queued_for_deletion():
+			# Eğer boss_oldu_mu true ise izin ver
+			if blok_d.get("boss_oldu_mu") == true:
+				return false
+				
 			# Sadece mezar odası DEĞİLSE yazdır
 			var is_mezar = "mezar" in get_tree().current_scene.name.to_lower()
 			if not is_mezar:
