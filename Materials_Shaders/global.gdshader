@@ -58,6 +58,10 @@ uniform float scanline_count : hint_range(100.0, 1080.0) = 300.0; // Lines per s
 // prevent solid bands — gives a grimy halftone print feel
 uniform float dither_amount : hint_range(0.0, 0.1) = 0.025;
 
+// ─── DISTORTION (Camgöz / Fish-eye) ───────────────────────────
+uniform float distortion_strength : hint_range(-1.0, 1.0) = 0.18;
+uniform float corner_rounding : hint_range(0.0, 0.5) = 0.06;
+
 // ─── NOISE ────────────────────────────────────────────────────
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
@@ -76,8 +80,21 @@ float bayer4(vec2 pos) {
 	return bayer[y * 4 + x];
 }
 
+vec2 barrel_distort(vec2 uv, float strength) {
+	vec2 p = uv * 2.0 - 1.0;
+	float r2 = dot(p, p);
+	
+	// Balık gözü bozulması
+	p *= (1.0 + strength * r2);
+	
+	// NORMALİZASYON KALDIRILDI (Zemin zoom'unu önlemek için)
+	// p /= (1.0 + strength * 2.0); 
+	
+	return p * 0.5 + 0.5;
+}
+
 void fragment() {
-	vec2 uv = SCREEN_UV;
+	vec2 uv = barrel_distort(SCREEN_UV, distortion_strength);
 
 	// ── 1. CHROMATIC ABERRATION ──────────────────────────────────
 	// R channel shifts right, B shifts left — lens splitting effect
@@ -102,7 +119,7 @@ void fragment() {
 	color = mix(color, color * vec3(1.0 + crimson_bleed * 0.4, 1.0 - crimson_bleed * 0.1, 1.0 - crimson_bleed * 0.15), mid_mask * crimson_bleed);
 
 	// ── 5. FOUR-TONE PALETTE MAPPING ────────────────────────────
-	// The "secret sauce": map the luma ramp to our 4 palette tones
+	// The \"secret sauce\": map the luma ramp to our 4 palette tones
 	// using smooth transitions — creates the Sin City duotone feel
 	//
 	// luma 0.0→0.25 = shadows (Pitch Black)
@@ -161,6 +178,12 @@ void fragment() {
 	color = mix(vignette_color, color, vig);
 	color *= vig;
 
-	// ── 10. CLAMP & OUTPUT ──────────────────────────────────────
+	// ── 10. CORNER ROUNDING (CRT Bezel) ──────────────────────────
+	// Rounds off the sharp screen corners for a physical tube look
+	float corner_dist = length(max(abs(uv * 2.0 - 1.0) - (1.0 - corner_rounding), 0.0));
+	float mask = smoothstep(corner_rounding, corner_rounding - 0.005, corner_dist);
+	color *= mask;
+
+	// ── 11. CLAMP & OUTPUT ──────────────────────────────────────
 	COLOR = vec4(clamp(color, 0.0, 1.0), 1.0);
 }

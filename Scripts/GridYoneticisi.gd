@@ -100,11 +100,28 @@ func _gridi_yenile() -> void:
 func get_masa_world_noktasi() -> Variant:
 	var kamera = get_viewport().get_camera_3d()
 	if not kamera: return null
+	
 	var fare_pos = get_viewport().get_mouse_position()
+	var screen_size = get_viewport().get_visible_rect().size
+	
+	# FARE POZİSYONUNU SHADER DISTORTION'INA GÖRE TERSİNE ÇEVİR (INVERSE)
+	var uv = fare_pos / screen_size
+	var strength = 0.18 # Shadıer'daki distortion_strength (oyuncu.gd'deki ile aynı olmalı)
+	var p = uv * 2.0 - Vector2.ONE
+	var p_lin = p
+	
+	for i in range(5):
+		var r2 = p_lin.dot(p_lin)
+		p_lin = p / (1.0 + strength * r2)
+	
+	var corrected_uv = p_lin * 0.5 + Vector2.ONE * 0.5
+	var corrected_fare_pos = corrected_uv * screen_size
+	
 	var matematik_duzlemi = Plane(Vector3.UP, global_position.y)
-	var from = kamera.project_ray_origin(fare_pos)
-	var dir = kamera.project_ray_normal(fare_pos)
+	var from = kamera.project_ray_origin(corrected_fare_pos)
+	var dir = kamera.project_ray_normal(corrected_fare_pos)
 	var kesisim = matematik_duzlemi.intersects_ray(from, dir)
+	
 	if kesisim:
 		if _nokta_grid_icinde_mi(kesisim): return kesisim
 	return null
