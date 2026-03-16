@@ -59,7 +59,7 @@ uniform float scanline_count : hint_range(100.0, 1080.0) = 300.0; // Lines per s
 uniform float dither_amount : hint_range(0.0, 0.1) = 0.025;
 
 // ─── DISTORTION (Camgöz / Fish-eye) ───────────────────────────
-uniform float distortion_strength : hint_range(-1.0, 1.0) = 0.18;
+uniform float distortion_strength : hint_range(-1.0, 1.0) = 0.42; // Increased strength for "wow" effect
 uniform float corner_rounding : hint_range(0.0, 0.5) = 0.06;
 
 // ─── NOISE ────────────────────────────────────────────────────
@@ -82,13 +82,13 @@ float bayer4(vec2 pos) {
 
 vec2 barrel_distort(vec2 uv, float strength) {
 	vec2 p = uv * 2.0 - 1.0;
-	float r2 = dot(p, p);
 	
-	// Balık gözü bozulması
-	p *= (1.0 + strength * r2);
-	
-	// NORMALİZASYON KALDIRILDI (Zemin zoom'unu önlemek için)
-	// p /= (1.0 + strength * 2.0); 
+	// KENAR-SABİTLEME (Edge-Pinned) + BARREL DISTORTION:
+	// Bölme işlemi (/) dairesel genişleme (Barrel) sağlar.
+	// factor (1-x^2)(1-y^2) ise kenarlarda 0 olduğu için görüntüyü ekrana çiviler.
+	// Bu sayede ekran %100 DOLU kalır ve merkez bükülür.
+	float factor = (1.0 - p.x * p.x) * (1.0 - p.y * p.y);
+	p /= (1.0 + strength * factor);
 	
 	return p * 0.5 + 0.5;
 }
