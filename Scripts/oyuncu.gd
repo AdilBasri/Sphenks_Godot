@@ -370,16 +370,19 @@ func _input(event):
 			# Sync back if needed (optional)
 			x_rotasyonu = looker.x_rotation
 	
-	# --- TIKLAMA İŞLEMLERİ ---
 	if event.is_action_pressed("sol_tik"):
-		# VIRTUAL MOUSE TIKLAMA SIMULASYONU (Sürükle-bırak için OS seviyesinde basılı tutma)
+		# VIRTUAL MOUSE TIKLAMA SIMULASYONU
 		if mouse_serbest_modu:
+			# Işını hemen güncelle ki tıklama anında doğru yerde olsun
+			guncelle_etkilesim_isını()
+			
 			var mouse_event = InputEventMouseButton.new()
 			mouse_event.button_index = MOUSE_BUTTON_LEFT
 			mouse_event.pressed = true
-			var ms_pos = get_viewport().get_mouse_position()
-			mouse_event.position = ms_pos
-			mouse_event.global_position = ms_pos
+			# Sanal event'i de düzeltilmiş konuma gönder (UI etkileşimi için)
+			var corrected_ms = get_corrected_mouse_pos()
+			mouse_event.position = corrected_ms
+			mouse_event.global_position = corrected_ms
 			Input.parse_input_event(mouse_event)
 			
 		if eldeki_kedi:
@@ -469,7 +472,8 @@ func _physics_process(delta):
 			new_mouse.x = clamp(new_mouse.x, 20, screen_size.x - 20)
 			new_mouse.y = clamp(new_mouse.y, 20, screen_size.y - 20)
 			
-			viewport.warp_mouse(new_mouse)
+	# Her physics step'te ışını ve tutma noktasını güncelle
+	guncelle_etkilesim_isını()
 	
 	if tutulan_nesne and tutma_noktasi:
 		var hedef_pos = tutma_noktasi.global_position
@@ -480,6 +484,53 @@ func _physics_process(delta):
 
 	_hedef_gosterge_guncelle()
 	check_ui_text()
+
+func guncelle_etkilesim_isını():
+	"""Raycast ve tutma noktasını farenin bulunduğu ve düzeltilmiş yöne çevirir."""
+	if not raycast or not kamera: return
+	
+	if mouse_serbest_modu:
+		var corrected_ms = get_corrected_mouse_pos()
+		# Kameranın bakış yönünden (Global), RayCast3D'nin local yönüne çevir
+		var global_dir = kamera.project_ray_normal(corrected_ms)
+		var local_dir = kamera.global_transform.basis.inverse() * global_dir
+		raycast.target_position = local_dir * 8.0 # Biraz daha uzun tutalım
+		
+		# Tutulan nesnenin farenin altında kalması için tutma noktasını da güncelle
+		if tutma_noktasi:
+			tutma_noktasi.position = local_dir * 2.5
+			
+		# Fizik motorunu bekletmeden ışını hemen güncelle
+		raycast.force_raycast_update()
+	else:
+		raycast.target_position = Vector3(0, 0, -6.0)
+		if tutma_noktasi:
+			tutma_noktasi.position = Vector3(0, 0, -2.5)
+
+func get_corrected_mouse_pos() -> Vector2:
+	"""Shader'ın ekran bükülmesini (distortion) tersine çevirerek gerçek fare UVsini bulur."""
+	var fare_pos = get_viewport().get_mouse_position()
+	var screen_size = get_viewport().get_visible_rect().size
+	var uv = fare_pos / screen_size
+	
+	# Shader gücünü oku (Default 0.18)
+	var strength = 0.18
+	var color_rect = get_node_or_null("Camera3D/GlobalFiltre/ColorRect")
+	if color_rect and color_rect.material:
+		var s = color_rect.material.get_shader_parameter("distortion_strength")
+		if s != null: strength = s
+	
+	var p = uv * 2.0 - Vector2.ONE
+	var p_lin = p # İlk tahmin
+	
+	# Shader'da artık normalizasyon yok: p_dist = p_lin * (1 + s*r_lin^2)
+	# Tersini çözüyoruz: p_lin = p_dist / (1 + s*r_lin^2)
+	for i in range(5):
+		var r2 = p_lin.dot(p_lin)
+		p_lin = p / (1.0 + strength * r2)
+	
+	var corrected_uv = p_lin * 0.5 + Vector2.ONE * 0.5
+	return corrected_uv * screen_size
 
 var _cached_grid: Node3D = null
 
@@ -496,10 +547,24 @@ func _hedef_gosterge_guncelle():
 	var id = ozel_esya_verisi.etki_id
 	
 	if id in ["asit", "kilic", "dig", "paint"]:
-		if raycast.is_colliding():
-			var hit_pos = raycast.get_collision_point()
-			var cell = grid.world_to_cell(hit_pos)
+		# EĞER FARE SERBEST MODDAYSAGIRID YÖNETİCİSİNDEKİ MOUSE ANALİZİNİ KULLANMALIYIZ
+		# ANCAK RAYCAST3D GENELLİKLE KAMERANIN MERKEZİNDEN/BAKTIĞI YERDEN ÇIKAR.
+		# ŞUAN MASA MODUNDA (mouse_serbest_modu) ise GridYoneticisi'nin metodunu kullanmak daha sağlıklı.
+		
+		# NOT: Shader distorsiyonu ekranın MERKEZİNDE (0,0) etkisizdir (r2=0). 
+		# Bu yüzden merkezden çıkan raycast'ler etkilenmez. 
+		# Serbest fare modunda ise hedeflemeyi GridYoneticisi'ne bırakabiliriz.
+		
+		var hit_pos = null
+		if mouse_serbest_modu:
+			# GridYoneticisi artık içinde INVERSE distortion hesabı yapıyor
+			hit_pos = grid.get_masa_world_noktasi()
+		elif raycast.is_colliding():
+			# MERKEZ (0,0) her zaman doğrudur çünkü distortion r=0'da etkisizdir.
+			hit_pos = raycast.get_collision_point()
 			
+		if hit_pos != null:
+			var cell = grid.world_to_cell(hit_pos)
 			if cell != null:
 				grid.hedef_goster(cell, true)
 			else:

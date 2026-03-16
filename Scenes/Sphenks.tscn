@@ -178,6 +178,8 @@ shader_parameter/vignette_color = Color(0.04, 0, 0, 1)
 shader_parameter/scanline_intensity = 0.1
 shader_parameter/scanline_count = 300.0
 shader_parameter/dither_amount = 0.025
+shader_parameter/distortion_strength = 0.18
+shader_parameter/corner_rounding = 0.06
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lxn88"]
 albedo_texture = ExtResource("7_lxn88")
