@@ -51,6 +51,8 @@ var active_tween: Tween = null
 # --- REFERANSLAR ---
 @export var kamera: Camera3D 
 @export var ui_container: HBoxContainer 
+@export var health_nodes: Array[Node3D] # health1, health2, health3, health4
+@export var health_camera_marker: Marker3D # Şişelere bakan nokta
 
 # --- GORE UI REFERANSLARI (Inspector'dan sürükle-bırak) ---
 @export var gore_vignette: ColorRect  ## CanvasLayer altındaki GoreVignette
@@ -73,6 +75,8 @@ var eating_tween: Tween = null
 var bite_timer: Timer = null
 var bite_interval: float = 0.6  # Her ısırık arası süre (saniye)
 var kan_spreyi_sahne = preload("res://Scenes/KanSpreyi.tscn")
+var glass_break_sfx = preload("res://Assets/Audio/BloodSplatter.mp3") # Bakılan seslerden biri
+var _son_can_sayisi: int = 4 # Bar düşüşünü takip etmek için
 
 # Kamera Travması
 var trauma: float = 0.0            # 0-1 arası, her ısırıkta artar
@@ -251,6 +255,12 @@ func _ready():
 	
 	# FOV TELAFİSİ (Barrel Zoom-in etkisini geri almak için)
 	_fov_telafi_uygula()
+	
+	if health_nodes.size() == 0:
+		for i in range(1, 5):
+			var node = get_node_or_null("../health" + str(i))
+			if node:
+				health_nodes.append(node)
 
 func _fov_telafi_uygula():
 	if not kamera: return
@@ -292,12 +302,14 @@ func _bileşenleri_hazirla():
 	interactor.interaction_label = etkilesim_label
 	add_child(interactor)
 
-	# Connect stats signals back to legacy methods for compatibility
+	# Sinyalleri bağla (Artık game_over animasyondan sonra çağrılacak)
 	stats.health_changed.connect(func(bars, hp): 
-		# suanki_can_bari and suanki_hp are getters/setters now, they match stats
-		ui_guncelle()
+		if bars < _son_can_sayisi:
+			bar_kirildi(bars)
+		
+		_son_can_sayisi = bars
 	)
-	stats.player_died.connect(game_over)
+	# stats.player_died.connect(game_over) # <--- SİLDİK: Animasyon bitişini bekleyeceğiz
 
 func _input(event):
 	if not kamera or oldu_mu: return 
@@ -895,46 +907,91 @@ func _ekran_bozma_efekti(aktif: bool):
 
 func hasar_al(miktar: int):
 	if yere_dustu_mu or oldu_mu: return 
-	suanki_hp -= miktar
-	if suanki_hp <= 0:
-		suanki_hp = 0 
-		bar_kirildi() 
+	
+	# Hasarı PlayerStats üzerinden uygula
+	stats.take_damage(miktar)
+	
 	if GameManager: GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
-	ui_guncelle()
+	# ui_guncelle() # Eski UI devre disi
 
-func bar_kirildi():
+func bar_kirildi(new_bars: int):
 	yere_dustu_mu = true
 	tutulan_nesne = null 
 	
-	# Ses Eklemesi: Fall Ses Efekti
-	var sfx_fall = AudioStreamPlayer.new()
-	sfx_fall.stream = load("res://Assets/Audio/fall.mp3")
-	sfx_fall.bus = "Master"
-	add_child(sfx_fall)
-	sfx_fall.play()
-	sfx_fall.finished.connect(sfx_fall.queue_free)
+	# Hangi canin gidecegini hesapla:
+	var lost_index = 4 - (new_bars + 1)
+	_trigger_3d_health_transition(lost_index)
+
+func _trigger_3d_health_transition(index: int):
+	if index < 0 or index >= health_nodes.size():
+		_after_health_animation()
+		return
+		
+	var target_node = health_nodes[index]
+	if not is_instance_valid(target_node):
+		_after_health_animation()
+		return
+
+	# Silahlari gizle
+	hide_weapon()
 	
-	# Yere Düşme Animasyonu
-	active_tween = create_tween()
-	var tween = active_tween
-	tween.parallel().tween_property(kamera, "rotation:z", deg_to_rad(80.0), 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(kamera, "position:y", -0.5, 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	# Kamera Tween
+	var old_transform = kamera.global_transform
+	var tw = create_tween()
 	
-	# Yerde biraz bekle (Dramatik an)
-	tween.tween_interval(2.0)
+	# Şişelere bakan bir pozisyon belirleyelim (Marker3D varsa ona, yoksa dinamik)
+	var cam_target_pos = target_node.global_position + Vector3(1.5, 0.5, 2.0)
+	var cam_look_at = target_node.global_position
 	
-	# --- KRİTİK REVIVE KONTROLÜ ---
-	if suanki_can_bari <= 1:
-		# Son can barı kırıldı, normalde ölürüz. AMA:
+	# Basitce bir transform olusturalim
+	var target_transform = Transform3D().looking_at(cam_look_at - cam_target_pos, Vector3.UP)
+	target_transform.origin = cam_target_pos
+	
+	if health_camera_marker:
+		target_transform = health_camera_marker.global_transform
+
+	tw.tween_property(kamera, "global_transform", target_transform, 0.6).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_interval(0.2)
+	
+	# Şişe Animasyonu
+	tw.tween_callback(func():
+		var b_tw = create_tween()
+		b_tw.tween_property(target_node, "global_position:y", target_node.global_position.y + 7.0, 0.9).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
+		
+		get_tree().create_timer(0.65).timeout.connect(func():
+			var sfx = AudioStreamPlayer.new()
+			sfx.stream = glass_break_sfx
+			add_child(sfx)
+			sfx.play()
+			sfx.finished.connect(sfx.queue_free)
+			
+			var p = kan_spreyi_sahne.instantiate()
+			get_tree().current_scene.add_child(p)
+			# Efekt şişenin alt kısmına yakın olsun (User isteği: daha aşağıdan)
+			p.global_position = target_node.global_position - Vector3(0, 0.6, 0)
+			p.emitting = true
+			
+			target_node.visible = false
+		)
+	)
+	
+	tw.tween_interval(1.0)
+	
+	# Geri Dönüş
+	tw.tween_property(kamera, "global_transform", old_transform, 0.6).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_callback(_after_health_animation)
+
+func _after_health_animation():
+	yere_dustu_mu = false 
+	
+	if suanki_can_bari <= 0:
 		if GameManager and GameManager.revive_aktif:
-			# Revive varsa ölümü iptal et ve kaldır
-			tween.tween_callback(_revive_ile_kalkis)
+			_revive_ile_kalkis()
 		else:
-			# Revive yoksa oyun biter
-			tween.tween_callback(game_over)
+			game_over()
 	else:
-		# Daha can barımız varsa normal kalkış
-		tween.tween_callback(kalkis_baslat)
+		kalkis_baslat()
+
 
 func kalkis_baslat():
 	active_tween = create_tween()
@@ -954,10 +1011,10 @@ func _on_kalkis_tamamlandi():
 	yere_dustu_mu = false
 	x_rotasyonu = 0.0
 	if looker: looker.x_rotation = 0.0
-	suanki_can_bari -= 1 
-	suanki_hp = 10 
+	# suanki_can_bari -= 1 # ARTIK PlayerStats take_damage üzerinden düsüyor
+	# suanki_hp = 10 
 	if GameManager: GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
-	ui_guncelle()
+	# ui_guncelle()
 
 func game_over():
 	oldu_mu = true 
@@ -1830,10 +1887,17 @@ func _revive_ile_kalkis():
 		# Normalde can düşüyordu, burada direkt 1'e sabitliyoruz.
 		suanki_can_bari = 1  
 		suanki_hp = 10       
+		
+		# 3D Şişeleri Güncelle (Sadece son can kalsın)
+		for i in range(health_nodes.size()):
+			if is_instance_valid(health_nodes[i]):
+				# i >= (4 - 1) -> i >= 3 (Sadece health4 kalsın)
+				health_nodes[i].visible = (i >= (4 - suanki_can_bari))
 		# -------------------------
 		
 		GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
-		ui_guncelle()
+		_son_can_sayisi = suanki_can_bari
+		# ui_guncelle() # Eski UI devre dışı
 		print("✅ Revive tamamlandı. Can: 1 Bar (10 HP)")
 	)
 

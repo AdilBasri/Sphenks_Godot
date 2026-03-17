@@ -1,10 +1,10 @@
 [gd_scene load_steps=35 format=3 uid="uid://5r052hg2ato8"]
 
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="1_j5rsp"]
-[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="2_tlklb"]
-[ext_resource type="Texture2D" uid="uid://ncorow4carpw" path="res://Assets/Images/çerçeve_bar.png" id="3_h6a0u"]
-[ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://Assets/Images/iç_bar.png" id="4_756oi"]
-[ext_resource type="Texture2D" uid="uid://b5k4ffrdw2m3u" path="res://Assets/carpi.png" id="5_nn26f"]
+[ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="2_tlklb"]
+[ext_resource type="Texture2D" uid="uid://dm3cprrc1lljc" path="res://Assets/Images/çerçeve_bar.png" id="3_h6a0u"]
+[ext_resource type="Texture2D" uid="uid://bg20iuynejlup" path="res://Assets/Images/iç_bar.png" id="4_756oi"]
+[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="5_nn26f"]
 [ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="6_e0pfg"]
 [ext_resource type="Script" uid="uid://gdt0if15j8al" path="res://animated_gun/scene.gd" id="8_h6a0u"]
 [ext_resource type="Shader" uid="uid://bg3erydhe6l0u" path="res://hand.gdshader" id="9_756oi"]
@@ -13,11 +13,11 @@
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Materials_Shaders/Sphenks.gdshader" id="11_xh7p1"]
 [ext_resource type="Script" uid="uid://lcig2p1w37xb" path="res://Scripts/Revolver.gd" id="11_xl8ic"]
 [ext_resource type="Script" uid="uid://c3crxoiqjl3tw" path="res://animated_shotgun/scene.gd" id="12_t52yg"]
-[ext_resource type="Texture2D" uid="uid://b6qhtc7ov5oqy" path="res://Assets/Images/crosshair.png" id="12_xl8ic"]
-[ext_resource type="PackedScene" uid="uid://btu77vlp0tjsu" path="res://bat/scene.gltf" id="13_t52yg"]
-[ext_resource type="FontFile" uid="uid://cy77p676hbv6h" path="res://Assets/Fonts/Retro Shine.ttf" id="13_w84ue"]
+[ext_resource type="Texture2D" uid="uid://ctkgrnlyobok1" path="res://Assets/Images/crosshair.png" id="12_xl8ic"]
+[ext_resource type="FontFile" uid="uid://hbyync0b8kyv" path="res://Assets/Fonts/Retro Shine.ttf" id="13_w84ue"]
 [ext_resource type="Texture2D" uid="uid://dnpnexrcnpel5" path="res://Assets/bullet_1.png" id="14_f3u4t"]
 [ext_resource type="Script" uid="uid://jep6dm3gok1q" path="res://deneme.gd" id="15_deneme"]
+[ext_resource type="PackedScene" uid="uid://bcl1yvjbc55dt" path="res://wooden+golem+3d+model.glb" id="19_d4mfo"]
 [ext_resource type="PackedScene" uid="uid://hqgrge6ijj2s" path="res://animated_gun/scene.gltf" id="19_t52yg"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_m18cy"]
@@ -320,8 +320,8 @@ script = ExtResource("12_t52yg")
 [node name="AnimationPlayer" parent="Oyuncu/Camera3D/Sketchfab_Scene2" index="1"]
 root_node = NodePath("../../Sketchfab_Scene2")
 
-[node name="Sketchfab_Scene3" parent="Oyuncu/Camera3D" instance=ExtResource("13_t52yg")]
-transform = Transform3D(0.9988834, 0.019228086, 0.043151412, -0.024378378, 0.9922065, 0.12219585, -0.040465523, -0.12311137, 0.99156743, -18.419703, -1.2679509, 2.8485787)
+[node name="Sketchfab_Scene3" parent="Oyuncu/Camera3D" instance=ExtResource("19_t52yg")]
+transform = Transform3D(0.009988835, 0.00019228092, 0.00043151414, -0.00024378381, 0.009922066, 0.0012219585, -0.00040465526, -0.0012311138, 0.009915675, -18.419703, -1.2679509, 2.8485787)
 
 [node name="Revolver" parent="." groups=["Arayuz"] instance=ExtResource("10_u18ft")]
 script = ExtResource("11_xl8ic")
@@ -483,10 +483,9 @@ layout_mode = 2
 texture = ExtResource("14_f3u4t")
 expand_mode = 2
 
-[node name="Sketchfab_Scene" parent="." instance=ExtResource("19_t52yg")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8846855, 4.4229937, -2.255168)
+[node name="wooden+golem+3d+model" parent="." instance=ExtResource("19_d4mfo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.4552653, 2.3222053, 0.63147974)
 
 [editable path="Oyuncu/Camera3D/Sketchfab_Scene"]
 [editable path="Oyuncu/Camera3D/Sketchfab_Scene2"]
 [editable path="Revolver"]
-[editable path="Sketchfab_Scene"]

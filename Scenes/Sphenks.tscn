@@ -1,54 +1,54 @@
-[gd_scene load_steps=111 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=113 format=3 uid="uid://3dl60tfqpdc6"]
 
-[ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Assets/Models/Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
+[ext_resource type="PackedScene" uid="uid://b1abmwu2tkjli" path="res://Assets/Models/Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://Scripts/sphenks.gd" id="2_fi7dh"]
 [ext_resource type="PackedScene" uid="uid://dvucb86havcwa" path="res://UI/oyun_arayuzu.tscn" id="3_4kj0i"]
-[ext_resource type="Texture2D" uid="uid://btas4blpjv33o" path="res://Assets/Images/duvar_tiles.png" id="5_jl7q8"]
-[ext_resource type="Texture2D" uid="uid://dhayshxhd2aie" path="res://Assets/Images/Kedi_Normal.png" id="6_1b6ct"]
+[ext_resource type="Texture2D" uid="uid://bb1jydfo2s3uh" path="res://Assets/Images/duvar_tiles.png" id="5_jl7q8"]
+[ext_resource type="Texture2D" uid="uid://847a0qns6cqr" path="res://Assets/Images/Kedi_Normal.png" id="6_1b6ct"]
 [ext_resource type="Script" uid="uid://bf27q5gmgymlx" path="res://Scripts/oyun_odasi.gd" id="6_16a52"]
 [ext_resource type="PackedScene" uid="uid://df8kicnf6xi1m" path="res://Scenes/yan_sehpa.tscn" id="7_kn6rn"]
-[ext_resource type="Texture2D" uid="uid://exewje3jhncc" path="res://Assets/Images/tile1.png" id="7_lxn88"]
+[ext_resource type="Texture2D" uid="uid://dk1ohc1ie0i0m" path="res://Assets/Images/tile1.png" id="7_lxn88"]
 [ext_resource type="Script" uid="uid://cqqrxhofxtxw6" path="res://Scripts/KediEtkilesim.gd" id="7_ouiq0"]
 [ext_resource type="PackedScene" uid="uid://5wga44lwetiq" path="res://Scenes/oyun_sonu.tscn" id="8_5uvl0"]
-[ext_resource type="Texture2D" uid="uid://b2nhri0gq2vpk" path="res://Assets/Images/KediTutulan.png" id="8_p4fw5"]
+[ext_resource type="Texture2D" uid="uid://bdg68m5qvav5s" path="res://Assets/Images/KediTutulan.png" id="8_p4fw5"]
 [ext_resource type="PackedScene" uid="uid://b4bhb1v1do7yg" path="res://Scenes/Enemies/PyroDusman.tscn" id="9_bjfsn"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Materials_Shaders/Sphenks.gdshader" id="10_h2n1q"]
 [ext_resource type="PackedScene" uid="uid://cyy5cvfn3untg" path="res://Scenes/Enemies/CanavarOturma.tscn" id="13_bjfsn"]
-[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="13_bpxfr"]
+[ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="13_bpxfr"]
 [ext_resource type="Script" uid="uid://bnl3r0qmhc78q" path="res://Scripts/BossCanavar.gd" id="14_2531s"]
-[ext_resource type="Texture2D" uid="uid://ckixlfjiyxftu" path="res://Assets/Images/CultFace.png" id="15_qrobu"]
+[ext_resource type="Texture2D" uid="uid://bnidhre7u4yaw" path="res://Assets/Images/CultFace.png" id="15_qrobu"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="23_4kj0i"]
-[ext_resource type="Texture2D" uid="uid://ncorow4carpw" path="res://Assets/Images/çerçeve_bar.png" id="23_k4rhs"]
-[ext_resource type="Texture2D" uid="uid://u5y1jjivkyg4" path="res://Assets/Images/hand.png" id="24_4kj0i"]
-[ext_resource type="Texture2D" uid="uid://emcmnk0u2exk" path="res://Assets/Images/iç_bar.png" id="24_uxn7w"]
-[ext_resource type="Texture2D" uid="uid://v3hgvensx0ub" path="res://Assets/Images/mesaledeneme.png" id="25_lxn88"]
-[ext_resource type="Texture2D" uid="uid://b5k4ffrdw2m3u" path="res://Assets/carpi.png" id="25_q606s"]
-[ext_resource type="Texture2D" uid="uid://cw3yccl0y15yc" path="res://Assets/Images/skull.png" id="25_yiyi8"]
-[ext_resource type="Texture2D" uid="uid://diw64yisqg55h" path="res://Assets/Images/web.png" id="27_offaw"]
+[ext_resource type="Texture2D" uid="uid://dm3cprrc1lljc" path="res://Assets/Images/çerçeve_bar.png" id="23_k4rhs"]
+[ext_resource type="Texture2D" uid="uid://browknmvkv6d4" path="res://Assets/Images/hand.png" id="24_4kj0i"]
+[ext_resource type="Texture2D" uid="uid://bg20iuynejlup" path="res://Assets/Images/iç_bar.png" id="24_uxn7w"]
+[ext_resource type="Texture2D" uid="uid://cqqq50p7oakk6" path="res://Assets/Images/mesaledeneme.png" id="25_lxn88"]
+[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="25_q606s"]
+[ext_resource type="Texture2D" uid="uid://bqj60moctkrll" path="res://Assets/Images/skull.png" id="25_yiyi8"]
+[ext_resource type="Texture2D" uid="uid://c1548x8l70qe8" path="res://Assets/Images/web.png" id="27_offaw"]
 [ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Scenes/Items/Kapi.tscn" id="29_kqumn"]
 [ext_resource type="PackedScene" uid="uid://c7q4fkextiqem" path="res://animated_shotgun/scene.gltf" id="29_oicke"]
-[ext_resource type="Texture2D" uid="uid://b6qhtc7ov5oqy" path="res://Assets/Images/crosshair.png" id="30_3fpuv"]
+[ext_resource type="Texture2D" uid="uid://ctkgrnlyobok1" path="res://Assets/Images/crosshair.png" id="30_3fpuv"]
 [ext_resource type="Script" uid="uid://c3crxoiqjl3tw" path="res://animated_shotgun/scene.gd" id="30_85bnd"]
 [ext_resource type="PackedScene" uid="uid://cobgol1r61s8u" path="res://Scenes/karanlik_koridor.tscn" id="30_1283l"]
-[ext_resource type="Texture2D" uid="uid://dts5ye3ydelp0" path="res://Assets/Images/tabela_market.png" id="31_ewkc5"]
+[ext_resource type="Texture2D" uid="uid://rsgyymv4d4y5" path="res://Assets/Images/tabela_market.png" id="31_ewkc5"]
 [ext_resource type="Script" uid="uid://bgxx0sj7xnnh4" path="res://Scripts/catal_odasi.gd" id="31_ojhqj"]
 [ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="31_y4nvu"]
-[ext_resource type="Texture2D" uid="uid://b5lev6qm0rdoe" path="res://Assets/Images/tabela_fire.png" id="32_ojhqj"]
+[ext_resource type="Texture2D" uid="uid://cb3a2efx3uclk" path="res://Assets/Images/tabela_fire.png" id="32_ojhqj"]
 [ext_resource type="PackedScene" uid="uid://crts7a2wj50ro" path="res://Scenes/campfire_odasi.tscn" id="33_1g7sh"]
-[ext_resource type="Texture2D" uid="uid://dywjvxrqxoifi" path="res://Assets/Images/marketa.png" id="34_1g7sh"]
+[ext_resource type="Texture2D" uid="uid://b8nbn7eiw6n26" path="res://Assets/Images/marketa.png" id="34_1g7sh"]
 [ext_resource type="PackedScene" uid="uid://cwep2mo56dn1d" path="res://UI/MideUI.tscn" id="34_2531s"]
-[ext_resource type="Texture2D" uid="uid://b87b3y544bwm5" path="res://Assets/Images/Meshy_AI__0118084653_texture_0.png" id="34_ipvml"]
+[ext_resource type="Texture2D" uid="uid://dpsrl0uep5vqi" path="res://Assets/Images/Meshy_AI__0118084653_texture_0.png" id="34_ipvml"]
 [ext_resource type="Script" uid="uid://cji63hdi460b1" path="res://Scripts/market.gd" id="34_kt702"]
 [ext_resource type="Script" uid="uid://drbl7e8h0wosy" path="res://Scripts/ItemData.gd" id="35_pl0tg"]
 [ext_resource type="Resource" uid="uid://cfyho847gimqh" path="res://Assets/Models/Items/Dig.tres" id="36_kn6rn"]
 [ext_resource type="Resource" uid="uid://b0i0au8mta6vq" path="res://Assets/Models/Items/Guc.tres" id="37_16a52"]
 [ext_resource type="PackedScene" uid="uid://dcv0s2v1bivcp" path="res://Scenes/tum_masa_sistemi.tscn" id="37_63q5f"]
-[ext_resource type="Texture2D" uid="uid://cb165au7hbhm2" path="res://Assets/Images/shanks.png" id="38_kt702"]
+[ext_resource type="Texture2D" uid="uid://csncggtoxjxmj" path="res://Assets/Images/shanks.png" id="38_kt702"]
 [ext_resource type="Resource" uid="uid://c63kqruteqes4" path="res://Assets/Models/Items/Asit.tres" id="38_sroql"]
-[ext_resource type="Texture2D" uid="uid://doh1kv2f0quxr" path="res://Assets/Images/own.png" id="39_fknsn"]
+[ext_resource type="Texture2D" uid="uid://brmefguklkh5c" path="res://Assets/Images/own.png" id="39_fknsn"]
 [ext_resource type="Resource" uid="uid://6efud2c2cn08" path="res://Assets/Models/Items/Dice.tres" id="39_k4rhs"]
 [ext_resource type="Resource" uid="uid://bao7tm1eas554" path="res://Assets/Models/Items/Time.tres" id="40_uxn7w"]
-[ext_resource type="Texture2D" uid="uid://bpltnjm6hg5a3" path="res://Assets/Images/kese.png" id="41_q0r6j"]
+[ext_resource type="Texture2D" uid="uid://beg6kyaglfr57" path="res://Assets/Images/kese.png" id="41_q0r6j"]
 [ext_resource type="Resource" uid="uid://cv7k5gixcsrnu" path="res://Assets/Models/Items/Cloak.tres" id="41_q606s"]
 [ext_resource type="Resource" uid="uid://bg76liqgpv5x4" path="res://Assets/Models/Items/Fener.tres" id="42_5uvl0"]
 [ext_resource type="Resource" uid="uid://ck3oqbbnnb0ka" path="res://Assets/Models/Items/Kılıc.tres" id="43_krygw"]
@@ -59,9 +59,11 @@
 [ext_resource type="Resource" uid="uid://bifkv4jermqcn" path="res://Assets/Models/Items/Revive.tres" id="48_2531s"]
 [ext_resource type="Resource" uid="uid://damxrk4bt7wq2" path="res://Assets/Models/Items/Mermi_Kutusu.tres" id="49_mrmkb"]
 [ext_resource type="Script" uid="uid://cr3bhd7ohfluw" path="res://Scripts/market_ui.gd" id="56_16a52"]
-[ext_resource type="AudioStream" uid="uid://bj07gxm81b2mx" path="res://Assets/Audio/ErrorSound.mp3" id="57_sroql"]
+[ext_resource type="AudioStream" uid="uid://bd4cupg0y0kqc" path="res://Assets/Audio/ErrorSound.mp3" id="57_sroql"]
 [ext_resource type="Script" uid="uid://ccn3umee5kexm" path="res://Scripts/MasaSpawner.gd" id="59_q606s"]
 [ext_resource type="PackedScene" uid="uid://bafdowoddcpqw" path="res://Scenes/zar.tscn" id="62_q606s"]
+[ext_resource type="PackedScene" uid="uid://bw4jb6s30gr7a" path="res://heart+in+jar+3d+model.glb" id="75_fptth"]
+[ext_resource type="PackedScene" uid="uid://w1osq4bnl7mj" path="res://round_chain/scene.gltf" id="75_uqw48"]
 [ext_resource type="Script" uid="uid://chuv2uyii3n14" path="res://Scripts/AcidBoss.gd" id="94_acid"]
 [ext_resource type="PackedScene" uid="uid://cx6msh67nsv5" path="res://acid_boss/AcidBoss_Model.tscn" id="95_acid_model"]
 [ext_resource type="Script" uid="uid://ccipx45kolsv8" path="res://Scripts/StoneBoss.gd" id="96_stone"]
@@ -72,7 +74,7 @@
 [ext_resource type="Script" uid="uid://dkdj47cdxbjql" path="res://Scripts/boss_ui.gd" id="boss_ui_gd"]
 [ext_resource type="Texture2D" uid="uid://dnpnexrcnpel5" path="res://Assets/bullet_1.png" id="bullet_img"]
 [ext_resource type="Shader" uid="uid://cuhlen0v736t0" path="res://Materials_Shaders/gore_vignette.gdshader" id="gore_shader_sphenks"]
-[ext_resource type="FontFile" uid="uid://cy77p676hbv6h" path="res://Assets/Fonts/Retro Shine.ttf" id="retro_font"]
+[ext_resource type="FontFile" uid="uid://hbyync0b8kyv" path="res://Assets/Fonts/Retro Shine.ttf" id="retro_font"]
 [ext_resource type="Script" uid="uid://lcig2p1w37xb" path="res://Scripts/Revolver.gd" id="rev_gd"]
 
 [sub_resource type="Environment" id="Environment_jcgda"]
@@ -310,14 +312,14 @@ omni_range = 1.5
 omni_attenuation = 0.5
 
 [node name="OmniLight3D2" type="OmniLight3D" parent="Node3D/WorldEnvironment" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8799524, 2.8669422, -2.4728231)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.6029732, 2.8669422, -0.7621888)
 light_color = Color(0.72471464, 0.13365132, 0, 1)
 light_energy = 5.0
 light_indirect_energy = 5.0
 light_volumetric_fog_energy = 16.0
 light_size = 0.34
 distance_fade_enabled = true
-omni_range = 2.0
+omni_range = 3.0
 omni_attenuation = 0.5
 
 [node name="MezarOdasi" type="CSGCombiner3D" parent="." index="2" node_paths=PackedStringArray("oyuncu_kamerasi", "oyuncu", "hasar_label")]
@@ -465,11 +467,13 @@ collision_layer = 2
 transform = Transform3D(0.99999976, 0, 0, 0, 0.99999976, 0, 0, 0, 0.99999976, 0.09008789, -0.0155335665, -0.053863466)
 shape = SubResource("BoxShape3D_bjfsn")
 
-[node name="Oyuncu" type="CharacterBody3D" parent="." index="4" node_paths=PackedStringArray("kamera", "ui_container", "gore_vignette", "mide_ui_container") groups=["Oyuncu"]]
+[node name="Oyuncu" type="CharacterBody3D" parent="." index="4" node_paths=PackedStringArray("kamera", "ui_container", "health_nodes", "health_camera_marker", "gore_vignette", "mide_ui_container") groups=["Oyuncu"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6191114, 3.3313973)
 script = ExtResource("23_4kj0i")
 kamera = NodePath("Camera3D")
 ui_container = NodePath("CanBarlariContainer")
+health_nodes = [NodePath("../health1"), NodePath("../health2"), NodePath("../health3"), NodePath("../health4")]
+health_camera_marker = NodePath("../HealthCameraMarker")
 gore_vignette = NodePath("../OyunArayuzu/GoreVignette")
 mide_ui_container = NodePath("../OyunArayuzu/MideUI")
 
@@ -508,6 +512,7 @@ label_settings = SubResource("LabelSettings_q606s")
 horizontal_alignment = 1
 
 [node name="CanBarlariContainer" type="HBoxContainer" parent="Oyuncu" index="2"]
+visible = false
 anchors_preset = -1
 anchor_left = 0.041
 anchor_top = 0.053000003
@@ -632,6 +637,7 @@ texture = ExtResource("25_yiyi8")
 
 [node name="Sprite3D2" type="Sprite3D" parent="." index="7"]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -2.980662, 2.4447017, -2.4630535)
+visible = false
 alpha_cut = 1
 texture_filter = 0
 texture = ExtResource("25_lxn88")
@@ -1157,6 +1163,7 @@ mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
 [node name="BossUI_Layer" type="CanvasLayer" parent="." index="20"]
+visible = false
 
 [node name="BossUI" type="Control" parent="BossUI_Layer" index="0"]
 layout_mode = 3
@@ -1169,6 +1176,33 @@ offset_right = -20.0
 offset_bottom = 200.0
 grow_horizontal = 0
 script = ExtResource("boss_ui_gd")
+
+[node name="HealthCameraMarker" type="Marker3D" parent="." index="21"]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.89065, 2.9249601, -1.82915)
+
+[node name="health2" parent="." index="22" instance=ExtResource("75_uqw48")]
+transform = Transform3D(0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, -3.930905, 4.7395606, -2.1125946)
+
+[node name="heart+in+jar+3d+model" parent="health2" index="1" instance=ExtResource("75_fptth")]
+transform = Transform3D(8.677655, 0, -4.9697394, 0, 10, 0, 4.9697394, 0, 8.677655, -0.5110016, -28.38998, -0.17887497)
+
+[node name="health3" parent="." index="23" instance=ExtResource("75_uqw48")]
+transform = Transform3D(0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, -3.930905, 5.030761, -1.603578)
+
+[node name="heart+in+jar+3d+model" parent="health3" index="1" instance=ExtResource("75_fptth")]
+transform = Transform3D(8.677655, 0, -4.9697394, 0, 10, 0, 4.9697394, 0, 8.677655, -0.5110016, -28.38998, -0.17887497)
+
+[node name="health4" parent="." index="24" instance=ExtResource("75_uqw48")]
+transform = Transform3D(0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, -3.930905, 5.246083, -1.0583926)
+
+[node name="heart+in+jar+3d+model" parent="health4" index="1" instance=ExtResource("75_fptth")]
+transform = Transform3D(8.677655, 0, -4.9697394, 0, 10, 0, 4.9697394, 0, 8.677655, -0.5110016, -28.38998, -0.17887497)
+
+[node name="health1" parent="." index="25" instance=ExtResource("75_uqw48")]
+transform = Transform3D(0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, -3.930905, 4.557404, -2.7291522)
+
+[node name="heart+in+jar+3d+model" parent="health1" index="1" instance=ExtResource("75_fptth")]
+transform = Transform3D(8.677655, 0, -4.9697394, 0, 10, 0, 4.9697394, 0, 8.677655, -0.5110016, -28.38998, -0.17887497)
 
 [connection signal="input_event" from="Kedi/Y_Kedi" to="Kedi" method="_on_area_3d_input_event"]
 
