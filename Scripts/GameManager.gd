@@ -69,8 +69,13 @@ var ghost_move_active: bool = false
 var ghost_canvas: CanvasLayer = null
 
 # --- 👹 BOSS KAÇTI SİSTEMİ ---
-var boss_kacti: bool = false  # Boss öldürülemeden kaçtıysa, bir sonraki bölümde tekrar gelir
+var boss_kacti: bool = false
 var kacan_bosslar: Array = [] # [{ "tip": int, "hp": int }, ...] dizisi
+var boss_kalici_hp: Dictionary = { # { "asit": 2, "golem": 2, "zar": 2 }
+	"asit": 2,
+	"golem": 2,
+	"zar": 2
+}
 
 func _ready():
 	randomize()
@@ -100,6 +105,16 @@ func boss_kacti_ekle(tip: int, hp: int):
 	kacan_bosslar.append({"tip": tip, "hp": hp})
 	boss_kacti = true
 	print("👹 Kaçan boss listeye eklendi (Tip: %d, HP: %d). Toplam: %d" % [tip, hp, kacan_bosslar.size()])
+
+func boss_hp_guncelle(tip: String, hp: int):
+	"""Boss canını kalıcı olarak günceller (Katmanlar arası koruma)."""
+	if boss_kalici_hp.has(tip):
+		boss_kalici_hp[tip] = hp
+		print("💾 Persistent HP Updated: %s -> %d" % [tip, hp])
+
+func boss_hp_al(tip: String) -> int:
+	"""Kayıtlı boss canını döner."""
+	return boss_kalici_hp.get(tip, 2)
 
 var bgm_player: AudioStreamPlayer
 var suanki_muzik: int = 1
@@ -406,6 +421,7 @@ func oyunu_kaydet():
 	config.set_value("Oyun", "UykuSahnesiGirisSayisi", uyku_sahnesi_giris_sayisi)
 	config.set_value("Oyun", "BossKacti", boss_kacti)
 	config.set_value("Oyun", "KacanBosslar", kacan_bosslar)
+	config.set_value("Oyun", "BossKaliciHP", boss_kalici_hp)
 	config.save("user://savegame.cfg")
 	print("💾 Oyun kaydedildi. (Seviye: %d, Envanter: %s)" % [kayit_seviyesi, str(esya_id_listesi)])
 
@@ -473,6 +489,7 @@ func oyunu_yukle():
 		suanki_seviye = kayitli_seviye
 		boss_kacti = config.get_value("Oyun", "BossKacti", false)
 		kacan_bosslar = config.get_value("Oyun", "KacanBosslar", [])
+		boss_kalici_hp = config.get_value("Oyun", "BossKaliciHP", {"asit": 2, "golem": 2, "zar": 2})
 
 		# Corrupt save fix: HP sıfırsa tam sağlığa döndür
 		if oyuncu_kalan_bar <= 0 or oyuncu_suanki_hp <= 0:

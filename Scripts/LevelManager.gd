@@ -141,9 +141,8 @@ func odaya_don_ve_level_atla():
 		# sadece o bölümde aktif olan efektler — puan_carpani, revive, fener vb. — kapanır)
 		GameManager.bolum_bufflarini_sifirla()
 		
-		# İlk seviyelerde direkt kaydet ki kediye gitmese de tutorials vb. kaybolmasın
-		if suanki_katman <= 1:
-			GameManager.oyunu_kaydet()
+		# Bölüm geçişinde can ve ilerleme durumunu kaydet
+		GameManager.oyunu_kaydet()
 	
 	is_boss_acting = false # KESİN BOSS KİLİDİ AÇMA
 	

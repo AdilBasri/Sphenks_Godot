@@ -13,6 +13,8 @@ var glitch_canvas: CanvasLayer = null
 var glitch_ui_rect: TextureRect = null
 var last_damage_time: float = 0.0
 
+@export var boss_tipi: String = "asit"
+
 @export_group("QTE Ayarları")
 @export var glitch_yuzu_dokusu: Texture2D
 @export var kirik_cam_sesi: AudioStream
@@ -43,11 +45,7 @@ func _ready():
 	# Başlangıçta Idle
 	idle_baslat()
 	
-	# Boss UI Ekle
-	await get_tree().create_timer(0.2).timeout
-	var boss_ui = get_tree().get_first_node_in_group("boss_ui")
-	if boss_ui:
-		boss_ui.boss_ekle(self, "asit", boss_hp)
+	# Boss UI artık auto-discovery ile çalışacak
 
 func _animasyonlari_yukle():
 	if not anim_player: return
@@ -196,9 +194,12 @@ func hasar_al_bolgesel(_bolge_adi: String):
 # ==========================================
 
 func _hp_ayarla():
-	"""Katmana ve dengelere göre boss HP değerini her zaman 2'ye sabitler."""
-	boss_hp = 2
-	print("💚 ACID BOSS HP: %d (Sabit)" % boss_hp)
+	"""Katmana ve dengelere göre boss HP değerini GameManager'dan çeker."""
+	if GameManager:
+		boss_hp = GameManager.boss_hp_al(boss_tipi)
+	else:
+		boss_hp = 2
+	print("💚 ACID BOSS HP: %d (Kalıcı)" % boss_hp)
 
 # ==========================================
 # MERMİ HITBOX OLUŞTURMA

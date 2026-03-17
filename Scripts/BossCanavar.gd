@@ -18,6 +18,7 @@ var arayuz: CanvasLayer = null # Arayüz (bilgi_goster)
 
 # --- AYARLAR ---
 @export var boss_adi: String = "Canavar"
+@export var boss_tipi: String = "zar"
 @export var mermi_zemini_y: float = -1.0
 
 # --- 👁️ GLITCH PARRY (REALITY DENIAL) ASSETS ---
@@ -124,11 +125,6 @@ func _ready():
 	await get_tree().create_timer(1.0).timeout
 	if _oldu_mu_kontrol(): return
 	
-	# Boss UI Ekle
-	var boss_ui = get_tree().get_first_node_in_group("boss_ui")
-	if boss_ui:
-		boss_ui.boss_ekle(self, "zar", boss_hp)
-
 	if visible:
 		otura_gec()
 	else:
@@ -505,9 +501,12 @@ func _kapiyi_otomatik_ac():
 # ==========================================
 
 func _hp_ayarla():
-	"""Katmana ve dengelere göre boss HP değerini her zaman 2'ye sabitler."""
-	boss_hp = 2
-	print("🎲 ZAR BOSS HP: %d (Sabit)" % boss_hp)
+	"""Katmana ve dengelere göre boss HP değerini GameManager'dan çeker."""
+	if GameManager:
+		boss_hp = GameManager.boss_hp_al(boss_tipi)
+	else:
+		boss_hp = 2
+	print("🎲 ZAR BOSS HP: %d (Kalıcı)" % boss_hp)
 
 # ==========================================
 # MERMİ HITBOX OLUŞTURMA
@@ -555,6 +554,10 @@ func mermi_hasari_al(hit_pos: Vector3, hit_dir: Vector3):
 	var boss_ui = get_tree().get_first_node_in_group("boss_ui")
 	if boss_ui:
 		boss_ui.boss_hasar_guncelle(self, boss_hp)
+	
+	# GlobalHP Kaydet
+	if GameManager:
+		GameManager.boss_hp_guncelle(boss_tipi, boss_hp)
 	
 	# 1 — Kan Efekti Spawn
 	_kan_efekti_olustur(hit_pos, hit_dir)

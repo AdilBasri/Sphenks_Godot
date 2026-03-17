@@ -177,7 +177,10 @@ func start_tutorial_segment(segment_name: String):
 	print("🎓 Tutorial Segmenti Başlatıldı: %s" % segment_name)
 	
 	if segment_name == "base" and GameManager:
-		GameManager.verileri_sifirla()
+		# Eğer zaten bir miktar ilerleme varsa veya can azalmışsa sıfırlama (Soft Save koruması)
+		if GameManager.suanki_seviye <= 1 and GameManager.oyuncu_kalan_bar == 4:
+			GameManager.verileri_sifirla()
+		print("🎓 Base tutorial initialization skipped full reset to protect health.")
 		# Tutorial başlar başlamaz odaya (yan sehpaya) bir mantar ver
 		var m_data = load("res://Assets/Models/Items/Mantar.tres")
 		if m_data and not GameManager.envanter.has(m_data):
