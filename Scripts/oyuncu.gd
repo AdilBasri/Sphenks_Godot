@@ -77,6 +77,7 @@ var bite_interval: float = 0.6  # Her ısırık arası süre (saniye)
 var kan_spreyi_sahne = preload("res://Scenes/KanSpreyi.tscn")
 var glass_break_sfx = preload("res://Assets/Audio/BloodSplatter.mp3") # Bakılan seslerden biri
 var _son_can_sayisi: int = 4 # Bar düşüşünü takip etmek için
+var _health_node_initial_positions: Array[Vector3] = []
 
 # Kamera Travması
 var trauma: float = 0.0            # 0-1 arası, her ısırıkta artar
@@ -197,7 +198,17 @@ func _ready():
 	if GameManager:
 		suanki_can_bari = GameManager.oyuncu_kalan_bar
 		suanki_hp = GameManager.oyuncu_suanki_hp
-		
+	
+	# Başlangıç pozisyonlarını kaydet (Restorasyon için)
+	_health_node_initial_positions.clear()
+	for node in health_nodes:
+		if is_instance_valid(node):
+			_health_node_initial_positions.append(node.global_position)
+		else:
+			_health_node_initial_positions.append(Vector3.ZERO)
+
+	_son_can_sayisi = suanki_can_bari
+	_can_gorselini_baslat()
 	ui_guncelle()
 	# GoreVignette'yi ayrı bir düşük layer'lı CanvasLayer'a taşı
 	# Böylece MideUI'nın (layer=1) altında render edilir — köşeyi kapatmaz
@@ -306,6 +317,9 @@ func _bileşenleri_hazirla():
 	stats.health_changed.connect(func(bars, hp): 
 		if bars < _son_can_sayisi:
 			bar_kirildi(bars)
+		elif bars > _son_can_sayisi:
+			# Can arttıysa görselleri yenile
+			_can_gorselini_baslat()
 		
 		_son_can_sayisi = bars
 	)
@@ -911,8 +925,24 @@ func hasar_al(miktar: int):
 	# Hasarı PlayerStats üzerinden uygula
 	stats.take_damage(miktar)
 	
-	if GameManager: GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
-	# ui_guncelle() # Eski UI devre disi
+	if GameManager: 
+		GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
+
+func _can_gorselini_baslat():
+	# Başlangıçta kaç can eksikse o kadar şişeyi gizle
+	var eksik_can = max_can_bari - suanki_can_bari
+	for i in range(health_nodes.size()):
+		if not is_instance_valid(health_nodes[i]): continue
+		
+		if i < eksik_can:
+			health_nodes[i].visible = false
+		else:
+			health_nodes[i].visible = true
+			# Pozisyonu sıfırla (Animasyonla yukarı gitmiş olabilir)
+			if i < _health_node_initial_positions.size():
+				health_nodes[i].global_position = _health_node_initial_positions[i]
+				
+	print("🔋 3D Health Visual Init: Kalan Bar: ", suanki_can_bari, " | Gizlenen Şişe Sayısı: ", eksik_can)
 
 func bar_kirildi(new_bars: int):
 	yere_dustu_mu = true
