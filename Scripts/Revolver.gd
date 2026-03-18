@@ -6,6 +6,9 @@ extends CanvasLayer
 @onready var score_label = get_node_or_null("ParsomenPanel/PuanTablosu/TotalScoreDeger")
 @onready var liste = get_node_or_null("ParsomenPanel/PuanTablosu/Liste")
 @onready var altin_label = get_node_or_null("AnaKontrol/MarginContainer/HBoxContainer/AltinSayisi")
+@onready var altin_ikoni = get_node_or_null("AnaKontrol/MarginContainer/HBoxContainer/AltinIkonu")
+
+var _kese_label: Label3D
 @onready var bilgi_label = get_node_or_null("AnaKontrol/BilgiLabel")
 @onready var katman_label = get_node_or_null("KatmanLabel")
 @onready var mermi_hud: Control = find_child("MermiKonteyner", true, false)
@@ -98,6 +101,10 @@ func _ready():
 	if perde:
 		perde.color.a = 1.0
 		perde_ac()
+	
+	if altin_label: altin_label.visible = false
+	if altin_ikoni: altin_ikoni.visible = false
+	_kese_label_kurulumu()
 	
 	# Katman yazısını başlangıçta gizle
 	if katman_label: katman_label.visible = false
@@ -317,11 +324,49 @@ func _guncelle_mermi_hud(sayi: int, maks_sayi: int, is_shotgun: bool):
 					ikonlar[1].visible = false
 
 func _on_altin_guncellendi(miktar):
-	if altin_label:
+	# Eski UI'ı güncelleme (gizli zaten)
+	if is_instance_valid(altin_label):
 		altin_label.text = str(miktar)
+	
+	# Yeni 3D Label'ı güncelle
+	if not _kese_label:
+		_kese_label_kurulumu()
+	
+	if _kese_label:
+		_kese_label.text = str(miktar)
+		# Hafif vurgu animasyonu
 		var tw = create_tween()
-		tw.tween_property(altin_label, "scale", Vector2(1.2, 1.2), 0.1)
-		tw.tween_property(altin_label, "scale", Vector2(1.0, 1.0), 0.1)
+		tw.tween_property(_kese_label, "scale", Vector3(1.2, 1.2, 1.2), 0.1)
+		tw.tween_property(_kese_label, "scale", Vector3(1.0, 1.0, 1.0), 0.1)
+
+func _kese_label_kurulumu():
+	var kese = get_tree().current_scene.find_child("kese", true, false)
+	if not kese:
+		kese = get_tree().root.find_child("kese", true, false)
+	
+	if kese:
+		_kese_label = kese.find_child("AltinSayaci3D", true, false)
+		if not _kese_label:
+			_kese_label = Label3D.new()
+			_kese_label.name = "AltinSayaci3D"
+			kese.add_child(_kese_label)
+			
+			# Görsel Ayarlar
+			_kese_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+			_kese_label.no_depth_test = true # Her zaman görünür olsun (Modelin içinde kalmasın)
+			_kese_label.modulate = Color("#FFD700") # Altın Sarısı
+			_kese_label.outline_render_priority = 10
+			_kese_label.outline_size = 12 # Daha da kalın (Kullanıcı "kalın" istedi)
+			_kese_label.font_size = 80 # Daha büyük font
+			
+			# Pozisyon (Kullanıcı isteği: Biraz daha SAĞA ve YUKARI)
+			# Sola yakın duruyormuş, 0.0 -> 0.05 SAĞA, 0.05 -> 0.08 YUKARI
+			_kese_label.position = Vector3(0.05, 0.08, 0.15) 
+		
+		_kese_label.text = str(GameManager.toplam_altin)
+		
+		# BAŞLANGIÇTA KESE GİZLİ OLSUN (Sadece G basılı tutulduğunda görünecek)
+		kese.visible = false
 
 func totem_sayacini_guncelle():
 	var sayac = find_child("SayacLabel", true, false)

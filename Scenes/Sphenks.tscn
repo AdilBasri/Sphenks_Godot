@@ -1,4 +1,4 @@
-[gd_scene load_steps=118 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=119 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Assets/Models/Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://Scripts/sphenks.gd" id="2_fi7dh"]
@@ -68,6 +68,7 @@
 [ext_resource type="PackedScene" uid="uid://bcl1yvjbc55dt" path="res://wooden+golem+3d+model.glb" id="78_q0w8o"]
 [ext_resource type="PackedScene" uid="uid://doepp0gdtdw4t" path="res://fantasy+statue+3d+model.glb" id="79_b7o3i"]
 [ext_resource type="PackedScene" uid="uid://cyxdsivu1s34p" path="res://fantasy+creature+3d+model.glb" id="80_w1heq"]
+[ext_resource type="PackedScene" uid="uid://df5i5fqrqc3av" path="res://kese/scene.gltf" id="81_b7o3i"]
 [ext_resource type="Script" uid="uid://chuv2uyii3n14" path="res://Scripts/AcidBoss.gd" id="94_acid"]
 [ext_resource type="PackedScene" uid="uid://cx6msh67nsv5" path="res://acid_boss/AcidBoss_Model.tscn" id="95_acid_model"]
 [ext_resource type="Script" uid="uid://ccipx45kolsv8" path="res://Scripts/StoneBoss.gd" id="96_stone"]
@@ -1323,6 +1324,9 @@ transform = Transform3D(0.99999994, 0, -2.9802322e-08, 0, 0.99999994, 0, 2.98023
 
 [node name="asit2" parent="boss_h/asit" index="2" instance=ExtResource("80_w1heq")]
 transform = Transform3D(0.99999994, 0, -2.9802322e-08, 0, 0.99999994, 0, 2.9802322e-08, 0, 0.99999994, 0.0871048, 0, -0.8685651)
+
+[node name="kese" parent="." index="27" instance=ExtResource("81_b7o3i")]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, -0.3472358, 0.38587528, 3.2400343)
 
 [connection signal="input_event" from="Kedi/Y_Kedi" to="Kedi" method="_on_area_3d_input_event"]
 
