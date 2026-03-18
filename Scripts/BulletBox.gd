@@ -1,19 +1,8 @@
-extends RigidBody3D
-
-var esya_verisi: ItemData:
-	set(v):
-		esya_verisi = v
-		if esya_verisi:
-			print("📦 Nesne Verisi Atandı: ", esya_verisi.etki_id)
-			if esya_verisi.etki_id == "shotgun_mermi":
-				print("🎯 Mermi Kutusu Tespit Edildi, Billboard yaratılıyor...")
-				add_to_group("MermiKutusu")
-				_mermi_bilgisi_yarat()
-
-var market_modu: bool = false 
+extends Node3D
 
 func _ready():
-	pass
+	add_to_group("MermiKutusu")
+	_mermi_bilgisi_yarat()
 
 func _mermi_bilgisi_yarat():
 	# Renk Tanımı
@@ -39,7 +28,7 @@ func _mermi_bilgisi_yarat():
 	rev_label.outline_size = 12
 	rev_label.modulate = sari
 	rev_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	rev_label.position = Vector3(0.15, 0, 0) # İkonun yanında
+	rev_label.position = Vector3(0.15, 0, 0)
 	revolver_info.add_child(rev_label)
 	
 	# 2. Shotgun Bilgisi (Sağ)
@@ -48,7 +37,6 @@ func _mermi_bilgisi_yarat():
 	shotgun_info.position = Vector3(0.25, 0.9, 0) # Daha yukarı
 	add_child(shotgun_info)
 	
-	# Çapraz Shotgun İkonu (2 adet mermi)
 	var shot_icon1 = Sprite3D.new()
 	shot_icon1.texture = rev_icon.texture
 	shot_icon1.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -75,17 +63,5 @@ func _mermi_bilgisi_yarat():
 	shot_label.position = Vector3(0.15, 0, 0)
 	shotgun_info.add_child(shot_label)
 	
-	# Başlangıçta gizle
 	revolver_info.visible = false
 	shotgun_info.visible = false
-
-func etkilesime_gir():
-	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
-	if not oyuncu: return
-	
-	if market_modu:
-		if oyuncu.has_method("satin_al"):
-			oyuncu.satin_al(self)
-	else:
-		if oyuncu.has_method("esyayi_ele_al"):
-			oyuncu.esyayi_ele_al(self)

@@ -227,12 +227,21 @@ func _ready():
 		gore_vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		
 	# --- KESE BUL ---
-	_kese_node = get_tree().current_scene.find_child("kese", true, false)
-	if not _kese_node:
+	# --- TÜM KESELERİ BUL VE ETKİSİZLEŞTİR ---
+	var all_keses = get_tree().current_scene.find_children("kese", "", true, false)
+	for k in all_keses:
+		k.visible = false
+		k.global_position = Vector3(0, -100, 0) # Dünyadan uzaklaştır
+		_neutralize_kese(k)
+	
+	if all_keses.size() > 0:
+		_kese_node = all_keses[0]
+	else:
 		_kese_node = get_tree().root.find_child("kese", true, false)
-	if _kese_node:
-		_kese_node.visible = false
-		_neutralize_kese(_kese_node)
+		if _kese_node:
+			_kese_node.visible = false
+			_kese_node.global_position = Vector3(0, -100, 0)
+			_neutralize_kese(_kese_node)
 	
 	# --- PERK LABEL YARATMA ---
 	if has_node("CanvasLayer"):
@@ -486,6 +495,12 @@ func _input(event):
 				esya_birak()
 
 func _physics_process(delta):
+	# --- BASIS LOCK (GÖVDE DİKLİĞİ) ---
+	# Karakterin gövdesinin (CharacterBody3D) sadece Y ekseninde (sağa-sola) dönmesini sağlar.
+	# X ve Z'deki (yatma/eğilme) her türlü kaymayı sıfırlar ki duvarlardan geçme/uçma olmasın.
+	rotation.x = 0
+	rotation.z = 0
+	
 	if yere_dustu_mu or oldu_mu: return
 	
 	# --- YEME SIRASINDA HAREKET KİLİTLE + TRAVMA DECAY ---
@@ -1014,7 +1029,10 @@ func _stop_checking_gold():
 		var kese_tw = create_tween()
 		var asagi_pos = _kese_node.global_position + Vector3(0, -0.6, 0)
 		kese_tw.tween_property(_kese_node, "global_position", asagi_pos, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-		kese_tw.tween_callback(func(): _kese_node.visible = false)
+		kese_tw.tween_callback(func(): 
+			_kese_node.visible = false
+			_kese_node.global_position = Vector3(0, -100, 0) # İş bitince tekrar uzaklaştır
+		)
 	
 	# Kamera geri dön (Yere/Yamukluğa karşı LOCAL transform kullanıyoruz)
 	var tw = create_tween()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=119 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=122 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Assets/Models/Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://Scripts/sphenks.gd" id="2_fi7dh"]
@@ -69,6 +69,8 @@
 [ext_resource type="PackedScene" uid="uid://doepp0gdtdw4t" path="res://fantasy+statue+3d+model.glb" id="79_b7o3i"]
 [ext_resource type="PackedScene" uid="uid://cyxdsivu1s34p" path="res://fantasy+creature+3d+model.glb" id="80_w1heq"]
 [ext_resource type="PackedScene" uid="uid://df5i5fqrqc3av" path="res://kese/scene.gltf" id="81_b7o3i"]
+[ext_resource type="PackedScene" uid="uid://dug3wqkbh4f1l" path="res://bullet_box/scene.gltf" id="82_w1heq"]
+[ext_resource type="Script" uid="uid://ci7b52idx0w08" path="res://Scripts/BulletBox.gd" id="85"]
 [ext_resource type="Script" uid="uid://chuv2uyii3n14" path="res://Scripts/AcidBoss.gd" id="94_acid"]
 [ext_resource type="PackedScene" uid="uid://cx6msh67nsv5" path="res://acid_boss/AcidBoss_Model.tscn" id="95_acid_model"]
 [ext_resource type="Script" uid="uid://ccipx45kolsv8" path="res://Scripts/StoneBoss.gd" id="96_stone"]
@@ -280,6 +282,9 @@ shader_parameter/vignette_softness = 0.2
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_x1sbr"]
 size = Vector3(3.69281, 2.9283447, 2.7840576)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_mermi"]
+size = Vector3(0.5, 0.5, 0.5)
 
 [node name="Meshy_AI__0118084653_texture" instance=ExtResource("1_1eqvi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.031485796, 0, 0)
@@ -530,7 +535,7 @@ transform = Transform3D(0.9969173, -0.0784591, 0, 0.0784591, 0.9969173, 0, 0, 0,
 shape = SubResource("BoxShape3D_bariyer")
 
 [node name="Kedi" type="Sprite3D" parent="." index="3"]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 2.5205264, -0.19308585, 1.9471784)
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 2.5205264, -0.19308585, -0.2554736)
 billboard = 2
 alpha_cut = 1
 texture_filter = 0
@@ -1327,6 +1332,21 @@ transform = Transform3D(0.99999994, 0, -2.9802322e-08, 0, 0.99999994, 0, 2.98023
 
 [node name="kese" parent="." index="27" instance=ExtResource("81_b7o3i")]
 transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, -0.3472358, 0.38587528, 3.2400343)
+
+[node name="bullet_box" parent="." index="28" groups=["MermiKutusu"] instance=ExtResource("82_w1heq")]
+transform = Transform3D(1.168216, 0, -1.6233518, 0, 2, 0, 1.6233518, 0, 1.168216, 2.846335, -0.5997947, 1.8888142)
+script = ExtResource("85")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="bullet_box" index="1"]
+transform = Transform3D(0.5000001, 0, 1.4901161e-08, 0, 0.5, 0, -1.4901161e-08, 0, 0.5000001, 0.05125439, 0, -0.060220063)
+light_color = Color(1, 1, 0.29803923, 1)
+light_volumetric_fog_energy = 16.0
+omni_range = 3.0
+
+[node name="StaticBody3D" type="StaticBody3D" parent="bullet_box" index="2"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="bullet_box/StaticBody3D" index="0"]
+shape = SubResource("BoxShape3D_mermi")
 
 [connection signal="input_event" from="Kedi/Y_Kedi" to="Kedi" method="_on_area_3d_input_event"]
 

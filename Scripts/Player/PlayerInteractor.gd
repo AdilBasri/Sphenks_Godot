@@ -8,6 +8,7 @@ class_name PlayerInteractor
 
 var held_object: RigidBody3D = null
 var mouse_free_mode: bool = false
+var _last_mermi_kutusu: Node3D = null
 
 func _physics_process(delta: float):
 	if held_object and hold_point:
@@ -20,16 +21,46 @@ func _physics_process(delta: float):
 func check_interaction():
 	if not raycast or not raycast.is_colliding():
 		if interaction_label: interaction_label.text = ""
+		# Bakış çekildiğinde mermi kutusu UI'larını gizle (Sky/Void look-away)
+		if _last_mermi_kutusu:
+			_mermi_kutusu_ui_kapat_hepsi()
+			_last_mermi_kutusu = null
 		return
 		
 	var collider = raycast.get_collider()
 	if not collider:
 		if interaction_label: interaction_label.text = ""
+		if _last_mermi_kutusu:
+			_mermi_kutusu_ui_kapat_hepsi()
+			_last_mermi_kutusu = null
 		return
 
+	# DEBUG: Hit node and groups
+	# print("RayCast Hit: ", collider.name, " Groups: ", collider.get_groups())
+
 	# TODO: Expand interaction logic based on groups or classes
-	if collider.is_in_group("Etkilesim"):
-		# Özel durum: Kapı veya nesne (veya babası) etkileşimi kapatmış olabilir
+	var is_mermi_kutusu = collider.is_in_group("MermiKutusu")
+	var mermi_kutusu_node = collider
+	
+	if not is_mermi_kutusu and collider.get_parent() and collider.get_parent().is_in_group("MermiKutusu"):
+		is_mermi_kutusu = true
+		mermi_kutusu_node = collider.get_parent()
+
+	if collider.is_in_group("Etkilesim") or is_mermi_kutusu:
+		# Mermi Kutusu Özel Durumu: UI Göster
+		if is_mermi_kutusu:
+			if _last_mermi_kutusu != mermi_kutusu_node:
+				_mermi_kutusu_ui_kapat_hepsi()
+				_mermi_kutusu_ui_guncelle(mermi_kutusu_node, true)
+				_last_mermi_kutusu = mermi_kutusu_node
+			
+			if interaction_label: interaction_label.text = "[E] " + DilYoneticisi.metin_al("shotgun_mermi_isi") if DilYoneticisi else "[E] Mermi Al"
+			return
+		
+		# Etkileşimli nesneye geçildiyse mermi kutusu UI'ını kapat
+		if _last_mermi_kutusu:
+			_mermi_kutusu_ui_kapat_hepsi()
+			_last_mermi_kutusu = null
 		var aday = collider
 		var devre_disi = false
 		var limit = 3
@@ -54,3 +85,28 @@ func check_interaction():
 		if interaction_label: interaction_label.text = "[E] Etkileşim"
 	else:
 		if interaction_label: interaction_label.text = ""
+		# Bakış çekildiğinde mermi kutusu UI'larını gizle
+		if _last_mermi_kutusu:
+			_mermi_kutusu_ui_kapat_hepsi()
+			_last_mermi_kutusu = null
+
+func _mermi_kutusu_ui_guncelle(kutu: Node3D, durum: bool):
+	var rev_info = kutu.get_node_or_null("RevolverInfo")
+	var shot_info = kutu.get_node_or_null("ShotgunInfo")
+	
+	if rev_info and shot_info:
+		rev_info.visible = durum
+		shot_info.visible = durum
+		
+		if durum:
+			var rev_lab = rev_info.get_node("Label3D")
+			var shot_lab = shot_info.get_node("Label3D")
+			if rev_lab: rev_lab.text = "x" + str(GameManager.mermi_sayisi)
+			if shot_lab: shot_lab.text = "x" + str(GameManager.shotgun_mermi_count)
+
+func _mermi_kutusu_ui_kapat_hepsi():
+	for kutu in get_tree().get_nodes_in_group("MermiKutusu"):
+		var rev_info = kutu.get_node_or_null("RevolverInfo")
+		var shot_info = kutu.get_node_or_null("ShotgunInfo")
+		if rev_info: rev_info.visible = false
+		if shot_info: shot_info.visible = false
