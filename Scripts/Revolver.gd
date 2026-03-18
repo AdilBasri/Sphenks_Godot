@@ -11,7 +11,6 @@ extends CanvasLayer
 var _kese_label: Label3D
 @onready var bilgi_label = get_node_or_null("AnaKontrol/BilgiLabel")
 @onready var katman_label = get_node_or_null("KatmanLabel")
-@onready var mermi_hud: Control = find_child("MermiKonteyner", true, false)
 @onready var nisangah: Control = find_child("Nisangah", true, false)
 @onready var pyro_filtresi: ColorRect = find_child("PyroFiltresi", true, false)
 
@@ -45,11 +44,6 @@ func _ready():
 	visible = true # CanvasLayer her zaman açık kalmalı
 	
 	# Silah parçalarını başlangıçta gizle
-	if mermi_hud:
-		mermi_hud.visible = false
-		mermi_hud.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT, Control.PRESET_MODE_MINSIZE, 20)
-		mermi_hud.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-		mermi_hud.grow_vertical = Control.GROW_DIRECTION_BEGIN
 		
 	if nisangah: nisangah.visible = false
 	if panel: panel.visible = false
@@ -57,17 +51,11 @@ func _ready():
 	
 	# GameManager Bağlantıları
 	if GameManager:
-		if not GameManager.mermi_degisti.is_connected(_on_mermi_degisti):
-			GameManager.mermi_degisti.connect(_on_mermi_degisti)
-		if not GameManager.shotgun_mermi_degisti.is_connected(_on_shotgun_mermi_degisti):
-			GameManager.shotgun_mermi_degisti.connect(_on_shotgun_mermi_degisti)
 		if not GameManager.altin_guncellendi.is_connected(_on_altin_guncellendi):
 			GameManager.altin_guncellendi.connect(_on_altin_guncellendi)
 		if not GameManager.envanter_guncellendi.is_connected(totem_sayacini_guncelle):
 			GameManager.envanter_guncellendi.connect(totem_sayacini_guncelle)
 			
-		_on_mermi_degisti(GameManager.mermi_sayisi)
-		_on_shotgun_mermi_degisti(GameManager.shotgun_mermi_count)
 		_on_altin_guncellendi(GameManager.toplam_altin)
 		totem_sayacini_guncelle()
 
@@ -122,11 +110,6 @@ func _ready():
 			_3d_shotgun.hide_weapon()
 
 func _process(_delta):
-	# Nişangah ve Filtre kontrolü
-	# Mermi HUD her zaman görünür olmalı (Silah çekili olsun olmasın)
-	if mermi_hud and not mermi_hud.visible:
-		mermi_hud.visible = true
-	
 	# Nişangah artık sadece silahın çekili olup olmamasına ve yeme durumuna bakıyor
 	var nisangah_aktif = GameManager.silah_cekildi and not GameManager.yeme_aktif_mi
 	if nisangah and nisangah.visible != nisangah_aktif:
@@ -227,10 +210,7 @@ func _switch_weapon(index: int):
 		islem_mesgul = false
 		
 		# Update UI immediately after switch
-		if active_weapon_index == 1:
-			_on_mermi_degisti(GameManager.mermi_sayisi)
-		else:
-			_on_shotgun_mermi_degisti(GameManager.shotgun_mermi_count)
+		# Ammo HUD removed as per user request
 
 func toggle_panel():
 	panel_acik = !panel_acik
@@ -239,8 +219,6 @@ func toggle_panel():
 func _silah_durumunu_degistir():
 	if islem_mesgul: return
 	GameManager.silah_cekildi = !GameManager.silah_cekildi
-	
-	if mermi_hud: mermi_hud.visible = GameManager.silah_cekildi
 	
 	var current_weapon = _3d_gun if active_weapon_index == 1 else _3d_shotgun
 
@@ -253,7 +231,7 @@ func _silah_durumunu_degistir():
 		
 		if current_weapon and is_instance_valid(current_weapon):
 			if current_weapon.has_method("show_weapon"): current_weapon.show_weapon()
-		elif silah_gorsel:
+		elif silah_gorsel and not GameManager.pyro_aktif:
 			silah_gorsel.visible = true
 			silah_gorsel.position.y = get_viewport().size.y + 200
 			create_tween().tween_property(silah_gorsel, "position", orjinal_pos, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -266,62 +244,6 @@ func _silah_durumunu_degistir():
 			tw.tween_property(silah_gorsel, "position:y", get_viewport().size.y + 200, 0.2).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 			tw.tween_callback(func(): silah_gorsel.visible = false)
 
-func _on_mermi_degisti(sayi):
-	if active_weapon_index != 1: return
-	_guncelle_mermi_hud(sayi, GameManager.max_mermi, false)
-
-func _on_shotgun_mermi_degisti(sayi):
-	if active_weapon_index != 2: return
-	_guncelle_mermi_hud(sayi, GameManager.max_shotgun_mermi, true)
-
-func _guncelle_mermi_hud(sayi: int, maks_sayi: int, is_shotgun: bool):
-	var m_label = find_child("MermiSayisi", true, false)
-	var h_box = find_child("HBoxContainer", true, false)
-	
-	if m_label:
-		if is_shotgun:
-			m_label.text = "%d/%d" % [sayi, maks_sayi]
-		else:
-			var parca = GameManager.mermi_parcasi_sayisi if GameManager else 0
-			if parca > 0:
-				m_label.text = "%d/%d (🔩%d/3)" % [sayi, maks_sayi, parca]
-			else:
-				m_label.text = "%d/%d" % [sayi, maks_sayi]
-		
-		var kritik = 2 if is_shotgun else 5
-		m_label.modulate = Color.RED if sayi == 0 else (Color(1, 0.55, 0) if sayi <= kritik else Color.WHITE)
-		m_label.size_flags_horizontal = Control.SIZE_SHRINK_END
-		m_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		m_label.custom_minimum_size = Vector2.ZERO # Reset any fixed width
-	
-	if h_box:
-		h_box.alignment = BoxContainer.ALIGNMENT_END
-		h_box.add_theme_constant_override("separation", 2) # İkonlar arası çok az boşluk (2px)
-		h_box.size_flags_horizontal = Control.SIZE_SHRINK_END
-		
-		var ikonlar = []
-		for child in h_box.get_children():
-			if child is TextureRect:
-				ikonlar.append(child)
-		
-		if ikonlar.size() > 0:
-			var ana_ikon = ikonlar[0]
-			if is_shotgun:
-				ana_ikon.visible = true
-				ana_ikon.size_flags_horizontal = Control.SIZE_SHRINK_END
-				if ikonlar.size() < 2:
-					# İkinci ikonu yarat
-					var yeni_ikon = ana_ikon.duplicate()
-					yeni_ikon.name = "ShotgunExtraIcon"
-					h_box.add_child(yeni_ikon)
-				else:
-					ikonlar[1].visible = true
-					ikonlar[1].size_flags_horizontal = Control.SIZE_SHRINK_END
-			else:
-				ana_ikon.visible = true
-				ana_ikon.size_flags_horizontal = Control.SIZE_SHRINK_END
-				if ikonlar.size() >= 2:
-					ikonlar[1].visible = false
 
 func _on_altin_guncellendi(miktar):
 	# Eski UI'ı güncelleme (gizli zaten)

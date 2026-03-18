@@ -50,7 +50,6 @@ var active_tween: Tween = null
 
 # --- REFERANSLAR ---
 @export var kamera: Camera3D 
-@export var ui_container: HBoxContainer 
 @export var health_nodes: Array[Node3D] # health1, health2, health3, health4
 @export var health_camera_marker: Marker3D # Şişelere bakan nokta
 
@@ -216,7 +215,7 @@ func _ready():
 
 	_son_can_sayisi = suanki_can_bari
 	_can_gorselini_baslat()
-	ui_guncelle()
+	# ui_guncelle() silindi
 	# GoreVignette'yi ayrı bir düşük layer'lı CanvasLayer'a taşı
 	# Böylece MideUI'nın (layer=1) altında render edilir — köşeyi kapatmaz
 	call_deferred("_gore_vignette_katmana_tasi")
@@ -338,7 +337,7 @@ func _bileşenleri_hazirla():
 	add_child(interactor)
 
 	# Sinyalleri bağla (Artık game_over animasyondan sonra çağrılacak)
-	stats.health_changed.connect(func(bars, hp): 
+	stats.health_changed.connect(func(bars, _hp): 
 		if bars < _son_can_sayisi:
 			bar_kirildi(bars)
 		elif bars > _son_can_sayisi:
@@ -521,7 +520,9 @@ func _physics_process(delta):
 		# Hareket etmeyi durdur (kaymayı engelle)
 		velocity.x = move_toward(velocity.x, 0, 10.0)
 		velocity.z = move_toward(velocity.z, 0, 10.0)
-		move_and_slide()
+		# Sadece otururken değilken move_and_slide çağır ki jitter olmasın
+		if not is_sitting:
+			move_and_slide()
 		return 
 
 	var input_dir = Input.get_vector("sol", "sag", "ileri", "geri")
@@ -731,7 +732,7 @@ func esya_kullan():
 				suanki_can_bari += 1
 				suanki_hp = 10
 				GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
-				ui_guncelle()
+				# ui_guncelle() silindi
 				basarili = true
 		"guc":
 			if GameManager:
@@ -1178,7 +1179,6 @@ func _on_kalkis_tamamlandi():
 	# suanki_can_bari -= 1 # ARTIK PlayerStats take_damage üzerinden düsüyor
 	# suanki_hp = 10 
 	if GameManager: GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
-	# ui_guncelle()
 
 func game_over():
 	oldu_mu = true 
@@ -1272,23 +1272,6 @@ func _cömelme_nisangah_guncelle(cömeldi: bool) -> void:
 	var hedef_scale = Vector2(0.333, 0.333) if cömeldi else Vector2(1.0, 1.0)
 	var tw = create_tween()
 	tw.tween_property(ns, "scale", hedef_scale, 0.25).set_trans(Tween.TRANS_BACK) 
-
-func ui_guncelle():
-	if not ui_container: return
-	var barlar = ui_container.get_children()
-	for i in range(max_can_bari):
-		if i >= barlar.size(): break
-		var bar = barlar[i] 
-		var carpi = bar.get_node_or_null("Carpi") 
-		if i < suanki_can_bari - 1:
-			bar.value = 10
-			if carpi: carpi.visible = false
-		elif i == suanki_can_bari - 1:
-			bar.value = suanki_hp
-			if carpi: carpi.visible = false
-		else:
-			bar.value = 0
-			if carpi: carpi.visible = true 
 
 func nesne_tut(nesne: RigidBody3D):
 	if nesne.is_in_group("KopanUzuv"):
@@ -1540,7 +1523,7 @@ func check_ui_text():
 		
 	if nesne is RigidBody3D and not tutulan_nesne:
 		if nesne.is_in_group("KopanUzuv"):
-			var mm = get_tree().current_scene.find_child("MezbahaManager", true, false)
+			manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
 			if manager:
 				if manager.get("axe_equipped") == true or manager.get("driving_wheelbarrow") == true:
 					return
@@ -1549,9 +1532,10 @@ func check_ui_text():
 		etkilesim_label.text = DilYoneticisi.metin_al("tut")
 
 func etkilesime_gir(is_mouse_click: bool = false):
+	var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
+	
 	# Arabayı sürüyorsak ve sadece E ye basıldıysa (mouse değil), bırakmamıza izin ver
 	if not is_mouse_click:
-		var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
 		if manager and manager.get("driving_wheelbarrow") == true:
 			var mezbaha_arabasi = get_tree().current_scene.find_child("El_arabasi", true, false)
 			if mezbaha_arabasi:
@@ -1631,7 +1615,6 @@ func etkilesime_gir(is_mouse_click: bool = false):
 
 	if nesne is RigidBody3D:
 		if nesne.is_in_group("KopanUzuv"):
-			var manager = get_tree().current_scene.find_child("MezbahaManager", true, false)
 			if manager and manager.get("driving_wheelbarrow") == true:
 				return
 			if not is_mouse_click:
@@ -1736,8 +1719,8 @@ func sit_on_stool(stool_node):
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	mouse_serbest_modu = true
 	
-	# Kamera Pozisyonunu Kaydet
-	original_camera_transform = kamera.global_transform
+	# Kamera Local Transformu Kaydet (Jitter'ı önlemek için globale göre değil lokale göre döneceğiz)
+	original_camera_transform = kamera.transform
 	
 	# Orbit Kamerasını Başlat (Anında geçiş yapsın, tweensiz de olabilir ama tween güzel)
 	_update_orbit_camera()
@@ -1751,7 +1734,7 @@ func sit_on_stool(stool_node):
 		etkilesim_label.anchor_bottom = 0.08
 		etkilesim_label.anchor_left = 0.5
 		etkilesim_label.anchor_right = 0.5
-		etkilesim_label.horizontal_alignment = 1 # CENTER
+		etkilesim_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		
 		# Font küçültme (Scale ile hile yapıyoruz veya settings varsa oradan)
 		etkilesim_label.scale = Vector2(0.7, 0.7)
@@ -1823,6 +1806,7 @@ func _get_stool_camera_transform() -> Transform3D:
 
 func _update_orbit_camera():
 	if not current_stool: return
+	var boss = _get_dusman()
 	
 	# --- ÖNCEKİ TWEEN'İ ÖLDÜR ---
 	# A/D hızlıca basıldığında birden fazla tween birikip kamerayı sürüklemesini engelle.
@@ -1871,17 +1855,23 @@ func _update_orbit_camera():
 	var player_target_pos = target_pos
 	player_target_pos.y += 0.5 # Biraz yukarıda otursun
 	tween.tween_property(self, "global_position", player_target_pos, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	# Body rotation'ı da sıfırlayalım ki kamera lokal hizalaması şaşmasın (Yamuk bakma sorunu çözümü)
+	tween.tween_property(self, "global_rotation", Vector3.ZERO, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
 	# Tween referansını sakla (Kalkarken durdurmak için)
 	active_tween = tween
 	
-	# 2. KAMERAYI MANTIKSAL OLARAK HESAPLA
+	# 2. KAMERAYI MANTIKSAL OLARAK HESAPLA (LOKAL OLARAK TWEENLE)
 	# Tabure'nin varacağı son transform (düzeltilmiş rotasyon ile)
 	var dest_trans = Transform3D(Basis.from_euler(final_stool_rot), target_pos)
 	var marker_local = current_stool.camera_position_marker.transform
 	var final_cam_global = dest_trans * marker_local
 	
-	tween.tween_property(kamera, "global_transform", final_cam_global, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	# Oyuncunun varacağı son transform (Body her zaman dik durduğu için Basis identity)
+	var final_player_trans = Transform3D(Basis(), player_target_pos)
+	var final_cam_local = final_player_trans.affine_inverse() * final_cam_global
+	
+	tween.tween_property(kamera, "transform", final_cam_local, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
 	# 3. BLOK DAĞITICISINI DÖNDÜR (EN KISA YOL + SİMETRİ HİZALAMA)
 	var spawner = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
@@ -1908,7 +1898,6 @@ func _update_orbit_camera():
 		var target_spawner_rot_y = final_stool_rot_y - deg_to_rad(90)
 		var spawner_saga_gecsin_mi = false
 		
-		var boss = _get_dusman()
 		if boss:
 			# Boss'un bana göre hangi tarafta olduğunu bul (Kamera / Tabure açısına göre)
 			var to_boss = (boss.global_position - target_pos).normalized()
@@ -1934,7 +1923,6 @@ func _update_orbit_camera():
 	# --- BOSS SAYDAMLIK KONTROLÜ ---
 	# Eğer başlangıç taburesindeysek ve Boss'un baktığı açıdaysak (Index 3 - Z Negatif) Boss'u saydam yap
 	# MasaSistemi'nde karşısı Z Negatif açısıdır (Index 3).
-	var boss = _get_dusman()
 	if boss and boss.has_method("set_transparency"):
 		var boss_bakis_acisi = (table_angle_index == 3)
 		print("DEBUG: transparency check - is_front:", is_front_stool, " is_angle_match:", boss_bakis_acisi)
@@ -1963,7 +1951,9 @@ func stand_up(forced: bool = false):
 	# ama SceneTreeTween'ler node üzerinde create_tween ile oluşturulmuştu.
 	# Ekstra güvenlik: Tabure ve kamera üzerindeki tüm tweenleri durdur.
 	
-	# Kalkma işlemi
+	# Kamerayı Head-Bob pozisyonuna geri döndür (Local Transform)
+	var tween = create_tween()
+	tween.tween_property(kamera, "transform", original_camera_transform, 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
 	# UI GÜNCELLEME: Varsayılan (Altta)
 	if etkilesim_label:
@@ -2091,7 +2081,6 @@ func _revive_ile_kalkis():
 		
 		GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
 		_son_can_sayisi = suanki_can_bari
-		# ui_guncelle() # Eski UI devre dışı
 		print("✅ Revive tamamlandı. Can: 1 Bar (10 HP)")
 	)
 
@@ -2319,7 +2308,7 @@ func yeme_tamamlandi():
 	
 	if GameManager:
 		GameManager.saglik_guncelle(suanki_can_bari, suanki_hp)
-	ui_guncelle()
+	# ui_guncelle() silindi
 	
 	# Uzvu yok et
 	if tutulan_nesne and is_instance_valid(tutulan_nesne):

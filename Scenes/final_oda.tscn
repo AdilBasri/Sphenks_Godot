@@ -165,11 +165,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -8.057488e-17, -0.362877)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0669446, -0.3468895, -0.63582003)
 shape = SubResource("BoxShape3D_wicwg")
 
-[node name="Oyuncu" type="CharacterBody3D" parent="." index="1" node_paths=PackedStringArray("kamera", "ui_container") groups=["Oyuncu"]]
+[node name="Oyuncu" type="CharacterBody3D" parent="." index="1" node_paths=PackedStringArray("kamera") groups=["Oyuncu"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5723672, 0.96656346, 8.954859)
 script = ExtResource("2_4jfkq")
 kamera = NodePath("Camera3D")
-ui_container = NodePath("CanBarlariContainer")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Oyuncu" index="0"]
 shape = SubResource("CapsuleShape3D_uc2wd")
@@ -205,88 +204,6 @@ text = "HASAR: 0"
 label_settings = SubResource("LabelSettings_2l7jp")
 horizontal_alignment = 1
 
-[node name="CanBarlariContainer" type="HBoxContainer" parent="Oyuncu" index="2"]
-visible = false
-anchors_preset = -1
-anchor_left = 0.041
-anchor_top = 0.053000003
-anchor_right = 0.044000003
-anchor_bottom = 0.053000003
-offset_left = -51.232002
-offset_top = -35.344
-offset_right = 4042.312
-offset_bottom = 2012.656
-scale = Vector2(0.07, 0.07)
-theme_override_constants/separation = -200
-
-[node name="Bar1" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer" index="0"]
-layout_mode = 2
-max_value = 10.0
-value = 10.0
-texture_over = SubResource("AtlasTexture_uqsvd")
-texture_progress = SubResource("AtlasTexture_rbdm6")
-
-[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar1" index="0"]
-visible = false
-layout_mode = 0
-offset_left = -1059.0
-offset_top = -928.5713
-offset_right = 989.0
-offset_bottom = 1119.4287
-scale = Vector2(1.7, 1.7)
-texture = ExtResource("6_uqsvd")
-
-[node name="Bar2" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer" index="1"]
-layout_mode = 2
-max_value = 10.0
-value = 10.0
-texture_over = SubResource("AtlasTexture_uqsvd")
-texture_progress = SubResource("AtlasTexture_rbdm6")
-
-[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar2" index="0"]
-visible = false
-layout_mode = 0
-offset_left = -1059.0
-offset_top = -928.5713
-offset_right = 989.0
-offset_bottom = 1119.4287
-scale = Vector2(1.7, 1.7)
-texture = ExtResource("6_uqsvd")
-
-[node name="Bar3" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer" index="2"]
-layout_mode = 2
-max_value = 10.0
-value = 10.0
-texture_over = SubResource("AtlasTexture_uqsvd")
-texture_progress = SubResource("AtlasTexture_rbdm6")
-
-[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar3" index="0"]
-visible = false
-layout_mode = 0
-offset_left = -1059.0
-offset_top = -928.5713
-offset_right = 989.0
-offset_bottom = 1119.4287
-scale = Vector2(1.7, 1.7)
-texture = ExtResource("6_uqsvd")
-
-[node name="Bar4" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer" index="3"]
-layout_mode = 2
-max_value = 10.0
-value = 10.0
-fill_mode = 3
-texture_over = SubResource("AtlasTexture_uqsvd")
-texture_progress = SubResource("AtlasTexture_rbdm6")
-
-[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar4" index="0"]
-visible = false
-layout_mode = 0
-offset_left = -1059.0
-offset_top = -928.5713
-offset_right = 989.0
-offset_bottom = 1119.4287
-scale = Vector2(1.7, 1.7)
-texture = ExtResource("6_uqsvd")
 
 [node name="Camera3D" type="Camera3D" parent="Oyuncu" index="3" groups=["OyuncuKamera"]]
 physics_interpolation_mode = 2

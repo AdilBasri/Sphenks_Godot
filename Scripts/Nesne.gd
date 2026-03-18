@@ -50,7 +50,7 @@ func _mermi_bilgisi_yarat():
 	
 	# Çapraz Shotgun İkonu (2 adet mermi)
 	var shot_icon1 = Sprite3D.new()
-	shot_icon1.texture = rev_icon.texture
+	shot_icon1.texture = load("res://shotgun_shell.png")
 	shot_icon1.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	shot_icon1.pixel_size = 0.0006
 	shot_icon1.modulate = sari
@@ -58,7 +58,7 @@ func _mermi_bilgisi_yarat():
 	shotgun_info.add_child(shot_icon1)
 	
 	var shot_icon2 = Sprite3D.new()
-	shot_icon2.texture = rev_icon.texture
+	shot_icon2.texture = shot_icon1.texture
 	shot_icon2.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	shot_icon2.pixel_size = 0.0006
 	shot_icon2.modulate = sari

@@ -127,11 +127,10 @@ surface_material_override/0 = SubResource("StandardMaterial3D_ua3w8")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
 shape = SubResource("ConcavePolygonShape3D_j5rsp")
 
-[node name="Oyuncu" type="CharacterBody3D" parent="." node_paths=PackedStringArray("kamera", "ui_container") groups=["Oyuncu"]]
+[node name="Oyuncu" type="CharacterBody3D" parent="." node_paths=PackedStringArray("kamera") groups=["Oyuncu"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1323147, 3.3313973)
 script = ExtResource("1_j5rsp")
 kamera = NodePath("Camera3D")
-ui_container = NodePath("CanBarlariContainer")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Oyuncu"]
 shape = SubResource("CapsuleShape3D_1egvt")
@@ -167,87 +166,6 @@ text = "HASAR: 0"
 label_settings = SubResource("LabelSettings_u18ft")
 horizontal_alignment = 1
 
-[node name="CanBarlariContainer" type="HBoxContainer" parent="Oyuncu"]
-anchors_preset = -1
-anchor_left = 0.041
-anchor_top = 0.053000003
-anchor_right = 0.044000003
-anchor_bottom = 0.053000003
-offset_left = -51.232002
-offset_top = -35.344
-offset_right = 4042.312
-offset_bottom = 2012.656
-scale = Vector2(0.07, 0.07)
-theme_override_constants/separation = -200
-
-[node name="Bar1" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
-layout_mode = 2
-max_value = 10.0
-value = 10.0
-texture_over = SubResource("AtlasTexture_xh7p1")
-texture_progress = SubResource("AtlasTexture_xl8ic")
-
-[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar1"]
-visible = false
-layout_mode = 0
-offset_left = -1059.0
-offset_top = -928.5713
-offset_right = 989.0
-offset_bottom = 1119.4287
-scale = Vector2(1.7, 1.7)
-texture = ExtResource("5_nn26f")
-
-[node name="Bar2" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
-layout_mode = 2
-max_value = 10.0
-value = 10.0
-texture_over = SubResource("AtlasTexture_xh7p1")
-texture_progress = SubResource("AtlasTexture_xl8ic")
-
-[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar2"]
-visible = false
-layout_mode = 0
-offset_left = -1059.0
-offset_top = -928.5713
-offset_right = 989.0
-offset_bottom = 1119.4287
-scale = Vector2(1.7, 1.7)
-texture = ExtResource("5_nn26f")
-
-[node name="Bar3" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
-layout_mode = 2
-max_value = 10.0
-value = 10.0
-texture_over = SubResource("AtlasTexture_xh7p1")
-texture_progress = SubResource("AtlasTexture_xl8ic")
-
-[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar3"]
-visible = false
-layout_mode = 0
-offset_left = -1059.0
-offset_top = -928.5713
-offset_right = 989.0
-offset_bottom = 1119.4287
-scale = Vector2(1.7, 1.7)
-texture = ExtResource("5_nn26f")
-
-[node name="Bar4" type="TextureProgressBar" parent="Oyuncu/CanBarlariContainer"]
-layout_mode = 2
-max_value = 10.0
-value = 10.0
-fill_mode = 3
-texture_over = SubResource("AtlasTexture_xh7p1")
-texture_progress = SubResource("AtlasTexture_xl8ic")
-
-[node name="Carpi" type="TextureRect" parent="Oyuncu/CanBarlariContainer/Bar4"]
-visible = false
-layout_mode = 0
-offset_left = -1059.0
-offset_top = -928.5713
-offset_right = 989.0
-offset_bottom = 1119.4287
-scale = Vector2(1.7, 1.7)
-texture = ExtResource("5_nn26f")
 
 [node name="Camera3D" type="Camera3D" parent="Oyuncu" groups=["OyuncuKamera"]]
 physics_interpolation_mode = 2
@@ -455,33 +373,6 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(1, 0, 0, 0.25882354)
 
-[node name="MermiKonteyner" type="MarginContainer" parent="Revolver"]
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -220.0
-offset_top = -163.0
-offset_right = 28.0
-grow_horizontal = 0
-grow_vertical = 0
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Revolver/MermiKonteyner"]
-layout_mode = 2
-theme_override_constants/separation = -55
-alignment = 2
-
-[node name="MermiSayisi" type="Label" parent="Revolver/MermiKonteyner/HBoxContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("13_w84ue")
-theme_override_font_sizes/font_size = 24
-text = "19/40"
-
-[node name="MermiIkonu" type="TextureRect" parent="Revolver/MermiKonteyner/HBoxContainer"]
-layout_mode = 2
-texture = ExtResource("14_f3u4t")
-expand_mode = 2
 
 [node name="wooden+golem+3d+model" parent="." instance=ExtResource("19_d4mfo")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.4552653, 2.3222053, 0.63147974)
