@@ -119,7 +119,8 @@ var bob_amp: float = 0.035
 
 # --- ALTIN KESESİ (YENİ) ---
 var is_checking_gold: bool = false
-var _pre_gold_cam_transform: Transform3D
+var _gold_tween_busy: bool = false
+var _pre_gold_cam_local_transform: Transform3D
 var _kese_node: Node3D
 
 # --- MODÜLER BİLEŞENLER ---
@@ -231,16 +232,7 @@ func _ready():
 		_kese_node = get_tree().root.find_child("kese", true, false)
 	if _kese_node:
 		_kese_node.visible = false
-		# Collision'ları tamamen kaldır (oyuncuyu itmesin)
-		for child in _kese_node.get_children():
-			if child is CollisionShape3D:
-				child.set_deferred("disabled", true)
-			elif child is StaticBody3D or child is RigidBody3D:
-				child.set_deferred("collision_layer", 0)
-				child.set_deferred("collision_mask", 0)
-				for sub in child.get_children():
-					if sub is CollisionShape3D:
-						sub.set_deferred("disabled", true)
+		_neutralize_kese(_kese_node)
 	
 	# --- PERK LABEL YARATMA ---
 	if has_node("CanvasLayer"):
@@ -430,23 +422,27 @@ func _input(event):
 			
 		return # Otururken diğer inputları (mouse look vs) engelle
 
-	# --- KAMERA ROTASYONU ---
+	# --- ALTIN KESESİ KONTROLÜ (G TUŞU) ---
+	if event is InputEventKey and event.keycode == KEY_G and not is_sitting:
+		if event.pressed and not event.echo and not is_checking_gold and not _gold_tween_busy:
+			_start_checking_gold()
+			return
+		elif not event.pressed and is_checking_gold:
+			_stop_checking_gold()
+			return
+	
+	# Altın Kesesi açıkken tüm diğer inputları (mouse look, hareket vb) kilitler
+	if is_checking_gold or _gold_tween_busy:
+		return
+	
+	# --- KAMERA ROTASYONU (MOUSE LOOK) ---
 	# Robust Mouse Mode Check: Hem CAPTURED hem HIDDEN (boss atağı vb.) modlarında bakışa izin veriyoruz
-	# (Eğer oyuncu oturmuyorsa ve mouse serbest modda değilse)
 	var is_look_mode = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED or Input.mouse_mode == Input.MOUSE_MODE_HIDDEN
-	if not mouse_serbest_modu and is_look_mode and not is_checking_gold:
+	if not mouse_serbest_modu and is_look_mode:
 		if active_tween and active_tween.is_valid() and active_tween.is_running(): return
 		if event is InputEventMouseMotion:
 			looker.handle_look(event.relative)
-			# Sync back if needed (optional)
 			x_rotasyonu = looker.x_rotation
-	
-	# --- ALTIN KESESİ KONTROLÜ (G TUŞU) ---
-	if event is InputEventKey and event.keycode == KEY_G and not is_sitting:
-		if event.pressed and not is_checking_gold:
-			_start_checking_gold()
-		elif not event.pressed and is_checking_gold:
-			_stop_checking_gold()
 	
 	if event.is_action_pressed("sol_tik"):
 		# VIRTUAL MOUSE TIKLAMA SIMULASYONU
@@ -506,7 +502,12 @@ func _physics_process(delta):
 			tutulan_nesne.angular_velocity = Vector3.ZERO
 		return
 	
-	if is_sitting: return # Otururken hareket etme
+	if is_sitting or is_checking_gold or _gold_tween_busy: 
+		# Hareket etmeyi durdur (kaymayı engelle)
+		velocity.x = move_toward(velocity.x, 0, 10.0)
+		velocity.z = move_toward(velocity.z, 0, 10.0)
+		move_and_slide()
+		return 
 
 	var input_dir = Input.get_vector("sol", "sag", "ileri", "geri")
 	mover.current_speed = suanki_speed
@@ -965,47 +966,80 @@ func hasar_al(miktar: int):
 func _start_checking_gold():
 	if not _kese_node:
 		_kese_node = get_tree().current_scene.find_child("kese", true, false)
+		if _kese_node: _neutralize_kese(_kese_node)
 	if not _kese_node: return
 	
 	is_checking_gold = true
-	_pre_gold_cam_transform = kamera.global_transform
+	_gold_tween_busy = true
+	_pre_gold_cam_local_transform = kamera.transform
 	
-	# --- KESEYİ OYUNCUNUN SOLUNA KONUMLANDIR ---
-	# Oyuncunun bakış yönüne göre sola offset
+	# --- KESE KONUM HESAPLA ---
 	var cam_basis = kamera.global_transform.basis
-	var sol_yon = -cam_basis.x.normalized()  # Kameranın sol
-	var ileri_yon = -cam_basis.z.normalized()  # Kameranın ileri
+	var sol_yon = -cam_basis.x.normalized()
+	var ileri_yon = -cam_basis.z.normalized()
 	
-	# Keseyi oyuncunun soluna + biraz ilerisine + göz hizasının altına yerleştir
-	var kese_pos = kamera.global_position + (sol_yon * 0.5) + (ileri_yon * 0.4) + Vector3(0, -0.4, 0)
-	_kese_node.global_position = kese_pos
+	# Son konum (görünecek yer)
+	var kese_hedef_pos = kamera.global_position + (sol_yon * 0.5) + (ileri_yon * 0.4) + Vector3(0, -0.4, 0)
+	# Başlangıç konum (kameranın altında, cepten çıkıyor hissi)
+	var kese_baslangic_pos = kese_hedef_pos + Vector3(0, -0.6, 0)
 	
-	# Keseyi oyuncuya döndür
+	# Keseyi alt başlangıç konumuna yerleştir
+	_kese_node.global_position = kese_baslangic_pos
 	_kese_node.look_at(kamera.global_position, Vector3.UP)
-	
-	# Keseyi görünür yap
 	_kese_node.visible = true
 	
-	# Kamera pan (Keseye bak)
+	# Keseyi yukarı çıkar (cepten çıkarma animasyonu)
+	var kese_tw = create_tween()
+	kese_tw.tween_property(_kese_node, "global_position", kese_hedef_pos, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	
+	# Kamera pan (Keseye bak — hem pouch hem label sığsın)
 	var tw = create_tween()
-	var look_target = _kese_node.global_position
-	var cam_pos = _kese_node.global_position + (-sol_yon * 0.2) + Vector3(0, 0.15, 0) + (-ileri_yon * -0.15)
+	# Bakış hedefi: Kesenin biraz üstü (label ile kese arası)
+	var look_target = kese_hedef_pos + Vector3(0, 0.1, 0)
+	# Kamera konumu: Kesenin 0.4 birim gerisinden, 0.15 birim yukarıdan bak
+	var cam_pos = kese_hedef_pos + (ileri_yon * -0.4) + Vector3(0, 0.15, 0)
+	
 	var target_basis = Basis.looking_at(look_target - cam_pos, Vector3.UP)
 	var target_transform = Transform3D(target_basis, cam_pos)
+	tw.tween_property(kamera, "global_transform", target_transform, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
-	tw.tween_property(kamera, "global_transform", target_transform, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	
-	# Silahları gizle
 	hide_weapon()
 
 func _stop_checking_gold():
+	if not is_checking_gold: return
 	is_checking_gold = false
+	
+	# Keseyi aşağı indir (cebe geri koyma animasyonu)
+	if _kese_node:
+		var kese_tw = create_tween()
+		var asagi_pos = _kese_node.global_position + Vector3(0, -0.6, 0)
+		kese_tw.tween_property(_kese_node, "global_position", asagi_pos, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+		kese_tw.tween_callback(func(): _kese_node.visible = false)
+	
+	# Kamera geri dön (Yere/Yamukluğa karşı LOCAL transform kullanıyoruz)
 	var tw = create_tween()
-	tw.tween_property(kamera, "global_transform", _pre_gold_cam_transform, 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(kamera, "transform", _pre_gold_cam_local_transform, 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	tw.tween_callback(func():
 		show_weapon()
-		if _kese_node: _kese_node.visible = false
+		# Eğer bir şekilde basis kaydıysa (roll vb), x_rotation ile senkronla
+		if looker:
+			kamera.rotation.x = looker.x_rotation
+			kamera.rotation.y = 0
+			kamera.rotation.z = 0
+		_gold_tween_busy = false
 	)
+
+func _neutralize_kese(node: Node):
+	if node is CollisionShape3D:
+		node.set_deferred("disabled", true)
+	elif node is CollisionObject3D:
+		node.set_deferred("collision_layer", 0)
+		node.set_deferred("collision_mask", 0)
+		if node is RigidBody3D:
+			node.set_deferred("freeze", true)
+	
+	for child in node.get_children():
+		_neutralize_kese(child)
 
 func _can_gorselini_baslat():
 	# Başlangıçta kaç can eksikse o kadar şişeyi gizle

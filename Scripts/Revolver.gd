@@ -350,22 +350,21 @@ func _kese_label_kurulumu():
 			_kese_label = Label3D.new()
 			_kese_label.name = "AltinSayaci3D"
 			kese.add_child(_kese_label)
-			
-			# Görsel Ayarlar
-			_kese_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-			_kese_label.no_depth_test = true # Her zaman görünür olsun (Modelin içinde kalmasın)
-			_kese_label.modulate = Color("#FFD700") # Altın Sarısı
-			_kese_label.outline_render_priority = 10
-			_kese_label.outline_size = 12 # Daha da kalın (Kullanıcı "kalın" istedi)
-			_kese_label.font_size = 80 # Daha büyük font
-			
-			# Pozisyon (Kullanıcı isteği: Biraz daha SAĞA ve YUKARI)
-			# Sola yakın duruyormuş, 0.0 -> 0.05 SAĞA, 0.05 -> 0.08 YUKARI
-			_kese_label.position = Vector3(0.05, 0.08, 0.15) 
+		
+		# Görsel Ayarlar (her seferinde güncelle — konum değişikliği anında yansısın)
+		_kese_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		_kese_label.no_depth_test = true
+		_kese_label.modulate = Color("#FFD700")
+		_kese_label.outline_render_priority = 10
+		_kese_label.outline_size = 12
+		_kese_label.font_size = 80
+		_kese_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		# Biraz daha aşağı alalım (1.1 çok yüksekti), ama hala modelin dışında kalsın
+		_kese_label.position = Vector3(0.0, 0.2, 0.1) 
 		
 		_kese_label.text = str(GameManager.toplam_altin)
 		
-		# BAŞLANGIÇTA KESE GİZLİ OLSUN (Sadece G basılı tutulduğunda görünecek)
+		# BAŞLANGIÇTA KESE GİZLİ OLSUN
 		kese.visible = false
 
 func totem_sayacini_guncelle():
