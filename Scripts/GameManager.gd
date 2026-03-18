@@ -415,8 +415,9 @@ func oyunu_kaydet():
 	config.set_value("Oyun", "Envanter", [])
 	config.set_value("Oyun", "IntroTamamlandi", intro_tamamlandi)
 	# tutorial_tamamlandi'yı completed_tutorials'dan otomatik hesapla (tutarsızlığı önle)
-	var _tut_tamam = ("base" in completed_tutorials and "market" in completed_tutorials \
+	tutorial_tamamlandi = ("base" in completed_tutorials and "market" in completed_tutorials \
 		and "campfire" in completed_tutorials and "pyro" in completed_tutorials)
+	config.set_value("Oyun", "TutorialTamamlandi", tutorial_tamamlandi)
 	config.set_value("Oyun", "CompletedTutorials", completed_tutorials)
 	config.set_value("Oyun", "UykuSahnesiGirisSayisi", uyku_sahnesi_giris_sayisi)
 	config.set_value("Oyun", "BossKacti", boss_kacti)

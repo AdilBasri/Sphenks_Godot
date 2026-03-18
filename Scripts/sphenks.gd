@@ -28,10 +28,11 @@ func _ready() -> void:
 		oyuncu.set_physics_process(true)
 		
 	# --- TUTORIAL KONTROLÜ ---
-	# Eğer intro bittiyse ama tutorial henüz tamamlanmadıysa, tutorial'ı başlat.
-	if GameManager.intro_tamamlandi and not GameManager.tutorial_tamamlandi:
+	# Eğer intro bittiyse ama BAŞLANGIÇ tutorial'ı henüz tamamlanmadıysa başlat.
+	# Diğer segmentler (market, pyro vs.) kendi sahnelerinde tetiklenir.
+	if GameManager.intro_tamamlandi and not GameManager.is_tutorial_segment_completed("base"):
 		if TutorialManager:
-			await get_tree().create_timer(1.0).timeout # Sahne yüklendikten kısa bir süre sonra başlat
+			await get_tree().create_timer(1.0).timeout 
 			TutorialManager.start_tutorial()
 		else:
 			print("⚠️ TutorialManager (Autoload) bulunamadı!")

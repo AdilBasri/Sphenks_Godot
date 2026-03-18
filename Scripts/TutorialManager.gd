@@ -290,8 +290,6 @@ func _tutorial_segmenti_bitir():
 	
 	if GameManager:
 		GameManager.complete_tutorial_segment(suanki_segment)
-		if suanki_segment == "base":
-			GameManager.tutorial_tamamlandi = true
 		GameManager.oyunu_kaydet()
 	
 	suanki_segment = ""
