@@ -11,12 +11,16 @@ var is_boss_acting: bool = false:
 		if value:
 			Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 		else:
-			if is_instance_valid(oyuncu_ref) and "mouse_serbest_modu" in oyuncu_ref and oyuncu_ref.mouse_serbest_modu:
-				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-			elif not is_instance_valid(oyuncu_ref):
-				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			# Boss isi bittiginde veya zorla acildiginda (Level bitis vb.) mouse modunu geri getir
+			if is_instance_valid(oyuncu_ref):
+				if "mouse_serbest_modu" in oyuncu_ref and oyuncu_ref.mouse_serbest_modu:
+					Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+				else:
+					Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 			else:
-				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+				# Oyuncu referansi yoksa (Sahne degisimi vb.) emniyet icin görünür yap veya captured
+				# Genelde oyun basinda captured istenir.
+				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 # --- KONUM REFERANSLARI ---
 var market_pos: Vector3

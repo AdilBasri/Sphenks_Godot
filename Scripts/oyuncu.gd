@@ -408,7 +408,10 @@ func _input(event):
 		return # Otururken diğer inputları (mouse look vs) engelle
 
 	# --- KAMERA ROTASYONU ---
-	if not mouse_serbest_modu and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+	# Robust Mouse Mode Check: Hem CAPTURED hem HIDDEN (boss atağı vb.) modlarında bakışa izin veriyoruz
+	# (Eğer oyuncu oturmuyorsa ve mouse serbest modda değilse)
+	var is_look_mode = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED or Input.mouse_mode == Input.MOUSE_MODE_HIDDEN
+	if not mouse_serbest_modu and is_look_mode:
 		if active_tween and active_tween.is_valid() and active_tween.is_running(): return
 		if event is InputEventMouseMotion:
 			looker.handle_look(event.relative)
@@ -1021,6 +1024,9 @@ func _after_health_animation():
 			game_over()
 	else:
 		kalkis_baslat()
+	
+	# Silahları geri getir
+	show_weapon()
 
 
 func kalkis_baslat():
@@ -1195,6 +1201,12 @@ func hide_weapon():
 		silah.visible = false
 		silah.process_mode = Node.PROCESS_MODE_DISABLED
 	
+	# --- EXTRA: 3D MODELLERİ GİZLE (Sketchfab_Scene vb.) ---
+	if kamera:
+		for child in kamera.get_children():
+			if "Sketchfab" in child.name or "Model" in child.name or "Silah" in child.name:
+				if child is Node3D: child.visible = false
+
 	var revolver = _get_arayuz()
 	if revolver:
 		if revolver.has_method("_silahi_kaldir"):
@@ -1202,6 +1214,28 @@ func hide_weapon():
 		# Forcing the Revolver Canvas layer to explicitly hide its nested elements
 		var nisangah = revolver.get_node_or_null("Nisangah")
 		if nisangah: nisangah.hide()
+
+func show_weapon():
+	weapon_input_disabled = false
+	var silah = _get_silah_katmani()
+	if not silah:
+		silah = get_tree().current_scene.find_child("SilahKatmani", true, false)
+	if silah: 
+		silah.visible = true
+		silah.process_mode = Node.PROCESS_MODE_INHERIT
+
+	# --- EXTRA: 3D MODELLERİ GÖSTER ---
+	if kamera:
+		for child in kamera.get_children():
+			if "Sketchfab" in child.name or "Model" in child.name or "Silah" in child.name:
+				if child is Node3D: child.visible = true
+
+	var revolver = _get_arayuz()
+	if revolver:
+		if revolver.has_method("_silahi_goster"):
+			revolver._silahi_goster()
+		var nisangah = revolver.get_node_or_null("Nisangah")
+		if nisangah: nisangah.show()
 
 func unequip_weapons():
 	hide_weapon()
@@ -1822,8 +1856,10 @@ func stand_up(forced: bool = false):
 		
 	is_sitting = false
 	yere_dustu_mu = false
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	
+	# Garanti Mouse ve Look Durumu
 	mouse_serbest_modu = false
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	
 	if kamera:
 		kamera.make_current()

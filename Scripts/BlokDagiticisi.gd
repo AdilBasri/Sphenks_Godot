@@ -393,6 +393,9 @@ func _sahne_bitis_animasyonu() -> void:
 		# Mekan bariyerlerini kaldır
 		get_tree().call_group("Bariyer", "bolum_bitti")
 		
+		# GARANTİ: Mouse Modunu Tekrar Kilitle (Oyuncu yürüyebilsin)
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		
 		emit_signal("bolum_temizlendi") 
 	)
 

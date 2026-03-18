@@ -1,7 +1,7 @@
 extends Node3D
 
 const IDLE_POS     := Vector3(0.10, -0.1, -0.2)
-const HIDDEN_POS   := Vector3(0.10, -0.45, -0.2)
+const HIDDEN_POS   := Vector3(0.10, -2.0, -0.2)
 const IDLE_ROT_DEG := Vector3(-7.0, 178.0, -1.4)
 
 const AG_AMOUNT := 0.06
@@ -90,6 +90,7 @@ func hide_weapon() -> void:
 	if not _is_visible:
 		# VISIBILITY FAILSAFE: Eğer visible ise ve animasyon takıldıysa gizle
 		if visible: visible = false
+		position = HIDDEN_POS # Failsafe: Eğer takıldıysa tam aşağı çek
 		return
 	_is_visible = false
 	_is_busy = false

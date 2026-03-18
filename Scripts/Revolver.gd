@@ -107,6 +107,12 @@ func _ready():
 	if oyuncu_ref:
 		_3d_gun = oyuncu_ref.get_node_or_null("Camera3D/Sketchfab_Scene")
 		_3d_shotgun = oyuncu_ref.get_node_or_null("Camera3D/Sketchfab_Scene2")
+		
+		# --- BAŞLANGIÇTA HER İKİSİNİ DE GİZLE (Overlap Fix) ---
+		if is_instance_valid(_3d_gun) and _3d_gun.has_method("hide_weapon"):
+			_3d_gun.hide_weapon()
+		if is_instance_valid(_3d_shotgun) and _3d_shotgun.has_method("hide_weapon"):
+			_3d_shotgun.hide_weapon()
 
 func _process(_delta):
 	# Nişangah ve Filtre kontrolü
@@ -201,6 +207,12 @@ func _switch_weapon(index: int):
 		# Switching sırasında kullanıcı tekrar basmış olabilir, en güncel seçimi al
 		new_weapon = _3d_gun if active_weapon_index == 1 else _3d_shotgun
 		
+		# HER İHTİMALE KARŞI İKİSİNİ DE GİZLE (Overlap Fix)
+		if is_instance_valid(_3d_gun) and _3d_gun.has_method("hide_weapon"): _3d_gun.hide_weapon()
+		if is_instance_valid(_3d_shotgun) and _3d_shotgun.has_method("hide_weapon"): _3d_shotgun.hide_weapon()
+		
+		await get_tree().create_timer(0.25).timeout
+		
 		if is_instance_valid(new_weapon) and new_weapon.has_method("show_weapon"):
 			new_weapon.show_weapon()
 		
@@ -226,6 +238,12 @@ func _silah_durumunu_degistir():
 	var current_weapon = _3d_gun if active_weapon_index == 1 else _3d_shotgun
 
 	if GameManager.silah_cekildi:
+		# HER İHTİMALE KARŞI İKİSİNİ DE GİZLE (Overlap Fix)
+		if is_instance_valid(_3d_gun) and _3d_gun.has_method("hide_weapon"): _3d_gun.hide_weapon()
+		if is_instance_valid(_3d_shotgun) and _3d_shotgun.has_method("hide_weapon"): _3d_shotgun.hide_weapon()
+		
+		await get_tree().create_timer(0.2).timeout
+		
 		if current_weapon and is_instance_valid(current_weapon):
 			if current_weapon.has_method("show_weapon"): current_weapon.show_weapon()
 		elif silah_gorsel:
@@ -233,9 +251,10 @@ func _silah_durumunu_degistir():
 			silah_gorsel.position.y = get_viewport().size.y + 200
 			create_tween().tween_property(silah_gorsel, "position", orjinal_pos, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	else:
-		if current_weapon and is_instance_valid(current_weapon):
-			if current_weapon.has_method("hide_weapon"): current_weapon.hide_weapon()
-		elif silah_gorsel:
+		if is_instance_valid(_3d_gun) and _3d_gun.has_method("hide_weapon"): _3d_gun.hide_weapon()
+		if is_instance_valid(_3d_shotgun) and _3d_shotgun.has_method("hide_weapon"): _3d_shotgun.hide_weapon()
+		
+		if silah_gorsel:
 			var tw = create_tween()
 			tw.tween_property(silah_gorsel, "position:y", get_viewport().size.y + 200, 0.2).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 			tw.tween_callback(func(): silah_gorsel.visible = false)
