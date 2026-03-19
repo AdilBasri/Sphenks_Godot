@@ -431,9 +431,8 @@ func _on_boss_oldu_sinyali():
 	if boss_ui:
 		boss_ui.boss_kaldir(self)
 
-	# 2 — Kamerayı oyuncuya iade et
-	if not GameManager or GameManager.grid_tamamlandi:
-		_kamerayi_oyuncuya_ver()
+	# 2 — Kamerayı oyuncuya iade et (Grid devam edebilsin)
+	_kamerayi_oyuncuya_ver()
 
 	# 3 — Kilitleri aç (Eğer başka boss yoksa)
 	if LevelManager:

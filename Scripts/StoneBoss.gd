@@ -363,8 +363,8 @@ func _olum_sekans():
 	if boss_ui:
 		boss_ui.boss_kaldir(self)
 
-	if not GameManager or GameManager.grid_tamamlandi:
-		_kamerayi_oyuncuya_ver()
+	# Kamera kontrolünü her durumda oyuncuya geri ver (Böylece grid devam edebilir)
+	_kamerayi_oyuncuya_ver()
 
 	if LevelManager:
 		LevelManager._set_boss_collision(self, false) # Sadece kendimi kapat

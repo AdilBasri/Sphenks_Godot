@@ -11,6 +11,8 @@ signal mermi_degisti(yeni_sayi)
 signal shotgun_mermi_degisti(yeni_sayi)
 signal mide_guncellendi(doluluk, kapasite)
 signal seviye_tamamlandi # Seviye bitişini (puan+boss) her yere duyurur
+signal puan_degisti(yeni_puan)
+signal boss_hp_degisti(tip, yeni_hp)
 
 # --- OYUNCU SAĞLIK VERİLERİ ---
 var oyuncu_max_bar: int = 4
@@ -112,6 +114,8 @@ func puan_ekle(miktar: int):
 		grid_tamamlandi = true
 		print("✅ HEDEF PUAN AŞILDI! (%d/%d)" % [suanki_puan, hedef_puan])
 		_kapi_kontrol()
+	
+	emit_signal("puan_degisti", suanki_puan)
 
 func boss_oldu_tetiklendi():
 	"""Boss öldüğünde çağrılır (AcidBoss, StoneBoss, BossCanavar)."""
@@ -197,6 +201,7 @@ func boss_hp_guncelle(tip: String, hp: int):
 	if boss_kalici_hp.has(tip):
 		boss_kalici_hp[tip] = hp
 		print("💾 Persistent HP Updated: %s -> %d" % [tip, hp])
+		emit_signal("boss_hp_degisti", tip, hp)
 
 func boss_hp_al(tip: String) -> int:
 	"""Kayıtlı boss canını döner."""

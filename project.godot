@@ -23,6 +23,7 @@ LevelManager="*res://Scripts/LevelManager.gd"
 DilYoneticisi="*res://Scripts/DilYoneticisi.gd"
 PauseMenu="*res://UI/PauseMenu.tscn"
 TutorialManager="*res://Scenes/TutorialManager.tscn"
+BossManager="*res://Scripts/BossManager.gd"
 
 [display]
 

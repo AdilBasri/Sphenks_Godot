@@ -34,6 +34,7 @@ var stone_boss_ref: Node3D = null
 var aktif_ana_boss: Node3D = null # Suanki seviyenin ana bossu
 var boss_konumlari: Dictionary = {} # Boss Ismi -> Vector3 (Orijinal Sahne Konumlari)
 var yanci_markerlari: Array[Node3D] = [] # Sahnedeki Yancilar node'u icindeki Marker3D'ler
+var bitis_yoneticisi: Node = null
 
 func is_acid_boss_level() -> bool:
 	# 1, 4, 7... pattern (katman % 3 == 1)
@@ -82,6 +83,9 @@ func konumlari_kaydet(p1: Vector3, p2: Vector3, p3: Vector3, oyuncu: CharacterBo
 	var d_veri = bolum_verilerini_getir()
 	if GameManager and d_veri.has("hedef_puan"):
 		GameManager.level_baslat(d_veri["hedef_puan"])
+	
+	# Katman Bitiş Yöneticisini kur
+	_bitis_yoneticisini_kur()
 	
 	# Bölüm yüklendiğinde oyuncuyu spawn noktasına ışınla
 	if suanki_katman > 1 and oyuncu_ref:
@@ -532,3 +536,15 @@ func _reset_twin_state(twin: Node):
 	if is_instance_valid(twin):
 		if twin.has_method("boss_durumu_sifirla"):
 			twin.boss_durumu_sifirla()
+
+func _bitis_yoneticisini_kur():
+	if is_instance_valid(bitis_yoneticisi):
+		bitis_yoneticisi.queue_free()
+	
+	var script = load("res://Scripts/katman_bitis_yoneticisi.gd")
+	if script:
+		bitis_yoneticisi = Node.new()
+		bitis_yoneticisi.set_script(script)
+		bitis_yoneticisi.name = "KatmanBitisYoneticisi"
+		add_child(bitis_yoneticisi)
+		print("🛠️ KatmanBitisYoneticisi sisteme eklendi.")
