@@ -8,10 +8,10 @@ var suanki_adim: int = 0
 var suanki_segment: String = ""
 
 var segments = {
-	"base": [1, 14],
-	"pyro": [15, 16],
-	"market": [17, 18],
-	"campfire": [19, 20]
+	"base": [1, 18],
+	"pyro": [19, 20],
+	"market": [21, 22],
+	"campfire": [23, 24]
 }
 
 # Arayüz Referansları
@@ -23,7 +23,7 @@ var segments = {
 var metinler = {
 	1: {
 		"baslik": "EĞİTİM: SPHENKS'E HOŞ GELDİN",
-		"metin": "Sphenks'e hoş geldin! Temelde yapman gereken şey çok basit:\n\nKarşındaki firavunu alt etmek için elinde çeşitli bloklar var. Bu blokları satır ve sütun olarak dizip patlatarak firavuna hasar verebilir ve onu yoldan kaldırabilirsin!",
+		"metin": "SPHENKS'e hoş geldin. İşin basit: blokların var, bir masa var ve o masanın diğer tarafında seni bekleyen bir şey var. Blokları satır ve sütunlar halinde dizerek patlat ve puan topla. Ama yerleştirdiğin her blok... beraberinde sonuçlar getirir.",
 		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
 		"beklenen_eylem": "tiklama"
 	},
@@ -37,7 +37,7 @@ var metinler = {
 		"baslik": "ADIM 2: BLOKLARI SÜRÜKLE",
 		"metin": "Sol tarafta voidden çıkan bloklar yer alıyor. Bloklara tıklayıp basılı tutarak istediğin gibi sürükleyebilir ve masadaki ızgaraya (grid) bırakabilirsin!",
 		"ipucu": "(Farenin Sol Tuşuna veya [A] tuşuna basılı tutarak bloğu masaya çek)",
-		"beklenen_eylem": "blok_yerlestirme" # Artık blok bırakılınca geçiyor
+		"beklenen_eylem": "blok_yerlestirme"
 	},
 	4: {
 		"baslik": "ADIM 3: MASAYA BAKIŞ",
@@ -46,60 +46,84 @@ var metinler = {
 		"beklenen_eylem": "satir_patlatma"
 	},
 	5: {
+		"baslik": "THE GOLD POUCH",
+		"metin": "Kalçandaki o keseyi görüyor musun? Mevcut Altınını kontrol etmek için [G] tuşuna basılı tut. Burada her şey Altındır — katmanlar arasındaki Markette onu akıllıca harca.",
+		"ipucu": "(Mevcut Altınını görmek için [G] basılı tut)",
+		"beklenen_eylem": "tiklama"
+	},
+	6: {
+		"baslik": "YOUR WEAPONS",
+		"metin": "Savunmasız değilsin. Revolver'ını çekmek için Sağ Tıkla. Kınına koymak için tekrar Sağ Tıkla. Revolver için [1], varsa Shotgun için [2] tuşuna bas.",
+		"ipucu": "(Sağ Tıkla silahı çıkar/kapat)",
+		"beklenen_eylem": "tiklama"
+	},
+	7: {
+		"baslik": "THE TOTEMS",
+		"metin": "Yanındaki masada duran o küçük figürleri görüyor musun? Onlar Firavun'un totemleri — sahip olduğu her can için bir tane. Son totem düştüğünde, Firavun da düşer.",
+		"ipucu": "(Firavun'u vurarak totemlerini yok et)",
+		"beklenen_eylem": "tiklama"
+	},
+	8: {
+		"baslik": "YOUR OWN LIFE",
+		"metin": "Sol duvarda asılı duran o kavanozlar mı? O sensin. Dört tanesine sahipsin — her biri 10 HP tutar. Dördü de gittiğinde her şey biter.",
+		"ipucu": "(Can kavanozlarını kontrol et)",
+		"beklenen_eylem": "tiklama"
+	},
+	9: {
 		"baslik": "ADIM 4: FİRAVUNUN UYANIŞI",
 		"metin": "DİKKAT! Satır patlattıktan sonra blokların çıkarttığı ses firavunu derin uykusundan uyandırır.\n\nUyanan firavun artık HER blok yerleştirmenden sonra sana ölümcül bir saldırı yapacaktır!",
 		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
 		"beklenen_eylem": "tiklama"
 	},
-	6: {
+	10: {
 		"baslik": "ADIM 5: SAVUŞTURMA (BEKLE)",
 		"metin": "Boss sana saldırmak üzere! Suratını ekranda gördüğün an tepki vermeye hazır ol...\n(Saldırıyı bekle)",
 		"ipucu": "(Saldırı bekleniyor...)",
-		"beklenen_eylem": "bekle" # Oyun akıyor boss vurana kadar
+		"beklenen_eylem": "bekle"
 	},
-	7: {
+	11: {
 		"baslik": "HAZIR OL: PARRY YAP!",
 		"metin": "Doğru zamanda PARRY (Savuşturma) yaparak boss atağını bloke edebilirsin!",
 		"ipucu": "(SAĞ TIK / [B] tuşuna basarak Savuşturur!)",
-		"beklenen_eylem": "parry" # Oyun dondurulur, tıklandığında koddan parry tetiklenir
+		"beklenen_eylem": "parry"
 	},
-	8: {
+	12: {
 		"baslik": "ADIM 6: HAYALET HAMLE",
 		"metin": "Mükemmel! Bir saldırıyı başarıyla savuşturduğunda, 5 saniyelik bir 'HAYALET HAMLE' penceresi kazanırsın.\n\nBu 5 saniye içinde masaya yerleştirdiğin bloklar Boss tarafından GÖRÜLMEZ. Sıranı kullanmadan kombo yapabilirsin!",
 		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
 		"beklenen_eylem": "tiklama"
 	},
-	9: {
+	13: {
 		"baslik": "ADIM 7: HAYALET HAMLEYİ KULLAN",
 		"metin": "Şimdi hızlı ol! Devam ettiğinde oyun süresi donacak, 5 saniyen var gibi düşünerek hemen bir blok alıp masaya yerleştir!",
 		"ipucu": "(Süre dondu... Hızlıca bir blok alıp masaya koy)",
 		"beklenen_eylem": "blok_yerlestirme"
 	},
-	10: {
+	14: {
 		"baslik": "ADIM 8: AYAĞA KALKMA",
 		"metin": "Masa başından kalkıp odanın geri kalanını keşfetmen gerekecek.\n\nTekrar [E] / [Y] tuşuna basarak masadan kalkıp odada gezebilirsin.",
 		"ipucu": "(Masadan kalkmak için [E] / [Y] tuşuna bas)",
 		"beklenen_eylem": "kalkma"
 	},
-	11: {
+	15: {
 		"baslik": "ADIM 9: ÖZEL EŞYALAR",
 		"metin": "Yan sehpada beliren Ruh Mantarı'na bak! Üzerine tıklayarak onu eline al.\n\nArdından havaya bakarak [SOL TIK] / [A] tuşuna basıp mantarı tüket!",
 		"ipucu": "(Mantarı sol tıkla eline al, tekrar sol tıkla tüket)",
 		"beklenen_eylem": "mantar_yeme"
 	},
-	12: {
+	16: {
 		"baslik": "ADIM 10: EFEKTLER GÜZELDİR",
 		"metin": "Vuhu! İşte şimdi ortama biraz renk geldi değil mi!\n\nMasaya dönmek için tekrar tabureye [E] ile otur.",
 		"ipucu": "(Tabureye tekrar otur)",
 		"beklenen_eylem": "oturma"
 	},
-	13: {
+	17: {
 		"baslik": "ADIM 11: RENK KOMBOLARI",
 		"metin": "Aynı renk blokları yan yana patlatmak sana ekstra bölüm içi puan kazandırır!\n\nAma şunu unutma; marketten alınan ve kullanılan her nesne SADECE o bölüm için geçerlidir. Sonraki katmanlara taşınmaz!",
 		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
 		"beklenen_eylem": "tiklama"
 	},
-	14: {
+	18: {
 		"baslik": "ADIM 12: KAPIDAN GEÇİŞ",
 		"metin": "Firavunu ortadan kaldırdığında bölüm biter!\n\nAçık olan kapıdan geçip bir sonraki asansör odasına varırsın. Orada iki yön belirir: SOL'da MARKET çatallanması, SAĞ'da ise CAMPFIRE yer alır. Tercih senin!",
 		"ipucu": "(Eğitimi bitirmek için [SOL TIK] / [A] tuşuna bas)",
@@ -107,37 +131,37 @@ var metinler = {
 	},
 	
 	# PYRO SAHNESİ EĞİTİMLERİ
-	15: {
+	19: {
 		"baslik": "PYRO MODU: MERMİ DİKKATİ",
 		"metin": "Düşmanlar üzerine akın ederken, tabancanla (Revolver) onları yok edebilirsin.\n\nMermine dikkat et! Sınırlı sayıdalar.",
 		"ipucu": "(Ateş etmek için [SOL TIK] / [A] tuşuna bas)",
 		"beklenen_eylem": "tiklama"
 	},
-	16: {
+	20: {
 		"baslik": "PYRO MODU: SAĞLIK YENİLEME",
 		"metin": "Düşmanlardan düşen et parçaları olacak.\n\nOnları toplayıp [R] / [L1] tuşu ile tüketebilirsin. İşler ters gittiğinde kaybettiğin canını geri doldurmanın tek yolu budur!",
 		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
 		"beklenen_eylem": "tiklama"
 	},
-	17: {
+	21: {
 		"baslik": "MARKET: GÜÇLENME ZAMANI",
 		"metin": "Markete hoş geldin! Burada kazandığın altınlarla sana avantaj sağlayacak çeşitli eşyalar ve tılsımlar alabilirsin.\n\nUnutma, her eşyanın kendine has bir özelliği var ve sadece o bölüm için geçerlidir!",
 		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
 		"beklenen_eylem": "tiklama"
 	},
-	18: {
+	22: {
 		"baslik": "MARKET: EŞYA SATIN ALMA",
 		"metin": "Bir eşyanın üzerine gelince fiyatını ve açıklamasını görebilirsin. Satın almak için üzerine tıkla.\n\nEnvanterin sınırlıdır, bu yüzden seçimlerini stratejik yap!",
 		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
 		"beklenen_eylem": "tiklama"
 	},
-	19: {
+	23: {
 		"baslik": "KAMP ATEŞİ: DİNLENME VE ŞANS",
 		"metin": "Kamp ateşine vardığında sana iki seçenek sunulur: DİNLENME veya ALTIN ARAMA.\n\nDİNLENME (+1 Can Barı) sağlar, ALTIN ARAMA ise sana rastgele miktarda altın verir. İhtiyacına göre kararını ver!",
 		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
 		"beklenen_eylem": "tiklama"
 	},
-	20: {
+	24: {
 		"baslik": "KAMP ATEŞİ: KART SEÇİMİ",
 		"metin": "Karşındaki kartlardan birine tıklayarak seçimini yapabilirsin. Seçimini yaptıktan sonra kapı açılır ve yoluna devam edebilirsin.",
 		"ipucu": "(Devam etmek için [SOL TIK] / [A] tuşuna bas)",
@@ -242,8 +266,8 @@ func _show_step(adim: int):
 		panel.offset_right = 400
 		panel.offset_bottom = 280
 		
-		# TUTORIAL BOSS FIX: Adım 6'da Boss'a saldırı emri ver
-		if suanki_adim == 6:
+		# TUTORIAL BOSS FIX: Adım 10'da Boss'a saldırı emri ver
+		if suanki_adim == 10:
 			# Küçük bir gecikmeyle saldırıyı başlat ki oyuncu okuyabilsin
 			var tree = get_tree()
 			if tree:
@@ -292,8 +316,15 @@ func _tutorial_segmenti_bitir():
 		GameManager.complete_tutorial_segment(suanki_segment)
 		GameManager.oyunu_kaydet()
 	
+	if LevelManager:
+		# Safety: Reset boss acting lock when tutorial ends
+		LevelManager.is_boss_acting = false
+	
 	suanki_segment = ""
 	hide_tutorial()
+	
+	# Extra Safety: Ensure game is unpaused
+	get_tree().paused = false
 
 func ilerlet():
 	if tutorial_aktif:
@@ -302,10 +333,10 @@ func ilerlet():
 func _process(_delta):
 	if not tutorial_aktif: return
 	
-	# Eğer adım 6'daysak (Boss'un saldırmasını bekleme)
-	if suanki_adim == 6 and GameManager and GameManager.is_parry_window_open:
-		# Glitch yüzü göründü! Hemen oyunu dondurup PARRY YAP ekranını (Adım 7) getir
-		_show_step(7)
+	# Eğer adım 10'daysak (Boss'un saldırmasını bekleme)
+	if suanki_adim == 10 and GameManager and GameManager.is_parry_window_open:
+		# Glitch yüzü göründü! Hemen oyunu dondurup PARRY YAP ekranını (Adım 11) getir
+		_show_step(11)
 
 func _input(event):
 	if not visible or not tutorial_aktif: return

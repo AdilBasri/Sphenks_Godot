@@ -129,7 +129,9 @@ func _senaryo_uygula(id: int):
 			# Boss öldü ama puan az. Do nothing.
 			pass
 		2:
-			# Her şey yolunda, devam.
+			# Her şey yolunda, devam (Main Game).
+			# TUTORIAL: Eğer Katman 1 (Tutorial) ise ve tutorial aktifse hiçbir şey yapma, tutorial bitene kadar bekle.
+			# Kapı açılma kontrolü GameManager.complete_tutorial_segment üzerinden yapılacak.
 			pass
 		3:
 			# Boss öldü + Puan tamam
