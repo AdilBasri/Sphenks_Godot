@@ -197,8 +197,8 @@ func _kapi_engellendi_mi() -> bool:
 	var blok_d = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
 	if blok_d and blok_d.get("masa_objesi") != null:
 		if is_instance_valid(blok_d.masa_objesi) and not blok_d.masa_objesi.is_queued_for_deletion():
-			# Eğer boss_oldu_mu true ise izin ver
-			if blok_d.get("boss_oldu_mu") == true:
+			# Eğer grid_tamamlandi true ise izin ver
+			if GameManager and GameManager.grid_tamamlandi == true:
 				return false
 				
 			# Sadece mezar odası DEĞİLSE yazdır

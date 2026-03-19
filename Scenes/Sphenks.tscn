@@ -1,4 +1,4 @@
-[gd_scene load_steps=123 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=118 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://b1abmwu2tkjli" path="res://Assets/Models/Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://Scripts/sphenks.gd" id="2_fi7dh"]
@@ -18,11 +18,8 @@
 [ext_resource type="Script" uid="uid://bnl3r0qmhc78q" path="res://Scripts/BossCanavar.gd" id="14_2531s"]
 [ext_resource type="Texture2D" uid="uid://bnidhre7u4yaw" path="res://Assets/Images/CultFace.png" id="15_qrobu"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="23_4kj0i"]
-[ext_resource type="Texture2D" uid="uid://dm3cprrc1lljc" path="res://Assets/Images/çerçeve_bar.png" id="23_k4rhs"]
 [ext_resource type="Texture2D" uid="uid://browknmvkv6d4" path="res://Assets/Images/hand.png" id="24_4kj0i"]
-[ext_resource type="Texture2D" uid="uid://bg20iuynejlup" path="res://Assets/Images/iç_bar.png" id="24_uxn7w"]
 [ext_resource type="Texture2D" uid="uid://cqqq50p7oakk6" path="res://Assets/Images/mesaledeneme.png" id="25_lxn88"]
-[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="25_q606s"]
 [ext_resource type="Texture2D" uid="uid://bqj60moctkrll" path="res://Assets/Images/skull.png" id="25_yiyi8"]
 [ext_resource type="Texture2D" uid="uid://c1548x8l70qe8" path="res://Assets/Images/web.png" id="27_offaw"]
 [ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Scenes/Items/Kapi.tscn" id="29_kqumn"]
@@ -160,14 +157,6 @@ font_size = 32
 font_color = Color(1, 0, 0, 1)
 shadow_size = 5
 shadow_color = Color(1, 0, 0, 0)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_q606s"]
-atlas = ExtResource("23_k4rhs")
-region = Rect2(389.22156, 296.0412, 1253.7622, 1473.935)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_5uvl0"]
-atlas = ExtResource("24_uxn7w")
-region = Rect2(375.71313, 280.9171, 1237.1509, 1443.3556)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qrobu"]
 shader = ExtResource("31_y4nvu")
@@ -587,7 +576,7 @@ collision_layer = 2
 transform = Transform3D(0.99999976, 0, 0, 0, 0.99999976, 0, 0, 0, 0.99999976, 0.09008789, -0.0155335665, -0.053863466)
 shape = SubResource("BoxShape3D_bjfsn")
 
-[node name="Oyuncu" type="CharacterBody3D" parent="." index="4" node_paths=PackedStringArray("kamera", "ui_container", "health_nodes", "health_camera_marker", "gore_vignette", "mide_ui_container") groups=["Oyuncu"]]
+[node name="Oyuncu" type="CharacterBody3D" parent="." index="4" node_paths=PackedStringArray("kamera", "health_nodes", "health_camera_marker", "gore_vignette", "mide_ui_container") groups=["Oyuncu"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6191114, 3.3313973)
 script = ExtResource("23_4kj0i")
 kamera = NodePath("Camera3D")
@@ -630,7 +619,7 @@ text = "HASAR: 0"
 label_settings = SubResource("LabelSettings_q606s")
 horizontal_alignment = 1
 
-[node name="Camera3D" type="Camera3D" parent="Oyuncu" index="3" groups=["OyuncuKamera"]]
+[node name="Camera3D" type="Camera3D" parent="Oyuncu" index="2" groups=["OyuncuKamera"]]
 physics_interpolation_mode = 2
 transform = Transform3D(0.99888355, -0.024378376, -0.040465526, 0.01922809, 0.9922066, -0.12311137, 0.043151416, 0.12219585, 0.9915675, -0.045120563, 0.83062285, 0.014348984)
 current = true

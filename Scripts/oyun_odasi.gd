@@ -69,6 +69,8 @@ func _ready():
 			GameManager.boss_oldu.connect(_on_boss_oldu)
 		if not GameManager.satir_patladi.is_connected(_on_satir_patladi):
 			GameManager.satir_patladi.connect(_on_satir_patladi)
+		if not GameManager.seviye_tamamlandi.is_connected(_on_seviye_tamamlandi):
+			GameManager.seviye_tamamlandi.connect(_on_seviye_tamamlandi)
 	
 	if oyuncu and not oyuncu.oyuncu_oldu.is_connected(_on_oyuncu_oldu):
 		oyuncu.oyuncu_oldu.connect(_on_oyuncu_oldu)
@@ -234,14 +236,16 @@ func _on_boss_oldu():
 			arayuz.kalici_bilgi_gizle()
 		arayuz.bilgi_goster(DilYoneticisi.metin_al("tebrikler_boss"), 5.0)
 	
+	print("⏳ Boss öldü. Seviye bitişi için GameManager onayı bekleniyor (puan kontrolü).")
+
+func _on_seviye_tamamlandi():
+	print("🏁 OYUN ODASI: Seviye tamamlandı (Hedef puan + boss durumu OK).")
+	
 	# MASA İNDİRME: BlokDagiticisi'ni bul ve sahnede bitiş animasyonunu tetikle
 	var spawner = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
 	if spawner and spawner.has_method("_sahne_bitis_animasyonu"):
 		spawner._sahne_bitis_animasyonu()
-		print("⬇️ Boss öldü — Masa aşağı indiriliyor.")
-	
-	# Kapı otomatik açılacak (boss scriptleri tarafından)
-	print("🚪 Boss öldü — Kapı açılıyor.")
+		print("⬇️ Seviye bitti — Masa aşağı indiriliyor.")
 
 func _kapiyi_ac():
 	# KapiSistemi arayalım (MezarOdasi'nin komşusu)

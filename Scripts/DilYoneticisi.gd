@@ -644,6 +644,10 @@ var ceviriler = {
 	"inst_yolcular": { "tr": "Yolcularla iletişime geç", "en": "Interact with passengers" },
 	"inst_gecmis": { "tr": "Geçmişine ait parçaları bul ve öğüt!", "en": "Find pieces of your past and grind them!" },
 	"inst_sphenks": { "tr": "Sphenks'e git!", "en": "Go to Sphenks!" },
+	"eksik_puan_uyarisi": {
+		"tr": "Görevin bitmedi. Gereken puana ulaş.",
+		"en": "Mission not complete. Reach the target score."
+	},
 	"Eşya": { "tr": "Eşya", "en": "Item" }
 }
 

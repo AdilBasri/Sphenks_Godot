@@ -371,11 +371,14 @@ func _olum_sekans():
 	if boss_ui:
 		boss_ui.boss_kaldir(self)
 
-	_kamerayi_oyuncuya_ver()
+	if not GameManager or GameManager.grid_tamamlandi:
+		_kamerayi_oyuncuya_ver()
 
 	if LevelManager:
 		LevelManager._set_boss_collision(self, false) # Sadece kendimi kapat
 		if not _hayatta_boss_var_mi():
+			# Eğer grid bitmediyse LevelManager.is_boss_acting'i kapatalım ki 
+			# BlokDagiticisi yer kontrolüne devam edebilsin
 			LevelManager.is_boss_acting = false
 	
 	# 1 — Patlama efekti spawn (Modelin tam konumunda)
@@ -399,9 +402,11 @@ func _olum_sekans():
 	
 	visible = false
 	
-	var bariyer = get_tree().get_first_node_in_group("Bariyer")
-	if bariyer and bariyer.has_method("bolum_bitti"):
-		bariyer.bolum_bitti()
+	# Bariyeri sadece grid bittiyse kaldır
+	if GameManager and GameManager.grid_tamamlandi:
+		var bariyer = get_tree().get_first_node_in_group("Bariyer")
+		if bariyer and bariyer.has_method("bolum_bitti"):
+			bariyer.bolum_bitti()
 	
 
 	if LevelManager and LevelManager.has_method("_bosslari_yeniden_konumlandir"):
@@ -411,25 +416,19 @@ func _olum_sekans():
 	queue_free()
 
 func _kapiyi_otomatik_ac():
-	"""Boss öldüğünde kapıyı otomatik açar (tüm boss'lar ölmüşse)."""
+	"""Boss öldüğünde GameManager'a bildirir. Kapı kontrolü orada yapılır."""
 	# Çift boss kontrolü: Dusman grubunda hayatta boss var mı?
 	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
 	for d in dusmanlar:
 		if is_instance_valid(d) and d != self:
 			var d_oldu = d.get("oldu_mu")
 			if d_oldu == null or d_oldu == false:
-				print("⏳ Diğer boss hâlâ hayatta, kapı açılmayacak.")
+				print("⏳ Diğer boss hâlâ hayatta, GameManager'a henüz bildirilmedi.")
 				return
 	
-	var kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
-	if kapi and kapi.has_method("kapiyi_ac"):
-		# Kilidi kaldır ve aç
-		if "kilitli_mi" in kapi:
-			kapi.kilitli_mi = false
-		kapi.kapiyi_ac()
-		print("🚪 Tüm boss'lar öldü — Kapı otomatik açıldı!")
-	else:
-		print("⚠️ KapiSistemi bulunamadı, kapı açılamadı!")
+	if GameManager:
+		GameManager.boss_oldu_tetiklendi()
+		print("☠️ Son boss öldü — GameManager'a bildirildi.")
 
 # ==========================================
 # 🌌 GLITCH PARRY (REALITY DENIAL)

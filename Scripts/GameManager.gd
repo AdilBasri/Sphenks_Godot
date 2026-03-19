@@ -10,6 +10,7 @@ signal altin_guncellendi(miktar)
 signal mermi_degisti(yeni_sayi)
 signal shotgun_mermi_degisti(yeni_sayi)
 signal mide_guncellendi(doluluk, kapasite)
+signal seviye_tamamlandi # Seviye bitişini (puan+boss) her yere duyurur
 
 # --- OYUNCU SAĞLIK VERİLERİ ---
 var oyuncu_max_bar: int = 4
@@ -24,6 +25,12 @@ var intro_tamamlandi: bool = false
 var tutorial_tamamlandi: bool = false
 var completed_tutorials: Array[String] = [] # "base", "market", "campfire", "pyro"
 var uyku_sahnesi_giris_sayisi: int = 0
+
+# --- SEVİYE BİTİRME KONTROLÜ ---
+var suanki_puan: int = 0
+var hedef_puan: int = 0
+var grid_tamamlandi: bool = false
+var boss_oldu_durumu: bool = false
 
 # --- ENVANTER ---
 var envanter: Array[ItemData] = []
@@ -88,6 +95,85 @@ func _ready():
 	# Sadece intro durumunu yükle — oyun state'i her açılışta sıfır başlar
 	_intro_durumu_yukle()
 	boss_oldu.connect(_on_boss_oldu_gm)
+
+func level_baslat(hp: int):
+	"""Bölüm her başladığında veya resetlendiğinde çağrılır."""
+	suanki_puan = 0
+	hedef_puan = hp
+	grid_tamamlandi = false
+	boss_oldu_durumu = false
+	print("📊 Level Başlatıldı: Hedef Puan = %d" % hedef_puan)
+
+func puan_ekle(miktar: int):
+	"""GridYoneticisi'nden gelen puanları toplar ve hedefi kontrol eder."""
+	suanki_puan += miktar
+	
+	if not grid_tamamlandi and suanki_puan >= hedef_puan:
+		grid_tamamlandi = true
+		print("✅ HEDEF PUAN AŞILDI! (%d/%d)" % [suanki_puan, hedef_puan])
+		_kapi_kontrol()
+
+func boss_oldu_tetiklendi():
+	"""Boss öldüğünde çağrılır (AcidBoss, StoneBoss, BossCanavar)."""
+	if boss_oldu_durumu: return # Zaten öldü olarak işaretlenmiş
+	
+	boss_oldu_durumu = true
+	print("☠️ Boss Ölümü GameManager'a Bildirildi.")
+	_kapi_kontrol()
+
+func _kapi_kontrol():
+	"""Kapı açılma ve carry-over kurallarını uygular."""
+	if grid_tamamlandi:
+		# Grid bitti — boss durumundan bağımsız kapı açılır
+		if not boss_oldu_durumu:
+			# Boss hayattaysa carry-over'a (bir sonraki level yancıya) al
+			_bosslari_carry_over_yap()
+		
+		# TÜM SİSTEMLERE BİLDİR: Seviye bitti, masayı kaldırın vs.
+		emit_signal("seviye_tamamlandi")
+		
+		_kapiyi_ac_gercek()
+	
+	elif boss_oldu_durumu and not grid_tamamlandi:
+		# Boss öldü ama grid bitmedi
+		# Kapı açılmıyor, uyarı gösteriliyor
+		_eksik_puan_uyarisi_goster()
+
+func _bosslari_carry_over_yap():
+	"""Hayatta kalan tüm boss'ları kacan_bosslar listesine ekler."""
+	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
+	var carry_sayisi = 0
+	
+	for d in dusmanlar:
+		if is_instance_valid(d) and not d.get("oldu_mu"):
+			# Boss tipini tespiti
+			var tip = 0 # Default zar
+			var boss_adi = d.name.to_lower()
+			if "acid" in boss_adi: tip = 1
+			elif "stone" in boss_adi or "golem" in boss_adi: tip = 2
+			
+			var hp = d.get("boss_hp") if d.get("boss_hp") != null else 2
+			boss_kacti_ekle(tip, hp)
+			carry_sayisi += 1
+			
+	if carry_sayisi > 0:
+		print("🚀 %d boss carry-over'a alındı." % carry_sayisi)
+
+func _kapiyi_ac_gercek():
+	"""Sahnede KapiSistemi'ni bulup kapıyı açar."""
+	var kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
+	if kapi and kapi.has_method("kapiyi_ac"):
+		if "kilitli_mi" in kapi:
+			kapi.kilitli_mi = false
+		kapi.kapiyi_ac()
+		print("🚪 Bölüm Sonu Kapısı GameManager tarafından açıldı.")
+
+func _eksik_puan_uyarisi_goster():
+	"""Oyuncuya puan toplamas gerektiğini hatırlatır."""
+	var arayuz = get_tree().get_first_node_in_group("Arayuz")
+	if arayuz and arayuz.has_method("bilgi_goster"):
+		var mesaj = DilYoneticisi.metin_al("eksik_puan_uyarisi")
+		arayuz.bilgi_goster(mesaj, 3.0)
 
 func _on_boss_oldu_gm():
 	boss_kacti = false

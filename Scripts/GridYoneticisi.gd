@@ -50,6 +50,11 @@ func _ready() -> void:
 		var cam = get_viewport().get_camera_3d()
 		if cam and cam.has_method("shake"): kamera_sarsinti_scripti = cam
 	_hedef_kare_olustur()
+	
+	# GameManager'a puan akışını bağla
+	if not Engine.is_editor_hint() and GameManager:
+		if not puan_kazanildi.is_connected(GameManager.puan_ekle):
+			puan_kazanildi.connect(GameManager.puan_ekle)
 
 func _process(delta):
 	if kombo_carpani > 1:

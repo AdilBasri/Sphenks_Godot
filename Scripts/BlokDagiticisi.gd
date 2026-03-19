@@ -242,7 +242,24 @@ func _tur_sonu_hesaplamasi() -> void:
 	if toplam_kalan_hp <= 0:
 		boss_oldu_mu = true
 		
-		# KAPIYI AÇ (Ama masayı henüz kaldırma)
+		# YENİ KONTROL: Grid bitmediyse kapıyı açma ve masayı kaldırma!
+		if GameManager and not GameManager.grid_tamamlandi:
+			# Eğer hala bloklar varsa oynamaya devam etsinler
+			if kalan_stok > 0 or masadaki_aktif_bloklar > 0:
+				if not puzzle_tamamlandi:
+					puzzle_tamamlandi = true
+					print("⏳ Boss öldü ama grid hedefine ulaşılmadı. Masa kalmaya devam ediyor.")
+				return
+			else:
+				# Bloklar bitti ama hedef puan yok! -> GAME OVER
+				print("💀 Hem boss öldü hem bloklar bitti ama hedef puan yok! OYUN BİTTİ.")
+				var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+				if oyuncu and oyuncu.has_method("game_over"):
+					oyuncu.game_over()
+				_oyun_kaybedildi(arayuz)
+				return
+
+		# KAPIYI AÇ (Grid bitmişse veya Katman 1 ise buraya gelir)
 		var kapi = kapi_sistemi
 		if not is_instance_valid(kapi):
 			kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)

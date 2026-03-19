@@ -78,6 +78,11 @@ func konumlari_kaydet(p1: Vector3, p2: Vector3, p3: Vector3, oyuncu: CharacterBo
 	# 2. Sonra boss referanslarını ve pozisyonlarını ayarla
 	_boss_sistemini_ayarla()
 	
+	# 3. GameManager'da bölüm verilerini sıfırla/başlat
+	var d_veri = bolum_verilerini_getir()
+	if GameManager and d_veri.has("hedef_puan"):
+		GameManager.level_baslat(d_veri["hedef_puan"])
+	
 	# Bölüm yüklendiğinde oyuncuyu spawn noktasına ışınla
 	if suanki_katman > 1 and oyuncu_ref:
 		# Oyuncu grid üstüne oturmuş veya move_and_slide'da sıkışmış olabilir. 
