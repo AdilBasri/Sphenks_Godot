@@ -234,13 +234,15 @@ func _can_kaybi_sekans(totem_node: Node3D, kamera: Camera3D):
 	
 	# Oyuncu kamerasını kilitle (active_tween set ederek)
 	# Bu, oyuncunun pan esnasında fareyle kamerayı sarsmasını engeller.
-	var oyuncu = get_tree().get_first_node_in_group("oyuncu")
+	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
 	
 	# 1 — Kamera pan git (Toteme doğru odakla)
 	var tween = create_tween()
 	if oyuncu:
 		# oyuncu.gd içindeki _input'ta: if active_tween and active_tween.is_running(): return
 		oyuncu.set("active_tween", tween)
+		# Explicitly lock player controls during the sequence
+		if oyuncu.has_method("disable_controls"): oyuncu.disable_controls()
 		# SİLAHLARI GİZLE (User isteği)
 		if oyuncu.has_method("hide_weapon"): oyuncu.hide_weapon()
 	
@@ -272,7 +274,9 @@ func _can_kaybi_sekans(totem_node: Node3D, kamera: Camera3D):
 	tween.set_parallel(false)
 	tween.tween_callback(func(): 
 		_is_animating = false
-		if oyuncu and oyuncu.has_method("show_weapon"): oyuncu.show_weapon()
+		if oyuncu:
+			if oyuncu.has_method("show_weapon"): oyuncu.show_weapon()
+			if oyuncu.has_method("enable_controls"): oyuncu.enable_controls()
 		print("🎥 Kamera ve Totem sekansı tamamlandı.")
 	)
 

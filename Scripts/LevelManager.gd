@@ -10,16 +10,19 @@ var is_boss_acting: bool = false:
 		is_boss_acting = value
 		if value:
 			Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+			if is_instance_valid(oyuncu_ref) and oyuncu_ref.has_method("disable_controls"):
+				oyuncu_ref.disable_controls()
 		else:
 			# Boss isi bittiginde veya zorla acildiginda (Level bitis vb.) mouse modunu geri getir
 			if is_instance_valid(oyuncu_ref):
+				if oyuncu_ref.has_method("enable_controls"):
+					oyuncu_ref.enable_controls()
+				
 				if "mouse_serbest_modu" in oyuncu_ref and oyuncu_ref.mouse_serbest_modu:
 					Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 				else:
 					Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 			else:
-				# Oyuncu referansi yoksa (Sahne degisimi vb.) emniyet icin görünür yap veya captured
-				# Genelde oyun basinda captured istenir.
 				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 # --- KONUM REFERANSLARI ---

@@ -270,6 +270,9 @@ func zar_at():
 	zar_firlatiliyor_mu = true
 	print("🎲 OYUN ODASI: Zar Atma Sekansı Başladı...")
 	
+	if oyuncu and oyuncu.has_method("disable_controls"):
+		oyuncu.disable_controls()
+	
 	# Kamera Geçişi
 	if zar_kamerasi and oyuncu_kamerasi:
 		oyuncu_kamerasi.current = false 
@@ -371,6 +374,9 @@ func oyunu_devam_ettir():
 	if oyuncu_kamerasi:
 		if zar_kamerasi: zar_kamerasi.current = false
 		oyuncu_kamerasi.current = true
+		
+	if oyuncu and oyuncu.has_method("enable_controls"):
+		oyuncu.enable_controls()
 
 # --- DOĞRUDAN BAĞLAMA FONKSİYONU ---
 func _zar_sistemini_bagla():

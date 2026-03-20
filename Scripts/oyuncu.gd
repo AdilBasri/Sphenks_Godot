@@ -68,6 +68,7 @@ var perk_aciklama_label: Label = null
 var tutulan_nesne: RigidBody3D = null 
 var tutma_noktasi: Node3D = null 
 var mouse_serbest_modu: bool = false 
+var controls_disabled: bool = false
 
 # --- YEME MEKANİĞİ (Violent Bite System) ---
 var is_eating: bool = false
@@ -149,7 +150,7 @@ func _get_silah_katmani() -> Node:
 	return _cached_silah_katmani
 
 func _ready():
-	add_to_group("oyuncu")
+	add_to_group("Oyuncu")
 	_bileşenleri_hazirla()
 	# Reset scale to identity to prevent physics glitches if scene scale was modified
 	scale = Vector3.ONE
@@ -350,7 +351,10 @@ func _bileşenleri_hazirla():
 
 func _input(event):
 	if not kamera or oldu_mu: return 
-	if yere_dustu_mu: return 
+	
+	# --- KRİTİK KONTROL BLOĞU ---
+	if not can_process_input():
+		return
 
 	# --- YEME INPUT ---
 	if event.is_action_pressed("uzuv_ye"):
@@ -500,7 +504,9 @@ func _physics_process(delta):
 	rotation.x = 0
 	rotation.z = 0
 	
-	if yere_dustu_mu or oldu_mu: return
+	if not can_process_movement():
+		if mover: mover._stop_footsteps()
+		return
 	
 	# --- YEME SIRASINDA HAREKET KİLİTLE + TRAVMA DECAY ---
 	if is_eating:
@@ -1078,6 +1084,7 @@ func _can_gorselini_baslat():
 
 func bar_kirildi(new_bars: int):
 	yere_dustu_mu = true
+	disable_controls()
 	tutulan_nesne = null 
 	
 	# Hangi canin gidecegini hesapla:
@@ -1156,6 +1163,40 @@ func _after_health_animation():
 	
 	# Silahları geri getir
 	show_weapon()
+	enable_controls()
+
+func can_process_input() -> bool:
+	if oldu_mu: return false
+	if controls_disabled: 
+		# print("DEBUG: Input blocked by controls_disabled")
+		return false
+	if is_instance_valid(LevelManager) and LevelManager.is_boss_acting:
+		# print("DEBUG: Input blocked by is_boss_acting")
+		return false
+	if active_tween and active_tween.is_valid() and active_tween.is_running():
+		# print("DEBUG: Input blocked by active_tween")
+		return false
+	return true
+
+func can_process_movement() -> bool:
+	if oldu_mu: return false
+	if yere_dustu_mu or controls_disabled: return false
+	if is_instance_valid(LevelManager) and LevelManager.is_boss_acting:
+		return false
+	if active_tween and active_tween.is_valid() and active_tween.is_running():
+		return false
+	return true
+
+func disable_controls():
+	controls_disabled = true
+	velocity = Vector3.ZERO
+	if mover:
+		mover.handle_movement(0.0, Vector2.ZERO, is_on_floor(), true)
+	print("🚫 OYUNCU KONTROLLERİ KAPATILDI (Velocity sifirlandi)")
+
+func enable_controls():
+	controls_disabled = false
+	print("✅ OYUNCU KONTROLLERİ AÇILDI")
 
 
 func kalkis_baslat():

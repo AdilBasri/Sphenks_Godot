@@ -114,7 +114,7 @@ func get_masa_world_noktasi() -> Variant:
 	var strength = 0.42
 	
 	# GlobalFiltre'den shader gücünü çekmeye çalış (Senkronizasyon için)
-	var oyuncu = get_tree().get_first_node_in_group("oyuncu")
+	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
 	if oyuncu:
 		var color_rect = oyuncu.get_node_or_null("Camera3D/GlobalFiltre/ColorRect")
 		if color_rect and color_rect.material:
