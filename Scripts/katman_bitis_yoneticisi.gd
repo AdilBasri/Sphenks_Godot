@@ -142,8 +142,6 @@ func _senaryo_uygula(id: int):
 		4:
 			# Puan tamam, blok bitti, boss hayatta, mermi VAR
 			_aktif_senaryo = 4 # Tekrar etmesin ama bitis_tetiklendi değil (hala boss ölebilir)
-			if has_method("masa_sistemi_tween_kaybol"):
-				call("masa_sistemi_tween_kaybol")
 			
 			var arayuz = get_tree().get_first_node_in_group("Arayuz")
 			if arayuz and arayuz.has_method("bilgi_goster"):

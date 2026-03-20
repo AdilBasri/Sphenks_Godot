@@ -33,6 +33,7 @@ var suanki_puan: int = 0
 var hedef_puan: int = 0
 var grid_tamamlandi: bool = false
 var boss_oldu_durumu: bool = false
+var seviye_bitti_islem_yapildi: bool = false
 
 # --- ENVANTER ---
 var envanter: Array[ItemData] = []
@@ -104,6 +105,7 @@ func level_baslat(hp: int):
 	hedef_puan = hp
 	grid_tamamlandi = false
 	boss_oldu_durumu = false
+	seviye_bitti_islem_yapildi = false
 	print("📊 Level Başlatıldı: Hedef Puan = %d" % hedef_puan)
 
 func puan_ekle(miktar: int):
@@ -123,7 +125,7 @@ func boss_oldu_tetiklendi():
 	
 	boss_oldu_durumu = true
 	print("☠️ Boss Ölümü GameManager'a Bildirildi.")
-	_kapi_kontrol()
+	_seviye_bitis_kontrolu()
 
 func _kapi_kontrol():
 	"""Kapı açılma ve carry-over kurallarını uygular."""
@@ -133,20 +135,47 @@ func _kapi_kontrol():
 		return
 
 	if grid_tamamlandi:
-		# Grid bitti — boss durumundan bağımsız kapı açılır
-		if not boss_oldu_durumu:
-			# Boss hayattaysa carry-over'a (bir sonraki level yancıya) al
-			_bosslari_carry_over_yap()
-		
-		# TÜM SİSTEMLERE BİLDİR: Seviye bitti, masayı kaldırın vs.
-		emit_signal("seviye_tamamlandi")
-		
+		# Puan doldu, kapıyı hemen aç ama masayı hemen kaldırma (mermi kontrolü yapılacak)
 		_kapiyi_ac_gercek()
+		_seviye_bitis_kontrolu()
 	
 	elif boss_oldu_durumu and not grid_tamamlandi:
 		# Boss öldü ama grid bitmedi
 		# Kapı açılmıyor, uyarı gösteriliyor
 		_eksik_puan_uyarisi_goster()
+
+func _seviye_bitis_kontrolu():
+	"""Masa sisteminin ne zaman kalkacağına karar verir."""
+	if not grid_tamamlandi or seviye_bitti_islem_yapildi:
+		return
+		
+	# Ghost Move sürüyorsa bitene kadar bekle
+	if ghost_move_active:
+		return
+
+	# Eğer boss hayattaysa ve mermi var ise beklet (oyuncu boss'u vurabilsin)
+	var bosslar = get_tree().get_nodes_in_group("Dusman")
+	var yasayan_boss_var = false
+	for b in bosslar:
+		if is_instance_valid(b) and not b.get("oldu_mu"):
+			yasayan_boss_var = true
+			break
+			
+	var mermi_var = mermi_sayisi > 0 or shotgun_mermi_count > 0
+	
+	if yasayan_boss_var and mermi_var:
+		print("🔫 GameManager: Puan tamam ama boss hayatta ve mermi var. Bekletiliyor...")
+		return
+		
+	# Krıtik: Eğer buraya geldiysek ya mermi bitti ya boss öldü ya da mermi yoktu
+	seviye_bitti_islem_yapildi = true
+	
+	if not boss_oldu_durumu:
+		# Boss hala yaşıyorsa (mermi bittiği için buradayız), boss'u carry-over yap
+		_bosslari_carry_over_yap()
+	
+	print("🏁 SEVİYE TAMAMLANDI: Masa sistemi kaldırılıyor.")
+	emit_signal("seviye_tamamlandi")
 
 func _bosslari_carry_over_yap():
 	"""Hayatta kalan tüm boss'ları kacan_bosslar listesine ekler."""
@@ -566,11 +595,7 @@ func oyunu_yukle():
 
 		intro_tamamlandi = config.get_value("Oyun", "IntroTamamlandi", false)
 		completed_tutorials.assign(config.get_value("Oyun", "CompletedTutorials", []))
-		# Eğer base segmenti tamamlanmamışsa tüm tutorial listesini sıfırla
-		# (Kısmen sahte dolu liste durumunu önle)
-		if "base" not in completed_tutorials:
-			completed_tutorials.clear()
-		# tutorial_tamamlandi'yı completed_tutorials'dan otomatik hesapla
+		# tutorial_tamamlandi'yı completed_tutorials'dan otomatik hesapla (tutarsızlığı önle)
 		tutorial_tamamlandi = ("base" in completed_tutorials and "market" in completed_tutorials \
 			and "campfire" in completed_tutorials and "pyro" in completed_tutorials)
 		# Boş veya hatalı değere karşı güvenli yükleme (tip kontrolü ile)
@@ -679,6 +704,7 @@ func mermiyi_kullan():
 	if mermi_sayisi > 0:
 		mermi_sayisi -= 1
 		emit_signal("mermi_degisti", mermi_sayisi)
+		if mermi_sayisi == 0: _seviye_bitis_kontrolu()
 		return true
 	return false
 
@@ -692,6 +718,7 @@ func shotgun_mermiyi_kullan() -> bool:
 	if shotgun_mermi_count > 0:
 		shotgun_mermi_count -= 1
 		emit_signal("shotgun_mermi_degisti", shotgun_mermi_count)
+		if shotgun_mermi_count == 0: _seviye_bitis_kontrolu()
 		return true
 	return false
 
@@ -801,6 +828,11 @@ func end_ghost_move():
 		
 	get_tree().call_group("Dusman", "set_process_mode", Node.PROCESS_MODE_INHERIT)
 	print("🌍 REALITY RESTORED.")
+	
+	# Ghost Move bittiğinde eğer puan hedefi aşılmışsa kapıyı aç
+	if suanki_puan >= hedef_puan:
+		print("🏁 Ghost Move bitti ve puan yeterli. Seviye tamamlanıyor...")
+		_kapi_kontrol()
 
 func saglik_guncelle(bar: int, hp: int):
 	oyuncu_kalan_bar = bar; oyuncu_suanki_hp = hp;
