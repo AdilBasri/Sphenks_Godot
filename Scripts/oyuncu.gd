@@ -1167,6 +1167,11 @@ func _after_health_animation():
 
 func can_process_input() -> bool:
 	if oldu_mu: return false
+	
+	# PARRY WINDOW: Boss atağı sırasında bile sağ tık parry yapılabilmeli
+	if GameManager and GameManager.is_parry_window_open:
+		return true
+
 	if controls_disabled: 
 		# print("DEBUG: Input blocked by controls_disabled")
 		return false
