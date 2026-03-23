@@ -1,22 +1,23 @@
-[gd_scene load_steps=35 format=3 uid="uid://5r052hg2ato8"]
+[gd_scene load_steps=34 format=3 uid="uid://5r052hg2ato8"]
 
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="1_j5rsp"]
-[ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="2_tlklb"]
-[ext_resource type="Texture2D" uid="uid://dm3cprrc1lljc" path="res://Assets/Images/çerçeve_bar.png" id="3_h6a0u"]
-[ext_resource type="Texture2D" uid="uid://bg20iuynejlup" path="res://Assets/Images/iç_bar.png" id="4_756oi"]
-[ext_resource type="Texture2D" uid="uid://clo2df6n7h5v3" path="res://Assets/carpi.png" id="5_nn26f"]
+[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="2_tlklb"]
 [ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="6_e0pfg"]
 [ext_resource type="Script" uid="uid://gdt0if15j8al" path="res://animated_gun/scene.gd" id="8_h6a0u"]
 [ext_resource type="Shader" uid="uid://bg3erydhe6l0u" path="res://hand.gdshader" id="9_756oi"]
+[ext_resource type="PackedScene" uid="uid://cbshe1rs8py4o" path="res://el_tam.fbx" id="10_d4mfo"]
 [ext_resource type="PackedScene" uid="uid://dvucb86havcwa" path="res://UI/oyun_arayuzu.tscn" id="10_u18ft"]
 [ext_resource type="PackedScene" uid="uid://c7q4fkextiqem" path="res://animated_shotgun/scene.gltf" id="11_f3u4t"]
+[ext_resource type="PackedScene" uid="uid://0k8qakldv4tr" path="res://el_serce_eksik.fbx" id="11_kx4rv"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Materials_Shaders/Sphenks.gdshader" id="11_xh7p1"]
 [ext_resource type="Script" uid="uid://lcig2p1w37xb" path="res://Scripts/Revolver.gd" id="11_xl8ic"]
+[ext_resource type="PackedScene" uid="uid://bcv33yqskd1sg" path="res://el_yuzuk_eksik.fbx" id="12_3iubv"]
 [ext_resource type="Script" uid="uid://c3crxoiqjl3tw" path="res://animated_shotgun/scene.gd" id="12_t52yg"]
-[ext_resource type="Texture2D" uid="uid://ctkgrnlyobok1" path="res://Assets/Images/crosshair.png" id="12_xl8ic"]
-[ext_resource type="FontFile" uid="uid://hbyync0b8kyv" path="res://Assets/Fonts/Retro Shine.ttf" id="13_w84ue"]
-[ext_resource type="Texture2D" uid="uid://dnpnexrcnpel5" path="res://Assets/bullet_1.png" id="14_f3u4t"]
+[ext_resource type="Texture2D" uid="uid://b6qhtc7ov5oqy" path="res://Assets/Images/crosshair.png" id="12_xl8ic"]
+[ext_resource type="PackedScene" uid="uid://cods05k8oldyq" path="res://el_orta_eksik.fbx" id="13_ljdlr"]
+[ext_resource type="PackedScene" uid="uid://dfhvjbftwfqyv" path="res://el_isaret_eksik.fbx" id="14_hltck"]
 [ext_resource type="Script" uid="uid://jep6dm3gok1q" path="res://deneme.gd" id="15_deneme"]
+[ext_resource type="PackedScene" uid="uid://bu8mar1motc12" path="res://el_bas_eksik.fbx" id="15_xxv66"]
 [ext_resource type="PackedScene" uid="uid://bcl1yvjbc55dt" path="res://wooden+golem+3d+model.glb" id="19_d4mfo"]
 [ext_resource type="PackedScene" uid="uid://hqgrge6ijj2s" path="res://animated_gun/scene.gltf" id="19_t52yg"]
 
@@ -43,14 +44,6 @@ font_size = 32
 font_color = Color(1, 0, 0, 1)
 shadow_size = 5
 shadow_color = Color(1, 0, 0, 0)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_xh7p1"]
-atlas = ExtResource("3_h6a0u")
-region = Rect2(389.22156, 296.0412, 1253.7622, 1473.935)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_xl8ic"]
-atlas = ExtResource("4_756oi")
-region = Rect2(375.71313, 280.9171, 1237.1509, 1443.3556)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_w84ue"]
 shader = ExtResource("6_e0pfg")
@@ -166,7 +159,6 @@ text = "HASAR: 0"
 label_settings = SubResource("LabelSettings_u18ft")
 horizontal_alignment = 1
 
-
 [node name="Camera3D" type="Camera3D" parent="Oyuncu" groups=["OyuncuKamera"]]
 physics_interpolation_mode = 2
 transform = Transform3D(0.99888355, -0.024378376, -0.040465526, 0.01922809, 0.9922066, -0.12311137, 0.043151416, 0.12219585, 0.9915675, -0.045120563, 0.83062285, 0.014348984)
@@ -233,6 +225,7 @@ surface_material_override/0 = SubResource("ShaderMaterial_nn26f")
 
 [node name="Sketchfab_Scene2" parent="Oyuncu/Camera3D" instance=ExtResource("11_f3u4t")]
 transform = Transform3D(-0.009988834, 0.00019228087, -0.00043151507, 0.00024378388, 0.009922065, -0.0012219585, 0.00040465614, -0.0012311138, -0.009915674, 0.17216614, -0.113432646, -0.16242838)
+visible = false
 script = ExtResource("12_t52yg")
 
 [node name="AnimationPlayer" parent="Oyuncu/Camera3D/Sketchfab_Scene2" index="1"]
@@ -240,6 +233,66 @@ root_node = NodePath("../../Sketchfab_Scene2")
 
 [node name="Sketchfab_Scene3" parent="Oyuncu/Camera3D" instance=ExtResource("19_t52yg")]
 transform = Transform3D(0.009988835, 0.00019228092, 0.00043151414, -0.00024378381, 0.009922066, 0.0012219585, -0.00040465526, -0.0012311138, 0.009915675, -18.419703, -1.2679509, 2.8485787)
+
+[node name="el_tam" parent="Oyuncu/Camera3D" instance=ExtResource("10_d4mfo")]
+transform = Transform3D(0.08362206, 0.11142852, 0.26568964, 0.023886219, 0.27302054, -0.12202096, -0.28711805, 0.055166546, 0.06722982, -0.2898689, -0.1653719, -0.5530424)
+visible = false
+
+[node name="Camera" parent="Oyuncu/Camera3D/el_tam" index="0"]
+visible = false
+
+[node name="Light" parent="Oyuncu/Camera3D/el_tam" index="1"]
+visible = false
+
+[node name="el_serce_eksik" parent="Oyuncu/Camera3D" instance=ExtResource("11_kx4rv")]
+transform = Transform3D(0.13081725, 0.019166257, -0.26929444, -0.09532368, 0.28324854, -0.026146714, 0.2525871, 0.096968584, 0.12960266, -0.30142576, -0.16289306, -0.53868914)
+visible = false
+
+[node name="Camera" parent="Oyuncu/Camera3D/el_serce_eksik" index="0"]
+visible = false
+
+[node name="Light" parent="Oyuncu/Camera3D/el_serce_eksik" index="1"]
+visible = false
+
+[node name="el_yuzuk_eksik" parent="Oyuncu/Camera3D" instance=ExtResource("12_3iubv")]
+transform = Transform3D(0.13081725, 0.01916626, -0.26929447, -0.09532368, 0.28324857, -0.026146723, 0.2525871, 0.0969686, 0.12960267, -0.301, -0.163, -0.539)
+visible = false
+
+[node name="Camera" parent="Oyuncu/Camera3D/el_yuzuk_eksik" index="0"]
+visible = false
+
+[node name="Light" parent="Oyuncu/Camera3D/el_yuzuk_eksik" index="1"]
+visible = false
+
+[node name="el_orta_eksik" parent="Oyuncu/Camera3D" instance=ExtResource("13_ljdlr")]
+transform = Transform3D(0.13081725, 0.01916626, -0.26929447, -0.09532368, 0.28324857, -0.026146723, 0.2525871, 0.0969686, 0.12960267, -0.301, -0.163, -0.539)
+visible = false
+
+[node name="Camera" parent="Oyuncu/Camera3D/el_orta_eksik" index="0"]
+visible = false
+
+[node name="Light" parent="Oyuncu/Camera3D/el_orta_eksik" index="1"]
+visible = false
+
+[node name="el_isaret_eksik" parent="Oyuncu/Camera3D" instance=ExtResource("14_hltck")]
+transform = Transform3D(0.13081725, 0.01916626, -0.26929447, -0.09532368, 0.28324857, -0.026146723, 0.2525871, 0.0969686, 0.12960267, -0.301, -0.163, -0.539)
+visible = false
+
+[node name="Camera" parent="Oyuncu/Camera3D/el_isaret_eksik" index="0"]
+visible = false
+
+[node name="Light" parent="Oyuncu/Camera3D/el_isaret_eksik" index="1"]
+visible = false
+
+[node name="el_bas_eksik" parent="Oyuncu/Camera3D" instance=ExtResource("15_xxv66")]
+transform = Transform3D(0.13081725, 0.01916626, -0.26929447, -0.09532368, 0.28324857, -0.026146723, 0.2525871, 0.0969686, 0.12960267, -0.301, -0.163, -0.539)
+visible = false
+
+[node name="Camera" parent="Oyuncu/Camera3D/el_bas_eksik" index="0"]
+visible = false
+
+[node name="Light" parent="Oyuncu/Camera3D/el_bas_eksik" index="1"]
+visible = false
 
 [node name="Revolver" parent="." groups=["Arayuz"] instance=ExtResource("10_u18ft")]
 script = ExtResource("11_xl8ic")
@@ -373,10 +426,15 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(1, 0, 0, 0.25882354)
 
-
 [node name="wooden+golem+3d+model" parent="." instance=ExtResource("19_d4mfo")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.4552653, 2.3222053, 0.63147974)
 
 [editable path="Oyuncu/Camera3D/Sketchfab_Scene"]
 [editable path="Oyuncu/Camera3D/Sketchfab_Scene2"]
+[editable path="Oyuncu/Camera3D/el_tam"]
+[editable path="Oyuncu/Camera3D/el_serce_eksik"]
+[editable path="Oyuncu/Camera3D/el_yuzuk_eksik"]
+[editable path="Oyuncu/Camera3D/el_orta_eksik"]
+[editable path="Oyuncu/Camera3D/el_isaret_eksik"]
+[editable path="Oyuncu/Camera3D/el_bas_eksik"]
 [editable path="Revolver"]
