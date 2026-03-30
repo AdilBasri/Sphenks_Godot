@@ -1,4 +1,4 @@
-[gd_scene load_steps=134 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=132 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Assets/Models/Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://Scripts/sphenks.gd" id="2_fi7dh"]
@@ -78,7 +78,6 @@
 [ext_resource type="Script" uid="uid://ci7b52idx0w08" path="res://Scripts/BulletBox.gd" id="85"]
 [ext_resource type="PackedScene" uid="uid://3yhptj5hevxh" path="res://keychain/scene.gltf" id="87_hyugx"]
 [ext_resource type="PackedScene" uid="uid://dnj3w1ekuh78m" path="res://tv/scene.gltf" id="88_dqfbe"]
-[ext_resource type="Script" uid="uid://do5nwwlre0f2l" path="res://Scenes/video_stream_player.gd" id="90_dqfbe"]
 [ext_resource type="VideoStream" uid="uid://cwtiydyjp55yl" path="res://tv/anubis.ogv" id="90_t6fha"]
 [ext_resource type="Script" uid="uid://chuv2uyii3n14" path="res://Scripts/AcidBoss.gd" id="94_acid"]
 [ext_resource type="PackedScene" uid="uid://cx6msh67nsv5" path="res://acid_boss/AcidBoss_Model.tscn" id="95_acid_model"]
@@ -300,17 +299,11 @@ size = Vector3(0.5, 0.5, 0.5)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fjuk8"]
 albedo_color = Color(0, 0, 0, 1)
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_dqfbe"]
-viewport_path = NodePath("tvmasa/tv/SubViewportContainer/SubViewport")
+[sub_resource type="ViewportTexture" id="ViewportTexture_fx2yl"]
+viewport_path = NodePath("tvmasa/tv/SubViewport")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6ry63"]
-resource_local_to_scene = true
-albedo_color = Color(1, 1, 1, 0)
-albedo_texture = SubResource("ViewportTexture_dqfbe")
-emission = Color(1, 1, 1, 1)
-
-[sub_resource type="AudioStream" id="AudioStream_dqfbe"]
-resource_local_to_scene = true
+[sub_resource type="BoxShape3D" id="BoxShape3D_fx2yl"]
+size = Vector3(1.8515625, 4.0689087, 3.4038696)
 
 [node name="Meshy_AI__0118084653_texture" instance=ExtResource("1_1eqvi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.031485796, 0, 0)
@@ -1391,32 +1384,39 @@ material = SubResource("StandardMaterial3D_fjuk8")
 [node name="tv" parent="tvmasa" index="3" instance=ExtResource("88_dqfbe")]
 transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 0, 0, 0)
 
-[node name="Cube_001_tvsimple_0" parent="tvmasa/tv/Sketchfab_model/TV_Textures_fbx/RootNode/Cube_001" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.672824, 0, 0)
-surface_material_override/0 = SubResource("StandardMaterial3D_6ry63")
+[node name="Sprite3D" type="Sprite3D" parent="tvmasa/tv" index="1"]
+transform = Transform3D(-1.3113417e-08, 0, 0.3, 0, 0.3, 0, -0.3, 0, -1.3113417e-08, 0.89622307, 1.2316344, 0.307343)
+double_sided = false
+no_depth_test = true
+texture = SubResource("ViewportTexture_fx2yl")
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="tvmasa/tv" index="1"]
-visible = false
-offset_right = 1920.0
-offset_bottom = 1080.0
-
-[node name="SubViewport" type="SubViewport" parent="tvmasa/tv/SubViewportContainer" index="0"]
-handle_input_locally = false
+[node name="SubViewport" type="SubViewport" parent="tvmasa/tv" index="2"]
 size = Vector2i(640, 480)
-render_target_update_mode = 0
 
-[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="tvmasa/tv/SubViewportContainer/SubViewport" index="0"]
-offset_right = 1920.0
-offset_bottom = 1080.0
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="tvmasa/tv/SubViewport" index="0"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 stream = ExtResource("90_t6fha")
 autoplay = true
 expand = true
 loop = true
-script = ExtResource("90_dqfbe")
 
-[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="tvmasa/tv/SubViewportContainer/SubViewport/VideoStreamPlayer" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.824443, 0, 3.2132804)
-stream = SubResource("AudioStream_dqfbe")
+[node name="StaticBody3D" type="StaticBody3D" parent="tvmasa/tv" index="3"]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="tvmasa/tv/StaticBody3D" index="0"]
+transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 0.17031217, 0.121032745, 0.053649664)
+shape = SubResource("BoxShape3D_fx2yl")
+
+[node name="Area3D" type="Area3D" parent="tvmasa/tv" index="4"]
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0, 0, 0)
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="tvmasa/tv/Area3D" index="0"]
+transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 0.17031217, 0.121032745, 0.053649664)
+shape = SubResource("BoxShape3D_fx2yl")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="tvmasa" index="4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5824925, -2.275781)

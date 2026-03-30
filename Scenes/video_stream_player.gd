@@ -2,11 +2,11 @@ extends VideoStreamPlayer
 
 # 1. Video oynatıcıdan 3 kat yukarı çıkıyoruz (SubViewport -> SubViewportContainer -> tv)
 # tv düğümünün hemen altındaki AudioStreamPlayer3'e ulaşıyoruz.
-@onready var tv_audio_3d = $"AudioStreamPlayer3D" 
+@onready var tv_audio_3d = $"../../../AudioStreamPlayer3" 
 
 # 2. Yine 3 kat yukarı çıkıp tv düğümüne ulaşıyoruz, 
 # oradan Sketchfab_model üzerinden ekrana gidiyoruz.
-@onready var screen_mesh = $"../../../Sketchfab_model/TV_Textures_fbx/RootNode/Cube_001/Cube_001_tvsimple_0"
+@onready var screen_mesh = $"../../../Sketchfab_model/TV_Textures_fbx/RootNode/Cube_001/Cube_001_tvsi"
 
 # 3. Viewport bir üst katımızda (Burası doğruydu)
 @onready var my_viewport = $".."
@@ -21,41 +21,30 @@ func _ready():
 	else:
 		printerr("HATA: AudioStreamPlayer3 yolu yanlış!")
 
-	# Viewport'u kapla (Tam ekran garantiye alalım)
-	anchor_right = 1.0
-	anchor_bottom = 1.0
-	offset_right = 0
-	offset_bottom = 0
-
 	# 2. Görüntüyü Kod ile Materyale Atama (En önemli kısım)
 	if screen_mesh and is_instance_valid(screen_mesh) and my_viewport:
 		# Mesh'in materyalini al
 		var mat = screen_mesh.get_active_material(0)
 		
-		# Eğer materyal mevcutsa kopyasını (duplicate) alıyoruz (Unique olması için)
-		if mat:
-			mat = mat.duplicate()
-		else:
+		# Eğer materyal yoksa yeni bir tane oluştur (Kritik bir ihtimal)
+		if not mat:
 			mat = StandardMaterial3D.new()
-
-		# Yeni materyali yüzeye atıyoruz (Zorunlu)
-		screen_mesh.set_surface_override_material(0, mat)
+			screen_mesh.set_surface_override_material(0, mat)
 			
-		# Kod ile ViewportTexture'u çekiyoruz (Godot 4'te en sağlam yöntem budur)
-		var viewport_tex = my_viewport.get_texture()
+		# Kod ile bir ViewportTexture oluştur
+		var viewport_tex = ViewportTexture.new()
+		viewport_tex.viewport_path = my_viewport.get_path()
 		
 		# Doku ve Işıma (Emission) özelliklerini atıyoruz
+		mat.albedo_texture = viewport_tex # Görüntü
 		if mat is StandardMaterial3D:
-			mat.albedo_color = Color.BLACK # Beyaz ekranı engellemek için baz rengi siyah yapalım
-			mat.albedo_texture = viewport_tex 
-			mat.emission_enabled = true 
-			mat.emission = Color.WHITE # Işıma rengi (Bu renk texture ile çarpılır)
-			mat.emission_texture = viewport_tex 
-			mat.emission_energy_multiplier = 1.2 # Şiddeti biraz daha kısalım parlamasın
+			mat.emission_enabled = true # Işıma aç
+			mat.emission_texture = viewport_tex # Işıma dokusu aynı video
+			mat.emission_energy_multiplier = 2.0 # Işık şiddeti
 			
-		print("TEKNİK FIX: ViewportTexture materyale duplicate edilerek atandı!")
+		print("Görüntü kod ile materyale zorla atandı!")
 	else:
-		printerr("HATA: Cube_001_tvsimple_0 yolu yanlış veya Viewport bulunamadı!")
+		printerr("HATA: Cube_001_tvsi yolu yanlış veya Viewport bulunamadı!")
 
 	# 3. Videoyu Oynat
 	play()
