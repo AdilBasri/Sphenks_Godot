@@ -1419,7 +1419,10 @@ transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 0.17031217, 0.121032745
 shape = SubResource("BoxShape3D_fx2yl")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="tvmasa" index="4"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5824925, -2.275781)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5382221, -0.17541778, 0.03399563)
+light_color = Color(1, 0.08235294, 0.61960787, 1)
+light_energy = 0.5
+omni_attenuation = 0.5
 
 [connection signal="input_event" from="Kedi/Y_Kedi" to="Kedi" method="_on_area_3d_input_event"]
 
