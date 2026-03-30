@@ -1,0 +1,11 @@
+Model Information:
+* title:	Cable  Lower
+* source:	https://sketchfab.com/3d-models/cable-lower-e246dc3453d241a6be5184d6bb61cf1d
+* author:	syedshah (https://sketchfab.com/mohammadshah390)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Cable  Lower" (https://sketchfab.com/3d-models/cable-lower-e246dc3453d241a6be5184d6bb61cf1d) by syedshah (https://sketchfab.com/mohammadshah390) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
