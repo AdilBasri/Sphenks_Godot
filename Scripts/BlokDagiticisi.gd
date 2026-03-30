@@ -318,14 +318,31 @@ func _sahne_bitis_animasyonu() -> void:
 	# Mekan bariyerlerini erkenden kaldır ki oyuncu kapıya gidebilsin
 	get_tree().call_group("Bariyer", "bolum_bitti")
 		
-	# 1. KAPIYI HEMEN AÇ (Masa gider gitmez)
-	var kapi = kapi_sistemi
-	if not is_instance_valid(kapi):
-		kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
-	if kapi:
-		if "kilitli_mi" in kapi: kapi.kilitli_mi = false
-		if kapi.has_method("kapiyi_ac"):
-			kapi.kapiyi_ac()
+	# 1. MERMİ VE DÜŞMAN DURUMU KONTROLÜ
+	var toplam_mermi = 0
+	if GameManager:
+		toplam_mermi = GameManager.mermi_sayisi + GameManager.shotgun_mermi_count
+		
+	var boss_yasiyor = false
+	var boss_hp = 1
+	if is_instance_valid(boss_objesi) and not boss_objesi.get("oldu_mu"):
+		boss_yasiyor = true
+		boss_hp = boss_objesi.boss_hp if "boss_hp" in boss_objesi else 2
+		
+	var mermi_yeterli = (toplam_mermi >= boss_hp)
+	
+	if mermi_yeterli and boss_yasiyor:
+		var arayuz = get_tree().get_first_node_in_group("Arayuz")
+		if arayuz and arayuz.has_method("bilgi_goster"):
+			arayuz.bilgi_goster(DilYoneticisi.metin_al("boss_u_oldur") if DilYoneticisi else "Boss'u öldür!", 5.0)
+	else:
+		var kapi = kapi_sistemi
+		if not is_instance_valid(kapi):
+			kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
+		if kapi:
+			if "kilitli_mi" in kapi: kapi.kilitli_mi = false
+			if kapi.has_method("kapiyi_ac"):
+				kapi.kapiyi_ac()
 
 	var tween = create_tween()
 	tween.set_parallel(true)
@@ -341,7 +358,9 @@ func _sahne_bitis_animasyonu() -> void:
 			b.queue_free()
 
 	tween.chain().tween_callback(func(): 
-		if is_instance_valid(boss_objesi): boss_objesi.visible = false
+		if is_instance_valid(boss_objesi): 
+			if not (mermi_yeterli and boss_yasiyor):
+				boss_objesi.visible = false
 		if is_instance_valid(masa_objesi): masa_objesi.queue_free()
 		if grid and grid.has_method("engelleri_temizle"):
 			grid.engelleri_temizle()

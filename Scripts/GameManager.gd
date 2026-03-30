@@ -138,8 +138,24 @@ func _kapi_kontrol():
 		return
 
 	if grid_tamamlandi:
-		# Puan doldu, kapıyı hemen aç ama masayı hemen kaldırma (mermi kontrolü yapılacak)
-		_kapiyi_ac_gercek()
+		# Puan doldu
+		var bosslar = get_tree().get_nodes_in_group("Dusman")
+		var yasayan_boss_var = false
+		var toplam_hp = 0
+		for b in bosslar:
+			if is_instance_valid(b) and not b.get("oldu_mu"):
+				yasayan_boss_var = true
+				toplam_hp += b.get("boss_hp") if b.get("boss_hp") != null else 1
+				
+		var toplam_mermi = mermi_sayisi + shotgun_mermi_count
+		var mermi_yeterli = (toplam_mermi >= toplam_hp)
+		
+		# EĞER MERMİ YETERLİYSE VE BOSS YAŞIYORSA, KAPIYI AÇMA! Bekle...
+		if yasayan_boss_var and mermi_yeterli:
+			print("🚪 GameManager: Hedef puana ulaşıldı ancak mermi yeterli ve boss hayatta (Kapı Bekletiliyor).")
+		else:
+			_kapiyi_ac_gercek()
+			
 		_seviye_bitis_kontrolu()
 	
 	elif boss_oldu_durumu and not grid_tamamlandi:
@@ -159,15 +175,17 @@ func _seviye_bitis_kontrolu():
 	# Eğer boss hayattaysa ve mermi var ise beklet (oyuncu boss'u vurabilsin)
 	var bosslar = get_tree().get_nodes_in_group("Dusman")
 	var yasayan_boss_var = false
+	var toplam_hp = 0
 	for b in bosslar:
 		if is_instance_valid(b) and not b.get("oldu_mu"):
 			yasayan_boss_var = true
-			break
+			toplam_hp += b.get("boss_hp") if b.get("boss_hp") != null else 1
 			
-	var mermi_var = mermi_sayisi > 0 or shotgun_mermi_count > 0
+	var toplam_mermi = mermi_sayisi + shotgun_mermi_count
+	var mermi_yeterli = (toplam_mermi >= toplam_hp)
 	
-	if yasayan_boss_var and mermi_var:
-		print("🔫 GameManager: Puan tamam ama boss hayatta ve mermi var. Bekletiliyor...")
+	if yasayan_boss_var and mermi_yeterli:
+		print("🔫 GameManager: Puan tamam ama boss hayatta ve mermi yeterli. Bekletiliyor...")
 		return
 		
 	# Krıtik: Eğer buraya geldiysek ya mermi bitti ya boss öldü ya da mermi yoktu
