@@ -25,7 +25,6 @@ var dongu_basladi_mi: bool = false # GHOST BUG FIX (Yedekte duruyor)
 var _yer_kontrol_timer: Timer = null
 var puzzle_tamamlandi: bool = false # Skora ulaşıldı veya kaynaklar bitti ama masa henüz durabilir
 
-
 signal stok_bitti 
 signal stok_guncellendi(kalan: int)
 signal blok_sayisi_degisti(toplam: int)
@@ -180,10 +179,10 @@ func _stoktan_yeni_parti_ver() -> void:
 		print("--- HATA: Blok Sahneleri Bos! ---")
 		return
 
-	# Tutorial'da boss ölmediği sürece sonsuz blok sağla (User Request)
-	if LevelManager and LevelManager.suanki_katman == 1:
+	# Bütün katmanlarda sonsuz blok sağla (User Request)
+	if LevelManager:
 		if not boss_oldu_mu and kalan_stok <= 5:
-			kalan_stok += 10
+			kalan_stok += 999
 	
 	if kalan_stok <= 0 and masadaki_aktif_bloklar <= 0:
 		emit_signal("stok_bitti")

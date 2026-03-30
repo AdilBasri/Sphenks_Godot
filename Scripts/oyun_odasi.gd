@@ -23,6 +23,7 @@ extends Node3D
 @onready var yan_sehpa = get_node_or_null("YanSehpa") 
 
 # --- DEĞİŞKENLER ---
+var masa_kaldirildi_mi: bool = false # Puan 1.5x'e ulaşınca masa otomatik kalkar
 var zar_firlatiliyor_mu : bool = false
 var atilan_zarlar = []
 var toplam_sonuc = 0
@@ -69,6 +70,8 @@ func _ready():
 			GameManager.boss_oldu.connect(_on_boss_oldu)
 		if not GameManager.satir_patladi.is_connected(_on_satir_patladi):
 			GameManager.satir_patladi.connect(_on_satir_patladi)
+		if not GameManager.puan_degisti.is_connected(_on_puan_masa_kontrol):
+			GameManager.puan_degisti.connect(_on_puan_masa_kontrol)
 		if not GameManager.seviye_tamamlandi.is_connected(_on_seviye_tamamlandi):
 			GameManager.seviye_tamamlandi.connect(_on_seviye_tamamlandi)
 	
@@ -241,11 +244,30 @@ func _on_boss_oldu():
 func _on_seviye_tamamlandi():
 	print("🏁 OYUN ODASI: Seviye tamamlandı (Hedef puan + boss durumu OK).")
 	
-	# MASA İNDİRME: BlokDagiticisi'ni bul ve sahnede bitiş animasyonunu tetikle
-	var spawner = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
-	if spawner and spawner.has_method("_sahne_bitis_animasyonu"):
-		spawner._sahne_bitis_animasyonu()
-		print("⬇️ Seviye bitti — Masa aşağı indiriliyor.")
+	# Sadece kapıyı aç — masa artık puan 1.5x'e ulaşınca otomatik kalkacak
+	_kapiyi_ac()
+	print("🚪 Seviye bitti — Kapı açıldı. Masa puan 1.5x'e kadar yerinde kalacak.")
+
+func _on_puan_masa_kontrol(yeni_puan: int):
+	if masa_kaldirildi_mi: return
+	
+	var hedef = GameManager.hedef_puan if GameManager else 0
+	if hedef <= 0: return
+	
+	var esik = int(hedef * 1.5)
+	if yeni_puan >= esik:
+		masa_kaldirildi_mi = true
+		print("🎯 Puan hedefin 1.5 katına ulaştı! (%d/%d) Masa otomatik kaldırılıyor." % [yeni_puan, esik])
+		
+		# Ekrana mesaj göster
+		var arayuz = get_tree().get_first_node_in_group("Arayuz")
+		if arayuz and arayuz.has_method("bilgi_goster"):
+			arayuz.bilgi_goster("Katman skor sınırına ulaşıldı!", 5.0)
+		
+		# Masa indirme animasyonunu tetikle
+		var spawner = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
+		if spawner and spawner.has_method("_sahne_bitis_animasyonu"):
+			spawner._sahne_bitis_animasyonu()
 
 func _kapiyi_ac():
 	# KapiSistemi arayalım (MezarOdasi'nin komşusu)
