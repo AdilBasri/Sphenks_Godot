@@ -1365,7 +1365,7 @@ shape = SubResource("BoxShape3D_mermi")
 transform = Transform3D(-4.3711387e-10, 0, -0.01, 0, 0.01, 0, 0.01, 0, -4.3711387e-10, 3.9294927, 2.2173824, 0.0931136)
 
 [node name="tvmasa" type="Node3D" parent="." index="31"]
-transform = Transform3D(0.770669, 0, 0.6372357, 0, 1, 0, -0.6372357, 0, 0.770669, -3.5245512, 0.12188518, 3.3574488)
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, -3.5245512, 0.12188518, 3.3574488)
 
 [node name="CSGBox3D" type="CSGBox3D" parent="tvmasa" index="0"]
 size = Vector3(1, 0.07873535, 1.4936523)
@@ -1418,7 +1418,7 @@ transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 0.17031217, 0.121032745
 shape = SubResource("BoxShape3D_fx2yl")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="tvmasa" index="4"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5382221, -0.17541778, 0.03399563)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.43549204, 0.32996595, 0.03399563)
 light_color = Color(1, 0.08235294, 0.61960787, 1)
 light_energy = 0.5
 omni_attenuation = 0.5
