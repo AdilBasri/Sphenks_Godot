@@ -82,7 +82,14 @@ func check_interaction():
 		if devre_disi:
 			if interaction_label: interaction_label.text = ""
 			return
-		if interaction_label: interaction_label.text = "[E] Etkileşim"
+		var custom_text = collider.get("interaction_text")
+		if not custom_text and collider.get_parent():
+			custom_text = collider.get_parent().get("interaction_text")
+			
+		if custom_text:
+			if interaction_label: interaction_label.text = (DilYoneticisi.metin_al(custom_text) if DilYoneticisi else custom_text)
+		else:
+			if interaction_label: interaction_label.text = "[E] Etkileşim"
 	else:
 		if interaction_label: interaction_label.text = ""
 		# Bakış çekildiğinde mermi kutusu UI'larını gizle

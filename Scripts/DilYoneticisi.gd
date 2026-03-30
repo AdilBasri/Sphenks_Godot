@@ -688,7 +688,31 @@ var ceviriler = {
 		"tr": "Görevin bitmedi. Gereken puana ulaş.",
 		"en": "Mission not complete. Reach the target score."
 	},
-	"Eşya": { "tr": "Eşya", "en": "Item" }
+	"Eşya": { "tr": "Eşya", "en": "Item" },
+	"anubis_video_etkilesim": {
+		"tr": "Anubis'i dinle (E)",
+		"en": "Listen to Anubis (E)"
+	},
+	"anubis_subtitles_1": {
+		"tr": "Tebrikler!",
+		"en": "Congratulations!"
+	},
+	"anubis_subtitles_2": {
+		"tr": "Sphenks'e ulaşmayı başardın, tatlı çocuğum.",
+		"en": "You've managed to reach the Sphenks, my sweet child."
+	},
+	"anubis_subtitles_3": {
+		"tr": "Ne kadar ileri gidebileceğini görmek için sabırsızlanıyorum!",
+		"en": "I can't wait to see how far you can go!"
+	},
+	"anubis_subtitles_4": {
+		"tr": "Bana onların etlerini, kemiklerini ve kanlı sıvılarını getir,",
+		"en": "Bring me their flesh, bones, and bloody fluids,"
+	},
+	"anubis_subtitles_5": {
+		"tr": "böylece ikimiz için de ebedi hayatı toplayabiliriz!",
+		"en": "so we can gather eternal life for both of us!"
+	}
 }
 
 func dili_degistir(yeni_dil: String) -> void:
