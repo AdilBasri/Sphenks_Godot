@@ -132,9 +132,9 @@ func odaya_don_ve_level_atla():
 		is_pyro_encounter = false
 		print("🔥 Pyro ara katmanı tamamlandı, katman sabit: ", suanki_katman)
 	else:
-		# Normal katman bitti, katmanı artır ve %20 ihtimalle Pyro'ya sok
+		# Normal katman bitti, katmanı artır ve %0 ihtimalle Pyro'ya sok (Demo için 0'a çekildi, orijinal: %20)
 		suanki_katman += 1
-		if randf() < 0.20:
+		if randf() < 0.00:
 			is_pyro_encounter = true
 			print("🎲 Zar atıldı: Rastgele Pyro karşına çıktı!")
 		else:
