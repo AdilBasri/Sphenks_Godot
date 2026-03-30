@@ -12,7 +12,6 @@ func _ready():
 	print("Warning pozisyon: ", warning_label.global_position)
 	print("Warning boyut: ", warning_label.size)
 	warning_label.modulate.a = 0.0
-	warning_label.modulate.a = 0.0
 	warning_text.modulate.a = 0.0
 	logo_video.visible = false
 	logo_video.modulate.a = 0.0

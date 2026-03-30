@@ -78,7 +78,9 @@ func _on_oyna_pressed():
 		GameManager.kayitli_seviye = 1 # Seviyeyi 1'e çek
 		GameManager.verileri_sifirla() # Can, altın, envanter hepsini sıfırla
 		
-		get_tree().change_scene_to_file(intro_sahnesi_yolu)
+		# Demo için intro sahneleri geçici olarak askıya alındı.
+		# get_tree().change_scene_to_file(intro_sahnesi_yolu)
+		get_tree().change_scene_to_file(oyun_sahnesi_yolu) # Direkt layer1 (Sphenks.tscn) başlasın
 
 func _on_cikis_pressed():
 	print("Çıkılıyor...")
