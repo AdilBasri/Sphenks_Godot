@@ -28,6 +28,10 @@ var final_diyaloglari = [
 ]
 
 func _ready():
+	# DEMO İÇİN ASKIYA ALINDI - Doğrudan Sphenks.tscn'ye geç
+	get_tree().change_scene_to_file("res://Scenes/Sphenks.tscn")
+	return
+	
 	if alt_yazi: alt_yazi.text = ""
 	if gecis_perdesi: gecis_perdesi.material.set_shader_parameter("factor", 0.0)
 	

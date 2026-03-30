@@ -35,6 +35,10 @@ var anubis_metinleri = [
 ]
 
 func _ready():
+	# DEMO İÇİN ASKIYA ALINDI - Doğrudan Sphenks.tscn'ye geç
+	get_tree().change_scene_to_file("res://Scenes/Sphenks.tscn")
+	return
+	
 	# Root düğümdeki [E] Konuş yazısını bul
 	etkilesim_yazi = get_parent().get_node_or_null("EtkilesimYazisi")
 	if etkilesim_yazi:

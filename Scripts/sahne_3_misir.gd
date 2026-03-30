@@ -21,6 +21,12 @@ var diyaloglar = [
 ]
 
 func _ready():
+	# DEMO İÇİN ASKIYA ALINDI - Doğrudan Sphenks.tscn'ye geç
+	GameManager.intro_tamamlandi = true
+	GameManager.oyunu_kaydet()
+	get_tree().change_scene_to_file("res://Scenes/Sphenks.tscn")
+	return
+
 	# EKLENEN 2: SİYAH EKRANI YAVAŞÇA KALDIR (GÖZÜNÜ AÇMA EFEKTİ)
 	acilis_efekti_yap()
 

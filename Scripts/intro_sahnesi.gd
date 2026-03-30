@@ -24,6 +24,10 @@ var diyalog_anahtarlari = [
 var kullanilabilir_diyaloglar = []
 
 func _ready():
+	# DEMO İÇİN ASKIYA ALINDI - Doğrudan Sphenks.tscn'ye geç
+	get_tree().change_scene_to_file("res://Scenes/Sphenks.tscn")
+	return
+	
 	# Sahne başladığında fareyi hapset
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	
