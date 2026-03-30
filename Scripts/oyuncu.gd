@@ -123,6 +123,12 @@ var _gold_tween_busy: bool = false
 var _pre_gold_cam_local_transform: Transform3D
 var _kese_node: Node3D
 
+# --- PARMAK FEDA SİSTEMİ ---
+var is_sacrificing: bool = false
+var sacrifice_hand_nodes: Array[Node3D] = []
+var sacrifice_label: Label = null
+var current_sacrifice_callback: Callable
+
 # --- MODÜLER BİLEŞENLER ---
 var mover: PlayerMovement
 var looker: PlayerCamera
@@ -353,6 +359,7 @@ func _input(event):
 	if not kamera or oldu_mu: return 
 	
 	# --- KRİTİK KONTROL BLOĞU ---
+	_input_sacrifice_check(event)
 	if not can_process_input():
 		return
 
@@ -1485,6 +1492,20 @@ func check_ui_text():
 		
 	if not nesne: return 
 	
+	# Special KapiCampfire Check (Hierarchical to support internal Area3D)
+	var check_node = nesne
+	var is_campfire_door = false
+	for i in range(4): 
+		if not check_node: break
+		if check_node.name == "KapiCampfire":
+			is_campfire_door = true
+			break
+		check_node = check_node.get_parent()
+	
+	if is_campfire_door:
+		etkilesim_label.text = DilYoneticisi.campfire_kapiyi_ac()
+		return
+	
 	# 1. MARKET EŞYASI KONTROLÜ
 	var veri = nesne.get("esya_verisi")
 	var market_modu = nesne.get("market_modu")
@@ -1548,7 +1569,7 @@ func check_ui_text():
 				if cf and "cards_resolved" in cf and not cf.cards_resolved:
 					return
 			
-			etkilesim_label.text = DilYoneticisi.metin_al("kapiyi_ac")
+			etkilesim_label.text = DilYoneticisi.kapiyi_ac()
 		# TABURE VEYA DİĞERLERİ
 		else:
 			if bulunan_etkilesim.has_method("get_etkilesim_yazisi"):
@@ -2479,6 +2500,167 @@ func _gore_vignette_ayarla(aktif: bool, frenzy: float):
 					gore_vignette.material.set_shader_parameter("intensity", 0.0)
 		)
 
+# ============================================================
+# --- PARMAK FEDA MEKANİZMASI ---
+# ============================================================
+
+func _init_sacrifice_system():
+	"""Feda sistemi için el modellerini ve UI'ı hazırla."""
+	sacrifice_hand_nodes.clear()
+	var names = ["el_tam", "el_serce_eksik", "el_yuzuk_eksik", "el_orta_eksik", "el_isaret_eksik", "el_bas_eksik"]
+	for n in names:
+		var node = kamera.get_node_or_null(n)
+		if node:
+			sacrifice_hand_nodes.append(node)
+			node.visible = false
+	
+	# Feda UI Label
+	if not sacrifice_label:
+		sacrifice_label = Label.new()
+		sacrifice_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		sacrifice_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		var settings = LabelSettings.new()
+		settings.font_size = 42
+		settings.font_color = Color.RED
+		settings.outline_size = 8
+		settings.outline_color = Color.BLACK
+		sacrifice_label.label_settings = settings
+		$CanvasLayer.add_child(sacrifice_label)
+		sacrifice_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+		sacrifice_label.visible = false
+
+func sacrificial_interact(callback: Callable):
+	"""Feda sekansını başlatır."""
+	print("🎬 SACRIFICE: interact çağrıldı.")
+	if is_sacrificing: 
+		print("⚠️ SACRIFICE: Zaten feda seansında!")
+		return
+	is_sacrificing = true
+	current_sacrifice_callback = callback
+	
+	# 1. Hazırlık
+	if is_sitting:
+		print("  -> Ayağa kalkılıyor...")
+		stand_up(true)
+	
+	disable_controls()
+	hide_weapon()
+	_init_sacrifice_system()
+	
+	# 2. El ve Makas Ayarı
+	var cut_count = GameManager.total_fingers_cut
+	print("  -> Kesilen parmak sayısı: %d" % cut_count)
+	
+	if cut_count >= sacrifice_hand_nodes.size() - 1:
+		print("❌ SACRIFICE: Tüm parmaklar gitmiş (veya hata)!")
+		_sacrifice_tamamla()
+		return
+		
+	var active_hand = sacrifice_hand_nodes[cut_count]
+	active_hand.visible = true
+	active_hand.position = Vector3(0, -1.0, -0.5) # Altta gizli
+	
+	var scissor = get_tree().current_scene.find_child("scissor", true, false)
+	if not scissor:
+		print("❌ SACRIFICE: Makas (scissor) bulunamadı!")
+		_sacrifice_tamamla()
+		return
+	
+	print("  -> Animasyon başlıyor (Makas: %s)" % scissor.name)
+	# Makas başlangıç konumu (zincirli yer) kaydedilmediyse kaydetmiyoruz, tween ile alıyoruz
+	var cam_basis = kamera.global_transform.basis
+	var target_scissor_pos = kamera.global_position + (cam_basis.x * 0.4) + (cam_basis.y * -0.2) + (cam_basis.z * -0.6)
+	
+	var tw = create_tween().set_parallel(true)
+	# El yükselir ve titrer
+	tw.tween_property(active_hand, "position:y", -0.4, 1.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	# Makas gelir
+	tw.tween_property(scissor, "global_position", target_scissor_pos, 1.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tw.tween_property(scissor, "global_basis", kamera.global_transform.basis, 1.5)
+	
+	# Hafif titreme (Hand Shake)
+	var shake_tw = create_tween().set_loops()
+	shake_tw.tween_property(active_hand, "position:x", 0.01, 0.1)
+	shake_tw.tween_property(active_hand, "position:x", -0.01, 0.1)
+	
+	await tw.finished
+	
+	# 3. UI Göster
+	if sacrifice_label:
+		sacrifice_label.text = "Tıkla ve Feda Et!\nClick and Sacrifice!"
+		sacrifice_label.visible = true
+
+func _input_sacrifice_check(event):
+	if is_sacrificing and event.is_action_pressed("sol_tik"):
+		if sacrifice_label and sacrifice_label.visible:
+			_parmak_kes_animasyonu()
+
+func _parmak_kes_animasyonu():
+	sacrifice_label.visible = false
+	var cut_count = GameManager.total_fingers_cut
+	var active_hand = sacrifice_hand_nodes[cut_count]
+	var next_hand = sacrifice_hand_nodes[min(cut_count + 1, sacrifice_hand_nodes.size() - 1)]
+	
+	var scissor = get_tree().current_scene.find_child("scissor", true, false)
+	var anim = scissor.get_node_or_null("AnimationPlayer")
+	
+	# Makas parmağa yaklaşır (Her parmak için biraz daha sola)
+	var offset_x = -0.1 + (cut_count * -0.05)
+	var move_tw = create_tween()
+	move_tw.tween_property(scissor, "position:x", active_hand.position.x + offset_x, 0.4)
+	await move_tw.finished
+	
+	# Kesme Animasyonu
+	if anim: anim.play("cut") # Varsayılan isim 'cut' veya 'Default' olabilir
+	
+	# Kan ve Değişim
+	var p = kan_spreyi_sahne.instantiate()
+	get_tree().current_scene.add_child(p)
+	p.global_position = scissor.global_position
+	p.emitting = true
+	
+	# Ses
+	var sfx = AudioStreamPlayer.new()
+	sfx.stream = load("res://Assets/Audio/BloodSplatter.mp3")
+	add_child(sfx)
+	sfx.play()
+	
+	await get_tree().create_timer(0.5).timeout
+	
+	# El değişimi
+	active_hand.visible = false
+	next_hand.visible = true
+	next_hand.position = active_hand.position
+	
+	# HP Düşüşü
+	if GlobalHealthManager:
+		GlobalHealthManager.reduce_permanent_health(3.0)
+	
+	GameManager.total_fingers_cut += 1
+	GameManager.cuts_in_current_layer += 1
+	GameManager.oyunu_kaydet()
+	
+	# Makas geri süzülür
+	var back_tw = create_tween()
+	back_tw.tween_property(scissor, "position:y", scissor.position.y - 5.0, 1.0)
+	
+	await back_tw.finished
+	_sacrifice_tamamla()
+
+func _sacrifice_tamamla():
+	is_sacrificing = false
+	if sacrifice_label: sacrifice_label.visible = false
+	for h in sacrifice_hand_nodes: h.visible = false
+	
+	show_weapon()
+	enable_controls()
+	
+	# Tabureye geri otur (Kullanıcı isteği: "vazgeçtiyse veya yaptıysa masada kalmalı" gibi bir his ama blok verilecek)
+	# Blok verildikten sonra sit_on_stool() otomatik çağrılabilir veya manuel. 
+	# Şimdilik serbest bırakıyoruz, callback içinde masa moduna geri sokabiliriz.
+	
+	if current_sacrifice_callback.is_valid():
+		current_sacrifice_callback.call()
 
 # --- GORE VIGNETTE KATMAN YONETIMI ---
 
@@ -2494,10 +2676,6 @@ func _gore_vignette_katmana_tasi():
 		print("⚠️ GoreVignette parent yok!")
 		return
 	
-	print("🎨 GoreVignette Layer Check: Parent=%s Layer=%s" % [mevcut_parent.name, str(mevcut_parent.layer) if "layer" in mevcut_parent else "N/A"])
-
-	print("🎨 GoreVignette Layer Check: Parent=%s Layer=%s" % [mevcut_parent.name, str(mevcut_parent.layer) if "layer" in mevcut_parent else "N/A"])
-
 	# Zaten ayrı bir GoreKatman'daysa tekrar taşıma
 	if mevcut_parent.name == "GoreKatman": return
 	
@@ -2511,7 +2689,6 @@ func _gore_vignette_katmana_tasi():
 	sahne_koku.add_child(gore_katman)
 	
 	# GoreVignette'yi yeni layer'a taşı
-	# Transform/Anchor korumak için gerekirse ayar yapılabilir ama full-screen rect olduğu için sorun olmaz
 	mevcut_parent.remove_child(gore_vignette)
 	gore_katman.add_child(gore_vignette)
 	

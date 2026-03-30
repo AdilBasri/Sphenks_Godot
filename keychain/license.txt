@@ -1,0 +1,11 @@
+Model Information:
+* title:	Rusty Steel Door Lock
+* source:	https://sketchfab.com/3d-models/rusty-steel-door-lock-a36ce37e97c843a78a48b08adbf322e8
+* author:	Incg5764 (https://sketchfab.com/incg5764)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Rusty Steel Door Lock" (https://sketchfab.com/3d-models/rusty-steel-door-lock-a36ce37e97c843a78a48b08adbf322e8) by Incg5764 (https://sketchfab.com/incg5764) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

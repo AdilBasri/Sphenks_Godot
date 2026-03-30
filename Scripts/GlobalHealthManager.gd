@@ -7,6 +7,7 @@ signal health_changed(new_health: float)
 
 var max_health: float = 40.0
 var current_health: float = 40.0
+var permanent_max_hp_reduction: float = 0.0 # Kalıcı can azalışı (Feda edilen parmaklar)
 var is_dead: bool = false
 
 func _ready():
@@ -21,7 +22,9 @@ func _sync_from_game_manager():
 		return
 	var max_bars := float(GameManager.oyuncu_max_bar)
 	var current_hp: float = max(0.0, (float(GameManager.oyuncu_kalan_bar) - 1.0) * 10.0 + float(GameManager.oyuncu_suanki_hp))
-	max_health = max_bars * 10.0
+	
+	# Kalıcı azalışı düşerek yeni max_health'i belirle
+	max_health = (max_bars * 10.0) - permanent_max_hp_reduction
 	current_health = clamp(current_hp, 0.0, max_health)
 	is_dead = current_health <= 0.0
 
@@ -29,7 +32,8 @@ func _on_game_manager_health(bar: int, hp: int):
 	var max_bars := 4.0
 	if GameManager and "oyuncu_max_bar" in GameManager:
 		max_bars = float(GameManager.oyuncu_max_bar)
-	max_health = max_bars * 10.0
+	
+	max_health = (max_bars * 10.0) - permanent_max_hp_reduction
 	var new_hp: float = max(0.0, (float(bar) - 1.0) * 10.0 + float(hp))
 	current_health = clamp(new_hp, 0.0, max_health)
 	is_dead = current_health <= 0.0
@@ -43,10 +47,19 @@ func take_damage(amount: float) -> void:
 	_sync_to_game_manager()
 
 func heal(amount: float) -> void:
+	# İyileştirme yeni (azaltılmış) max_health'i aşamaz
 	current_health = float(min(max_health, current_health + amount))
 	is_dead = false
 	health_changed.emit(current_health)
 	_sync_to_game_manager()
+
+func reduce_permanent_health(amount: float):
+	"""Kalıcı olarak max HP'yi düşürür (Sacrifice)."""
+	permanent_max_hp_reduction += amount
+	# Max can düştüğü için mevcut can da buna göre kırpılmalı
+	_sync_from_game_manager() 
+	_sync_to_game_manager()
+	health_changed.emit(current_health)
 
 func get_health_ratio() -> float:
 	if max_health <= 0.0:

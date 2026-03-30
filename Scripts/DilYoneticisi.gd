@@ -48,6 +48,10 @@ var ceviriler = {
 		"tr": "[E / Y] Kapıyı Aç",
 		"en": "[E / Y] Open Door"
 	},
+	"campfire_kapi_ac": {
+		"tr": "Tam sürümde erişilebilir!",
+		"en": "Available in full version!"
+	},
 	"oynamak_icin_otur": {
 		"tr": "[E / Y] Oynamak için Otur",
 		"en": "[E / Y] Sit to Play"
@@ -698,3 +702,9 @@ func metin_al(anahtar: String) -> String:
 		if bolum.has(secili_dil):
 			return bolum[secili_dil]
 	return anahtar # Bulamazsa kendisini döndür
+
+func kapiyi_ac() -> String:
+	return metin_al("kapiyi_ac")
+
+func campfire_kapiyi_ac() -> String:
+	return metin_al("campfire_kapi_ac")

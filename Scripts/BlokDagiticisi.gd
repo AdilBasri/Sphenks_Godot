@@ -4,6 +4,7 @@ extends Node3D
 @export var grid: GridYonetici
 @export var spawn_noktalari: Array[Marker3D] 
 @export var blok_sahneleri: Array[PackedScene] 
+@export var block_cubuk_sahnesi: PackedScene # Sacrifice ödülü
 
 # --- SAHNE OBJELERİ ---
 @export var boss_objesi: Node3D 
@@ -244,29 +245,10 @@ func _tur_sonu_hesaplamasi() -> void:
 	# Sadece kritik GAME OVER durumlarını burada tutuyoruz (Skor yetmezse ve kaynak yoksa)
 	
 	if (kalan_stok <= 0 and masadaki_aktif_bloklar <= 0):
-		var mermisi_varm_mi = GameManager and (GameManager.mermi_sayisi > 0 or GameManager.shotgun_mermi_count > 0)
-		
-		# Boss yaşıyor mu?
-		if toplam_kalan_hp > 0:
-			if skor < arayuz.hedef_puan:
-				# SKOR YETERSİZ, BLOK BİTTİ, BOSS HAYATTA
-				# Eğer mermi de yoksa GAME OVER
-				if not mermisi_varm_mi:
-					_oyun_kaybedildi(arayuz)
-					return
-			else:
-				# SKOR YETİYOR, BLOK BİTTİ, BOSS HAYATTA
-				# KatmanBitisYoneticisi Senaryo 4 veya 5'i tetikleyecek
-				pass
-		else:
-			# BOSS ÖLDÜ, BLOK BİTTİ
-			if skor < arayuz.hedef_puan:
-				# SKOR YETERSİZ -> GAME OVER
-				_oyun_kaybedildi(arayuz)
-				return
-			else:
-				# SKOR YETERLİ -> ZAFER (KatmanBitisYoneticisi Senaryo 3)
-				pass
+		# ESKİ MANTIK: Mermi/Skor kontrolü burada yapılıyordu ve oyun bitiriliyordu.
+		# YENİ MANTIK: Bütün bitiş senaryoları KatmanBitisYoneticisi tarafından yönetilmeli.
+		# Burada sadece log basıp yöneticiyi bekliyoruz.
+		print("📦 Kaynaklar tükendi, bitiş yöneticisi kontrol ediyor...")
 
 	# KatmanBitisYoneticisi'ne haber ver (Genel kontrol için)
 	# Not: Zaten sinyallerle bağlı, ekstra çağrıya gerek yok ama 
@@ -537,3 +519,44 @@ func yer_yok_kontrolu_yap() -> void:
 		_tur_sonu_hesaplamasi()
 	else:
 		print(">>> Yer var, oyun devam ediyor.")
+
+func spawn_void_cubuk():
+	"""Void'den (görünmez bir noktadan) çubuk blok getirir."""
+	if not block_cubuk_sahnesi:
+		# Fallback: Eğer export edilmemişse manuel yükle
+		block_cubuk_sahnesi = load("res://Scenes/Blocks/block_cubuk.tscn")
+	
+	if not block_cubuk_sahnesi:
+		print("⚠️ block_cubuk.tscn bulunamadı!")
+		return
+	
+	var blok = block_cubuk_sahnesi.instantiate()
+	get_tree().current_scene.add_child(blok)
+	
+	# Başlangıç pozisyonu (Void): Masanın arkasında bir yer
+	var void_pos = global_position + Vector3(0, 10, -5)
+	blok.global_position = void_pos
+	
+	# Hedef pozisyon: Masadaki bir spawn noktası (boş olanı seç)
+	var hedef_nokta = global_position # Fallback
+	if spawn_noktalari.size() > 0:
+		hedef_nokta = spawn_noktalari[0].global_position
+		for sn in spawn_noktalari:
+			if sn.get_child_count() == 0:
+				hedef_nokta = sn.global_position
+				break
+			
+	# Animasyonla uçarak gelir
+	var tw = create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(blok, "global_position", hedef_nokta, 1.2).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT)
+	tw.tween_property(blok, "rotation_degrees", Vector3(0, 360, 0), 1.2)
+	
+	# Blok ayarlarını yap (Blok script'i varsa)
+	# BlokDagiticisi.gd içinde _blok_yarat_ve_firlat benzeri mantık:
+	if blok.has_method("firlat_hazirla"):
+		blok.firlat_hazirla(self)
+	
+	masadaki_aktif_bloklar += 1
+	emit_signal("stok_guncellendi", kalan_stok)
+	print("🌌 Void'den çubuk blok geldi!")

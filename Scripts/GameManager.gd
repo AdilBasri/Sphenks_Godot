@@ -27,6 +27,8 @@ var intro_tamamlandi: bool = false
 var tutorial_tamamlandi: bool = false
 var completed_tutorials: Array[String] = [] # "base", "market", "campfire", "pyro"
 var uyku_sahnesi_giris_sayisi: int = 0
+var total_fingers_cut: int = 0
+var cuts_in_current_layer: int = 0
 
 # --- SEVİYE BİTİRME KONTROLÜ ---
 var suanki_puan: int = 0
@@ -106,6 +108,7 @@ func level_baslat(hp: int):
 	grid_tamamlandi = false
 	boss_oldu_durumu = false
 	seviye_bitti_islem_yapildi = false
+	cuts_in_current_layer = 0 # Her katman başında sıfırla
 	print("📊 Level Başlatıldı: Hedef Puan = %d" % hedef_puan)
 
 func puan_ekle(miktar: int):
@@ -437,6 +440,10 @@ func verileri_sifirla():
 	limbs_eaten_this_round = 0
 	mide_kapasite = get_stomach_capacity()
 	gore_intensity = 0.0
+	total_fingers_cut = 0
+	cuts_in_current_layer = 0
+	if GlobalHealthManager:
+		GlobalHealthManager.permanent_max_hp_reduction = 0.0
 	
 	_arayuz_guncelle()
 
@@ -516,6 +523,7 @@ func oyunu_kaydet():
 	config.set_value("Oyuncu", "ShotgunMermi", shotgun_mermi_count)
 	config.set_value("Oyuncu", "PyroAktif", pyro_aktif)
 	config.set_value("Oyuncu", "GoreIntensity", gore_intensity)
+	config.set_value("Oyuncu", "TotalFingersCut", total_fingers_cut)
 	
 	config.set_value("Bufflar", "PuanCarpani", puan_carpani)
 	config.set_value("Bufflar", "ReviveAktif", revive_aktif)
@@ -565,6 +573,11 @@ func oyunu_yukle():
 		shotgun_mermi_count = config.get_value("Oyuncu", "ShotgunMermi", 0)
 		pyro_aktif = config.get_value("Oyuncu", "PyroAktif", false)
 		gore_intensity = config.get_value("Oyuncu", "GoreIntensity", 0.0)
+		total_fingers_cut = config.get_value("Oyuncu", "TotalFingersCut", 0)
+		
+		# GlobalHealthManager'ı senkronize et
+		if GlobalHealthManager:
+			GlobalHealthManager.permanent_max_hp_reduction = total_fingers_cut * 3.0
 		
 		puan_carpani = config.get_value("Bufflar", "PuanCarpani", 1.0)
 		revive_aktif = config.get_value("Bufflar", "ReviveAktif", false)

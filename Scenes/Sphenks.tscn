@@ -1,4 +1,4 @@
-[gd_scene load_steps=125 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=127 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Assets/Models/Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://Scripts/sphenks.gd" id="2_fi7dh"]
@@ -76,6 +76,7 @@
 [ext_resource type="PackedScene" uid="uid://dug3wqkbh4f1l" path="res://bullet_box/scene.gltf" id="82_w1heq"]
 [ext_resource type="PackedScene" uid="uid://ddv50bgy21hgj" path="res://torch/scene.gltf" id="84_elmnc"]
 [ext_resource type="Script" uid="uid://ci7b52idx0w08" path="res://Scripts/BulletBox.gd" id="85"]
+[ext_resource type="PackedScene" uid="uid://3yhptj5hevxh" path="res://keychain/scene.gltf" id="87_hyugx"]
 [ext_resource type="Script" uid="uid://chuv2uyii3n14" path="res://Scripts/AcidBoss.gd" id="94_acid"]
 [ext_resource type="PackedScene" uid="uid://cx6msh67nsv5" path="res://acid_boss/AcidBoss_Model.tscn" id="95_acid_model"]
 [ext_resource type="Script" uid="uid://ccipx45kolsv8" path="res://Scripts/StoneBoss.gd" id="96_stone"]
@@ -216,6 +217,9 @@ albedo_texture = ExtResource("5_jl7q8")
 albedo_texture_force_srgb = true
 emission_enabled = true
 uv1_triplanar = true
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_c6yh4"]
+size = Vector3(1, 1, 0.87597656)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oaawk"]
 albedo_texture = ExtResource("5_jl7q8")
@@ -844,12 +848,25 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6266735, -0.6419221, -4.879
 hedef_tipi = 3
 kapi_isigi = NodePath("../../SpotLight3D")
 gecit_efektleri = NodePath("../../MezarOdasi/SabitGecitEfekti")
+kilitli_olsun_mu = true
 
 [node name="Govde" parent="CatalOdasi/KapiCampfire" index="0"]
 transform = Transform3D(1.5, 0, 0, 0, 3, 0, 0, 0, 0.2, -0.75, 0, -0.012796402)
 
 [node name="OnYuz" parent="CatalOdasi/KapiCampfire/Govde" index="0"]
 transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
+
+[node name="CollisionShape3D" parent="CatalOdasi/KapiCampfire/Govde/StaticBody3D" index="0"]
+transform = Transform3D(0.99999964, 0, 0, 0, 0.99999964, 0, 0, 0, 0.9999905, 0, 0, -0.06201172)
+
+[node name="Area3D" type="Area3D" parent="CatalOdasi/KapiCampfire/Govde/StaticBody3D" index="1"]
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="CatalOdasi/KapiCampfire/Govde/StaticBody3D/Area3D" index="0"]
+transform = Transform3D(0.99999964, 0, 0, 0, 0.99999964, 0, 0, 0, 0.99999046, 0, 0, -0.06201172)
+shape = SubResource("BoxShape3D_c6yh4")
+
+[node name="Sketchfab_Scene2" parent="CatalOdasi/KapiCampfire" index="1" instance=ExtResource("87_hyugx")]
+transform = Transform3D(0.28, 0, 0, 0, 0.28, 0, 0, 0, 0.28, -0.7485802, -0.45272958, 0.24867249)
 
 [node name="KapiMarket" parent="CatalOdasi" index="12" node_paths=PackedStringArray("kapi_isigi", "gecit_efektleri") instance=ExtResource("29_kqumn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3873303, -0.6419221, -4.8798866)
@@ -864,9 +881,9 @@ transform = Transform3D(1.5, 0, 0, 0, 3, 0, 0, 0, 0.2, -0.75, 0, -0.012796402)
 transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
 
 [node name="Market" type="CSGBox3D" parent="." index="14" node_paths=PackedStringArray("market_kapisi", "market_ui", "hedef_marketci", "kese_sprite")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2407465, 1.6105278, -32.43347)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.2407465, 1.6105278, -32.683258)
 use_collision = true
-size = Vector3(10, 6, 10)
+size = Vector3(10, 6, 9.500427)
 material = SubResource("StandardMaterial3D_oaawk")
 script = ExtResource("34_kt702")
 market_kapisi = NodePath("../CatalOdasi/KapiMarket")
@@ -1333,7 +1350,7 @@ omni_range = 3.0
 [node name="CollisionShape3D" type="CollisionShape3D" parent="bullet_box/StaticBody3D" index="0"]
 shape = SubResource("BoxShape3D_mermi")
 
-[node name="Sketchfab_Scene" parent="." index="30" instance=ExtResource("84_elmnc")]
+[node name="mesale" parent="." index="30" instance=ExtResource("84_elmnc")]
 transform = Transform3D(-4.3711387e-10, 0, -0.01, 0, 0.01, 0, 0.01, 0, -4.3711387e-10, 3.9294927, 2.2173824, 0.0931136)
 
 [connection signal="input_event" from="Kedi/Y_Kedi" to="Kedi" method="_on_area_3d_input_event"]

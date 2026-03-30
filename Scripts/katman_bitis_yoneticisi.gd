@@ -92,6 +92,16 @@ func _on_boss_oldu_sinyali():
 
 func _kontrol_et():
 	if _bitis_tetiklendi: return
+	
+	# DEBUG
+	print("🔍 KONTROL: Blok=%d, Puan=%d/%d, BossHP=%d" % [blok_sayisi, grid_mevcut_puan, grid_minimum_puan, boss_current_hp])
+
+	# SENARYO 6: Blok bitti, puan yetmedi (Feda veya Ölüm)
+	# ÖNCELİKLİ: Kaynaklar tükendiğinde oyuncuya feda şansı verilmeli.
+	if blok_sayisi == 0 and grid_mevcut_puan < grid_minimum_puan:
+		print("🚨 SENARYO 6 KONDİSYONU SAĞLANDI! Bloklar bitti, puan yetersiz.")
+		_senaryo_uygula(6)
+		return
 
 	# SENARYO 1: Boss öldü, grid tamamlanmadı
 	if not boss_hayatta and grid_mevcut_puan < grid_minimum_puan:
@@ -118,8 +128,16 @@ func _kontrol_et():
 		_senaryo_uygula(5)
 		return
 
+	# SENARYO 6: Blok bitti, puan yetmedi (Feda veya Ölüm)
+	if blok_sayisi == 0 and grid_mevcut_puan < grid_minimum_puan:
+		print("🚨 SENARYO 6 KONDİSYONU SAĞLANDI! Bloklar bitti, puan yetersiz.")
+		_senaryo_uygula(6)
+		return
+
 func _senaryo_uygula(id: int):
 	if _aktif_senaryo == id: return
+	
+	print("🎭 SENARYO UYGULA: %d (Eski: %d)" % [id, _aktif_senaryo])
 	_aktif_senaryo = id
 	
 	print("🎭 KATMAN BİTİŞ: Senaryo %d tetiklendi." % id)
@@ -159,6 +177,12 @@ func _senaryo_uygula(id: int):
 			
 			# Boss kaybolma efekti (Burada varsayılan bir tween veya boss'un kendi metodunu çağırabiliriz)
 			print("🏃 Boss kaçıyor (Yetersiz mermi)...")
+		6:
+			# Blok bitti, puan yetmedi
+			if GameManager.cuts_in_current_layer < 2:
+				_feda_etmeyi_baslat()
+			else:
+				_kan_kaybindan_ol()
 
 # --- YARDIMCI METODLAR (Varsayılan çağrılar) ---
 func kapi_ac():
@@ -175,3 +199,41 @@ func masa_sistemi_durdur():
 	if dagitici:
 		dagitici.set_process(false)
 		dagitici.set_physics_process(false)
+
+func _feda_etmeyi_baslat():
+	print("🖐️ FEDA: Parmak feda etme sekansı başlıyor.")
+	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+	
+	if not oyuncu:
+		print("❌ HATA: Oyuncu bulunamadı! 'Oyuncu' grubunda node var mı kontrol et.")
+		return
+		
+	if not oyuncu.has_method("sacrificial_interact"):
+		print("❌ HATA: Oyuncu scriptinde 'sacrificial_interact' metodu yok!")
+		return
+		
+	print("✅ Oyuncu bulundu, feda sekansı tetikleniyor.")
+	# Senaryoyu sıfırla ki bir sonraki blok bitince (ödül gelince) tekrar kontrol edilsin
+	_aktif_senaryo = 0 
+	oyuncu.sacrificial_interact(_feda_odulu_ver)
+
+func _feda_odulu_ver():
+	var dagitici = _find_dagitici()
+	if dagitici and dagitici.has_method("spawn_void_cubuk"):
+		dagitici.spawn_void_cubuk()
+		# Oyuncu tekrar otursun
+		var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+		if oyuncu and oyuncu.has_method("sit_on_stool"):
+			# En yakındaki tabureyi bulup oturtabiliriz veya son tabureyi
+			# Şimdilik serbest bırakıyoruz, oyuncu etkileşime girip oturabilir.
+			# Aslında otomatik oturması daha akıcı olur.
+			var stool = get_tree().get_first_node_in_group("Stool") # Varsa
+			if stool: oyuncu.sit_on_stool(stool)
+
+func _kan_kaybindan_ol():
+	print("🩸 ÖLÜM: Kan kaybından oyuncu ölüyor.")
+	_bitis_tetiklendi = true
+	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+	if oyuncu and oyuncu.has_method("hasar_al"):
+		# Kalıcı olarak öldür (Çok yüksek hasar)
+		oyuncu.hasar_al(100)
