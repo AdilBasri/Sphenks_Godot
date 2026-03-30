@@ -8,6 +8,13 @@ var intro_sahnesi_yolu = "res://Scenes/intro_sahnesi.tscn" # Otobüs Sahnesi
 func _ready():
 	print("Ana Menü Açıldı.")
 	
+	# Mouse'u görünür yap
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	
+	# Tutorial'ı temizle (Eğer yarım kalmışsa)
+	if TutorialManager:
+		TutorialManager.hide_tutorial()
+	
 	# 1. ADIM: Sadece intro durumunu kontrol et (oyun state'i her açılışta sıfır)
 	GameManager._intro_durumu_yukle()
 	print("Menü Yüklendi. Intro Bitti mi: ", GameManager.intro_tamamlandi)

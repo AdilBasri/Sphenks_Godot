@@ -173,6 +173,15 @@ func _ready():
 	process_mode = PROCESS_MODE_ALWAYS # UI durakaltılmadan çalışacak
 	hide_tutorial()
 	
+	# Mouse fix: Tutorial panelinin arkadaki nesnelere tıklamayı engellemesini önle
+	_mouse_filtresi_temizle(self)
+	
+func _mouse_filtresi_temizle(node: Node):
+	if node is Control:
+		node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for child in node.get_children():
+		_mouse_filtresi_temizle(child)
+	
 	if GameManager:
 		if not GameManager.blok_yerlestirildi.is_connected(_on_blok_yerlestirildi):
 			GameManager.blok_yerlestirildi.connect(_on_blok_yerlestirildi)
@@ -218,6 +227,7 @@ func start_tutorial_segment(segment_name: String):
 
 func hide_tutorial():
 	visible = false
+	tutorial_aktif = false
 	if get_tree(): get_tree().paused = false
 
 func _show_step(adim: int):
