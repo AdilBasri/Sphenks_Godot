@@ -361,16 +361,20 @@ func _sahne_bitis_animasyonu() -> void:
 		_disable_all_collisions(masa_objesi)
 		tween.tween_property(masa_objesi, "position:y", -10.0, 4.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	
-	# TÜM DÜŞMANLARI EKSTRA GÜVENLİK İÇİN TEMİZLE (Kalan yancılar olabilir)
-	var boss_list = get_tree().get_nodes_in_group("Dusman")
-	for b in boss_list:
-		if is_instance_valid(b) and b != boss_objesi:
-			b.queue_free()
+	# DÜŞMAN TEMİZLİĞİ: Sadece boss mermi yetersizliğiyle kaçıyorsa veya öldüyse minions'ları temizle
+	if not (mermi_yeterli and boss_yasiyor):
+		var boss_list = get_tree().get_nodes_in_group("Dusman")
+		for b in boss_list:
+			if is_instance_valid(b) and b != boss_objesi:
+				b.queue_free()
 
 	tween.chain().tween_callback(func(): 
 		if is_instance_valid(boss_objesi): 
 			if not (mermi_yeterli and boss_yasiyor):
 				boss_objesi.visible = false
+				print("👋 BlokDagiticisi: Boss kaçıyor/öldü, gizlendi.")
+			else:
+				print("⚔️ BlokDagiticisi: Boss Fight aktif, boss korunuyor.")
 		if is_instance_valid(masa_objesi): masa_objesi.queue_free()
 		if grid and grid.has_method("engelleri_temizle"):
 			grid.engelleri_temizle()

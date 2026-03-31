@@ -222,21 +222,28 @@ func _seviye_bitis_kontrolu(force: bool = false):
 	# KRİTİK: Masa kalkıyor!
 	seviye_bitti_islem_yapildi = true
 	
-	if yasayan_boss_var and not mermi_yeterli:
-		# Mermi yetersizse boss carry-over olur ve kaybolur
-		print("🏃 Mermi yetersiz! Boss kaçıyor.")
-		_bosslari_carry_over_yap()
-		# Boss'u sahnede gizle (veya animasyonunu oynat)
-		for b in bosslar:
-			if is_instance_valid(b) and not b.get("oldu_mu"):
-				if b.has_method("kacis_baslat"): b.kacis_baslat()
-				else: b.visible = false
-		
-		# Kapıyı aç (mermi yoksa boss kaçtı, geçiş serbest)
-		_kapiyi_ac_gercek()
-	
-	elif not yasayan_boss_var:
-		# Boss öldüyse zaten kapıyı aç
+	if yasayan_boss_var:
+		if not mermi_yeterli:
+			# Mermi yetersizse boss carry-over olur ve kaybolur
+			print("🏃 Mermi yetersiz! Boss kaçıyor.")
+			_bosslari_carry_over_yap()
+			# Boss'u sahnede gizle (veya animasyonunu oynat)
+			for b in bosslar:
+				if is_instance_valid(b) and not b.get("oldu_mu"):
+					if b.has_method("kacis_baslat"): b.kacis_baslat()
+					else: b.visible = false
+			
+			# Kapıyı aç (mermi yoksa boss kaçtı, geçiş serbest)
+			_kapiyi_ac_gercek()
+		else:
+			# Mermi var ve boss yaşıyor (özellikle force true iken buraya gireriz)
+			print("🔫 GameManager: Masa kalktı, oyuncunun mermisi var. BOSS FIGHT BAŞLIYOR!")
+			# UI'da "Boss'u Öldür" uyarısı göster (Garantile)
+			var arayuz = get_tree().get_first_node_in_group("Arayuz")
+			if arayuz and arayuz.has_method("bilgi_goster"):
+				arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KILL THE BOSS", 5.0)
+	else:
+		# Boss zaten öldüyse kapıyı aç
 		_kapiyi_ac_gercek()
 
 	print("🏁 SEVİYE TAMAMLANDI: Masa sistemi kaldırılıyor. (Force: %s)" % str(force))
