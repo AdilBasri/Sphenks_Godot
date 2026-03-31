@@ -1,4 +1,4 @@
-[gd_scene load_steps=135 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=138 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://b1abmwu2tkjli" path="res://Assets/Models/Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://Scripts/sphenks.gd" id="2_fi7dh"]
@@ -76,11 +76,12 @@
 [ext_resource type="PackedScene" uid="uid://dug3wqkbh4f1l" path="res://bullet_box/scene.gltf" id="82_w1heq"]
 [ext_resource type="PackedScene" uid="uid://ddv50bgy21hgj" path="res://torch/scene.gltf" id="84_elmnc"]
 [ext_resource type="Script" uid="uid://ci7b52idx0w08" path="res://Scripts/BulletBox.gd" id="85"]
-[ext_resource type="PackedScene" uid="uid://3yhptj5hevxh" path="res://keychain/scene.gltf" id="87_hyugx"]
-[ext_resource type="PackedScene" uid="uid://dnj3w1ekuh78m" path="res://tv/scene.gltf" id="88_dqfbe"]
-[ext_resource type="VideoStream" uid="uid://cwtiydyjp55yl" path="res://tv/anubis.ogv" id="90_t6fha"]
-[ext_resource type="PackedScene" uid="uid://bdjcmjijoleqp" path="res://cable1/scene.gltf" id="91_t6fha"]
-[ext_resource type="PackedScene" uid="uid://dwcvgb3hhjjd2" path="res://cable2/scene.gltf" id="92_fjuk8"]
+[ext_resource type="PackedScene" uid="uid://b5p6ms5shc8yt" path="res://keychain/scene.gltf" id="87_hyugx"]
+[ext_resource type="PackedScene" uid="uid://b33n8j7p1by8c" path="res://tv/scene.gltf" id="88_dqfbe"]
+[ext_resource type="VideoStream" path="res://tv/anubis.ogv" id="90_t6fha"]
+[ext_resource type="PackedScene" uid="uid://ba48h6logdmao" path="res://cable1/scene.gltf" id="91_t6fha"]
+[ext_resource type="PackedScene" uid="uid://c7ncthjjxkn1a" path="res://cable2/scene.gltf" id="92_fjuk8"]
+[ext_resource type="PackedScene" uid="uid://d3f58iwdkve87" path="res://unlem/scene.gltf" id="93_fjuk8"]
 [ext_resource type="Script" uid="uid://chuv2uyii3n14" path="res://Scripts/AcidBoss.gd" id="94_acid"]
 [ext_resource type="PackedScene" uid="uid://cx6msh67nsv5" path="res://acid_boss/AcidBoss_Model.tscn" id="95_acid_model"]
 [ext_resource type="Script" uid="uid://ccipx45kolsv8" path="res://Scripts/StoneBoss.gd" id="96_stone"]
@@ -307,6 +308,12 @@ viewport_path = NodePath("tvmasa/tv/SubViewport")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_fx2yl"]
 size = Vector3(1.8515625, 4.0689087, 3.4038696)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_17n3w"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6ry63"]
+albedo_color = Color(1, 0, 0, 1)
 
 [node name="Meshy_AI__0118084653_texture" instance=ExtResource("1_1eqvi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.031485796, 0, 0)
@@ -1407,6 +1414,7 @@ expand = true
 [node name="StaticBody3D" type="StaticBody3D" parent="tvmasa/tv" index="3" groups=["Etkilesim"]]
 transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0, 0, 0)
 script = ExtResource("anubis_tv_gd")
+interaction_text = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="tvmasa/tv/StaticBody3D" index="0"]
 transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 0.17031217, 0.121032745, 0.053649664)
@@ -1428,8 +1436,18 @@ omni_attenuation = 0.5
 [node name="cable1" parent="." index="32" instance=ExtResource("91_t6fha")]
 transform = Transform3D(0.035973635, -0.010792608, 0.0706358, 0.022988841, 0.0766258, 0, -0.06765656, 0.02029794, 0.03755773, -3.5027106, -0.07561803, 3.2438216)
 
-[node name="Sketchfab_Scene" parent="." index="33" instance=ExtResource("92_fjuk8")]
+[node name="cable2" parent="." index="33" instance=ExtResource("92_fjuk8")]
 transform = Transform3D(-0.24783798, -0.1628276, 0.74300975, 0.23123083, -0.76060015, -0.08955321, 0.7246437, 0.18701513, 0.28269544, -1.4457703, 1.4697142, 1.0190859)
+
+[node name="unlem" parent="." index="34" instance=ExtResource("93_fjuk8")]
+transform = Transform3D(-0.11740989, 0, 0.48601937, 0, 0.5, 0, -0.48601937, 0, -0.11740989, -3.0212405, 0.34356284, 2.6167347)
+visible = false
+
+[node name="Object_7" parent="unlem/Sketchfab_model/root/GLTF_SceneRootNode/exclaim-mark_rig_6/b_spine_5/b_dot_2/obj_exclaim-dot_1" index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_17n3w")
+
+[node name="Object_10" parent="unlem/Sketchfab_model/root/GLTF_SceneRootNode/exclaim-mark_rig_6/b_spine_5/b_line_4/obj_exclaim-line_3" index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_6ry63")
 
 [connection signal="input_event" from="Kedi/Y_Kedi" to="Kedi" method="_on_area_3d_input_event"]
 
@@ -1450,3 +1468,4 @@ transform = Transform3D(-0.24783798, -0.1628276, 0.74300975, 0.23123083, -0.7606
 [editable path="Campfire_room/KapiSistemi3"]
 [editable path="OyunArayuzu"]
 [editable path="tvmasa/tv"]
+[editable path="unlem"]

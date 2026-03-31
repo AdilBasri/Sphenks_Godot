@@ -4,8 +4,10 @@ extends StaticBody3D
 
 @onready var video_player: VideoStreamPlayer = get_parent().get_node("SubViewport/VideoStreamPlayer")
 @onready var video_sprite: Sprite3D = get_parent().get_node("Sprite3D")
+@onready var unlem: Node3D = get_tree().current_scene.find_child("unlem", true, false)
 
 var is_playing: bool = false
+var current_video_path: String = "res://tv/anubis.ogv"
 var subtitle_label: RichTextLabel = null
 var subtitle_canvas: CanvasLayer = null
 
@@ -19,6 +21,26 @@ func _ready():
 	
 	if video_sprite:
 		video_sprite.visible = false
+		
+	# --- ÜNLEM KONTROLÜ ---
+	if unlem:
+		var hazir = GameManager.is_new_video_available if GameManager else true
+		unlem.visible = hazir
+		print("📺 TV: Unlem Durumu = ", hazir)
+		# Her şeyin üzerinde çizilmesi için material override (No Depth Test)
+		_unlem_shader_ayarla(unlem)
+	else:
+		print("⚠️ TV: 'unlem' objesi bulunamadi!")
+
+func _unlem_shader_ayarla(node: Node):
+	if not is_instance_valid(node): return
+	if node is MeshInstance3D:
+		var mat = node.get_active_material(0)
+		if mat and mat is StandardMaterial3D:
+			mat.no_depth_test = true
+			mat.render_priority = 100
+	for child in node.get_children():
+		_unlem_shader_ayarla(child)
 
 func get_etkilesim_yazisi() -> String:
 	if is_playing:
@@ -27,12 +49,40 @@ func get_etkilesim_yazisi() -> String:
 
 func interact(_player = null):
 	if is_playing: return
+	
+	if GameManager:
+		# Eğer yeni video varsa, indexi artır ve durumu kaydet
+		if GameManager.is_new_video_available:
+			# Eğer daha önce hiç izlenmemişse Anubis (0) kalır, yoksa bir sonrakine geçer
+			if GameManager.last_video_watched_layer != -1:
+				GameManager.current_video_index = clampi(GameManager.current_video_index + 1, 0, 2)
+			
+			GameManager.last_video_watched_layer = GameManager.suanki_seviye
+			GameManager.is_new_video_available = false
+			print("📺 TV: Yeni video baslatiliyor. Index: ", GameManager.current_video_index)
+	
+	# Ünlemi gizle
+	if unlem: unlem.visible = false
+	
 	is_playing = true
 	
+	# Doğru videoyu yükle
+	var v_index = GameManager.current_video_index if GameManager else 0
+	var v_name = "anubis.ogv"
+	if v_index == 1: v_name = "ktm2.ogv"
+	elif v_index == 2: v_name = "ktm3.ogv"
+	
+	var v_path = "res://tv/" + v_name
 	if video_player:
-		if video_sprite: video_sprite.visible = true
-		video_player.play()
-		start_subtitles()
+		var stream = load(v_path)
+		if stream:
+			video_player.stream = stream
+			if video_sprite: video_sprite.visible = true
+			video_player.play()
+			start_subtitles()
+		else:
+			print("HATA: Video dosyasi bulunamadi: ", v_path)
+			is_playing = false
 
 func _on_video_finished():
 	is_playing = false
@@ -70,24 +120,45 @@ func start_subtitles():
 	_run_subtitle_sequence()
 
 func _run_subtitle_sequence():
-	show_subtitle("anubis_subtitles_1", 1.8)
-	await get_tree().create_timer(1.8).timeout
-	if not is_playing: return
+	var v_index = GameManager.current_video_index if GameManager else 0
 	
-	show_subtitle("anubis_subtitles_2", 3.2) # 5.0 - 1.8
-	await get_tree().create_timer(3.2).timeout
-	if not is_playing: return
-	
-	show_subtitle("anubis_subtitles_3", 3.5) # 8.5 - 5.0
-	await get_tree().create_timer(3.5).timeout
-	if not is_playing: return
-	
-	show_subtitle("anubis_subtitles_4", 3.5) # 12.0 - 8.5
-	await get_tree().create_timer(3.5).timeout
-	if not is_playing: return
-	
-	show_subtitle("anubis_subtitles_5", 5.0) # 17.0 - 12.0
-	await get_tree().create_timer(5.0).timeout
+	match v_index:
+		0: # anubis.ogv (17s approx)
+			show_subtitle("anubis_subtitles_1", 1.8)
+			await get_tree().create_timer(1.8).timeout
+			if not is_playing: return
+			show_subtitle("anubis_subtitles_2", 3.2)
+			await get_tree().create_timer(3.2).timeout
+			if not is_playing: return
+			show_subtitle("anubis_subtitles_3", 3.5)
+			await get_tree().create_timer(3.5).timeout
+			if not is_playing: return
+			show_subtitle("anubis_subtitles_4", 3.5)
+			await get_tree().create_timer(3.5).timeout
+			if not is_playing: return
+			show_subtitle("anubis_subtitles_5", 5.0)
+		1: # ktm2.ogv (14s)
+			show_subtitle("ktm2_sub_1", 4.0)
+			await get_tree().create_timer(4.0).timeout
+			if not is_playing: return
+			show_subtitle("ktm2_sub_2", 3.0)
+			await get_tree().create_timer(3.0).timeout
+			if not is_playing: return
+			show_subtitle("ktm2_sub_3", 3.0)
+			await get_tree().create_timer(3.0).timeout
+			if not is_playing: return
+			show_subtitle("ktm2_sub_4", 4.0)
+		2: # ktm3.ogv (20s)
+			show_subtitle("ktm3_sub_1", 4.0)
+			await get_tree().create_timer(4.0).timeout
+			if not is_playing: return
+			show_subtitle("ktm3_sub_2", 4.0)
+			await get_tree().create_timer(4.0).timeout
+			if not is_playing: return
+			show_subtitle("ktm3_sub_3", 4.0)
+			await get_tree().create_timer(4.0).timeout
+			if not is_playing: return
+			show_subtitle("ktm3_sub_4", 8.0)
 
 func show_subtitle(key: String, duration: float):
 	if not is_instance_valid(subtitle_label): return

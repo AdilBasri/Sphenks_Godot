@@ -45,8 +45,14 @@ var max_totem_sayisi = 5
 var puan_carpani: float = 1.0
 var revive_aktif: bool = false
 var zar_atlama_hakki: int = 0 
+var mouse_hassasiyeti: float = 0.05
 var zar_yok_sayma: bool = false
 var pyro_yavaslatma: bool = false
+
+# --- TV VIDEO PROGRESSION ---
+var current_video_index: int = 0      # 0: anubis, 1: ktm2, 2: ktm3
+var last_video_watched_layer: int = -1 # En son izlenen VİDEONUN katmanı (ilk izleme)
+var is_new_video_available: bool = true # Ünlem işaretini kontrol eder
 var yarasa_bonusu: bool = false
 var mantar_modu: bool = false
 var tek_zar_modu: bool = false
@@ -109,7 +115,21 @@ func level_baslat(hp: int):
 	boss_oldu_durumu = false
 	seviye_bitti_islem_yapildi = false
 	cuts_in_current_layer = 0 # Her katman başında sıfırla
+	
+	# TV Video Kontrolü (Sadece Sphenks katmanlarında)
+	if not pyro_aktif:
+		_video_kilit_kontrolu()
+		
 	print("📊 Level Başlatıldı: Hedef Puan = %d" % hedef_puan)
+
+func _video_kilit_kontrolu():
+	# Eğer video izlenmişse ve üzerinden 2 katman geçmişse yeni video ver
+	if last_video_watched_layer != -1:
+		var katman_farki = suanki_seviye - last_video_watched_layer
+		if katman_farki >= 2 and current_video_index < 2:
+			if not is_new_video_available:
+				is_new_video_available = true
+				print("📺 TV: Yeni video (ktm%d) hazir!" % (current_video_index + 2))
 
 func puan_ekle(miktar: int):
 	"""GridYoneticisi'nden gelen puanları toplar ve hedefi kontrol eder."""

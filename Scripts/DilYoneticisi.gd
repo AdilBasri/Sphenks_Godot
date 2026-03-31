@@ -712,6 +712,38 @@ var ceviriler = {
 	"anubis_subtitles_5": {
 		"tr": "böylece ikimiz için de ebedi hayatı toplayabiliriz!",
 		"en": "so we can gather eternal life for both of us!"
+	},
+	"ktm2_sub_1": {
+		"tr": "Büyük Meclis tarafından çağrıldın ölümlü!",
+		"en": "You're summoned by Great Assembly mortal!"
+	},
+	"ktm2_sub_2": {
+		"tr": "Davetin bir rica değil, bir fermandı!",
+		"en": "Your invitation not a request, it was a decree!"
+	},
+	"ktm2_sub_3": {
+		"tr": "Kendini şu donuk, boş hayatından kopar!",
+		"en": "Tear your self away from your dull hollow life!"
+	},
+	"ktm2_sub_4": {
+		"tr": "Burada her nefes hakedilir ve her kalp atışının bir bedeli vardır!",
+		"en": "In here, every breath is earned and every heartbeat has a price!"
+	},
+	"ktm3_sub_1": {
+		"tr": "Öğüt onları ölümlü! Anıların, evin...",
+		"en": "Grind them mortal! Your memories, your home..."
+	},
+	"ktm3_sub_2": {
+		"tr": "Onlar Sphenks'in dişlileri arasında tozdan başka bir şey değil!",
+		"en": "They are nothing but dust in the gears of Sphenks!"
+	},
+	"ktm3_sub_3": {
+		"tr": "Işığı geride bırak! Artık bir insan değilsin.",
+		"en": "Leave the light behind! You're no longer a person."
+	},
+	"ktm3_sub_4": {
+		"tr": "Başlayan bu oyunda sadece bir piyonsun!",
+		"en": "You're a pawn in the game that started!"
 	}
 }
 
