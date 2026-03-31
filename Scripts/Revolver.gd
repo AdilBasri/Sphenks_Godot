@@ -144,6 +144,11 @@ func _input(event):
 		var markette_mi = market and market.get("iceride_mi") == true
 		if (oyuncu_ref and oyuncu_ref.get("is_sitting") == true) or markette_mi:
 			return
+		
+		# --- YENİ: ÖZEL EŞYA VARSA SİLAH ÇEKME (SAĞ TIK ÖNCELİĞİ) ---
+		if oyuncu_ref and oyuncu_ref.get("eldeki_ozel_esya") != null:
+			return
+
 		_silah_durumunu_degistir()
 	
 	if GameManager.silah_cekildi and event.is_action_pressed("ates_et") and not islem_mesgul:

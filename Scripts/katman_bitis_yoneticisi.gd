@@ -96,6 +96,12 @@ func _kontrol_et():
 	# DEBUG
 	print("🔍 KONTROL: Blok=%d, Puan=%d/%d, BossHP=%d" % [blok_sayisi, grid_mevcut_puan, grid_minimum_puan, boss_current_hp])
 
+	# SENARYO 7: 1.5x PUAN Victory (Override - Puan çok iyi, masa hemen kalkar)
+	if grid_mevcut_puan >= (grid_minimum_puan * 1.5):
+		print("🏆 SENARYO 7 KONDİSYONU SAĞLANDI! 1.5x Puan aşıldı.")
+		_senaryo_uygula(7)
+		return
+
 	# SENARYO 6: Blok bitti, puan yetmedi (Feda veya Ölüm)
 	# ÖNCELİKLİ: Kaynaklar tükendiğinde oyuncuya feda şansı verilmeli.
 	if blok_sayisi == 0 and grid_mevcut_puan < grid_minimum_puan:
@@ -175,6 +181,9 @@ func _senaryo_uygula(id: int):
 				# Boss tipini GameManager'dan veya mevcut boss'tan almalıyız
 				BossManager.carry_over_ekle(0, boss_current_hp)
 			
+			# Masa sistemini kaldır
+			masa_sistemi_tween_kaybol()
+			
 			# Boss kaybolma efekti (Burada varsayılan bir tween veya boss'un kendi metodunu çağırabiliriz)
 			print("🏃 Boss kaçıyor (Yetersiz mermi)...")
 		6:
@@ -183,6 +192,28 @@ func _senaryo_uygula(id: int):
 				_feda_etmeyi_baslat()
 			else:
 				_kan_kaybindan_ol()
+		7:
+			# 1.5x Puan Victory
+			_bitis_tetiklendi = true
+			
+			# Boss bekleme/kaçış mantığı GameManager'daki gibi:
+			var mermi_yeterli = (revolver_mermi + shotgun_mermi) >= boss_current_hp
+			
+			if boss_hayatta and mermi_yeterli:
+				# Mermi varsa bekle, ama masayı kaldır
+				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				if arayuz and arayuz.has_method("bilgi_goster"):
+					arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KILL THE BOSS", 4.0)
+			else:
+				# Mermi yoksa boss kaçsın
+				if boss_hayatta:
+					if BossManager and BossManager.has_method("carry_over_ekle"):
+						BossManager.carry_over_ekle(0, boss_current_hp)
+				
+				if has_method("kapi_ac"): call("kapi_ac")
+				
+			masa_sistemi_tween_kaybol()
+			print("🏆 1.5x Victory! Masa kaldırıldı.")
 
 # --- YARDIMCI METODLAR (Varsayılan çağrılar) ---
 func kapi_ac():

@@ -2045,6 +2045,11 @@ func stand_up(forced: bool = false):
 	mouse_serbest_modu = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	
+	# --- YENİ: KAMERA PITCH (BAKIŞ AÇISI) RESET ---
+	if looker:
+		looker.x_rotation = 0.0
+		if kamera: kamera.rotation.x = 0.0
+	
 	if kamera:
 		kamera.make_current()
 	
@@ -2069,8 +2074,14 @@ func stand_up(forced: bool = false):
 			spawner.sag_tarafta_mi = false
 	
 	# Kamerayı eski yerine (veya çıkış noktasına) taşı
-	if current_stool and is_instance_valid(current_stool) and current_stool.exit_position_marker:
-		var exit_pos = current_stool.exit_position_marker.global_position
+	# KRİTİK FİX: Eğer masa yerin altına gidiyorsa marker'ı kullanma, start_pos'a git.
+	var exit_pos = Vector3.ZERO
+	if LevelManager and LevelManager.start_pos != Vector3.ZERO:
+		exit_pos = LevelManager.start_pos
+	elif current_stool and is_instance_valid(current_stool) and current_stool.exit_position_marker:
+		exit_pos = current_stool.exit_position_marker.global_position
+
+	if exit_pos != Vector3.ZERO:
 		velocity = Vector3.ZERO
 		global_position = exit_pos + Vector3(0, 0.5, 0)
 

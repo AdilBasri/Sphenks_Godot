@@ -39,7 +39,9 @@ func _ready() -> void:
 	if GameManager:
 		if not GameManager.mermi_degisti.is_connected(_on_mermi_degisti_kontrol):
 			GameManager.mermi_degisti.connect(_on_mermi_degisti_kontrol)
-		# GameManager.boss_oldu bağlantısı kaldırıldı — her boss bağımsız ölmeli
+		
+		if not GameManager.seviye_tamamlandi.is_connected(_sahne_bitis_animasyonu):
+			GameManager.seviye_tamamlandi.connect(_sahne_bitis_animasyonu)
 
 func _on_mermi_degisti_kontrol(yeni_sayi: int) -> void:
 	# Eğer mermi 0 olduysa 1.2 saniye bekle (merminin hedefe ulaşması için)
@@ -179,10 +181,10 @@ func _stoktan_yeni_parti_ver() -> void:
 		print("--- HATA: Blok Sahneleri Bos! ---")
 		return
 
-	# Bütün katmanlarda sonsuz blok sağla (User Request)
-	if LevelManager:
-		if not boss_oldu_mu and kalan_stok <= 5:
-			kalan_stok += 999
+	# Bütün katmanlarda sonsuz blok sağla (User Request) - KALDIRILDI
+	# if LevelManager:
+	# 	if not boss_oldu_mu and kalan_stok <= 5:
+	# 		kalan_stok += 999
 	
 	if kalan_stok <= 0 and masadaki_aktif_bloklar <= 0:
 		emit_signal("stok_bitti")
@@ -244,9 +246,9 @@ func _tur_sonu_hesaplamasi() -> void:
 	# Sadece kritik GAME OVER durumlarını burada tutuyoruz (Skor yetmezse ve kaynak yoksa)
 	
 	if (kalan_stok <= 0 and masadaki_aktif_bloklar <= 0):
-		# ESKİ MANTIK: Mermi/Skor kontrolü burada yapılıyordu ve oyun bitiriliyordu.
-		# YENİ MANTIK: Bütün bitiş senaryoları KatmanBitisYoneticisi tarafından yönetilmeli.
-		# Burada sadece log basıp yöneticiyi bekliyoruz.
+		# YENİ MANTIK: Mermi/Skor kontrolü KatmanBitisYoneticisi veya GameManager tarafından yapılacak.
+		# Eğer durum vahimse (puan az, mermi yok, blok bitti) GameManager bitiş tetiklemezse
+		# burada manuel tetikleyebiliriz veya KatmanBitisYoneticisi'ni bekleyebiliriz.
 		print("📦 Kaynaklar tükendi, bitiş yöneticisi kontrol ediyor...")
 
 	# KatmanBitisYoneticisi'ne haber ver (Genel kontrol için)
@@ -310,6 +312,7 @@ func _sahne_bitis_animasyonu() -> void:
 	var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
 	if oyuncu and oyuncu.has_method("stand_up"):
 		oyuncu.stand_up(true) # Direkt ve zorunlu kaldır
+		await get_tree().process_frame # Teleportasyonun tamamlanması için bekle
 		
 	if LevelManager:
 		LevelManager.is_boss_acting = false
@@ -331,11 +334,18 @@ func _sahne_bitis_animasyonu() -> void:
 		
 	var mermi_yeterli = (toplam_mermi >= boss_hp)
 	
+	# OYUNCUYU TABUREDEN KALDIR (KRİTİK)
+	if oyuncu and oyuncu.has_method("stand_up"):
+		oyuncu.stand_up()
+	
 	if mermi_yeterli and boss_yasiyor:
 		var arayuz = get_tree().get_first_node_in_group("Arayuz")
 		if arayuz and arayuz.has_method("bilgi_goster"):
-			arayuz.bilgi_goster(DilYoneticisi.metin_al("boss_u_oldur") if DilYoneticisi else "Boss'u öldür!", 5.0)
+			# DilYoneticisi'nden "kill_the_boss" çek
+			var msg = DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KILL THE BOSS"
+			arayuz.bilgi_goster(msg, 5.0)
 	else:
+		# Mermi yoksa boss zaten GameManager tarafından carry-over yapıldı
 		var kapi = kapi_sistemi
 		if not is_instance_valid(kapi):
 			kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)

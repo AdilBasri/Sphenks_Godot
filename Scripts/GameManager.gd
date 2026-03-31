@@ -120,6 +120,11 @@ func puan_ekle(miktar: int):
 		print("✅ HEDEF PUAN AŞILDI! (%d/%d)" % [suanki_puan, hedef_puan])
 		_kapi_kontrol()
 	
+	# --- YENİ: 1.5 KAT PUAN KONTROLÜ ---
+	if suanki_puan >= (hedef_puan * 1.5) and not seviye_bitti_islem_yapildi:
+		print("🔥 1.5 KAT PUAN LIMITI ASILDI! Otomatik bitiş tetikleniyor.")
+		_seviye_bitis_kontrolu(true) # Force end
+	
 	emit_signal("puan_degisti", suanki_puan)
 
 func boss_oldu_tetiklendi():
@@ -153,6 +158,11 @@ func _kapi_kontrol():
 		# EĞER MERMİ YETERLİYSE VE BOSS YAŞIYORSA, KAPIYI AÇMA! Bekle...
 		if yasayan_boss_var and mermi_yeterli:
 			print("🚪 GameManager: Hedef puana ulaşıldı ancak mermi yeterli ve boss hayatta (Kapı Bekletiliyor).")
+			
+			# UI'da "Boss'u Öldür" uyarısı göster
+			var arayuz = get_tree().get_first_node_in_group("Arayuz")
+			if arayuz and arayuz.has_method("bilgi_goster"):
+				arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KILL THE BOSS", 4.0)
 		else:
 			_kapiyi_ac_gercek()
 			
@@ -163,9 +173,9 @@ func _kapi_kontrol():
 		# Kapı açılmıyor, uyarı gösteriliyor
 		_eksik_puan_uyarisi_goster()
 
-func _seviye_bitis_kontrolu():
+func _seviye_bitis_kontrolu(force: bool = false):
 	"""Masa sisteminin ne zaman kalkacağına karar verir."""
-	if not grid_tamamlandi or seviye_bitti_islem_yapildi:
+	if (not grid_tamamlandi and not force) or seviye_bitti_islem_yapildi:
 		return
 		
 	# Ghost Move sürüyorsa bitene kadar bekle
@@ -173,6 +183,7 @@ func _seviye_bitis_kontrolu():
 		return
 
 	# Eğer boss hayattaysa ve mermi var ise beklet (oyuncu boss'u vurabilsin)
+	# ANCAK: Eğer force true ise (1.5x puan) bekleme, masayı kaldır!
 	var bosslar = get_tree().get_nodes_in_group("Dusman")
 	var yasayan_boss_var = false
 	var toplam_hp = 0
@@ -184,18 +195,31 @@ func _seviye_bitis_kontrolu():
 	var toplam_mermi = mermi_sayisi + shotgun_mermi_count
 	var mermi_yeterli = (toplam_mermi >= toplam_hp)
 	
-	if yasayan_boss_var and mermi_yeterli:
+	if yasayan_boss_var and mermi_yeterli and not force:
 		print("🔫 GameManager: Puan tamam ama boss hayatta ve mermi yeterli. Bekletiliyor...")
 		return
 		
-	# Krıtik: Eğer buraya geldiysek ya mermi bitti ya boss öldü ya da mermi yoktu
+	# KRİTİK: Masa kalkıyor!
 	seviye_bitti_islem_yapildi = true
 	
-	if not boss_oldu_durumu:
-		# Boss hala yaşıyorsa (mermi bittiği için buradayız), boss'u carry-over yap
+	if yasayan_boss_var and not mermi_yeterli:
+		# Mermi yetersizse boss carry-over olur ve kaybolur
+		print("🏃 Mermi yetersiz! Boss kaçıyor.")
 		_bosslari_carry_over_yap()
+		# Boss'u sahnede gizle (veya animasyonunu oynat)
+		for b in bosslar:
+			if is_instance_valid(b) and not b.get("oldu_mu"):
+				if b.has_method("kacis_baslat"): b.kacis_baslat()
+				else: b.visible = false
+		
+		# Kapıyı aç (mermi yoksa boss kaçtı, geçiş serbest)
+		_kapiyi_ac_gercek()
 	
-	print("🏁 SEVİYE TAMAMLANDI: Masa sistemi kaldırılıyor.")
+	elif not yasayan_boss_var:
+		# Boss öldüyse zaten kapıyı aç
+		_kapiyi_ac_gercek()
+
+	print("🏁 SEVİYE TAMAMLANDI: Masa sistemi kaldırılıyor. (Force: %s)" % str(force))
 	emit_signal("seviye_tamamlandi")
 
 func _bosslari_carry_over_yap():
