@@ -571,6 +571,15 @@ func _reset_twin_state(twin: Node):
 		if twin.has_method("boss_durumu_sifirla"):
 			twin.boss_durumu_sifirla()
 
+func kilitleri_ve_bariyerleri_ac():
+	"""Bölüm içindeki tüm bariyerleri ve kilitli alanları açar (Genelde Boss ölümünde çağrılır)."""
+	var bariyerler = get_tree().get_nodes_in_group("Bariyer")
+	for b in bariyerler:
+		if is_instance_valid(b) and b.has_method("bolum_bitti"):
+			b.bolum_bitti()
+	
+	print("🔓 Tüm bölüm kilitleri ve bariyerleri LevelManager tarafından açıldı.")
+
 func _bitis_yoneticisini_kur():
 	if is_instance_valid(bitis_yoneticisi):
 		bitis_yoneticisi.queue_free()

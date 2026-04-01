@@ -16,6 +16,14 @@ func _ready():
 	# Sadece CharacterBody3D olan oyuncu çarpar
 
 func bolum_bitti():
+	# NUCLEAR: Collision'u tamamen etkisizleştir
+	collision_layer = 0
+	collision_mask = 0
+	input_ray_pickable = false
+	process_mode = Node.PROCESS_MODE_DISABLED
+	
 	if has_node("CollisionShape3D"):
 		$CollisionShape3D.set_deferred("disabled", true)
-	print("🛡️ Bariyer açıldı (devre dışı bırakıldı).")
+	
+	visible = false
+	print("🛡️ Bariyer tamamen yok edildi ve devre dışı bırakıldı.")

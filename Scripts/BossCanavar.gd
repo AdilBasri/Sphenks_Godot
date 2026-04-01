@@ -122,8 +122,8 @@ func _ready():
 	else:
 		print("🎲 DİKKAT: Yancı Boss (is_minion=true) için HP korundu: %d" % boss_hp)
 	
-	# Mermi hitbox oluştur
-	_hitbox_olustur()
+	# Mermi hitboxlarını otomatik bul ve grupla (Editor'de elle eklenenler)
+	_mevcut_hitboxlari_yapilandir()
 
 	# 1 saniye sonra oturma sekansını başlat (Sadece görünürse)
 	await get_tree().create_timer(1.0).timeout
@@ -438,12 +438,13 @@ func _on_boss_oldu_sinyali():
 	# 2 — Kamerayı oyuncuya iade et (Grid devam edebilsin)
 	_kamerayi_oyuncuya_ver()
 
-	# 3 — Kilitleri aç (Eğer başka boss yoksa)
+	# 3 — Kilitleri aç ve bariyerleri kaldır (HEMEN)
 	if LevelManager:
 		LevelManager._set_boss_collision(self, false) # Sadece kendimi kapat
-		# NUCLEAR: Hitbox grubunu ve node'unu temizle (Geriye capsule kalmasın)
-		var hb = get_node_or_null("BossHitbox")
-		if hb: hb.queue_free()
+		LevelManager.kilitleri_ve_bariyerleri_ac()     # Tüm bariyerleri kaldır
+		
+		# NUCLEAR: Tüm fiziksel objeleri (Area3D ve CollisionShape3D) tamamen temizle
+		_fiziksel_temizlik_yap()
 		
 		if not _hayatta_boss_var_mi():
 			LevelManager.is_boss_acting = false
@@ -461,20 +462,15 @@ func _on_boss_oldu_sinyali():
 	
 	await get_tree().create_timer(0.1).timeout
 	
-	# 5 — Yerin altına girme (Hızlı ve belirsiz)
+	# 5 — Yerin altına girme (Hızlı ve derin)
 	var tween = create_tween()
-	tween.tween_property(self, "global_position:y", global_position.y - 12.0, 0.8).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	# Sink deep into the ground to clear any remaining bounds
+	tween.tween_property(self, "global_position:y", global_position.y - 30.0, 0.8).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	
 	await tween.finished
 	
 	# 6 — Görünmez yap ve temizle
 	visible = false
-	
-	# Bariyeri sadece grid bittiyse kaldır
-	if GameManager and GameManager.grid_tamamlandi:
-		var bariyer = get_tree().get_first_node_in_group("Bariyer")
-		if bariyer and bariyer.has_method("bolum_bitti"):
-			bariyer.bolum_bitti()
 	
 	# 8 — DİĞER BOSS'LARI MERKEZE ÇEK
 	if LevelManager and LevelManager.has_method("_bosslari_yeniden_konumlandir"):
@@ -482,6 +478,17 @@ func _on_boss_oldu_sinyali():
 		
 	await get_tree().create_timer(1.0).timeout
 	queue_free()
+
+func _fiziksel_temizlik_yap():
+	"""Boss içindeki tüm çarpışma nesnelerini fiziken sahneden siler."""
+	var objects = find_children("*", "CollisionObject3D", true, false)
+	objects.append_array(find_children("*", "CollisionShape3D", true, false))
+	objects.append_array(find_children("*", "Area3D", true, false))
+	
+	for obj in objects:
+		obj.queue_free()
+	
+	print("☢️ Boss fiziksel nesneleri NUCLEAR olarak temizlendi.")
 
 func _kapiyi_otomatik_ac():
 	"""Boss öldüğünde GameManager'a bildirir. Kapı kontrolü orada yapılır."""
@@ -518,30 +525,22 @@ func _hp_ayarla():
 		boss_hp = 2
 	print("🎲 ZAR BOSS HP: %d (Kalıcı)" % boss_hp)
 
-# ==========================================
-# MERMİ HITBOX OLUŞTURMA
-# ==========================================
-
-func _hitbox_olustur():
-	"""Boss'a mermi algılayacak bir Area3D hitbox ekler."""
-	var hitbox = Area3D.new()
-	hitbox.name = "BossHitbox"
-	hitbox.add_to_group("BossHitbox")
-	hitbox.collision_layer = 4  # Mermiyle etkileşim katmanı
-	hitbox.collision_mask = 4   # Mermi katmanını algıla
-	hitbox.monitorable = true
-	hitbox.monitoring = false
-	
-	var col = CollisionShape3D.new()
-	var shape = CapsuleShape3D.new()
-	shape.radius = 1.0
-	shape.height = 3.0
-	col.shape = shape
-	col.position = Vector3(0, 1.2, 0)
-	hitbox.add_child(col)
-	
-	add_child(hitbox)
-	print("🎯 ZAR BOSS hitbox oluşturuldu.")
+func _mevcut_hitboxlari_yapilandir():
+	"""Editor'de sahneye eklenmiş olan Area3D'leri bulur ve mermi etkileşimine hazırlar."""
+	var hitboxes = find_children("*", "Area3D", true, false)
+	for hb in hitboxes:
+		if not hb.is_in_group("BossHitbox"):
+			hb.add_to_group("BossHitbox")
+		
+		# Katmanları zorla ayarla (Layer 4 = Mermi, Layer 8 = Boss)
+		# 136 = (1 << 3) | (1 << 7) -> Layer 4 ve Layer 8
+		hb.collision_layer = 136
+		hb.collision_mask = 136
+		hb.monitorable = true
+		hb.monitoring = false
+		hb.input_ray_pickable = false
+		
+		print("🎯 CANAVAR Sahne hitbox'ı yapılandırıldı: ", hb.name)
 
 # ==========================================
 # MERMİ HASARI ALMA
