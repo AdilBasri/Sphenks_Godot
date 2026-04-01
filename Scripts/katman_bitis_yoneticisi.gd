@@ -101,7 +101,11 @@ func _kontrol_et():
 	print("🔍 KONTROL: Blok=%d, Puan=%d/%d, BossHP=%d" % [blok_sayisi, grid_mevcut_puan, grid_minimum_puan, boss_current_hp])
 
 	# SENARYO 7: 1.5x PUAN Victory (Override - Puan çok iyi, masa hemen kalkar)
-	if grid_mevcut_puan >= (grid_minimum_puan * 1.5):
+	var tutorial_aktif = false
+	if GameManager and GameManager.has_method("is_tutorial_segment_completed"):
+		tutorial_aktif = (GameManager.suanki_seviye == 1 and not GameManager.is_tutorial_segment_completed("base"))
+	
+	if grid_mevcut_puan >= (grid_minimum_puan * 1.5) and not tutorial_aktif:
 		print("🏆 SENARYO 7 KONDİSYONU SAĞLANDI! 1.5x Puan aşıldı.")
 		_senaryo_uygula(7)
 		return
