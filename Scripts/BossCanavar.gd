@@ -441,6 +441,10 @@ func _on_boss_oldu_sinyali():
 	# 3 — Kilitleri aç (Eğer başka boss yoksa)
 	if LevelManager:
 		LevelManager._set_boss_collision(self, false) # Sadece kendimi kapat
+		# NUCLEAR: Hitbox grubunu ve node'unu temizle (Geriye capsule kalmasın)
+		var hb = get_node_or_null("BossHitbox")
+		if hb: hb.queue_free()
+		
 		if not _hayatta_boss_var_mi():
 			LevelManager.is_boss_acting = false
 	

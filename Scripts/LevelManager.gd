@@ -524,34 +524,47 @@ func disable_all_boss_collisions():
 func _set_boss_collision(boss_node: Node, enabled: bool):
 	if not is_instance_valid(boss_node): return
 	
-	# Üst seviye CharacterBody3D veya StaticBody3D ise 
+	# Root node kendisi bir CollisionObject3D mi? (Örn: CharacterBody3D, StaticBody3D, Area3D)
 	if boss_node is CollisionObject3D:
-		if enabled:
-			boss_node.call_deferred("set_collision_layer_value", 8, true) # Boss Layer: 8
-			boss_node.call_deferred("set_collision_mask_value", 8, true)
-		else:
-			# Öldüğünde veya devre dışı kaldığında TÜM katmanları kapat (Yolu tıkamasın)
-			boss_node.set_deferred("collision_layer", 0)
-			boss_node.set_deferred("collision_mask", 0)
+		_apply_collision_state(boss_node, enabled)
 	
-	# Çocuklar arasındaki CollisionShape ve Area'ları bul
-	for child in boss_node.get_children(true):
-		if child is CollisionShape3D:
-			child.set_deferred("disabled", !enabled)
-		elif child is CollisionObject3D:
-			if enabled:
-				child.call_deferred("set_collision_layer_value", 8, true)
-				child.call_deferred("set_collision_mask_value", 8, true)
-			else:
-				child.set_deferred("collision_layer", 0)
-				child.set_deferred("collision_mask", 0)
-		elif child is Area3D:
-			child.set_deferred("monitoring", enabled)
-			child.set_deferred("monitorable", enabled)
+	# Tüm çocukları (recursive) bul ve durumlarını güncelle
+	# CollisionShape3D, CollisionPolygon3D, CollisionObject3D (Area, Body vb.)
+	var all_shapes = boss_node.find_children("*", "CollisionShape3D", true, false)
+	all_shapes.append_array(boss_node.find_children("*", "CollisionPolygon3D", true, false))
+	
+	for shape in all_shapes:
+		shape.set_deferred("disabled", !enabled)
+	
+	var all_objects = boss_node.find_children("*", "CollisionObject3D", true, false)
+	for obj in all_objects:
+		_apply_collision_state(obj, enabled)
+
+func _apply_collision_state(obj: CollisionObject3D, enabled: bool):
+	if not is_instance_valid(obj): return
+	
+	if enabled:
+		# Aktif etme: Varsayılan Boss katmanlarını (4 ve 8) geri getir
+		obj.set_deferred("collision_layer", 4 | 8) # Binary OR ile her ikisini de aç
+		obj.set_deferred("collision_mask", 4 | 8)
 		
-		# Rekursif devam et (alt node'lar icin)
-		if child.get_child_count() > 0:
-			_set_boss_collision(child, enabled)
+		# Eğer Area3D ise monitoring/monitorable aç
+		if obj is Area3D:
+			obj.set_deferred("monitoring", true)
+			obj.set_deferred("monitorable", true)
+		
+		obj.process_mode = Node.PROCESS_MODE_INHERIT
+	else:
+		# Devre dışı bırakma: "NUCLEAR CLEANUP"
+		obj.set_deferred("collision_layer", 0)
+		obj.set_deferred("collision_mask", 0)
+		
+		if obj is Area3D:
+			obj.set_deferred("monitoring", false)
+			obj.set_deferred("monitorable", false)
+		
+		# İşlemeyi de durdur ki fizik motoru tamamen unutsun
+		obj.process_mode = Node.PROCESS_MODE_DISABLED
 
 func _reset_twin_state(twin: Node):
 	if is_instance_valid(twin):

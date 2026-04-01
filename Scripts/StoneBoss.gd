@@ -368,6 +368,10 @@ func _olum_sekans():
 
 	if LevelManager:
 		LevelManager._set_boss_collision(self, false) # Sadece kendimi kapat
+		# NUCLEAR: Hitbox node'unu temizle (Geriye capsule kalmasın)
+		var hb = get_node_or_null("BossHitbox")
+		if hb: hb.queue_free()
+		
 		if not _hayatta_boss_var_mi():
 			LevelManager.is_boss_acting = false
 	
