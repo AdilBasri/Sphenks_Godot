@@ -1,4 +1,4 @@
-[gd_scene load_steps=138 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=137 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://b1abmwu2tkjli" path="res://Assets/Models/Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://Scripts/sphenks.gd" id="2_fi7dh"]
@@ -75,13 +75,14 @@
 [ext_resource type="PackedScene" uid="uid://df5i5fqrqc3av" path="res://kese/scene.gltf" id="81_b7o3i"]
 [ext_resource type="PackedScene" uid="uid://dug3wqkbh4f1l" path="res://bullet_box/scene.gltf" id="82_w1heq"]
 [ext_resource type="PackedScene" uid="uid://ddv50bgy21hgj" path="res://torch/scene.gltf" id="84_elmnc"]
-[ext_resource type="Script" uid="uid://ci7b52idx0w08" path="res://Scripts/BulletBox.gd" id="85"]
-[ext_resource type="PackedScene" uid="uid://b5p6ms5shc8yt" path="res://keychain/scene.gltf" id="87_hyugx"]
-[ext_resource type="PackedScene" uid="uid://b33n8j7p1by8c" path="res://tv/scene.gltf" id="88_dqfbe"]
-[ext_resource type="VideoStream" path="res://tv/anubis.ogv" id="90_t6fha"]
-[ext_resource type="PackedScene" uid="uid://ba48h6logdmao" path="res://cable1/scene.gltf" id="91_t6fha"]
-[ext_resource type="PackedScene" uid="uid://c7ncthjjxkn1a" path="res://cable2/scene.gltf" id="92_fjuk8"]
+[ext_resource type="Script" path="res://Scripts/BulletBox.gd" id="85"]
+[ext_resource type="PackedScene" uid="uid://3yhptj5hevxh" path="res://keychain/scene.gltf" id="87_hyugx"]
+[ext_resource type="PackedScene" uid="uid://dnj3w1ekuh78m" path="res://tv/scene.gltf" id="88_dqfbe"]
+[ext_resource type="VideoStream" uid="uid://cwtiydyjp55yl" path="res://tv/anubis.ogv" id="90_t6fha"]
+[ext_resource type="PackedScene" uid="uid://bdjcmjijoleqp" path="res://cable1/scene.gltf" id="91_t6fha"]
+[ext_resource type="PackedScene" uid="uid://dwcvgb3hhjjd2" path="res://cable2/scene.gltf" id="92_fjuk8"]
 [ext_resource type="PackedScene" uid="uid://d3f58iwdkve87" path="res://unlem/scene.gltf" id="93_fjuk8"]
+[ext_resource type="Script" uid="uid://chv25syyjub21" path="res://unlem/unlem.gd" id="94_17n3w"]
 [ext_resource type="Script" uid="uid://chuv2uyii3n14" path="res://Scripts/AcidBoss.gd" id="94_acid"]
 [ext_resource type="PackedScene" uid="uid://cx6msh67nsv5" path="res://acid_boss/AcidBoss_Model.tscn" id="95_acid_model"]
 [ext_resource type="Script" uid="uid://ccipx45kolsv8" path="res://Scripts/StoneBoss.gd" id="96_stone"]
@@ -89,7 +90,7 @@
 [ext_resource type="Script" uid="uid://gdt0if15j8al" path="res://animated_gun/scene.gd" id="ag_gd"]
 [ext_resource type="PackedScene" uid="uid://hqgrge6ijj2s" path="res://animated_gun/scene.gltf" id="ag_gltf"]
 [ext_resource type="Script" uid="uid://b34pw4hw0pwi2" path="res://Scripts/AnubisTVInteraction.gd" id="anubis_tv_gd"]
-[ext_resource type="Script" uid="uid://djwhsfpmo7ghc" path="res://Scripts/bariyer.gd" id="bariyer_gd"]
+[ext_resource type="Script" path="res://Scripts/bariyer.gd" id="bariyer_gd"]
 [ext_resource type="Script" uid="uid://dkdj47cdxbjql" path="res://Scripts/boss_ui.gd" id="boss_ui_gd"]
 [ext_resource type="Shader" uid="uid://cuhlen0v736t0" path="res://Materials_Shaders/gore_vignette.gdshader" id="gore_shader_sphenks"]
 [ext_resource type="Script" uid="uid://lcig2p1w37xb" path="res://Scripts/Revolver.gd" id="rev_gd"]
@@ -308,12 +309,6 @@ viewport_path = NodePath("tvmasa/tv/SubViewport")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_fx2yl"]
 size = Vector3(1.8515625, 4.0689087, 3.4038696)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_17n3w"]
-albedo_color = Color(1, 0, 0, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6ry63"]
-albedo_color = Color(1, 0, 0, 1)
 
 [node name="Meshy_AI__0118084653_texture" instance=ExtResource("1_1eqvi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.031485796, 0, 0)
@@ -1326,16 +1321,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0047302246, -1.3102417, 0.
 shape = SubResource("BoxShape3D_x1sbr")
 
 [node name="golem" parent="boss_h" index="2" instance=ExtResource("78_q0w8o")]
-transform = Transform3D(0.20478886, 0, -0.56396943, 0, 0.6, 0, 0.56396943, 0, 0.20478886, 1.1350503, 0.39381194, 0.7608738)
+transform = Transform3D(0.20478886, 0, -0.56396943, 0, 0.6, 0, 0.56396943, 0, 0.20478886, 1.1350503, 0.4484651, 0.7608738)
 
 [node name="golem2" parent="boss_h/golem" index="0" instance=ExtResource("78_q0w8o")]
-transform = Transform3D(1, 0, 0, 0, 1.0000001, 0, 0, 0, 1, -0.83789253, 0.05588603, -0.30425596)
+transform = Transform3D(1, 0, 0, 0, 1.0000002, 0, 0, 0, 1, -0.83789253, 0.011952639, -0.30425596)
 
 [node name="golem3" parent="boss_h/golem" index="1" instance=ExtResource("78_q0w8o")]
-transform = Transform3D(1, 0, 0, 0, 1.0000002, 0, 0, 0, 1, -0.71064377, 0.021645546, 0.7760544)
+transform = Transform3D(1, 0, 0, 0, 1.0000002, 0, 0, 0, 1, -0.71064377, -0.011732101, 0.7760544)
 
 [node name="zar" parent="boss_h" index="3" instance=ExtResource("79_b7o3i")]
-transform = Transform3D(0.20957339, 0, -0.66789144, 0, 0.7, 0, 0.66789144, 0, 0.20957339, -0.093868256, 0.58388853, 0.067284584)
+transform = Transform3D(0.20957339, 0, -0.66789144, 0, 0.7, 0, 0.66789144, 0, 0.20957339, -0.093868256, 0.47341728, 0.067284584)
 
 [node name="zar2" parent="boss_h/zar" index="1" instance=ExtResource("79_b7o3i")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6096859, 0, -0.45745897)
@@ -1344,13 +1339,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6096859, 0, -0.45745897)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8850002, 0, 0.41994286)
 
 [node name="asit" parent="boss_h" index="4" instance=ExtResource("80_w1heq")]
-transform = Transform3D(0.19713134, 0, -0.45949888, 0, 0.5, 0, 0.45949888, 0, 0.19713134, -0.6149192, 0.45738006, 1.289074)
+transform = Transform3D(0.19713134, 0, -0.45949888, 0, 0.5, 0, 0.45949888, 0, 0.19713134, -0.6149192, 0.430485, 1.289074)
 
 [node name="asit3" parent="boss_h/asit" index="1" instance=ExtResource("80_w1heq")]
 transform = Transform3D(0.99999994, 0, -2.9802322e-08, 0, 0.99999994, 0, 2.9802322e-08, 0, 0.99999994, -0.73651123, 0, -0.3541813)
 
 [node name="asit2" parent="boss_h/asit" index="2" instance=ExtResource("80_w1heq")]
 transform = Transform3D(0.99999994, 0, -2.9802322e-08, 0, 0.99999994, 0, 2.9802322e-08, 0, 0.99999994, 0.0871048, 0, -0.8685651)
+
+[node name="Camera3D" type="Camera3D" parent="boss_h" index="5"]
+transform = Transform3D(1.6580752, 0, 1.1183858, 0, 2, 0, -1.1183858, 0, 1.6580752, 1.7447457, 0.86505413, 2.902892)
 
 [node name="kese" parent="." index="28" instance=ExtResource("81_b7o3i")]
 transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, -0.3472358, 0.38587528, 3.2400343)
@@ -1433,21 +1431,15 @@ light_color = Color(1, 0.08235294, 0.61960787, 1)
 light_energy = 0.5
 omni_attenuation = 0.5
 
-[node name="cable1" parent="." index="32" instance=ExtResource("91_t6fha")]
-transform = Transform3D(0.035973635, -0.010792608, 0.0706358, 0.022988841, 0.0766258, 0, -0.06765656, 0.02029794, 0.03755773, -3.5027106, -0.07561803, 3.2438216)
+[node name="cable1" parent="tvmasa" index="5" instance=ExtResource("91_t6fha")]
+transform = Transform3D(0.050854884, -0.0152571965, 0.059841465, 0.022988841, 0.0766258, 0, -0.0573175, 0.017196074, 0.053094268, -0.12840652, -0.19750321, 0.6245494)
 
-[node name="cable2" parent="." index="33" instance=ExtResource("92_fjuk8")]
-transform = Transform3D(-0.24783798, -0.1628276, 0.74300975, 0.23123083, -0.76060015, -0.08955321, 0.7246437, 0.18701513, 0.28269544, -1.4457703, 1.4697142, 1.0190859)
+[node name="cable2" parent="tvmasa" index="6" instance=ExtResource("92_fjuk8")]
+transform = Transform3D(-0.41106892, -0.20218965, 0.6558521, 0.23123083, -0.76060015, -0.08955321, 0.64618474, 0.14355087, 0.44926447, 2.3934321, 1.347829, -1.0549704)
 
-[node name="unlem" parent="." index="34" instance=ExtResource("93_fjuk8")]
-transform = Transform3D(-0.11740989, 0, 0.48601937, 0, 0.5, 0, -0.48601937, 0, -0.11740989, -3.0212405, 0.34356284, 2.6167347)
-visible = false
-
-[node name="Object_7" parent="unlem/Sketchfab_model/root/GLTF_SceneRootNode/exclaim-mark_rig_6/b_spine_5/b_dot_2/obj_exclaim-dot_1" index="0"]
-surface_material_override/0 = SubResource("StandardMaterial3D_17n3w")
-
-[node name="Object_10" parent="unlem/Sketchfab_model/root/GLTF_SceneRootNode/exclaim-mark_rig_6/b_spine_5/b_line_4/obj_exclaim-line_3" index="0"]
-surface_material_override/0 = SubResource("StandardMaterial3D_6ry63")
+[node name="unlem" parent="tvmasa" index="7" instance=ExtResource("93_fjuk8")]
+transform = Transform3D(-2.2351742e-08, 0, 0.5, 0, 0.5, 0, -0.5, 0, -2.2351742e-08, 0.48685384, 0.22167766, 0.12805521)
+script = ExtResource("94_17n3w")
 
 [connection signal="input_event" from="Kedi/Y_Kedi" to="Kedi" method="_on_area_3d_input_event"]
 
@@ -1468,4 +1460,4 @@ surface_material_override/0 = SubResource("StandardMaterial3D_6ry63")
 [editable path="Campfire_room/KapiSistemi3"]
 [editable path="OyunArayuzu"]
 [editable path="tvmasa/tv"]
-[editable path="unlem"]
+[editable path="tvmasa/unlem"]

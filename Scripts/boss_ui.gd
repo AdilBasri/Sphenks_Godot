@@ -229,8 +229,13 @@ func _can_kaybi_sekans(totem_node: Node3D, kamera: Camera3D):
 	if _is_animating: return
 	_is_animating = true
 	
-	var eski_pos = kamera.global_position
-	var eski_rot = kamera.quaternion # Rotation'ı quaternion ile saklamak daha güvenli
+	var eski_trans = kamera.global_transform
+	
+	# boss_h içerisindeki Camera3D'yi bul (User'ın yerleştirdiği sabit kamera)
+	var boss_h = totem_node.get_parent()
+	var totem_cam: Camera3D = null
+	if boss_h:
+		totem_cam = boss_h.get_node_or_null("Camera3D")
 	
 	# Oyuncu kamerasını kilitle (active_tween set ederek)
 	# Bu, oyuncunun pan esnasında fareyle kamerayı sarsmasını engeller.
@@ -248,16 +253,20 @@ func _can_kaybi_sekans(totem_node: Node3D, kamera: Camera3D):
 	
 	tween.set_parallel(true)
 	
-	# Süre artırıldı: 1.0 -> 1.5
-	var hedef_pos = totem_node.global_position + Vector3(0.5, 0.4, 0.8)
-	tween.tween_property(kamera, "global_position", hedef_pos, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	
-	# Toteme bak
-	# look_at yerine tweenable bir yöntem kullanalım
-	var offset = totem_node.global_position - hedef_pos
-	var target_basis = Basis.looking_at(offset, Vector3.UP)
-	# basis'ten quaternion'a çevirip tweenleyelim
-	tween.tween_property(kamera, "quaternion", target_basis.get_rotation_quaternion(), 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	# 1 — Kamera pan git
+	if totem_cam:
+		# SABİT KAMERA: Kullanıcının yerleştirdiği kameranın tam konumuna ve açısına git
+		tween.tween_property(kamera, "global_transform", totem_cam.global_transform, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		print("🎥 Sabit Totem Kamerasına Pan yapılıyor...")
+	else:
+		# FALLBACK: Eğer Camera3D yoksa eski dinamik hesaplamayı kullan
+		var hedef_pos = totem_node.global_position + Vector3(0.5, 0.4, 0.8)
+		tween.tween_property(kamera, "global_position", hedef_pos, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		
+		# Toteme bak
+		var offset = totem_node.global_position - hedef_pos
+		var target_basis = Basis.looking_at(offset, Vector3.UP)
+		tween.tween_property(kamera, "quaternion", target_basis.get_rotation_quaternion(), 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	
 	# 2 — Pan biterken totem devril
 	tween.set_parallel(false)
@@ -268,8 +277,7 @@ func _can_kaybi_sekans(totem_node: Node3D, kamera: Camera3D):
 	# 3 — Kamera geri dön
 	tween.set_parallel(true)
 	# Dönüş süresi artırıldı: 1.0 -> 1.5
-	tween.tween_property(kamera, "global_position", eski_pos, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(kamera, "quaternion", eski_rot, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(kamera, "global_transform", eski_trans, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	
 	tween.set_parallel(false)
 	tween.tween_callback(func(): 
