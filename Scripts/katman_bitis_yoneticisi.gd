@@ -93,6 +93,10 @@ func _on_boss_oldu_sinyali():
 func _kontrol_et():
 	if _bitis_tetiklendi: return
 	
+	# TUTORIAL: Katman 1'de tutorial bitmeden bitiş senaryoları çalışamaz.
+	if GameManager and GameManager.suanki_seviye == 1 and not GameManager.is_tutorial_segment_completed("base"):
+		return
+	
 	# DEBUG
 	print("🔍 KONTROL: Blok=%d, Puan=%d/%d, BossHP=%d" % [blok_sayisi, grid_mevcut_puan, grid_minimum_puan, boss_current_hp])
 

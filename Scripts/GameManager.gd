@@ -158,9 +158,13 @@ func boss_oldu_tetiklendi():
 func _kapi_kontrol():
 	"""Kapı açılma ve carry-over kurallarını uygular."""
 	# TUTORIAL ÖNCELİĞİ: Eğer Katman 1'de isek ve tutorial henüz bitmemişse beklet
-	if suanki_seviye == 1 and TutorialManager and TutorialManager.tutorial_aktif:
-		print("🎓 GameManager: Tutorial aktif, kapı kontrolü bekletiliyor.")
-		return
+	if suanki_seviye == 1:
+		if TutorialManager and TutorialManager.tutorial_aktif:
+			print("🎓 GameManager: Tutorial aktif, kapı kontrolü bekletiliyor.")
+			return
+		if not is_tutorial_segment_completed("base"):
+			print("🎓 GameManager: Tutorial 'base' tamamlanmadığı için kapı kontrolü bekletiliyor.")
+			return
 
 	if grid_tamamlandi:
 		# Puan doldu
@@ -271,6 +275,11 @@ func _bosslari_carry_over_yap():
 
 func _kapiyi_ac_gercek():
 	"""Sahnede KapiSistemi'ni bulup kapıyı açar."""
+	# TUTORIAL CHECK:
+	if suanki_seviye == 1 and not is_tutorial_segment_completed("base"):
+		print("🎓 GameManager: Tutorial bitmediği için kapı açma isteği REDDEDİLDİ.")
+		return
+		
 	var kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
 	if kapi and kapi.has_method("kapiyi_ac"):
 		if "kilitli_mi" in kapi:
@@ -949,11 +958,10 @@ func complete_tutorial_segment(segment_name: String):
 		completed_tutorials.append(segment_name)
 		print("🎓 %s tutorial segmenti tamamlandı." % segment_name)
 		
-		# TUTORIAL FIX: Eğer base bitmişse ve puan tamam ise grid_tamamlandi işaretle ve kapı kontrolü yap
+		# TUTORIAL: Katman 1 (Base) bitmişse, puandan bağımsız olarak grid_tamamlandi sayıp kapıyı kontrol et.
 		if segment_name == "base":
-			if suanki_puan >= hedef_puan:
-				grid_tamamlandi = true
-				print("🎓 Tutorial: Base bitti, hedef puan zaten aşılmış. Kapı kontrolü tetikleniyor.")
+			grid_tamamlandi = true # Puandan bağımsız geçiş izni
+			print("🎓 Tutorial: Base bitti. Puan bağımsız olarak kapı kontrolü tetikleniyor.")
 			
 			# Tutorial bittiğine göre artık kapı kontrolü çalışabilir
 			_kapi_kontrol()
