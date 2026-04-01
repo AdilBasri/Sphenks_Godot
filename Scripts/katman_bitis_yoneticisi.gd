@@ -181,17 +181,9 @@ func _senaryo_uygula(id: int):
 		5:
 			# Puan tamam, blok bitti, boss hayatta, mermi YOK
 			_bitis_tetiklendi = true
-			if has_method("kapi_ac"): 
-				call("kapi_ac")
-			
-			# Boss carry-over
-			if GameManager and GameManager.has_method("bosslari_carry_over_yap"):
-				GameManager.bosslari_carry_over_yap()
-			
-			# Masa sistemini kaldır
-			masa_sistemi_tween_kaybol()
-			
-			# Boss kaybolma efekti (Burada varsayılan bir tween veya boss'un kendi metodunu çağırabiliriz)
+			if GameManager:
+				GameManager._kapi_kontrol()
+				GameManager._seviye_bitis_kontrolu()
 			print("🏃 Boss kaçıyor (Yetersiz mermi)...")
 		6:
 			# Blok bitti, puan yetmedi
@@ -201,26 +193,9 @@ func _senaryo_uygula(id: int):
 				_kan_kaybindan_ol()
 		7:
 			# 1.5x Puan Victory
-			_bitis_tetiklendi = true
-			
-			# Boss bekleme/kaçış mantığı GameManager'daki gibi:
-			var mermi_yeterli = (revolver_mermi + shotgun_mermi) > 0
-			
-			if boss_hayatta and mermi_yeterli:
-				# Mermi varsa bekle, ama masayı kaldır
-				var arayuz = get_tree().get_first_node_in_group("Arayuz")
-				if arayuz and arayuz.has_method("bilgi_goster"):
-					arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KILL THE BOSS", 4.0)
-			else:
-				# Mermi yoksa boss kaçsın
-				if boss_hayatta:
-					if GameManager and GameManager.has_method("bosslari_carry_over_yap"):
-						GameManager.bosslari_carry_over_yap()
-				
-				if has_method("kapi_ac"): call("kapi_ac")
-				
-			masa_sistemi_tween_kaybol()
-			print("🏆 1.5x Victory! Masa kaldırıldı.")
+			if GameManager:
+				GameManager._seviye_bitis_kontrolu()
+			print("🏆 1.5x Victory check triggered via KatmanBitisYoneticisi.")
 
 # --- YARDIMCI METODLAR (Varsayılan çağrılar) ---
 func kapi_ac():

@@ -505,12 +505,18 @@ func oyuncuya_saldir(hasar_miktari: int):
 
 # --- COLLISION YONETIMI ---
 func disable_all_boss_collisions():
-	if normal_boss_ref: _set_boss_collision(normal_boss_ref, false)
-	if acid_boss_ref: _set_boss_collision(acid_boss_ref, false)
-	if stone_boss_ref: _set_boss_collision(stone_boss_ref, false)
-	# Tum yanci bosslari da bul ve kapat
-	get_tree().call_group("Dusman", "set_collision_layer_value", 8, false)
-	get_tree().call_group("Dusman", "set_collision_mask_value", 8, false)
+	# Sadece boss gerçekten öldüyse veya kaçtıysa kolizyonları temizle
+	# Eğer boss hayattaysa, oyuncu onu vurabilmeli.
+	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
+	for d in dusmanlar:
+		if is_instance_valid(d):
+			var boss_oldu = d.get("oldu_mu") != null and d.get("oldu_mu")
+			var boss_kacti = d.get("boss_kacti") != null and d.get("boss_kacti")
+			# GameManager'daki boss_kacti global durumunu da kontrol edelim
+			if boss_oldu or boss_kacti or (GameManager and GameManager.boss_kacti):
+				_set_boss_collision(d, false)
+			else:
+				print("🧱 LevelManager: %s hayatta, kolizyon açık bırakıldı." % d.name)
 
 func _set_boss_collision(boss_node: Node, enabled: bool):
 	if not is_instance_valid(boss_node): return

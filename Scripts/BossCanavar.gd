@@ -551,7 +551,7 @@ func mermi_hasari_al(hit_pos: Vector3, hit_dir: Vector3):
 	
 	# GlobalHP Kaydet
 	if GameManager:
-		GameManager.boss_hp_guncelle(boss_tipi, boss_hp)
+		GameManager.boss_hp_guncelle(boss_tipi, boss_hp, name)
 	
 	# 1 — Kan Efekti Spawn
 	_kan_efekti_olustur(hit_pos, hit_dir)

@@ -146,124 +146,123 @@ func puan_ekle(miktar: int):
 			print("✅ HEDEF PUAN AŞILDI! (%d/%d)" % [suanki_puan, hedef_puan])
 			_kapi_kontrol()
 	
-	# --- YENİ: 1.5 KAT PUAN KONTROLÜ ---
-	if suanki_puan >= (hedef_puan * 1.5) and not seviye_bitti_islem_yapildi:
-		if tutorial_aktif:
-			# Masayı şimdilik yerinde tut, daha sonra tutorial bitince gidebilir
-			pass
-		else:
-			print("🔥 1.5 KAT PUAN LIMITI ASILDI! Otomatik bitiş tetikleniyor.")
-			_seviye_bitis_kontrolu(true) # Force end
+	# --- 1.5 KAT PUAN VE MASA KONTROLÜ ---
+	if not tutorial_aktif:
+		_seviye_bitis_kontrolu()
+	else:
+		# Tutorial bitince complete_tutorial_segment masayı kaldıracak
+		pass
 	
 	emit_signal("puan_degisti", suanki_puan)
 
 func boss_oldu_tetiklendi():
 	"""Boss öldüğünde çağrılır (AcidBoss, StoneBoss, BossCanavar)."""
 	if boss_oldu_durumu: return # Zaten öldü olarak işaretlenmiş
-	
 	boss_oldu_durumu = true
 	print("☠️ Boss Ölümü GameManager'a Bildirildi.")
+	_kapi_kontrol()
 	_seviye_bitis_kontrolu()
 
 func _kapi_kontrol():
-	"""Kapı açılma ve carry-over kurallarını uygular."""
-	# TUTORIAL ÖNCELİĞİ: Eğer Katman 1'de isek ve tutorial henüz bitmemişse beklet
-	if suanki_seviye == 1:
-		if TutorialManager and TutorialManager.tutorial_aktif:
-			print("🎓 GameManager: Tutorial aktif, kapı kontrolü bekletiliyor.")
-			return
-		if not is_tutorial_segment_completed("base"):
-			print("🎓 GameManager: Tutorial 'base' tamamlanmadığı için kapı kontrolü bekletiliyor.")
-			return
+	"""Bölüm sonu kapısını açma şartlarını kontrol eder."""
+	var tutorial_aktif = (suanki_seviye == 1 and not is_tutorial_segment_completed("base"))
+	if tutorial_aktif: return
 
-	if grid_tamamlandi:
-		# Puan doldu
-		var bosslar = get_tree().get_nodes_in_group("Dusman")
-		var yasayan_boss_var = false
-		var toplam_hp = 0
-		for b in bosslar:
-			if is_instance_valid(b) and not b.get("oldu_mu"):
-				yasayan_boss_var = true
-				toplam_hp += b.get("boss_hp") if b.get("boss_hp") != null else 1
-				
-		var toplam_mermi = mermi_sayisi + shotgun_mermi_count
-		var mermi_yeterli = (toplam_mermi > 0) # Eğer oyuncuda mermi Varsa, boss'u öldürmesi gerekir.
-		
-		# EĞER MERMİ VARSA VE BOSS YAŞIYORSA, KAPIYI AÇMA! Bekle...
-		if yasayan_boss_var and mermi_yeterli:
-			print("🚪 GameManager: Hedef puana ulaşıldı ancak mermi var ve boss hayatta (Kapı Bekletiliyor).")
-			
-			# UI'da "Boss'u Öldür" uyarısı göster
-			var arayuz = get_tree().get_first_node_in_group("Arayuz")
-			if arayuz and arayuz.has_method("bilgi_goster"):
-				arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KILL THE BOSS", 4.0)
-		else:
-			_kapiyi_ac_gercek()
-			
-		_seviye_bitis_kontrolu()
-	
-	elif boss_oldu_durumu and not grid_tamamlandi:
-		# Boss öldü ama grid bitmedi
-		# Kapı açılmıyor, uyarı gösteriliyor
-		_eksik_puan_uyarisi_goster()
+	if suanki_puan < hedef_puan: return
 
-func _seviye_bitis_kontrolu(force: bool = false):
-	"""Masa sisteminin ne zaman kalkacağına karar verir."""
-	# Eğer kaynaklar bittiyse veya 1.5x puan yapıldıysa (force), masa kalkabilir.
-	if (not grid_tamamlandi and not force) and not seviye_bitti_islem_yapildi:
-		return
+	# Boss ve mermi durumunu topla
+	var bosslar = get_tree().get_nodes_in_group("Dusman")
+	var yasayan_boss_var = false
+	for b in bosslar:
+		if is_instance_valid(b) and not b.get("oldu_mu"):
+			yasayan_boss_var = true; break
+			
+	var toplam_mermi = mermi_sayisi + shotgun_mermi_count
+	var mermi_yeterli = (toplam_mermi > 0)
+
+	# KAPI AÇILMA ŞARTLARI (USER REQUEST):
+	# Normal puana ulaşıldıysa VE (Boss öldüyse YA DA mermi yoksa [boss'u öldürecek mermi yoksa ve boss kaçacaksa])
+	if not yasayan_boss_var or (yasayan_boss_var and not mermi_yeterli):
+		# EĞER MASA ZATEN KALKTIYSA ve MERMİ BİTTİYSE, BOSS ŞİMDİ KAÇMALI
+		if yasayan_boss_var and not mermi_yeterli and seviye_bitti_islem_yapildi:
+			print("🏃 Mermi bitti (Masa yoktu), boss kaçıyor.")
+			bosslari_carry_over_yap()
+			for b in bosslar:
+				if is_instance_valid(b) and not b.get("oldu_mu"):
+					if b.has_method("kacis_baslat"): b.kacis_baslat()
+					elif b.has_method("_on_boss_oldu_sinyali"): b._on_boss_oldu_sinyali()
+					else: b.visible = false
 		
+		_kapiyi_ac_gercek()
+	else:
+		print("🚪 GameManager: Puan tamam ama boss hayatta ve mermi var. Kapı bekletiliyor.")
+		var arayuz = get_tree().get_first_node_in_group("Arayuz")
+		if arayuz and arayuz.has_method("bilgi_goster"):
+			arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KILL THE BOSS", 3.0)
+
+func _seviye_bitis_kontrolu(_force_1_5x: bool = false):
+	"""Masa sisteminin ne zaman kalkacağına karar verir (1.5x score)."""
+	if seviye_bitti_islem_yapildi: return
+
+	var tutorial_aktif = (suanki_seviye == 1 and not is_tutorial_segment_completed("base"))
+	if tutorial_aktif: return
+
 	# Ghost Move sürüyorsa bitene kadar bekle
-	if ghost_move_active:
-		return
+	if ghost_move_active: return
 
 	# Düşman ve mermi durumunu topla
 	var bosslar = get_tree().get_nodes_in_group("Dusman")
 	var yasayan_boss_var = false
-	var toplam_hp = 0
 	for b in bosslar:
 		if is_instance_valid(b) and not b.get("oldu_mu"):
-			yasayan_boss_var = true
-			toplam_hp += b.get("boss_hp") if b.get("boss_hp") != null else 1
+			yasayan_boss_var = true; break
 			
 	var toplam_mermi = mermi_sayisi + shotgun_mermi_count
-	var mermi_yeterli = (toplam_mermi > 0) # Mermi varsa oyuncunun ateş etmesi beklenir
+	var mermi_yeterli = (toplam_mermi > 0)
 	
-	# Eğer boss hayattaysa ve mermi var ise beklet (oyuncu boss'u vurabilsin)
-	# ANCAK: Eğer force true ise (1.5x puan) bekleme, masayı kaldır!
-	if yasayan_boss_var and mermi_yeterli and not force:
-		print("🔫 GameManager: Puan tamam ama boss hayatta ve mermi var. Bekletiliyor...")
-		return
+	# MASA KALKMA ŞARTLARI (USER REQUEST):
+	# 1. 1.5x puan sınırına ulaşıldıysa
+	var puan_1_5x = suanki_puan >= (hedef_puan * 1.5)
+	
+	if puan_1_5x:
+		# Puan 1.5x oldu. Masa HER HALÜKARDA kalkar (Farm biter).
+		_masa_kaldir()
 		
-	# KRİTİK: Masa kalkıyor veya kapı açılıyor!
-	# Eğer mermi kalmadıysa boss carry-over olur
-	if yasayan_boss_var and not mermi_yeterli:
-		print("🏃 Mermi tükendi! Boss carry-over'a alınıyor.")
-		bosslari_carry_over_yap()
-		# Boss'u sahnede gizle veya kaçış animasyonunu oynat
-		for b in bosslar:
-			if is_instance_valid(b) and not b.get("oldu_mu"):
-				if b.has_method("kacis_baslat"): b.kacis_baslat()
-				else: b.visible = false
-		# Kapıyı aç (artık mermi yok, boss kaçtı)
-		_kapiyi_ac_gercek()
-	
-	if seviye_bitti_islem_yapildi:
-		return # Masa zaten kalkmış, sadece mermi bitişini yukarıda kontrol ettik.
+		if yasayan_boss_var:
+			if mermi_yeterli:
+				# Boss hayatta ve mermi var. Masa kalktı ama boss bekliyor.
+				print("🔫 GameManager: 1.5x Puan: Masa kalktı, oyuncu boss'u mermiyle vurabilir.")
+				var arayuz = get_tree().get_first_node_in_group("Arayuz")
+				if arayuz and arayuz.has_method("bilgi_goster"):
+					arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KILL THE BOSS", 3.0)
+			else:
+				# 1.5x Puan ve mermi bitti. Boss kaçmalı.
+				print("🏃 1.5x Puan: Mermi bitti, boss kaçıyor.")
+				bosslari_carry_over_yap()
+				for b in bosslar:
+					if is_instance_valid(b) and not b.get("oldu_mu"):
+						if b.has_method("kacis_baslat"): b.kacis_baslat()
+						elif b.has_method("_on_boss_oldu_sinyali"): b._on_boss_oldu_sinyali()
+						else: b.visible = false
+				_kapiyi_ac_gercek()
+		else:
+			# Boss ölü, 1.5x yapıldı, kapı zaten açıktır veya şimdi açılır.
+			_kapiyi_ac_gercek()
+	else:
+		# Puan henüz 1.5x değilse, boss ölse bile masa kalmalı (farm için).
+		pass
 
+func _masa_kaldir():
+	if seviye_bitti_islem_yapildi: return
 	seviye_bitti_islem_yapildi = true
 	
-	if yasayan_boss_var and mermi_yeterli:
-		# Mermi var ve boss yaşıyor (özellikle force true iken buraya gireriz)
-		print("🔫 GameManager: Masa kalktı, oyuncunun mermisi var. BOSS FIGHT BAŞLIYOR!")
-		var arayuz = get_tree().get_first_node_in_group("Arayuz")
-		if arayuz and arayuz.has_method("bilgi_goster"):
-			arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KILL THE BOSS", 5.0)
-	elif not yasayan_boss_var:
-		# Boss zaten öldüyse direkt kapıyı aç
-		_kapiyi_ac_gercek()
-
-	print("🏁 SEVİYE TAMAMLANDI: Masa sistemi kaldırılıyor. (Force: %s)" % str(force))
+	print("🏁 SEVİYE TAMAMLANDI: Masa sistemi kaldırılıyor.")
+	
+	# BlokDagiticisi'nı bul ve animasyonu başlat
+	var spawner = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
+	if spawner and spawner.has_method("_sahne_bitis_animasyonu"):
+		spawner._sahne_bitis_animasyonu()
+	
 	emit_signal("seviye_tamamlandi")
 
 func bosslari_carry_over_yap():
@@ -324,12 +323,28 @@ func boss_kacti_ekle(tip: int, hp: int):
 	boss_kacti = true
 	print("👹 Kaçan boss listeye eklendi (Tip: %d, HP: %d). Toplam: %d" % [tip, hp, kacan_bosslar.size()])
 
-func boss_hp_guncelle(tip: String, hp: int):
+func boss_hp_guncelle(tip: String, hp: int, boss_node_name: String = ""):
 	"""Boss canını kalıcı olarak günceller (Katmanlar arası koruma)."""
-	if boss_kalici_hp.has(tip):
-		boss_kalici_hp[tip] = hp
-		print("💾 Persistent HP Updated: %s -> %d" % [tip, hp])
-		emit_signal("boss_hp_degisti", tip, hp)
+	# Eğer bu bir yancı (Minion) ise, persistent HP'yi değil, kacan_bosslar listesindeki kendi verisini güncellemeli.
+	if "_minion_" in boss_node_name.to_lower():
+		for b_data in kacan_bosslar:
+			# Tip eşleşiyorsa ve minion ise (burada basitçe ilk bulduğumuzu güncelleyebiliriz 
+			# veya LevelManager'ın atadığı bir ID ile eşleştirebiliriz. 
+			# Şimdilik sadece tip bazlı en yakını buluyoruz.)
+			var b_tip_id = 0
+			if tip == "asit": b_tip_id = 1
+			elif tip == "golem": b_tip_id = 2
+			
+			if b_data["tip"] == b_tip_id:
+				b_data["hp"] = hp
+				print("💾 Minion HP Updated in Escaped List: %s -> %d" % [boss_node_name, hp])
+				break
+	else:
+		# Ana Boss Persistent HP
+		if boss_kalici_hp.has(tip):
+			boss_kalici_hp[tip] = hp
+			print("💾 Persistent HP Updated (Main Boss): %s -> %d" % [tip, hp])
+			emit_signal("boss_hp_degisti", tip, hp)
 
 func boss_hp_al(tip: String) -> int:
 	"""Kayıtlı boss canını döner."""
@@ -981,6 +996,10 @@ func complete_tutorial_segment(segment_name: String):
 			_kapi_kontrol()
 			
 			# Eğer tutorial içinde 1.5 kat puan yapıldıysa, masayı şimdi kaldır
+			# NOT: puan_degisti sinyalini tetiklemek diğer yöneticilerin (KatmanBitisYoneticisi, oyun_odasi) 
+			# tutorial korumasını kaldırıp tekrar kontrol etmesini sağlar.
+			emit_signal("puan_degisti", suanki_puan)
+			
 			if suanki_puan >= (hedef_puan * 1.5):
 				print("🎓 Tutorial Bitti & 1.5x Puan Mevcut: Masa kaldırılıyor.")
 				_seviye_bitis_kontrolu(true)

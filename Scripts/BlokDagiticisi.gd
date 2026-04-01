@@ -40,8 +40,11 @@ func _ready() -> void:
 		if not GameManager.mermi_degisti.is_connected(_on_mermi_degisti_kontrol):
 			GameManager.mermi_degisti.connect(_on_mermi_degisti_kontrol)
 		
-		if not GameManager.seviye_tamamlandi.is_connected(_sahne_bitis_animasyonu):
-			GameManager.seviye_tamamlandi.connect(_sahne_bitis_animasyonu)
+	# NOT: _sahne_bitis_animasyonu artik sadece 1.5x puanda veya kaynak bitince 
+	# KatmanBitisYoneticisi/oyun_odasi tarafindan cagrilacak.
+	# Buradaki baglantiyi kaldiriyoruz ki 100% puanda masa gitmesin.
+	# if not GameManager.seviye_tamamlandi.is_connected(_sahne_bitis_animasyonu):
+	# 	GameManager.seviye_tamamlandi.connect(_sahne_bitis_animasyonu)
 
 func _on_mermi_degisti_kontrol(yeni_sayi: int) -> void:
 	# Eğer mermi 0 olduysa 1.2 saniye bekle (merminin hedefe ulaşması için)
@@ -315,8 +318,10 @@ func _sahne_bitis_animasyonu() -> void:
 		
 	if LevelManager:
 		LevelManager.is_boss_acting = false
+		# Sadece boss gerçekten öldüyse veya kaçtıysa kolizyonları temizle
+		# Eğer boss hayattaysa, oyuncu onu vurabilmeli.
 		LevelManager.disable_all_boss_collisions()
-	
+		
 	# Mekan bariyerlerini erkenden kaldır ki oyuncu kapıya gidebilsin
 	get_tree().call_group("Bariyer", "bolum_bitti")
 		

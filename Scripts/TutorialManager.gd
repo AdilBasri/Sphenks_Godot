@@ -269,6 +269,16 @@ func _show_step(adim: int):
 		get_tree().paused = false
 		if color_rect: color_rect.visible = false
 		
+		# Mouse'u Yakala (User'ın yaşadığı 'ekran dönmüyor' hatası için fix)
+		var oyuncu = get_tree().get_first_node_in_group("Oyuncu")
+		if oyuncu:
+			if "mouse_serbest_modu" in oyuncu and oyuncu.mouse_serbest_modu:
+				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+			else:
+				Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		else:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		
 		# Paneli Üste Yasla (Küçük / Objektif Görünümü)
 		panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
 		panel.offset_left = -400

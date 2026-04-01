@@ -242,32 +242,12 @@ func _on_boss_oldu():
 	print("⏳ Boss öldü. Seviye bitişi için GameManager onayı bekleniyor (puan kontrolü).")
 
 func _on_seviye_tamamlandi():
-	print("🏁 OYUN ODASI: Seviye tamamlandı (Hedef puan + boss durumu OK).")
-	
-	# Sadece kapıyı aç — masa artık puan 1.5x'e ulaşınca otomatik kalkacak
-	_kapiyi_ac()
-	print("🚪 Seviye bitti — Kapı açıldı. Masa puan 1.5x'e kadar yerinde kalacak.")
+	print("🏁 OYUN ODASI: Seviye tamamlandı signal received.")
+	# Door is now handled by GameManager._kapi_kontrol()
 
-func _on_puan_masa_kontrol(yeni_puan: int):
-	if masa_kaldirildi_mi: return
-	
-	var hedef = GameManager.hedef_puan if GameManager else 0
-	if hedef <= 0: return
-	
-	var esik = int(hedef * 1.5)
-	if yeni_puan >= esik:
-		masa_kaldirildi_mi = true
-		print("🎯 Puan hedefin 1.5 katına ulaştı! (%d/%d) Masa otomatik kaldırılıyor." % [yeni_puan, esik])
-		
-		# Ekrana mesaj göster
-		var arayuz = get_tree().get_first_node_in_group("Arayuz")
-		if arayuz and arayuz.has_method("bilgi_goster"):
-			arayuz.bilgi_goster("Katman skor sınırına ulaşıldı!", 5.0)
-		
-		# Masa indirme animasyonunu tetikle
-		var spawner = get_tree().current_scene.find_child("BlokDagiticisi", true, false)
-		if spawner and spawner.has_method("_sahne_bitis_animasyonu"):
-			spawner._sahne_bitis_animasyonu()
+func _on_puan_masa_kontrol(_yeni_puan: int):
+	# Table removal is now handled by GameManager._seviye_bitis_kontrolu()
+	pass
 
 func _kapiyi_ac():
 	# KapiSistemi arayalım (MezarOdasi'nin komşusu)
