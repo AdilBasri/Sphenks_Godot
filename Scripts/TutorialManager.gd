@@ -229,6 +229,10 @@ func hide_tutorial():
 	visible = false
 	tutorial_aktif = false
 	if get_tree(): get_tree().paused = false
+	
+	# Mouse fix: Tutorial gizlendiğinde her ihtimale karşı capture et
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	print("🖱️ Tutorial Gizlendi: Mouse Captured.")
 
 func _show_step(adim: int):
 	# Segment sınırlarını kontrol et
@@ -268,6 +272,9 @@ func _show_step(adim: int):
 		# --- GÖREV MODU (OYUN DEVAM EDER) ---
 		get_tree().paused = false
 		if color_rect: color_rect.visible = false
+		
+		# Mouse mode'u capture et ki oyuncu bakışını kontrol edebilsin
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		
 		# Paneli Üste Yasla (Küçük / Objektif Görünümü)
 		panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
@@ -333,8 +340,9 @@ func _tutorial_segmenti_bitir():
 	suanki_segment = ""
 	hide_tutorial()
 	
-	# Extra Safety: Ensure game is unpaused
+	# Extra Safety: Ensure game is unpaused and mouse is captured
 	get_tree().paused = false
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func ilerlet():
 	if tutorial_aktif:
