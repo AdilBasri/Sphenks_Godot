@@ -524,18 +524,27 @@ func disable_all_boss_collisions():
 func _set_boss_collision(boss_node: Node, enabled: bool):
 	if not is_instance_valid(boss_node): return
 	
-	# Ust seviye CharacterBody3D veya StaticBody3D ise 
+	# Üst seviye CharacterBody3D veya StaticBody3D ise 
 	if boss_node is CollisionObject3D:
-		boss_node.call_deferred("set_collision_layer_value", 8, enabled) # Boss Layer: 8
-		boss_node.call_deferred("set_collision_mask_value", 8, enabled)
+		if enabled:
+			boss_node.call_deferred("set_collision_layer_value", 8, true) # Boss Layer: 8
+			boss_node.call_deferred("set_collision_mask_value", 8, true)
+		else:
+			# Öldüğünde veya devre dışı kaldığında TÜM katmanları kapat (Yolu tıkamasın)
+			boss_node.set_deferred("collision_layer", 0)
+			boss_node.set_deferred("collision_mask", 0)
 	
-	# Cocuklar arasindaki CollisionShape ve Area'lari bul
+	# Çocuklar arasındaki CollisionShape ve Area'ları bul
 	for child in boss_node.get_children(true):
 		if child is CollisionShape3D:
 			child.set_deferred("disabled", !enabled)
 		elif child is CollisionObject3D:
-			child.call_deferred("set_collision_layer_value", 8, enabled)
-			child.call_deferred("set_collision_mask_value", 8, enabled)
+			if enabled:
+				child.call_deferred("set_collision_layer_value", 8, true)
+				child.call_deferred("set_collision_mask_value", 8, true)
+			else:
+				child.set_deferred("collision_layer", 0)
+				child.set_deferred("collision_mask", 0)
 		elif child is Area3D:
 			child.set_deferred("monitoring", enabled)
 			child.set_deferred("monitorable", enabled)
