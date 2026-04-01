@@ -408,8 +408,19 @@ func _input(event):
 	if event.is_action_pressed("sag_tik"):
 		if GameManager and GameManager.is_parry_window_open:
 			var boss = _get_dusman()
-			if boss and boss.has_method("glitch_yuzu_kapat"):
-				boss.glitch_yuzu_kapat()
+			if boss:
+				if boss.has_method("glitch_yuzu_kapat"):
+					boss.glitch_yuzu_kapat()
+				
+				# PARRY SESİNİ HEMEN ÇAL (Gecikmeyi önlemek için oyuncu tarafında çalıyoruz)
+				if "kirik_cam_sesi" in boss and boss.kirik_cam_sesi:
+					var as_player = AudioStreamPlayer.new() # UI/Global ses olduğu için 2D/Global çalabiliriz veya 3D
+					as_player.stream = boss.kirik_cam_sesi
+					as_player.bus = "SFX"
+					add_child(as_player)
+					as_player.play()
+					as_player.finished.connect(as_player.queue_free)
+			
 			GameManager.activate_ghost_move()
 			
 			if TutorialManager:

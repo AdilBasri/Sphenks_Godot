@@ -957,14 +957,7 @@ func pre_attack() -> bool:
 	else:
 		# TIKLADI! (oyuncu.gd is_parry_window_open'ı false yaptı)
 		glitch_yuzu_kapat()  # Canvas'ı temizle
-		# Ses Çalar
-		if kirik_cam_sesi:
-			var as_player = AudioStreamPlayer3D.new()
-			as_player.stream = kirik_cam_sesi
-			as_player.max_distance = 15.0
-			add_child(as_player)
-			as_player.play()
-			as_player.finished.connect(as_player.queue_free)
+		# Not: kirik_cam_sesi artık oyuncu.gd'de sağ tık anında çalınmaktadır.
 			
 		print("❌ BOSS ATTACK CANCELLED! (GLITCH PARRY)")
 		return true
