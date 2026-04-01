@@ -299,12 +299,15 @@ func _yanci_spawn_et(tip: int, hp: int, pos: Vector3 = Vector3.ZERO):
 		
 		twin.visible = true
 		twin.add_to_group("Dusman")
-		if "oldu_mu" in twin: twin.oldu_mu = false
-		_set_boss_collision(twin, true)
-		
 		if hp > 0:
+			# HP'yi hemen ve gecikmeli olarak (ready sonrası için) set ediyoruz
 			twin.boss_hp = hp
-			get_tree().create_timer(0.2).timeout.connect(_reset_twin_state.bind(twin))
+			if twin.has_method("reset_for_minion"):
+				twin.reset_for_minion(hp)
+			else:
+				# Fallback: Klasik yöntem
+				if "oldu_mu" in twin: twin.oldu_mu = false
+				get_tree().create_timer(0.2).timeout.connect(_reset_twin_state.bind(twin))
 
 func _bosslari_yeniden_konumlandir():
 	var dusmanlar = get_tree().get_nodes_in_group("Dusman")

@@ -33,6 +33,7 @@ const DURUM_OLDU = 99
 var suanki_durum: String = "BASLANGIC"
 var oldu_mu: bool = false
 var boss_hp: int = 2
+var is_minion: bool = false
 var sonraki_saldiri_tipi: String = ""   # Kahin Gözü için bir tur önceden belirlenir
 
 # --- ANİMASYON İSİMLERİ (Otomatik keşfedilecek) ---
@@ -115,8 +116,11 @@ func _ready():
 	# (Böylece Boss grid içine girmek yerine sandalyenin önünde dikilir)
 	_ayakta_pozisyon_tracklarini_kaldir()
 
-	# Katmana göre HP belirle
-	_hp_ayarla()
+	# Katmana göre HP belirle (Eğer yancı değilse/ön tanımlı gelmediyse)
+	if not is_minion:
+		_hp_ayarla()
+	else:
+		print("🎲 DİKKAT: Yancı Boss (is_minion=true) için HP korundu: %d" % boss_hp)
 	
 	# Mermi hitbox oluştur
 	_hitbox_olustur()
@@ -479,16 +483,24 @@ func _kapiyi_otomatik_ac():
 	"""Boss öldüğünde GameManager'a bildirir. Kapı kontrolü orada yapılır."""
 	# Çift boss kontrolü: Dusman grubunda hayatta boss var mı?
 	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
+	var yasayan_baska_boss_var = false
+	
 	for d in dusmanlar:
 		if is_instance_valid(d) and d != self:
 			var d_oldu = d.get("oldu_mu")
-			if d_oldu == null or d_oldu == false:
-				print("⏳ Diğer boss hâlâ hayatta, GameManager'a henüz bildirilmedi.")
-				return
+			var d_durum = d.get("suanki_durum")
+			# Hem oldu_mu flag'ini hem de durumunu (DURUM_OLDU) kontrol etmeliyiz
+			if d_oldu == false and d_durum != str(DURUM_OLDU):
+				yasayan_baska_boss_var = true
+				break
+	
+	if yasayan_baska_boss_var:
+		print("⏳ Diğer boss hâlâ hayatta, GameManager'a henüz bildirilmedi.")
+		return
 	
 	if GameManager:
 		GameManager.boss_oldu_tetiklendi()
-		print("☠️ Son boss öldü — GameManager'a bildirildi.")
+		print("☠️ Son boss öldü (Minionlar dahil) — GameManager'a bildirildi.")
 
 # ==========================================
 # KATMANA GÖRE HP AYARLAMA
@@ -741,6 +753,26 @@ func ayakta_beklemeye_gec():
 		print("🧍 Canavar ayakta beklemeye başladı (0.5x).")
 	else:
 		print("⚠️ Ayakta durma animasyonu bulunamadı veya boş!")
+
+func reset_for_minion(new_hp: int):
+	"""Yancı olarak spawn edilen boss'un durumunu ve canını tam temizler."""
+	is_minion = true
+	oldu_mu = false
+	boss_hp = new_hp
+	suanki_durum = "UYUKLAMA"
+	
+	# BossCanavar-specific reset
+	if is_instance_valid(anim_player):
+		_animasyonu_durdur()
+	
+	print("🛡️ Minion Reset: State cleared, HP reset to %d" % new_hp)
+	
+	# UI HP'sini zorla güncelle (0.5s sonra ki UI kendine gelsin)
+	get_tree().create_timer(0.5).timeout.connect(func():
+		var boss_ui = get_tree().get_first_node_in_group("boss_ui")
+		if boss_ui and boss_ui.has_method("boss_hasar_guncelle"):
+			boss_ui.boss_hasar_guncelle(self, boss_hp)
+	)
 
 func boss_durumu_sifirla():
 	"""Oyuncu iyileştiğinde veya tur arası boss'u UYUKLAMA veya AYAKTA durumuna döndürür."""
