@@ -19,6 +19,17 @@ func _physics_process(delta):
 	global_position += yon * hiz * delta
 
 func _on_body_entered(body):
+	# Düşman veya boss gövdesine çarptığında mermiyi yok etme (Hitbox halletsin)
+	if body.is_in_group("Dusman") or body.is_in_group("boss"):
+		return
+	
+	# Eğer ebeveynlerinden biri düşmansa yine yok etme
+	var p = body.get_parent()
+	while p:
+		if p.is_in_group("Dusman") or p.is_in_group("boss"):
+			return
+		p = p.get_parent()
+
 	if body is StaticBody3D or body is CSGShape3D:
 		queue_free()
 

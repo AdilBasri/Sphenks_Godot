@@ -221,7 +221,7 @@ func _hitbox_olustur():
 	shape.radius = 1.0
 	shape.height = 3.0
 	col.shape = shape
-	col.position = Vector3(0, 1.2, -1.0)
+	col.position = Vector3(0, 1.2, 0)
 	hitbox.add_child(col)
 	
 	add_child(hitbox)

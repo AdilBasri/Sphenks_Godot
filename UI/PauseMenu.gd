@@ -149,6 +149,8 @@ func _on_dil_degisti(index: int):
 func _on_coz_degisti(index: int):
 	var secilen = cozunurlukler[index]
 	DisplayServer.window_set_size(secilen)
+	get_window().content_scale_size = secilen
+	print("📺 Resolution changed to: ", secilen)
 
 func _on_tam_ekran_degisti(toggled_on: bool):
 	if toggled_on:
