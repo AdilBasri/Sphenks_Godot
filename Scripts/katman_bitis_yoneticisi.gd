@@ -181,9 +181,8 @@ func _senaryo_uygula(id: int):
 				call("kapi_ac")
 			
 			# Boss carry-over
-			if BossManager and BossManager.has_method("carry_over_ekle"):
-				# Boss tipini GameManager'dan veya mevcut boss'tan almalıyız
-				BossManager.carry_over_ekle(0, boss_current_hp)
+			if GameManager and GameManager.has_method("bosslari_carry_over_yap"):
+				GameManager.bosslari_carry_over_yap()
 			
 			# Masa sistemini kaldır
 			masa_sistemi_tween_kaybol()
@@ -201,7 +200,7 @@ func _senaryo_uygula(id: int):
 			_bitis_tetiklendi = true
 			
 			# Boss bekleme/kaçış mantığı GameManager'daki gibi:
-			var mermi_yeterli = (revolver_mermi + shotgun_mermi) >= boss_current_hp
+			var mermi_yeterli = (revolver_mermi + shotgun_mermi) > 0
 			
 			if boss_hayatta and mermi_yeterli:
 				# Mermi varsa bekle, ama masayı kaldır
@@ -211,8 +210,8 @@ func _senaryo_uygula(id: int):
 			else:
 				# Mermi yoksa boss kaçsın
 				if boss_hayatta:
-					if BossManager and BossManager.has_method("carry_over_ekle"):
-						BossManager.carry_over_ekle(0, boss_current_hp)
+					if GameManager and GameManager.has_method("bosslari_carry_over_yap"):
+						GameManager.bosslari_carry_over_yap()
 				
 				if has_method("kapi_ac"): call("kapi_ac")
 				

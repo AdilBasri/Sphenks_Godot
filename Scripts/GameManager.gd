@@ -177,11 +177,11 @@ func _kapi_kontrol():
 				toplam_hp += b.get("boss_hp") if b.get("boss_hp") != null else 1
 				
 		var toplam_mermi = mermi_sayisi + shotgun_mermi_count
-		var mermi_yeterli = (toplam_mermi >= toplam_hp)
+		var mermi_yeterli = (toplam_mermi > 0) # Eğer oyuncuda mermi Varsa, boss'u öldürmesi gerekir.
 		
-		# EĞER MERMİ YETERLİYSE VE BOSS YAŞIYORSA, KAPIYI AÇMA! Bekle...
+		# EĞER MERMİ VARSA VE BOSS YAŞIYORSA, KAPIYI AÇMA! Bekle...
 		if yasayan_boss_var and mermi_yeterli:
-			print("🚪 GameManager: Hedef puana ulaşıldı ancak mermi yeterli ve boss hayatta (Kapı Bekletiliyor).")
+			print("🚪 GameManager: Hedef puana ulaşıldı ancak mermi var ve boss hayatta (Kapı Bekletiliyor).")
 			
 			# UI'da "Boss'u Öldür" uyarısı göster
 			var arayuz = get_tree().get_first_node_in_group("Arayuz")
@@ -199,15 +199,15 @@ func _kapi_kontrol():
 
 func _seviye_bitis_kontrolu(force: bool = false):
 	"""Masa sisteminin ne zaman kalkacağına karar verir."""
-	if (not grid_tamamlandi and not force) or seviye_bitti_islem_yapildi:
+	# Eğer kaynaklar bittiyse veya 1.5x puan yapıldıysa (force), masa kalkabilir.
+	if (not grid_tamamlandi and not force) and not seviye_bitti_islem_yapildi:
 		return
 		
 	# Ghost Move sürüyorsa bitene kadar bekle
 	if ghost_move_active:
 		return
 
-	# Eğer boss hayattaysa ve mermi var ise beklet (oyuncu boss'u vurabilsin)
-	# ANCAK: Eğer force true ise (1.5x puan) bekleme, masayı kaldır!
+	# Düşman ve mermi durumunu topla
 	var bosslar = get_tree().get_nodes_in_group("Dusman")
 	var yasayan_boss_var = false
 	var toplam_hp = 0
@@ -217,43 +217,46 @@ func _seviye_bitis_kontrolu(force: bool = false):
 			toplam_hp += b.get("boss_hp") if b.get("boss_hp") != null else 1
 			
 	var toplam_mermi = mermi_sayisi + shotgun_mermi_count
-	var mermi_yeterli = (toplam_mermi >= toplam_hp)
+	var mermi_yeterli = (toplam_mermi > 0) # Mermi varsa oyuncunun ateş etmesi beklenir
 	
+	# Eğer boss hayattaysa ve mermi var ise beklet (oyuncu boss'u vurabilsin)
+	# ANCAK: Eğer force true ise (1.5x puan) bekleme, masayı kaldır!
 	if yasayan_boss_var and mermi_yeterli and not force:
-		print("🔫 GameManager: Puan tamam ama boss hayatta ve mermi yeterli. Bekletiliyor...")
+		print("🔫 GameManager: Puan tamam ama boss hayatta ve mermi var. Bekletiliyor...")
 		return
 		
-	# KRİTİK: Masa kalkıyor!
+	# KRİTİK: Masa kalkıyor veya kapı açılıyor!
+	# Eğer mermi kalmadıysa boss carry-over olur
+	if yasayan_boss_var and not mermi_yeterli:
+		print("🏃 Mermi tükendi! Boss carry-over'a alınıyor.")
+		bosslari_carry_over_yap()
+		# Boss'u sahnede gizle veya kaçış animasyonunu oynat
+		for b in bosslar:
+			if is_instance_valid(b) and not b.get("oldu_mu"):
+				if b.has_method("kacis_baslat"): b.kacis_baslat()
+				else: b.visible = false
+		# Kapıyı aç (artık mermi yok, boss kaçtı)
+		_kapiyi_ac_gercek()
+	
+	if seviye_bitti_islem_yapildi:
+		return # Masa zaten kalkmış, sadece mermi bitişini yukarıda kontrol ettik.
+
 	seviye_bitti_islem_yapildi = true
 	
-	if yasayan_boss_var:
-		if not mermi_yeterli:
-			# Mermi yetersizse boss carry-over olur ve kaybolur
-			print("🏃 Mermi yetersiz! Boss kaçıyor.")
-			_bosslari_carry_over_yap()
-			# Boss'u sahnede gizle (veya animasyonunu oynat)
-			for b in bosslar:
-				if is_instance_valid(b) and not b.get("oldu_mu"):
-					if b.has_method("kacis_baslat"): b.kacis_baslat()
-					else: b.visible = false
-			
-			# Kapıyı aç (mermi yoksa boss kaçtı, geçiş serbest)
-			_kapiyi_ac_gercek()
-		else:
-			# Mermi var ve boss yaşıyor (özellikle force true iken buraya gireriz)
-			print("🔫 GameManager: Masa kalktı, oyuncunun mermisi var. BOSS FIGHT BAŞLIYOR!")
-			# UI'da "Boss'u Öldür" uyarısı göster (Garantile)
-			var arayuz = get_tree().get_first_node_in_group("Arayuz")
-			if arayuz and arayuz.has_method("bilgi_goster"):
-				arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KILL THE BOSS", 5.0)
-	else:
-		# Boss zaten öldüyse kapıyı aç
+	if yasayan_boss_var and mermi_yeterli:
+		# Mermi var ve boss yaşıyor (özellikle force true iken buraya gireriz)
+		print("🔫 GameManager: Masa kalktı, oyuncunun mermisi var. BOSS FIGHT BAŞLIYOR!")
+		var arayuz = get_tree().get_first_node_in_group("Arayuz")
+		if arayuz and arayuz.has_method("bilgi_goster"):
+			arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KILL THE BOSS", 5.0)
+	elif not yasayan_boss_var:
+		# Boss zaten öldüyse direkt kapıyı aç
 		_kapiyi_ac_gercek()
 
 	print("🏁 SEVİYE TAMAMLANDI: Masa sistemi kaldırılıyor. (Force: %s)" % str(force))
 	emit_signal("seviye_tamamlandi")
 
-func _bosslari_carry_over_yap():
+func bosslari_carry_over_yap():
 	"""Hayatta kalan tüm boss'ları kacan_bosslar listesine ekler."""
 	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
 	var carry_sayisi = 0
@@ -795,7 +798,7 @@ func mermiyi_kullan():
 	if mermi_sayisi > 0:
 		mermi_sayisi -= 1
 		emit_signal("mermi_degisti", mermi_sayisi)
-		if mermi_sayisi == 0: _seviye_bitis_kontrolu()
+		if mermi_sayisi == 0: _kapi_kontrol()
 		return true
 	return false
 
@@ -809,7 +812,7 @@ func shotgun_mermiyi_kullan() -> bool:
 	if shotgun_mermi_count > 0:
 		shotgun_mermi_count -= 1
 		emit_signal("shotgun_mermi_degisti", shotgun_mermi_count)
-		if shotgun_mermi_count == 0: _seviye_bitis_kontrolu()
+		if shotgun_mermi_count == 0: _kapi_kontrol()
 		return true
 	return false
 

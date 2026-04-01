@@ -173,6 +173,10 @@ func _spawn_noktalarini_guncelle(aktif: bool) -> void:
 # Yine de tam halini istiyorsan aşağıya devamını ekliyorum:
 
 func _stoktan_yeni_parti_ver() -> void:
+	# Bütün katmanlarda sonsuz blok sağla (User Request)
+	kalan_stok = 999
+	emit_signal("stok_guncellendi", kalan_stok)
+	
 	print(">>> Stok Kontrol Ediliyor - Kalan: ", kalan_stok, " Masadaki: ", masadaki_aktif_bloklar)
 	if tur_bitti_mi:
 		print("--- Tur Zaten Bitti, Blok Verilmeyecek ---")
@@ -180,11 +184,6 @@ func _stoktan_yeni_parti_ver() -> void:
 	if blok_sahneleri.is_empty():
 		print("--- HATA: Blok Sahneleri Bos! ---")
 		return
-
-	# Bütün katmanlarda sonsuz blok sağla (User Request) - KALDIRILDI
-	# if LevelManager:
-	# 	if not boss_oldu_mu and kalan_stok <= 5:
-	# 		kalan_stok += 999
 	
 	if kalan_stok <= 0 and masadaki_aktif_bloklar <= 0:
 		emit_signal("stok_bitti")
@@ -326,13 +325,18 @@ func _sahne_bitis_animasyonu() -> void:
 	if GameManager:
 		toplam_mermi = GameManager.mermi_sayisi + GameManager.shotgun_mermi_count
 		
+	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
 	var boss_yasiyor = false
-	var boss_hp = 1
-	if is_instance_valid(boss_objesi) and not boss_objesi.get("oldu_mu"):
-		boss_yasiyor = true
-		boss_hp = boss_objesi.boss_hp if "boss_hp" in boss_objesi else 2
-		
-	var mermi_yeterli = (toplam_mermi >= boss_hp)
+	var toplam_boss_hp = 0
+	var aktif_dusman = boss_objesi
+	
+	for d in dusmanlar:
+		if is_instance_valid(d) and not d.get("oldu_mu"):
+			boss_yasiyor = true
+			toplam_boss_hp += d.boss_hp if "boss_hp" in d else 1
+			if not aktif_dusman: aktif_dusman = d
+	
+	var mermi_yeterli = (toplam_mermi > 0) # Oyuncunun elinde mermi varsa savaş devam etmeli
 	
 	# OYUNCUYU TABUREDEN KALDIR (KRİTİK)
 	if oyuncu and oyuncu.has_method("stand_up"):
@@ -365,16 +369,24 @@ func _sahne_bitis_animasyonu() -> void:
 	if not (mermi_yeterli and boss_yasiyor):
 		var boss_list = get_tree().get_nodes_in_group("Dusman")
 		for b in boss_list:
-			if is_instance_valid(b) and b != boss_objesi:
+			if is_instance_valid(b) and b != aktif_dusman:
 				b.queue_free()
 
 	tween.chain().tween_callback(func(): 
-		if is_instance_valid(boss_objesi): 
+		var check_dusmanlar = get_tree().get_nodes_in_group("Dusman")
+		var is_any_alive = false
+		for cd in check_dusmanlar:
+			if is_instance_valid(cd) and not cd.get("oldu_mu"):
+				is_any_alive = true; break
+				
+		if is_any_alive: 
 			if not (mermi_yeterli and boss_yasiyor):
-				boss_objesi.visible = false
-				print("👋 BlokDagiticisi: Boss kaçıyor/öldü, gizlendi.")
+				# Eğer savaş bittiyse (mermi yok) gizle
+				for cd in check_dusmanlar:
+					if is_instance_valid(cd): cd.visible = false
+				print("👋 BlokDagiticisi: Bosslar kaçıyor/öldü, gizlendi.")
 			else:
-				print("⚔️ BlokDagiticisi: Boss Fight aktif, boss korunuyor.")
+				print("⚔️ BlokDagiticisi: Boss Fight aktif, bosslar korunuyor.")
 		if is_instance_valid(masa_objesi): masa_objesi.queue_free()
 		if grid and grid.has_method("engelleri_temizle"):
 			grid.engelleri_temizle()
