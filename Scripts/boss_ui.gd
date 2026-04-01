@@ -182,10 +182,10 @@ func _totemleri_guncelle_v4(tip: String, current_hp: int):
 				var t_node = totemler[i]
 				var should_be_visible = (i < current_hp)
 				
-				# Eğer can bittiyse ve animasyon yoksa direkt gizle
-				# Ama eğer can azaldıysa ve biz o totemi deviriyorsak, 
-				# görünürlüğünü sekans içinde yöneteceğiz veya devrik bırakacağız.
-				if not _is_animating:
+				# CRITICAL FIX: Hangi canın gittiğini her zaman göster (Animasyon olsa bile)
+				# Sadece şu an devrilmekte olan totemi (index == current_hp) 
+				# animasyonun insafına bırakabiliriz, diğerlerini hemen güncelle.
+				if not _is_animating or i != current_hp:
 					t_node.visible = should_be_visible
 					if should_be_visible:
 						_recursive_visible(t_node, true)

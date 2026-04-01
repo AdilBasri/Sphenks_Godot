@@ -1,18 +1,5 @@
-[gd_scene load_steps=3 format=3 uid="uid://d033u0hvel1ax"]
+[gd_scene load_steps=2 format=3 uid="uid://d033u0hvel1ax"]
 
 [ext_resource type="PackedScene" uid="uid://d2q0ov4m2qofi" path="res://stone_boss/Meshy_AI_Meshy_Merged_Animations.fbx" id="1_stone_boss"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_vi38o"]
-radius = 0.625
-height = 1.8486328
-
 [node name="StoneBoss_Model" instance=ExtResource("1_stone_boss")]
-
-[node name="StaticBody3D" type="StaticBody3D" parent="." index="2"]
-collision_layer = 512
-collision_mask = 0
-input_ray_pickable = false
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7204828, 0)
-shape = SubResource("CapsuleShape3D_vi38o")

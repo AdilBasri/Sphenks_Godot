@@ -1,18 +1,5 @@
-[gd_scene load_steps=3 format=3 uid="uid://cx6msh67nsv5"]
+[gd_scene load_steps=2 format=3 uid="uid://cx6msh67nsv5"]
 
 [ext_resource type="PackedScene" uid="uid://dqi12qq4eqdo8" path="res://acid_boss/Meshy_AI_Animation_Idle_withSkin.fbx" id="1_c7yv8"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ngkvp"]
-radius = 0.89208984
-height = 2.2875977
-
 [node name="AcidBoss_Model" instance=ExtResource("1_c7yv8")]
-
-[node name="StaticBody3D" type="StaticBody3D" parent="." index="2"]
-collision_layer = 512
-collision_mask = 0
-input_ray_pickable = false
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8899726, 0.063075066)
-shape = SubResource("CapsuleShape3D_ngkvp")

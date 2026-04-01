@@ -147,7 +147,7 @@ emission = Color(1, 1, 0, 1)
 emission_energy_multiplier = 5.0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_0o22n"]
-size = Vector3(1.400217, 1.265907, 0.7770014)
+size = Vector3(1.707921, 1.7476996, 1.2649655)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_bariyer"]
 size = Vector3(10, 5, 0.1)
@@ -524,7 +524,6 @@ shape = SubResource("BoxShape3D_0o22n")
 
 [node name="AcidBoss" type="Node3D" parent="MezarOdasi" index="7"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0.0632534, -1.0051993, -0.9190335)
-visible = false
 script = ExtResource("94_acid")
 glitch_yuzu_dokusu = ExtResource("15_qrobu")
 
@@ -537,7 +536,7 @@ collision_mask = 128
 input_ray_pickable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MezarOdasi/AcidBoss/Area3D" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.072883606, 0.9358213, -1.1842747)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.08096838, 1.1767176, -0.9402927)
 shape = SubResource("BoxShape3D_0o22n")
 
 [node name="StoneBoss" type="Node3D" parent="MezarOdasi" index="8"]
