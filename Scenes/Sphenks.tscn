@@ -1,4 +1,4 @@
-[gd_scene load_steps=137 format=3 uid="uid://3dl60tfqpdc6"]
+[gd_scene load_steps=138 format=3 uid="uid://3dl60tfqpdc6"]
 
 [ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Assets/Models/Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://Scripts/sphenks.gd" id="2_fi7dh"]
@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://b2nhri0gq2vpk" path="res://Assets/Images/KediTutulan.png" id="8_p4fw5"]
 [ext_resource type="PackedScene" uid="uid://b4bhb1v1do7yg" path="res://Scenes/Enemies/PyroDusman.tscn" id="9_bjfsn"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Materials_Shaders/Sphenks.gdshader" id="10_h2n1q"]
+[ext_resource type="AudioStream" uid="uid://chvv3ffapjo5m" path="res://Assets/kirikcam.mp3" id="13_6ry63"]
 [ext_resource type="PackedScene" uid="uid://cyy5cvfn3untg" path="res://Scenes/Enemies/CanavarOturma.tscn" id="13_bjfsn"]
 [ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="13_bpxfr"]
 [ext_resource type="Script" uid="uid://bnl3r0qmhc78q" path="res://Scripts/BossCanavar.gd" id="14_2531s"]
@@ -512,6 +513,7 @@ transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -0.16618979, -0.7603410
 visible = false
 script = ExtResource("14_2531s")
 glitch_yuzu_dokusu = ExtResource("15_qrobu")
+kirik_cam_sesi = ExtResource("13_6ry63")
 
 [node name="Area3D" type="Area3D" parent="MezarOdasi/NormalBoss" index="5"]
 collision_layer = 136
@@ -526,6 +528,7 @@ shape = SubResource("BoxShape3D_0o22n")
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0.0632534, -1.0051993, -0.9190335)
 script = ExtResource("94_acid")
 glitch_yuzu_dokusu = ExtResource("15_qrobu")
+kirik_cam_sesi = ExtResource("13_6ry63")
 
 [node name="AcidBossModel" parent="MezarOdasi/AcidBoss" index="0" instance=ExtResource("95_acid_model")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26097602, -1.3516316)
@@ -544,6 +547,7 @@ transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0.073679924, -1.0812246
 visible = false
 script = ExtResource("96_stone")
 glitch_yuzu_dokusu = ExtResource("15_qrobu")
+kirik_cam_sesi = ExtResource("13_6ry63")
 
 [node name="StoneBossModel" parent="MezarOdasi/StoneBoss" index="0" instance=ExtResource("97_stone_model")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.260976, -0.97269034)

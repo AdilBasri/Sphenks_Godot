@@ -395,7 +395,7 @@ func _olum_sekans():
 	
 	# 2 — Yerin altına girme (Hızlı ve derin)
 	var tween = create_tween()
-	tween.tween_property(self, "global_position:y", global_position.y - 30.0, 0.8).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tween.tween_property(self, "global_position:y", global_position.y - 50.0, 0.8).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	
 	await tween.finished
 	
