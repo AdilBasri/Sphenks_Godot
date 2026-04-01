@@ -135,15 +135,25 @@ func puan_ekle(miktar: int):
 	"""GridYoneticisi'nden gelen puanları toplar ve hedefi kontrol eder."""
 	suanki_puan += miktar
 	
+	# --- TUTORIAL KONTROLU: Tutorial bitene kadar ne kapı açılır ne masa gider ---
+	var tutorial_aktif = (suanki_seviye == 1 and not is_tutorial_segment_completed("base"))
+	
 	if not grid_tamamlandi and suanki_puan >= hedef_puan:
-		grid_tamamlandi = true
-		print("✅ HEDEF PUAN AŞILDI! (%d/%d)" % [suanki_puan, hedef_puan])
-		_kapi_kontrol()
+		if tutorial_aktif:
+			print("🎓 GameManager: Puan doldu ama tutorial bitmedi. Bekleniyor...")
+		else:
+			grid_tamamlandi = true
+			print("✅ HEDEF PUAN AŞILDI! (%d/%d)" % [suanki_puan, hedef_puan])
+			_kapi_kontrol()
 	
 	# --- YENİ: 1.5 KAT PUAN KONTROLÜ ---
 	if suanki_puan >= (hedef_puan * 1.5) and not seviye_bitti_islem_yapildi:
-		print("🔥 1.5 KAT PUAN LIMITI ASILDI! Otomatik bitiş tetikleniyor.")
-		_seviye_bitis_kontrolu(true) # Force end
+		if tutorial_aktif:
+			# Masayı şimdilik yerinde tut, daha sonra tutorial bitince gidebilir
+			pass
+		else:
+			print("🔥 1.5 KAT PUAN LIMITI ASILDI! Otomatik bitiş tetikleniyor.")
+			_seviye_bitis_kontrolu(true) # Force end
 	
 	emit_signal("puan_degisti", suanki_puan)
 
@@ -500,6 +510,7 @@ func verileri_sifirla():
 	oyuncu_kalan_bar = 4
 	oyuncu_suanki_hp = 10
 	suanki_seviye = 1
+	kayitli_seviye = 1
 	toplam_altin = 10
 	uyku_sahnesi_giris_sayisi = 0
 	mermi_sayisi = 10
@@ -966,8 +977,13 @@ func complete_tutorial_segment(segment_name: String):
 			grid_tamamlandi = true # Puandan bağımsız geçiş izni
 			print("🎓 Tutorial: Base bitti. Puan bağımsız olarak kapı kontrolü tetikleniyor.")
 			
-			# Tutorial bittiğine göre artık kapı kontrolü çalışabilir
+			# Tutorial bittiğine göre artık kapı kontrolü ve masa kontrolü çalışabilir
 			_kapi_kontrol()
+			
+			# Eğer tutorial içinde 1.5 kat puan yapıldıysa, masayı şimdi kaldır
+			if suanki_puan >= (hedef_puan * 1.5):
+				print("🎓 Tutorial Bitti & 1.5x Puan Mevcut: Masa kaldırılıyor.")
+				_seviye_bitis_kontrolu(true)
 			
 		oyunu_kaydet()
 
