@@ -110,9 +110,10 @@ func _on_giris_sensoru_body_entered(body):
 		if not kamera and body.has_node("Camera3D"):
 			kamera = body.get_node("Camera3D")
 
-		if kamera:
-			call_deferred("kolu_kaldir", kamera)
+		if kamera and hedef_marketci:
+			call_deferred("kamera_pan", body)
 		
+		# Market alışverişi için kontrolü sürdür
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _on_giris_sensoru_body_exited(body):
@@ -121,18 +122,18 @@ func _on_giris_sensoru_body_exited(body):
 		if market_ui:
 			market_ui.visible = false
 
-func kolu_kaldir(kamera):
-	if oyuncu_kolu.get_parent():
-		oyuncu_kolu.get_parent().remove_child(oyuncu_kolu)
-	kamera.add_child(oyuncu_kolu)
-
-	oyuncu_kolu.transform = Transform3D.IDENTITY
-	oyuncu_kolu.visible = true
-	oyuncu_kolu.position = kol_baslangic_pos
-
+func kamera_pan(oyuncu_body):
+	# Oyuncuyu (veya kamerayı) yavaşça Şifacının (Marketçi) olduğu yöne çevir
+	if not is_instance_valid(hedef_marketci) or not is_instance_valid(oyuncu_body): return
+	
+	var yon = (hedef_marketci.global_position - oyuncu_body.global_position).normalized()
+	var hedef_rot_y = atan2(yon.x, yon.z) # Hedef bakış açısı
+	
+	# Tween animasyonu ile pürüzsüz dönüş
 	var tween = create_tween()
-	tween.tween_property(oyuncu_kolu, "position", kol_hedef_pos, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-
+	tween.tween_property(oyuncu_body, "rotation:y", hedef_rot_y, 0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	
+	# Eğer mermi silah kolu vs. olsaydı burada silerdik, şu an zaten kaldırıldı.
 	if market_kapisi and market_kapisi.has_method("kilitle"):
 		market_kapisi.kilitle() # İçeri girince kapıyı kilitle
 

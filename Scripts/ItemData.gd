@@ -8,6 +8,9 @@ class_name ItemData
 # Animasyon Tipi: "icme", "yeme", "kirma", "buyume", "cokme", "giyinme"
 @export var animasyon_tipi: String = "icme"
 
+# Satın alınabilir eşyaların nadirliği (1 = Yaygın, 2 = Nadir, 3 = Efsanevi)
+@export var yildiz: int = 1
+
 @export var esya_adi: String = "Item Name"
 @export_multiline var aciklama: String = "Description"
 @export var fiyat: int = 10

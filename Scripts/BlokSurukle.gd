@@ -98,10 +98,8 @@ func _process(delta: float) -> void:
 		_hayalet_guncelle()
 
 func _on_area_3d_input_event(_camera, event, _position, _normal, _shape_idx) -> void:
-	# --- 🔥 KRİTİK KONTROL: SİLAH ÇEKİLDİYSE BLOKLARA DOKUNMA! 🔥 ---
-	if GameManager.silah_cekildi: return
-	# -------------------------------------------------------------
-	
+
+
 	if TutorialManager and TutorialManager.tutorial_aktif and TutorialManager.suanki_adim == 10:
 		return
 	

@@ -344,25 +344,22 @@ func satirlari_kontrol_et() -> void:
 		kombo_carpani += 1; kombo_suresi = max_kombo_suresi
 		_gelismis_puan_hesapla(patlayan_satir_sayisi, patlayacak_hucreler, mantar_ekstra)
 		
-		# --- MERMİ PARÇASI DÜŞÜRME SİSTEMİ ---
+		# --- KEMİK DÜŞÜRME SİSTEMİ ---
 		if not Engine.is_editor_hint():
 			var gm = get_node_or_null("/root/GameManager")
 			if gm:
 				var toplam_patlayan_blok = patlayacak_hucreler.size()
-				# Her patlayan blok için ayrı ayrı %20 şans olsun:
 				var parca_sansi_sayisi = toplam_patlayan_blok
 				
-				print("🔩 SATIR PATLADI! [%d blok] -> Her blok için ayrı drop şansı (%d deneme)..." % [toplam_patlayan_blok, parca_sansi_sayisi])
+				print("🔩 SATIR PATLADI! [%d blok] -> Her blok için kemik şansı..." % [toplam_patlayan_blok])
 				
-				var i = 0
 				for hucre in patlayacak_hucreler:
 					var sans = randi() % 100
-					if sans < 20: # Her blok için %20 ihtimal
-						if gm.has_method("mermi_parcasi_ekle"):
-							gm.mermi_parcasi_ekle(1)
-							# Görsel efekt: Bloğun patladığı yerde fiziksel mermi parçası göster
+					if sans < 20: # %20 ihtimal
+						if gm.has_method("kemik_ekle"):
+							gm.kemik_ekle(1)
 							var blok_pos = cell_center_world(hucre)
-							_mermi_parcasi_gorsel_olustur(blok_pos)
+							_kemik_gorsel_olustur(blok_pos)
 			else:
 				print("⚠️ UYARI: GameManager bulunamadı (Drop yapılamadı)")
 		
@@ -600,35 +597,45 @@ func _blok_kaydir_animasyonu(blok: Node3D, hedef_hucre: Vector2i):
 	tween.tween_property(blok, "global_position:x", hedef_pos.x, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tween.parallel().tween_property(blok, "global_position:z", hedef_pos.z, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
-func _mermi_parcasi_gorsel_olustur(pos: Vector3):
-	# Fiziksel görünümlü bir mermi parçası (küçük sarı silindir/kutu) yarat
+func _kemik_gorsel_olustur(pos: Vector3):
+	# Kemik görünümü için CapsuleMesh
 	var parca = MeshInstance3D.new()
-	var box = BoxMesh.new()
-	box.size = Vector3(0.15, 0.15, 0.35)
-	parca.mesh = box
+	var kapsul = CapsuleMesh.new()
+	kapsul.radius = 0.1
+	kapsul.height = 0.5
+	parca.mesh = kapsul
 	
 	var mat = StandardMaterial3D.new()
-	mat.albedo_color = Color(1.0, 0.84, 0.0) # Altın/Sarı mermi rengi
-	mat.metallic = 1.0
-	mat.roughness = 0.2
+	mat.albedo_color = Color(0.9, 0.9, 0.85) # Kemik Beyazı
+	mat.roughness = 0.7
 	mat.emission_enabled = true
-	mat.emission = Color(0.5, 0.4, 0.0)
+	mat.emission = Color(0.3, 0.3, 0.2)
 	parca.material_override = mat
 	
 	get_tree().current_scene.add_child(parca)
 	parca.global_position = pos + Vector3(0, 0.5, 0)
 	
-	# Zıplama ve Yok Olma Animasyonu
 	var tween = create_tween()
-	var havaya = pos + Vector3(randf_range(-0.5, 0.5), 1.5, randf_range(-0.5, 0.5))
+	var havaya = pos + Vector3(randf_range(-1.0, 1.0), 3.0, randf_range(-1.0, 1.0))
 	
 	tween.set_parallel(false)
-	tween.tween_property(parca, "global_position", havaya, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(parca, "scale", Vector3(1.5, 1.5, 1.5), 0.4)
-	tween.parallel().tween_property(parca, "rotation", Vector3(randf(), randf(), randf()) * 10, 0.4)
+	tween.tween_property(parca, "global_position", havaya, 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(parca, "scale", Vector3(1.2, 1.2, 1.2), 0.5)
+	tween.parallel().tween_property(parca, "rotation", Vector3(randf(), randf(), randf()) * 15, 0.5)
 	
-	tween.tween_interval(0.2)
+	tween.tween_interval(0.3)
 	
-	# Kameraya doğru uçabilir veya sadece küçülüp yok olabilir
-	tween.tween_property(parca, "scale", Vector3.ZERO, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	var bosslar = get_tree().get_nodes_in_group("Dusman")
+	var asil_boss = null
+	for b in bosslar:
+		if is_instance_valid(b) and not b.get("oldu_mu"):
+			asil_boss = b
+			break
+			
+	if asil_boss:
+		# Uçuş
+		tween.tween_property(parca, "global_position", asil_boss.global_position + Vector3(0, 1, 0), 0.4).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	else:
+		tween.tween_property(parca, "scale", Vector3.ZERO, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+		
 	tween.tween_callback(parca.queue_free)

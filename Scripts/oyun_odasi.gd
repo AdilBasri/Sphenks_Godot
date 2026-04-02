@@ -47,9 +47,7 @@ func _ready():
 		# Atmosferi Ayarla
 		_atmosferi_guncelle()
 		
-		# --- 🔥 PYRO DÜŞMANLARI YARAT 🔥 ---
-		if GameManager.pyro_aktif:
-			_pyro_dusmanlarini_yarat()
+		# Pyro sistemi arındırıldı - düşman yaratılmıyor
 	
 	if yan_sehpa and yan_sehpa.has_method("sehpayi_guncelle"):
 		yan_sehpa.sehpayi_guncelle()
@@ -136,28 +134,18 @@ func _atmosferi_guncelle():
 		if world_env_node: env = world_env_node.environment
 	
 	if env:
-		if GameManager.pyro_aktif:
-			print("🔴 GÖRSEL: PYRO Atmosferi (KIRMIZI)")
-			env.background_mode = Environment.BG_COLOR
-			env.background_color = Color(0.2, 0.0, 0.0) 
-			env.volumetric_fog_enabled = true
-			env.volumetric_fog_albedo = Color(0.8, 0.1, 0.1) 
-			env.volumetric_fog_density = 0.03
-			env.adjustment_enabled = true
-			env.adjustment_saturation = 1.2
-		else:
-			print("⚪ GÖRSEL: Normal Atmosfer")
-			env.background_mode = Environment.BG_COLOR
-			env.background_color = Color(0.1, 0.1, 0.1) 
-			env.volumetric_fog_enabled = false
-			env.adjustment_enabled = false
+		print("⚪ GÖRSEL: Normal Atmosfer")
+		env.background_mode = Environment.BG_COLOR
+		env.background_color = Color(0.1, 0.1, 0.1)
+		env.volumetric_fog_enabled = false
+		env.adjustment_enabled = false
 	else:
 		print("⚠️ UYARI: Environment bulunamadı.")
 
 # --- TETİKLEYİCİLER ---
 func _on_satir_patladi():
 	if boss_tamamen_oldu: return
-	if not boss_uyandi_mi and not GameManager.pyro_aktif:
+	if not boss_uyandi_mi:
 		boss_uyandi_mi = true
 		print("BOSS AWAKENED!")
 		var arayuz = get_tree().get_first_node_in_group("Arayuz")
@@ -165,7 +153,7 @@ func _on_satir_patladi():
 
 func _on_blok_yerlestirildi():
 	if boss_tamamen_oldu: return
-	if GameManager.pyro_aktif: return # Pyro'da boss saldırmaz
+	# Pyro sistemi kaldırıldı - bu kontrol her zaman geçilir
 	
 	# --- 👁️ GLITCH PARRY BYPASS (FREE BLOCK BUT BOSS STILL GETS ITS TURN) ---
 	if GameManager and GameManager.ghost_move_active:

@@ -1,0 +1,11 @@
+Model Information:
+* title:	The gun box
+* source:	https://sketchfab.com/3d-models/the-gun-box-8b0f1aaedde8409cb7f5d4e4eb040214
+* author:	Star1194 (https://sketchfab.com/Star1194)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "The gun box" (https://sketchfab.com/3d-models/the-gun-box-8b0f1aaedde8409cb7f5d4e4eb040214) by Star1194 (https://sketchfab.com/Star1194) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

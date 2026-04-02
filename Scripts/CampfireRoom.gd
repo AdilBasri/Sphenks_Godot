@@ -109,28 +109,10 @@ func _oyuncu_girdi(body):
 				if child is Node3D and "KapiSistemi" in child.name and child.name != "KapiSistemi3" and child.has_method("_oyuncu_gecti"):
 					child._oyuncu_gecti(body) # Kapıyı kapat ve kilitle
 	
-	# 🔫 SİLAHI ZORLA KAPAT VE OYUNCU DURUMUNU GÜNCELLE (Forced Weapon Unequip Bug)
-	GameManager.silah_cekildi = false
-	GameManager.pyro_aktif    = false
+	# Silah/Pyro sistemi kaldırıldı
 	
-	# Oyuncu statüsünü "Safe" yap ve silahı kapat
-	body.set("state", "Safe") # Eğer state machine varsa Safe state e zorla
-	if body.has_method("unequip_weapons"):
-		body.unequip_weapons()
-	elif body.has_method("hide_weapon"):
-		body.hide_weapon()
-	body.set("weapon_input_disabled", true) # Silah inputlarını engelle
-	
-	# Mevcut mantıktaki silah gizleme kodu
-	var silah = get_tree().get_first_node_in_group("SilahKatmani")
-	if not silah:
-		silah = get_tree().current_scene.find_child("SilahKatmani", true, false)
-	if silah: silah.visible = false
-	var revolver = get_tree().get_first_node_in_group("Arayuz")
-	if revolver and revolver.has_method("_silahi_kaldir"):
-		revolver._silahi_kaldir()
-	
-	print("🔥 Campfire: Oyuncu girdi, kartlar açılıyor | Silah kapatıldı.")
+	print("🔥 Campfire: Oyuncu girdi, kartlar açılıyor.")
+
 	
 	# --- CAMPFIRE TUTORIALINI BAŞLAT ---
 	if TutorialManager:

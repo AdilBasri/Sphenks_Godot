@@ -66,6 +66,9 @@ func _gecisin_sensorunu_bagla():
 	gecis_area.body_entered.connect(_oyuncu_girdi)
 	gecis_area.body_exited.connect(_oyuncu_cikti)
 
+# Teleport hedefi (kapı açıldığında oyuncuyu buraya blink ile gönder)
+const DOOR_TELEPORT_POS: Vector3 = Vector3(-0.2, 1.1, -22)
+
 # --- AKSİYONLAR ---
 func interact(_oyuncu):
 	etkilesim()
@@ -99,22 +102,25 @@ func kapiyi_ac():
 	if gecit_efektleri:
 		gecit_efektleri.visible = true
 	
-	# 3. Animasyon (Fiziksel Açılma)
-	var tween = create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(self, "rotation:y", kapali_rot_y + deg_to_rad(95.0), 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	
-	if kapi_isigi:
-		kapi_isigi.visible = true 
-		tween.tween_property(kapi_isigi, "light_energy", 12.0, 1.0)
-	
-	# 4. ÖZEL DURUM: Sadece "SONRAKI LEVEL" kapısıysa sahneyi resetle
-	if hedef_tipi == HedefTipi.SONRAKI_LEVEL:
-		await get_tree().create_timer(0.7).timeout
-		LevelManager.odaya_don_ve_level_atla()
-	
-	# DİKKAT: Market ve Campfire için hiçbir şey yapmıyoruz. 
-	# Kapı açıldı, oyuncu yürüyerek içeri girecek.
+	# 3. Animasyon (Fiziksel Açılma veya Göz Kapanma Sensasyonu)
+	# Oyun içinde blink efekti ile teleport!
+	if LevelManager and LevelManager.has_method("perform_blink_transition"):
+		# Eğer LevelManager yoksa fallback animasyon oynatılır.
+		var callback = Callable()
+		if hedef_tipi == HedefTipi.SONRAKI_LEVEL and LevelManager and LevelManager.has_method("odaya_don_ve_level_atla"):
+			callback = Callable(LevelManager, "odaya_don_ve_level_atla")
+		# Her durumda oyuncuyu konuştuğumuz sabit kamera pozuna blink ile ışınla
+		LevelManager.perform_blink_transition(DOOR_TELEPORT_POS, 0.0, callback)
+		return
+	else:
+		# Fallback Animasyon (LevelManager yoksa)
+		var tween = create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(self, "rotation:y", kapali_rot_y + deg_to_rad(95.0), 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		if kapi_isigi:
+			kapi_isigi.visible = true 
+			tween.tween_property(kapi_isigi, "light_energy", 12.0, 1.0)
+ 
 
 func _oyuncu_girdi(body):
 	if not body.is_in_group("Oyuncu"): return

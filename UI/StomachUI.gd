@@ -57,8 +57,7 @@ func _ready():
 			GameManager.mide_guncellendi.connect(_on_mide_guncellendi)
 		_doluluk_hesapla()
 	
-	# --- PYRO GÖRÜNÜRLÜK ---
-	_pyro_gorunurluk_guncelle()
+	# Pyro sistemi kaldırıldı — MideUI her zaman görünür
 	
 	print("🫁 MideUI hazır. Boyut: %s" % str(panel_boyut))
 
@@ -190,10 +189,7 @@ func _viewport_ve_sahne_olustur():
 func _process(delta):
 	# Görünmüyorsa işlem yapma
 	if not visible:
-		_pyro_gorunurluk_guncelle()
-		return
-	
-	_pyro_gorunurluk_guncelle()
+		return  # Görünmüyorsa işlem yapma
 	
 	# --- DOLULUK ANİMASYONU ---
 	if abs(suanki_doluluk - hedef_doluluk) > 0.001:
@@ -314,13 +310,8 @@ func _calkalanma_guncelle(delta):
 	# Pivot'a uygula (rotation sıfırlanıp yeniden set)
 	mide_pivot.rotation = suanki_tilt
 
-# --- PYRO GÖRÜNÜRLÜK ---
-
-func _pyro_gorunurluk_guncelle():
-	if not GameManager: return
-	var goster = GameManager.pyro_aktif
-	if visible != goster:
-		visible = goster
+# --- PYRO GÖRÜNÜRLÜK (Kaldırıldı) ---
+# Pyro sistemi arındırıldı, MideUI artık her zaman görünürdür.
 
 # --- YARDIMCI ---
 

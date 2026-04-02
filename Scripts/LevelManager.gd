@@ -39,6 +39,72 @@ var boss_konumlari: Dictionary = {} # Boss Ismi -> Vector3 (Orijinal Sahne Konum
 var yanci_markerlari: Array[Node3D] = [] # Sahnedeki Yancilar node'u icindeki Marker3D'ler
 var bitis_yoneticisi: Node = null
 
+# --- BLINK CANVAS ---
+var blink_canvas: CanvasLayer = null
+var blink_rect: ColorRect = null
+var blink_material: ShaderMaterial = null
+
+func _ready():
+	_setup_blink_canvas()
+
+func _setup_blink_canvas():
+	blink_canvas = CanvasLayer.new()
+	blink_canvas.layer = 100 # Oyunun üstünde olsun
+	
+	blink_rect = ColorRect.new()
+	blink_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	blink_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	blink_material = ShaderMaterial.new()
+	var shader = load("res://Assets/Materials/EyeBlink.gdshader")
+	if shader:
+		blink_material.shader = shader
+		blink_material.set_shader_parameter("blink_amount", 0.0)
+	
+	blink_rect.material = blink_material
+	blink_canvas.add_child(blink_rect)
+	add_child(blink_canvas)
+
+func perform_blink_transition(to_pos: Vector3, to_rot_y: float = 0.0, callback: Callable = Callable()):
+	if not blink_material or not is_instance_valid(oyuncu_ref):
+		# Fallback just teleport
+		if is_instance_valid(oyuncu_ref):
+			oyuncu_ref.global_position = to_pos
+			oyuncu_ref.rotation.y = to_rot_y
+		if callback.is_valid(): callback.call()
+		return
+		
+	# Disable controls during blink
+	var was_hidden = false
+	if is_instance_valid(oyuncu_ref) and oyuncu_ref.has_method("disable_controls"):
+		was_hidden = true
+		oyuncu_ref.disable_controls()
+		
+	var tween = create_tween()
+	# Göz kapanışı
+	tween.tween_method(func(val): blink_material.set_shader_parameter("blink_amount", val), 0.0, 1.0, 0.4).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_callback(func():
+		# Teleport anında (Göz kapalıyken)
+		oyuncu_ref.global_position = to_pos
+		oyuncu_ref.rotation.y = to_rot_y
+		
+		# Reset camera tilt if PlayerCamera exists
+		var cam_sys = oyuncu_ref.find_child("PlayerCamera", true, false)
+		if cam_sys and "x_rotation" in cam_sys:
+			cam_sys.x_rotation = 0.0
+			cam_sys.camera.rotation.x = 0.0
+			
+		if callback.is_valid():
+			callback.call()
+	)
+	tween.tween_interval(0.2)
+	# Göz açılışı
+	tween.tween_method(func(val): blink_material.set_shader_parameter("blink_amount", val), 1.0, 0.0, 0.6).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_callback(func():
+		if was_hidden and is_instance_valid(oyuncu_ref) and oyuncu_ref.has_method("enable_controls"):
+			oyuncu_ref.enable_controls()
+	)
+
 func is_acid_boss_level() -> bool:
 	# 1, 4, 7... pattern (katman % 3 == 1)
 	return suanki_katman % 3 == 1
@@ -56,18 +122,8 @@ func oyunu_baslat():
 
 func _sahne_yukle_ve_kontrol_et():
 	# Sahne ismine göre state'i kesinleştiriyoruz
-	if is_pyro_encounter:
-		GameManager.pyro_aktif = true
-		GameManager.silah_cekildi = true
-		get_tree().change_scene_to_file("res://Scenes/PyroKoridoru.tscn")
-		
-		# --- PYRO TUTORIALINI BAŞLAT ---
-		if TutorialManager:
-			TutorialManager.call_deferred("start_tutorial_segment", "pyro")
-	else:
-		GameManager.pyro_aktif = false 
-		GameManager.silah_cekildi = false
-		get_tree().change_scene_to_file("res://Scenes/Sphenks.tscn")
+	# Pyro sistemi kaldırıldı — her zaman Sphenks.tscn'e git
+	get_tree().change_scene_to_file("res://Scenes/Sphenks.tscn")
 
 func konumlari_kaydet(p1: Vector3, p2: Vector3, p3: Vector3, oyuncu: CharacterBody3D, oda_ref: Node):
 	market_pos = p1
@@ -149,8 +205,6 @@ func odaya_don_ve_level_atla():
 		
 	if GameManager:
 		GameManager.suanki_seviye = suanki_katman
-		GameManager.silah_cekildi = false # KESİN SİLAH KAPATMA
-		GameManager.pyro_aktif = false    # KESİN PYRO KAPATMA
 		GameManager.yeme_aktif_mi = false
 		
 		# Bölüm geçişinde buff efektlerini sıfırla (item'lar envanterde kalır,
@@ -403,8 +457,6 @@ func bolum_verilerini_getir() -> Dictionary:
 
 func boss_saldirisi_baslat():
 	# Sadece Pyro olmayan seviyelerde çalışır
-	if GameManager.pyro_aktif: return
-	
 	if saldiri_devrede:
 		print("⚠️ Boss saldırısı zaten devrede, kopya çağrı engellendi. Kilit açılıyor...")
 		# Eğer kilitliysek ama saldırı başlatılamıyorsa oyuncuyu kurtar

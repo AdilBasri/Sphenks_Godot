@@ -10,12 +10,10 @@ extends CanvasLayer
 @export var nisangah: Control
 @export var pyro_filtresi: ColorRect
 
-# --- 🔫 MERMİ HUD (Kullanıcı tarafından tscn'e eklendi) ---
-@onready var mermi_hud: Control = find_child("MermiKonteyner", true, false)
-@onready var mermi_sayi_label: Label = find_child("MermiSayisi", true, false)
-@onready var mermi_ikon: TextureRect = find_child("MermiIkonu", true, false)
-var mermi_flash_tween: Tween = null
-var _mermi_flash_aktif: bool = false
+# --- 🦴 KEMİK HUD ---
+@onready var kemik_hud: Control = find_child("MermiKonteyner", true, false) # Scene path could still be MermiKonteyner, rename label logically
+@onready var kemik_sayi_label: Label = find_child("MermiSayisi", true, false)
+@onready var kemik_ikon: TextureRect = find_child("MermiIkonu", true, false)
 
 # --- DİĞER UI BAĞLANTILARI ---
 # Eğer hiyerarşin farklıysa buradaki yolları kontrol et!
@@ -61,19 +59,19 @@ func _ready() -> void:
 			GameManager.altin_guncellendi.connect(_on_altin_guncellendi)
 		if not GameManager.envanter_guncellendi.is_connected(totem_sayacini_guncelle):
 			GameManager.envanter_guncellendi.connect(totem_sayacini_guncelle)
-		if not GameManager.mermi_degisti.is_connected(_on_mermi_degisti):
-			GameManager.mermi_degisti.connect(_on_mermi_degisti)
+		if not GameManager.kemik_degisti.is_connected(_on_kemik_degisti):
+			GameManager.kemik_degisti.connect(_on_kemik_degisti)
 			
 		_on_altin_guncellendi(GameManager.toplam_altin)
 		totem_sayacini_guncelle()
-		_on_mermi_degisti(GameManager.mermi_sayisi)
+		_on_kemik_degisti(GameManager.kemik_sayisi)
 
-	# Mermi HUD Başlangıç Ayarı
-	if mermi_hud:
-		mermi_hud.visible = GameManager.pyro_aktif
-		mermi_hud.modulate.a = 1.0
-		if mermi_hud.has_method("set_self_modulate"):
-			mermi_hud.self_modulate.a = 1.0
+	# Kemik HUD Başlangıç Ayarı
+	if kemik_hud:
+		kemik_hud.visible = true
+		kemik_hud.modulate.a = 1.0
+		if kemik_hud.has_method("set_self_modulate"):
+			kemik_hud.self_modulate.a = 1.0
 
 
 	guncelle_ekran()
@@ -88,56 +86,32 @@ func _process(_delta):
 	# Sürekli sahne ağacında arama yapmasın, değişkenler üzerinden baksın
 	if not GameManager: return
 
-	var nisangah_aktif = GameManager.pyro_aktif and GameManager.silah_cekildi
-	
-	# Sadece durum değiştiğinde görünürlük ayarla (Her karede yapma)
-	if nisangah and nisangah.visible != nisangah_aktif:
-		nisangah.visible = nisangah_aktif
+	# Nisangah (nişangah) ve pyro sistemi kaldırıldı
+	if nisangah:
+		nisangah.visible = false
 
-	# Mermi HUD: sadece pyro modundayken göster
-	# (flash aktifse _process karismaz)
-	if mermi_hud and not _mermi_flash_aktif:
-		var hedef_gorunum = GameManager.pyro_aktif
-		if mermi_hud.visible != hedef_gorunum:
-			mermi_hud.visible = hedef_gorunum
+	if kemik_hud:
+		kemik_hud.visible = true
 
-
-	# Kırmızı filtre kontrolü — yeme sırasında gizle (gore_vignette ile çakışmasın)
 	if pyro_filtresi:
-		var filtre_gorunur = GameManager.pyro_aktif and not GameManager.yeme_aktif_mi
-		if pyro_filtresi.visible != filtre_gorunur:
-			pyro_filtresi.visible = filtre_gorunur
+		pyro_filtresi.visible = false
 
-func _on_mermi_degisti(sayi):
-	if mermi_sayi_label:
-		mermi_sayi_label.text = "%d/%d" % [sayi, GameManager.max_mermi]
-		if sayi == 0:
-			mermi_sayi_label.modulate = Color.RED
-			if mermi_ikon: mermi_ikon.modulate = Color.RED
-		elif sayi <= 5:
-			mermi_sayi_label.modulate = Color(1.0, 0.55, 0.0)
-			if mermi_ikon: mermi_ikon.modulate = Color(1.0, 0.55, 0.0)
+func _on_kemik_degisti(sayi):
+	if kemik_sayi_label:
+		if GameManager:
+			kemik_sayi_label.text = "%d/%d" % [sayi, GameManager.max_kemik]
 		else:
-			mermi_sayi_label.modulate = Color.WHITE
-			if mermi_ikon: mermi_ikon.modulate = Color.WHITE
-
-# --- 🔫 MERMİ FLASH (Market satın alımında kısa göster) ---
-func mermi_flash_goster():
-	if not mermi_hud: return
-	if mermi_flash_tween: mermi_flash_tween.kill()
-	
-	_mermi_flash_aktif = true
-	mermi_hud.modulate.a = 1.0
-	mermi_hud.visible = true
-	
-	mermi_flash_tween = create_tween()
-	mermi_flash_tween.tween_interval(3.0) 
-	mermi_flash_tween.tween_property(mermi_hud, "modulate:a", 0.0, 0.8)
-	mermi_flash_tween.tween_callback(func():
-		mermi_hud.modulate.a = 1.0
-		mermi_hud.visible = GameManager.pyro_aktif
-		_mermi_flash_aktif = false
-	)
+			kemik_sayi_label.text = "%d/6" % sayi
+			
+		if sayi == 0:
+			kemik_sayi_label.modulate = Color.WHITE
+			if kemik_ikon: kemik_ikon.modulate = Color.WHITE
+		elif sayi >= 6:
+			kemik_sayi_label.modulate = Color.RED
+			if kemik_ikon: kemik_ikon.modulate = Color.RED
+		else:
+			kemik_sayi_label.modulate = Color(1.0, 0.8, 0.2)
+			if kemik_ikon: kemik_ikon.modulate = Color(1.0, 0.8, 0.2)
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("panel_ac"):

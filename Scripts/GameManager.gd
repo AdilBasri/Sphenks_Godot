@@ -7,8 +7,7 @@ signal satir_patladi
 signal boss_oldu            
 signal saglik_guncellendi(bar, hp) 
 signal altin_guncellendi(miktar)   
-signal mermi_degisti(yeni_sayi)
-signal shotgun_mermi_degisti(yeni_sayi)
+signal kemik_degisti(yeni_sayi)
 signal mide_guncellendi(doluluk, kapasite)
 signal seviye_tamamlandi # Seviye bitişini (puan+boss) her yere duyurur
 signal puan_degisti(yeni_puan)
@@ -69,16 +68,10 @@ var mide_doluluk: int = 0    # Şu anki doluluk (Görsel)
 var gore_intensity: float = 0.0  # Kalıcı gore birikimi (0.0-1.0)
 var limbs_eaten_this_round: int = 0  # Bu tur kaç uzuv yendi
 
-# --- 🔥 PYRO MODU & SİLAH SİSTEMİ DEĞİŞKENLERİ ---
-var pyro_aktif: bool = false
-var mermi_sayisi: int = 10
-var max_mermi: int = 40
-var mermi_parcasi_sayisi: int = 0  # 3 parça = 1 mermi
-var shotgun_mermi_count: int = 0
-var max_shotgun_mermi: int = 10
-var silah_cekildi: bool = false 
-var yeme_aktif_mi: bool = false  # Oyuncu uzuv yerken true — pyro_filtresi gizlenir
-var pyro_dogacak_dusman: int = 0 # Pyro modunda doğması beklenen düşman sayısı
+# --- KEMİK SİSTEMİ (Mermi Yerine) ---
+var kemik_sayisi: int = 0
+var max_kemik: int = 6
+var yeme_aktif_mi: bool = false # Oyuncu uzuv yerken true
 
 # --- 👁️ GLITCH PARRY SİSTEMİ ---
 var glitch_face_aktif: bool = false
@@ -117,8 +110,7 @@ func level_baslat(hp: int):
 	cuts_in_current_layer = 0 # Her katman başında sıfırla
 	
 	# TV Video Kontrolü (Sadece Sphenks katmanlarında)
-	if not pyro_aktif:
-		_video_kilit_kontrolu()
+	_video_kilit_kontrolu()
 		
 	print("📊 Level Başlatıldı: Hedef Puan = %d" % hedef_puan)
 
@@ -155,6 +147,42 @@ func puan_ekle(miktar: int):
 	
 	emit_signal("puan_degisti", suanki_puan)
 
+
+func kemik_ekle(miktar: int = 1):
+	"""Kemik parçası kazanıldığında çağrılır."""
+	if boss_oldu_durumu: return
+	
+	# Eski sayıyı sakla (hasar tetiklenmesi için)
+	var onceki_hasar_asmasi = kemik_sayisi / 3
+	
+	kemik_sayisi += miktar
+	if kemik_sayisi > max_kemik:
+		kemik_sayisi = max_kemik
+		
+	var yeni_hasar_asmasi = kemik_sayisi / 3
+	emit_signal("kemik_degisti", kemik_sayisi)
+	
+	# Her 3 kemikte 1 boss hasarı vurulacak
+	if yeni_hasar_asmasi > onceki_hasar_asmasi:
+		_boss_otomatik_hasar_ver(yeni_hasar_asmasi - onceki_hasar_asmasi)
+		
+	if kemik_sayisi >= max_kemik:
+		# Kemik limiti doldu (Boss tamamen öldü)
+		pass
+
+func _boss_otomatik_hasar_ver(hasar_miktari: int):
+	var bosslar = get_tree().get_nodes_in_group("Dusman")
+	var asil_boss = null
+	for b in bosslar:
+		if is_instance_valid(b) and not b.get("oldu_mu"):
+			asil_boss = b
+			break
+			
+	if asil_boss and asil_boss.has_method("hasar_al"):
+		print("🦴 OTO-Boss Hasarı! ", hasar_miktari, " hasar verildi.")
+		asil_boss.hasar_al(hasar_miktari)
+
+
 func boss_oldu_tetiklendi():
 	"""Boss öldüğünde çağrılır (AcidBoss, StoneBoss, BossCanavar)."""
 	if boss_oldu_durumu: return # Zaten öldü olarak işaretlenmiş
@@ -170,35 +198,23 @@ func _kapi_kontrol():
 
 	if suanki_puan < hedef_puan: return
 
-	# Boss ve mermi durumunu topla
 	var bosslar = get_tree().get_nodes_in_group("Dusman")
 	var yasayan_boss_var = false
 	for b in bosslar:
 		if is_instance_valid(b) and not b.get("oldu_mu"):
 			yasayan_boss_var = true; break
 			
-	var toplam_mermi = mermi_sayisi + shotgun_mermi_count
-	var mermi_yeterli = (toplam_mermi > 0)
+	var kemik_yeterli = (kemik_sayisi < max_kemik) # Bossu öldürmek için henüz max kemiğe ulaşmamışsa
 
 	# KAPI AÇILMA ŞARTLARI (USER REQUEST):
-	# Normal puana ulaşıldıysa VE (Boss öldüyse YA DA mermi yoksa [boss'u öldürecek mermi yoksa ve boss kaçacaksa])
-	if not yasayan_boss_var or (yasayan_boss_var and not mermi_yeterli):
-		# EĞER MASA ZATEN KALKTIYSA ve MERMİ BİTTİYSE, BOSS ŞİMDİ KAÇMALI
-		if yasayan_boss_var and not mermi_yeterli and seviye_bitti_islem_yapildi:
-			print("🏃 Mermi bitti (Masa yoktu), boss kaçıyor.")
-			bosslari_carry_over_yap()
-			for b in bosslar:
-				if is_instance_valid(b) and not b.get("oldu_mu"):
-					if b.has_method("kacis_baslat"): b.kacis_baslat()
-					elif b.has_method("_on_boss_oldu_sinyali"): b._on_boss_oldu_sinyali()
-					else: b.visible = false
-		
+	# Normal puana ulaşıldıysa VE Boss öldüyse
+	if not yasayan_boss_var:
 		_kapiyi_ac_gercek()
 	else:
-		print("🚪 GameManager: Puan tamam ama boss hayatta ve mermi var. Kapı bekletiliyor.")
+		print("🚪 GameManager: Puan tamam ama boss hayatta. 6 Kemik bekleniyor.")
 		var arayuz = get_tree().get_first_node_in_group("Arayuz")
 		if arayuz and arayuz.has_method("bilgi_goster"):
-			arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KILL THE BOSS", 3.0)
+			arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KEMIK TOPLA!", 3.0)
 
 func _seviye_bitis_kontrolu(_force_1_5x: bool = false):
 	"""Masa sisteminin ne zaman kalkacağına karar verir (1.5x score)."""
@@ -210,43 +226,27 @@ func _seviye_bitis_kontrolu(_force_1_5x: bool = false):
 	# Ghost Move sürüyorsa bitene kadar bekle
 	if ghost_move_active: return
 
-	# Düşman ve mermi durumunu topla
+	# Düşman ve kemik durumunu topla
 	var bosslar = get_tree().get_nodes_in_group("Dusman")
 	var yasayan_boss_var = false
 	for b in bosslar:
 		if is_instance_valid(b) and not b.get("oldu_mu"):
 			yasayan_boss_var = true; break
-			
-	var toplam_mermi = mermi_sayisi + shotgun_mermi_count
-	var mermi_yeterli = (toplam_mermi > 0)
 	
 	# MASA KALKMA ŞARTLARI (USER REQUEST):
-	# 1. 1.5x puan sınırına ulaşıldıysa
+	# 1. 1.5x puan sınırına ulaşıldıysa ve Boss öldüyse kaldır! 
+	# Aksi takdirde boss'un ölmesi için 6 kemik beklenmeli
 	var puan_1_5x = suanki_puan >= (hedef_puan * 1.5)
 	
 	if puan_1_5x:
-		# Puan 1.5x oldu. Masa HER HALÜKARDA kalkar (Farm biter).
-		_masa_kaldir()
-		
 		if yasayan_boss_var:
-			if mermi_yeterli:
-				# Boss hayatta ve mermi var. Masa kalktı ama boss bekliyor.
-				print("🔫 GameManager: 1.5x Puan: Masa kalktı, oyuncu boss'u mermiyle vurabilir.")
-				var arayuz = get_tree().get_first_node_in_group("Arayuz")
-				if arayuz and arayuz.has_method("bilgi_goster"):
-					arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KILL THE BOSS", 3.0)
-			else:
-				# 1.5x Puan ve mermi bitti. Boss kaçmalı.
-				print("🏃 1.5x Puan: Mermi bitti, boss kaçıyor.")
-				bosslari_carry_over_yap()
-				for b in bosslar:
-					if is_instance_valid(b) and not b.get("oldu_mu"):
-						if b.has_method("kacis_baslat"): b.kacis_baslat()
-						elif b.has_method("_on_boss_oldu_sinyali"): b._on_boss_oldu_sinyali()
-						else: b.visible = false
-				_kapiyi_ac_gercek()
+			print("🔫 GameManager: 1.5x Puan aşıldı ancak boss hayatta. Kemik toplanması bekleniyor.")
+			var arayuz = get_tree().get_first_node_in_group("Arayuz")
+			if arayuz and arayuz.has_method("bilgi_goster"):
+				arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KEMIK TOPLA!", 3.0)
 		else:
-			# Boss ölü, 1.5x yapıldı, kapı zaten açıktır veya şimdi açılır.
+			# Puan 1.5x oldu ve boss ölü. Masa HER HALÜKARDA kalkar (Farm biter).
+			_masa_kaldir()
 			_kapiyi_ac_gercek()
 	else:
 		# Puan henüz 1.5x değilse, boss ölse bile masa kalmalı (farm için).
@@ -528,11 +528,7 @@ func verileri_sifirla():
 	kayitli_seviye = 1
 	toplam_altin = 10
 	uyku_sahnesi_giris_sayisi = 0
-	mermi_sayisi = 10
-	mermi_parcasi_sayisi = 0
-	pyro_aktif = false
-	silah_cekildi = false
-	shotgun_mermi_count = 0
+	kemik_sayisi = 0
 	envanter.clear()
 	bolum_bufflarini_sifirla()
 	zar_atlama_hakki = 0
@@ -594,8 +590,7 @@ func _arayuz_guncelle():
 	emit_signal("saglik_guncellendi", oyuncu_kalan_bar, oyuncu_suanki_hp)
 	emit_signal("envanter_guncellendi")
 	emit_signal("altin_guncellendi", toplam_altin)
-	emit_signal("mermi_degisti", mermi_sayisi)
-	emit_signal("shotgun_mermi_degisti", shotgun_mermi_count)
+	emit_signal("kemik_degisti", kemik_sayisi)
 
 func bolum_bufflarini_sifirla():
 	puan_carpani = 1.0
@@ -625,10 +620,7 @@ func oyunu_kaydet():
 	config.set_value("Oyun", "Altin", toplam_altin)
 	config.set_value("Oyuncu", "KalanBar", oyuncu_kalan_bar)
 	config.set_value("Oyuncu", "SuankiHP", oyuncu_suanki_hp)
-	config.set_value("Oyuncu", "MermiSayisi", mermi_sayisi)
-	config.set_value("Oyuncu", "MermiParcasi", mermi_parcasi_sayisi)
-	config.set_value("Oyuncu", "ShotgunMermi", shotgun_mermi_count)
-	config.set_value("Oyuncu", "PyroAktif", pyro_aktif)
+	config.set_value("Oyuncu", "KemikSayisi", kemik_sayisi)
 	config.set_value("Oyuncu", "GoreIntensity", gore_intensity)
 	config.set_value("Oyuncu", "TotalFingersCut", total_fingers_cut)
 	
@@ -675,10 +667,7 @@ func oyunu_yukle():
 		toplam_altin = config.get_value("Oyun", "Altin", 10)
 		oyuncu_kalan_bar = config.get_value("Oyuncu", "KalanBar", 4)
 		oyuncu_suanki_hp = config.get_value("Oyuncu", "SuankiHP", 10)
-		mermi_sayisi = config.get_value("Oyuncu", "MermiSayisi", 10)
-		mermi_parcasi_sayisi = config.get_value("Oyuncu", "MermiParcasi", 0)
-		shotgun_mermi_count = config.get_value("Oyuncu", "ShotgunMermi", 0)
-		pyro_aktif = config.get_value("Oyuncu", "PyroAktif", false)
+		kemik_sayisi = config.get_value("Oyuncu", "KemikSayisi", 0)
 		gore_intensity = config.get_value("Oyuncu", "GoreIntensity", 0.0)
 		total_fingers_cut = config.get_value("Oyuncu", "TotalFingersCut", 0)
 		
@@ -814,51 +803,7 @@ func dosyalari_tamamen_sil():
 	completed_tutorials.clear()
 	verileri_sifirla()
 
-func mermi_ekle(miktar: int) -> bool:
-	if mermi_sayisi >= max_mermi: return false
-	mermi_sayisi = min(mermi_sayisi + miktar, max_mermi)
-	emit_signal("mermi_degisti", mermi_sayisi)
-	return true
-
-func mermiyi_kullan():
-	if mermi_sayisi > 0:
-		mermi_sayisi -= 1
-		emit_signal("mermi_degisti", mermi_sayisi)
-		if mermi_sayisi == 0: _kapi_kontrol()
-		return true
-	return false
-
-func shotgun_mermi_ekle(miktar: int) -> bool:
-	if shotgun_mermi_count >= max_shotgun_mermi: return false
-	shotgun_mermi_count = min(shotgun_mermi_count + miktar, max_shotgun_mermi)
-	emit_signal("shotgun_mermi_degisti", shotgun_mermi_count)
-	return true
-
-func shotgun_mermiyi_kullan() -> bool:
-	if shotgun_mermi_count > 0:
-		shotgun_mermi_count -= 1
-		emit_signal("shotgun_mermi_degisti", shotgun_mermi_count)
-		if shotgun_mermi_count == 0: _kapi_kontrol()
-		return true
-	return false
-
-func mermi_parcasi_ekle(miktar: int = 1):
-	"""Mermi parçası ekler. Her 3 parçada 1 mermi oluşur."""
-	mermi_parcasi_sayisi += miktar
-	print("🔩 Mermi parçası toplandı! Toplam: %d/3" % mermi_parcasi_sayisi)
-	
-	# UI'ı hemen güncelle (parça sayısı gösterilsin)
-	emit_signal("mermi_degisti", mermi_sayisi)
-	
-	while mermi_parcasi_sayisi >= 3:
-		mermi_parcasi_sayisi -= 3
-		mermi_ekle(1)
-		print("🎯 3 parça birleşti → +1 Mermi! Toplam mermi: %d" % mermi_sayisi)
-		
-		# Arayüze bilgi göster
-		var arayuz = get_tree().get_first_node_in_group("Arayuz")
-		if arayuz and arayuz.has_method("bilgi_goster"):
-			arayuz.bilgi_goster("🔩 +1 Mermi!", 2.0)
+# Mermi ve Parça sistemleri tamamiyle arındırıldı.
 
 # ==========================================
 # 🌌 GHOST MOVE PARRY MANTIĞI 🌌

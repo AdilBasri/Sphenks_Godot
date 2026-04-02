@@ -1,0 +1,520 @@
+{
+  "accessors": [
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 2002,
+      "max": [
+        0.09636136889457703,
+        0.0045000119134783745,
+        0.2250000238418579
+      ],
+      "min": [
+        -0.00036136904964223504,
+        -0.005357138812541962,
+        0.0011989399790763855
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 24024,
+      "componentType": 5126,
+      "count": 2002,
+      "max": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 4,
+      "componentType": 5126,
+      "count": 2002,
+      "max": [
+        0.9999741315841675,
+        1.0,
+        0.9096168875694275,
+        1.0
+      ],
+      "min": [
+        -0.9999741315841675,
+        -1.0,
+        -0.9659304022789001,
+        -1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 2002,
+      "max": [
+        0.9704486131668091,
+        0.9889607429504395
+      ],
+      "min": [
+        0.01862223446369171,
+        0.005812644958496094
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5125,
+      "count": 6612,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 5,
+      "componentType": 5126,
+      "count": 5,
+      "max": [
+        1.0,
+        0.0,
+        4.1326416067022365e-07,
+        0.0,
+        6.516827397717861e-07,
+        1.0,
+        1.0,
+        0.0,
+        3.8941436741879443e-07,
+        1.0,
+        1.0,
+        0.0,
+        0.04800000041723251,
+        0.05201875418424606,
+        0.11350002884864807,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -3.2584136988589307e-07,
+        -6.516827397717861e-07,
+        0.0,
+        -3.258413130424742e-07,
+        -1.0,
+        -1.0,
+        0.0,
+        0.0,
+        -1.0,
+        -1.0,
+        0.0,
+        0.0,
+        -0.05201873928308487,
+        -0.11350000649690628,
+        1.0
+      ],
+      "type": "MAT4"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5123,
+      "count": 2002,
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 4,
+      "byteOffset": 32032,
+      "componentType": 5126,
+      "count": 2002,
+      "max": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "min": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 6,
+      "componentType": 5126,
+      "count": 49,
+      "max": [
+        2.0
+      ],
+      "min": [
+        0.0
+      ],
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 7,
+      "componentType": 5126,
+      "count": 49,
+      "max": [
+        1.0,
+        3.2584134146418364e-07,
+        1.9470718370939721e-07,
+        1.2992900622066372e-07
+      ],
+      "min": [
+        -0.9999978542327881,
+        -3.258406593431573e-07,
+        -0.3987494111061096,
+        0.0
+      ],
+      "type": "VEC4"
+    }
+  ],
+  "animations": [
+    {
+      "channels": [
+        {
+          "sampler": 0,
+          "target": {
+            "node": 9,
+            "path": "rotation"
+          }
+        }
+      ],
+      "name": "Armature.001Action.001",
+      "samplers": [
+        {
+          "input": 8,
+          "interpolation": "LINEAR",
+          "output": 9
+        }
+      ]
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "Average3DmodelEnjoyer (https://sketchfab.com/Average3DmodelEnjoyer)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/006--mechanical-details--scissors-1-animated-91a5d357df914f3c84466c81505ab210",
+      "title": "006_ Mechanical Details_ Scissors 1_Animated"
+    },
+    "generator": "Sketchfab-16.95.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 16016,
+      "byteStride": 8,
+      "name": "shortBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 26448,
+      "byteOffset": 16016,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 16016,
+      "byteOffset": 42464,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 48048,
+      "byteOffset": 58480,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 64064,
+      "byteOffset": 106528,
+      "byteStride": 16,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 320,
+      "byteOffset": 170592,
+      "name": "floatBufferViews"
+    },
+    {
+      "buffer": 0,
+      "byteLength": 196,
+      "byteOffset": 170912,
+      "name": "floatBufferViews"
+    },
+    {
+      "buffer": 0,
+      "byteLength": 784,
+      "byteOffset": 171108,
+      "byteStride": 16,
+      "name": "floatBufferViews"
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 171892,
+      "uri": "scene.bin"
+    }
+  ],
+  "images": [
+    {
+      "uri": "textures/Material_baseColor.png"
+    },
+    {
+      "uri": "textures/Material_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/Material_normal.png"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "name": "Material",
+      "normalTexture": {
+        "index": 2
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Object_0",
+      "primitives": [
+        {
+          "attributes": {
+            "JOINTS_0": 6,
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TANGENT": 2,
+            "TEXCOORD_0": 3,
+            "TEXCOORD_1": 3,
+            "TEXCOORD_2": 3,
+            "TEXCOORD_3": 3,
+            "WEIGHTS_0": 7
+          },
+          "indices": 4,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        -6.661338147750939e-16,
+        -1.0,
+        0.0,
+        0.0,
+        1.0,
+        -4.440892098500626e-16,
+        2.220446049250312e-16,
+        0.0,
+        0.0,
+        -2.220446049250313e-16,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "name": "root"
+    },
+    {
+      "children": [
+        3
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        1.0,
+        0.0,
+        0.0,
+        -1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "GLTF_SceneRootNode"
+    },
+    {
+      "children": [
+        4
+      ],
+      "matrix": [
+        -0.9999999999999467,
+        3.258413698858844e-07,
+        0.0,
+        0.0,
+        -3.258413698858844e-07,
+        -0.9999999999999467,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.047999996691942215,
+        -0.0029999995604157448,
+        0.11350000649690628,
+        1.0
+      ],
+      "name": "Armature.001_5"
+    },
+    {
+      "children": [
+        5,
+        7,
+        6
+      ],
+      "name": "GLTF_created_0"
+    },
+    {
+      "children": [
+        8
+      ],
+      "name": "GLTF_created_0_rootJoint"
+    },
+    {
+      "name": "001_Model_Baked_Mechanical Details_Slotted Cheese Head Bolt_4"
+    },
+    {
+      "mesh": 0,
+      "name": "Object_7",
+      "skin": 0
+    },
+    {
+      "children": [
+        9,
+        10,
+        11
+      ],
+      "name": "b_006_Mechanical Details_Sicssors 1_Left_3",
+      "translation": [
+        -9.77523950673742e-10,
+        -4.073186232744774e-11,
+        0.0
+      ]
+    },
+    {
+      "name": "b_006_Mechanical Details_Sicssors 1_Right_0",
+      "rotation": [
+        1.0,
+        3.2584134146418364e-07,
+        1.9470718370939721e-07,
+        0.0
+      ],
+      "translation": [
+        -1.0198347055734303e-08,
+        -0.0059999991208314896,
+        0.0
+      ]
+    },
+    {
+      "name": "b_001_Model_Baked_Mechanical Details_Slotted Cheese Head Bolt_1",
+      "rotation": [
+        0.7071068286895752,
+        -3.090863742727379e-08,
+        -3.0908619663705394e-08,
+        0.7071068286895752
+      ],
+      "translation": [
+        -3.725290076417309e-09,
+        -0.0030000004917383194,
+        -0.06148126721382141
+      ]
+    },
+    {
+      "name": "b_001_Model_Baked_Mechanical Details_Nut_2",
+      "rotation": [
+        -0.7071068286895752,
+        0.0,
+        -2.3040466601287335e-07,
+        0.7071068286895752
+      ],
+      "translation": [
+        -3.725290076417309e-09,
+        -0.0030000004917383194,
+        -0.06148126721382141
+      ]
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "skins": [
+    {
+      "inverseBindMatrices": 5,
+      "joints": [
+        5,
+        8,
+        9,
+        10,
+        11
+      ],
+      "skeleton": 5
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    }
+  ]
+}

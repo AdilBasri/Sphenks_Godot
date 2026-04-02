@@ -36,47 +36,10 @@ func _ready() -> void:
 	puzzle_tamamlandi = false
 	yeni_bolumu_baslat()
 	
-	if GameManager:
-		if not GameManager.mermi_degisti.is_connected(_on_mermi_degisti_kontrol):
-			GameManager.mermi_degisti.connect(_on_mermi_degisti_kontrol)
-		
-	# NOT: _sahne_bitis_animasyonu artik sadece 1.5x puanda veya kaynak bitince 
 	# KatmanBitisYoneticisi/oyun_odasi tarafindan cagrilacak.
-	# Buradaki baglantiyi kaldiriyoruz ki 100% puanda masa gitmesin.
-	# if not GameManager.seviye_tamamlandi.is_connected(_sahne_bitis_animasyonu):
-	# 	GameManager.seviye_tamamlandi.connect(_sahne_bitis_animasyonu)
-
-func _on_mermi_degisti_kontrol(yeni_sayi: int) -> void:
-	# Eğer mermi 0 olduysa 1.2 saniye bekle (merminin hedefe ulaşması için)
-	# AMA: Eğer boss zaten öldüyse beklemeye gerek yok
-	var yasayan_var_mi = false
-	var bosslar = get_tree().get_nodes_in_group("Dusman")
-	for b in bosslar:
-		if is_instance_valid(b) and not b.get("oldu_mu"):
-			yasayan_var_mi = true; break
-
-	if yeni_sayi == 0 and yasayan_var_mi:
-		await get_tree().create_timer(1.2).timeout
-		
-	# Eğer mermi değiştiyse ve boss yaşıyorsa
-	# (Yukarıda tekrar kontrol etmeliyiz çünkü timer süresince ölmüş olabilir)
-	yasayan_var_mi = false
-	for b in bosslar:
-		if is_instance_valid(b) and not b.get("oldu_mu"):
-			yasayan_var_mi = true; break
-			
-	if yasayan_var_mi and not GameManager.boss_kacti:
-		var arayuz = get_tree().get_first_node_in_group("Arayuz")
-		var skor_yeterli = false
-		if arayuz:
-			var skor = arayuz.toplam_puan if "toplam_puan" in arayuz else 0
-			var goal = arayuz.hedef_puan if "hedef_puan" in arayuz else 1
-			skor_yeterli = skor >= goal
-		
-		if tur_bitti_mi or skor_yeterli:
-			_tur_sonu_hesaplamasi()
 
 func yeni_bolumu_baslat():
+
 	var veri = LevelManager.bolum_verilerini_getir()
 	bolum_blok_limiti = veri["blok_limiti"]
 	baslangic_kotasi = veri["hedef_puan"]
@@ -318,50 +281,29 @@ func _sahne_bitis_animasyonu() -> void:
 		
 	if LevelManager:
 		LevelManager.is_boss_acting = false
-		# Sadece boss gerçekten öldüyse veya kaçtıysa kolizyonları temizle
-		# Eğer boss hayattaysa, oyuncu onu vurabilmeli.
-		LevelManager.disable_all_boss_collisions()
-		
-	# Mekan bariyerlerini erkenden kaldır ki oyuncu kapıya gidebilsin
-	get_tree().call_group("Bariyer", "bolum_bitti")
-		
-	# 1. MERMİ VE DÜŞMAN DURUMU KONTROLÜ
-	var toplam_mermi = 0
-	if GameManager:
-		toplam_mermi = GameManager.mermi_sayisi + GameManager.shotgun_mermi_count
-		
+		# Sadece boss gerçekten öldüyse veya kaçtıysa	# Boss'u güncelle (Sistem sadece kapıyı acar ve boss bir sonraki turda da canı düştüyse taşınır)
 	var dusmanlar = get_tree().get_nodes_in_group("Dusman")
 	var boss_yasiyor = false
-	var toplam_boss_hp = 0
 	var aktif_dusman = boss_objesi
 	
 	for d in dusmanlar:
 		if is_instance_valid(d) and not d.get("oldu_mu"):
 			boss_yasiyor = true
-			toplam_boss_hp += d.boss_hp if "boss_hp" in d else 1
 			if not aktif_dusman: aktif_dusman = d
-	
-	var mermi_yeterli = (toplam_mermi > 0) # Oyuncunun elinde mermi varsa savaş devam etmeli
 	
 	# OYUNCUYU TABUREDEN KALDIR (KRİTİK)
 	if oyuncu and oyuncu.has_method("stand_up"):
 		oyuncu.stand_up()
 	
-	if mermi_yeterli and boss_yasiyor:
-		var arayuz = get_tree().get_first_node_in_group("Arayuz")
-		if arayuz and arayuz.has_method("bilgi_goster"):
-			# DilYoneticisi'nden "kill_the_boss" çek
-			var msg = DilYoneticisi.metin_al("kill_the_boss") if DilYoneticisi else "KILL THE BOSS"
-			arayuz.bilgi_goster(msg, 5.0)
-	else:
-		# Mermi yoksa boss zaten GameManager tarafından carry-over yapıldı
-		var kapi = kapi_sistemi
-		if not is_instance_valid(kapi):
-			kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
-		if kapi:
-			if "kilitli_mi" in kapi: kapi.kilitli_mi = false
-			if kapi.has_method("kapiyi_ac"):
-				kapi.kapiyi_ac()
+	# Boss yaşıyor veya yaşamasından bağımsız olarak, Mermi sistemi kalktığı için 
+	# Masa bittiğinde oyuncu çıkışa yönlendirilmeli. Kapıyı her halükarda aç.
+	var kapi = kapi_sistemi
+	if not is_instance_valid(kapi):
+		kapi = get_tree().current_scene.find_child("KapiSistemi", true, false)
+	if kapi:
+		if "kilitli_mi" in kapi: kapi.kilitli_mi = false
+		if kapi.has_method("kapiyi_ac"):
+			kapi.kapiyi_ac()
 
 	var tween = create_tween()
 	tween.set_parallel(true)
@@ -370,12 +312,11 @@ func _sahne_bitis_animasyonu() -> void:
 		_disable_all_collisions(masa_objesi)
 		tween.tween_property(masa_objesi, "position:y", -10.0, 4.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	
-	# DÜŞMAN TEMİZLİĞİ: Sadece boss mermi yetersizliğiyle kaçıyorsa veya öldüyse minions'ları temizle
-	if not (mermi_yeterli and boss_yasiyor):
-		var boss_list = get_tree().get_nodes_in_group("Dusman")
-		for b in boss_list:
-			if is_instance_valid(b) and b != aktif_dusman:
-				b.queue_free()
+	# DÜŞMAN TEMİZLİĞİ: Izgara tamamlandı, savaş bitti. Yardımcı yaratıkları (minions) temizle.
+	var boss_list = get_tree().get_nodes_in_group("Dusman")
+	for b in boss_list:
+		if is_instance_valid(b) and b != aktif_dusman:
+			b.queue_free()
 
 	tween.chain().tween_callback(func(): 
 		var check_dusmanlar = get_tree().get_nodes_in_group("Dusman")
@@ -384,14 +325,11 @@ func _sahne_bitis_animasyonu() -> void:
 			if is_instance_valid(cd) and not cd.get("oldu_mu"):
 				is_any_alive = true; break
 				
-		if is_any_alive: 
-			if not (mermi_yeterli and boss_yasiyor):
-				# Eğer savaş bittiyse (mermi yok) gizle
-				for cd in check_dusmanlar:
-					if is_instance_valid(cd): cd.visible = false
-				print("👋 BlokDagiticisi: Bosslar kaçıyor/öldü, gizlendi.")
-			else:
-				print("⚔️ BlokDagiticisi: Boss Fight aktif, bosslar korunuyor.")
+		if is_any_alive:
+			# Izgara bitti = savaş bitti, kalan bossları gizle (kaçtılar)
+			for cd in check_dusmanlar:
+				if is_instance_valid(cd): cd.visible = false
+			print("👋 BlokDagiticisi: Bosslar kaçıyor/öldü, gizlendi.")
 		if is_instance_valid(masa_objesi): masa_objesi.queue_free()
 		if grid and grid.has_method("engelleri_temizle"):
 			grid.engelleri_temizle()

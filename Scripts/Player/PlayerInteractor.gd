@@ -8,7 +8,17 @@ class_name PlayerInteractor
 
 var held_object: RigidBody3D = null
 var mouse_free_mode: bool = false
-var _last_mermi_kutusu: Node3D = null
+
+var _outline_material: ShaderMaterial
+var _last_highlighted_mesh: GeometryInstance3D = null
+
+func _ready():
+	_outline_material = ShaderMaterial.new()
+	var outline_shader = load("res://Assets/Materials/DarkToonyOutline.gdshader")
+	if outline_shader:
+		_outline_material.shader = outline_shader
+		_outline_material.set_shader_parameter("outline_color", Color(0.1, 0.05, 0.15))
+		_outline_material.set_shader_parameter("outline_width", 0.04)
 
 func _physics_process(delta: float):
 	if held_object and hold_point:
@@ -21,46 +31,29 @@ func _physics_process(delta: float):
 func check_interaction():
 	if not raycast or not raycast.is_colliding():
 		if interaction_label: interaction_label.text = ""
-		# Bakış çekildiğinde mermi kutusu UI'larını gizle (Sky/Void look-away)
-		if _last_mermi_kutusu:
-			_mermi_kutusu_ui_kapat_hepsi()
-			_last_mermi_kutusu = null
+		_clear_highlight()
 		return
 		
 	var collider = raycast.get_collider()
 	if not collider:
 		if interaction_label: interaction_label.text = ""
-		if _last_mermi_kutusu:
-			_mermi_kutusu_ui_kapat_hepsi()
-			_last_mermi_kutusu = null
+		_clear_highlight()
 		return
 
-	# DEBUG: Hit node and groups
-	# print("RayCast Hit: ", collider.name, " Groups: ", collider.get_groups())
-
-	# TODO: Expand interaction logic based on groups or classes
-	var is_mermi_kutusu = collider.is_in_group("MermiKutusu")
-	var mermi_kutusu_node = collider
-	
-	if not is_mermi_kutusu and collider.get_parent() and collider.get_parent().is_in_group("MermiKutusu"):
-		is_mermi_kutusu = true
-		mermi_kutusu_node = collider.get_parent()
-
-	if collider.is_in_group("Etkilesim") or is_mermi_kutusu:
-		# Mermi Kutusu Özel Durumu: UI Göster
-		if is_mermi_kutusu:
-			if _last_mermi_kutusu != mermi_kutusu_node:
-				_mermi_kutusu_ui_kapat_hepsi()
-				_mermi_kutusu_ui_guncelle(mermi_kutusu_node, true)
-				_last_mermi_kutusu = mermi_kutusu_node
-			
-			if interaction_label: interaction_label.text = "[E] " + DilYoneticisi.metin_al("shotgun_mermi_isi") if DilYoneticisi else "[E] Mermi Al"
-			return
+	if collider.is_in_group("Etkilesim"):
+		# Find the actual mesh attached to the collider or the collider itself
+		var mesh_instance = null
+		if collider is GeometryInstance3D:
+			mesh_instance = collider
+		else:
+			for child in collider.get_children():
+				if child is GeometryInstance3D:
+					mesh_instance = child
+					break
+					
+		if mesh_instance and mesh_instance != _last_highlighted_mesh:
+			_apply_highlight(mesh_instance)
 		
-		# Etkileşimli nesneye geçildiyse mermi kutusu UI'ını kapat
-		if _last_mermi_kutusu:
-			_mermi_kutusu_ui_kapat_hepsi()
-			_last_mermi_kutusu = null
 		var aday = collider
 		var devre_disi = false
 		var limit = 3
@@ -74,7 +67,6 @@ func check_interaction():
 			aday = aday.get_parent()
 			limit -= 1
 		
-		# Sahne ismi kontrolü
 		if not devre_disi and get_tree().current_scene:
 			if "mezar" in get_tree().current_scene.name.to_lower():
 				devre_disi = true
@@ -82,6 +74,7 @@ func check_interaction():
 		if devre_disi:
 			if interaction_label: interaction_label.text = ""
 			return
+		
 		var custom_text = collider.get("interaction_text")
 		if not custom_text and collider.get_parent():
 			custom_text = collider.get_parent().get("interaction_text")
@@ -92,28 +85,15 @@ func check_interaction():
 			if interaction_label: interaction_label.text = "[E] Etkileşim"
 	else:
 		if interaction_label: interaction_label.text = ""
-		# Bakış çekildiğinde mermi kutusu UI'larını gizle
-		if _last_mermi_kutusu:
-			_mermi_kutusu_ui_kapat_hepsi()
-			_last_mermi_kutusu = null
+		_clear_highlight()
 
-func _mermi_kutusu_ui_guncelle(kutu: Node3D, durum: bool):
-	var rev_info = kutu.get_node_or_null("RevolverInfo")
-	var shot_info = kutu.get_node_or_null("ShotgunInfo")
-	
-	if rev_info and shot_info:
-		rev_info.visible = durum
-		shot_info.visible = durum
-		
-		if durum:
-			var rev_lab = rev_info.get_node("Label3D")
-			var shot_lab = shot_info.get_node("Label3D")
-			if rev_lab: rev_lab.text = "x" + str(GameManager.mermi_sayisi)
-			if shot_lab: shot_lab.text = "x" + str(GameManager.shotgun_mermi_count)
+func _apply_highlight(mesh: GeometryInstance3D):
+	_clear_highlight()
+	if mesh and _outline_material:
+		_last_highlighted_mesh = mesh
+		mesh.material_overlay = _outline_material
 
-func _mermi_kutusu_ui_kapat_hepsi():
-	for kutu in get_tree().get_nodes_in_group("MermiKutusu"):
-		var rev_info = kutu.get_node_or_null("RevolverInfo")
-		var shot_info = kutu.get_node_or_null("ShotgunInfo")
-		if rev_info: rev_info.visible = false
-		if shot_info: shot_info.visible = false
+func _clear_highlight():
+	if _last_highlighted_mesh and is_instance_valid(_last_highlighted_mesh):
+		_last_highlighted_mesh.material_overlay = null
+	_last_highlighted_mesh = null

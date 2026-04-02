@@ -176,7 +176,7 @@ func _ready():
 		raycast = yeni_ray
 	
 	raycast.enabled = true
-	raycast.target_position = Vector3(0, 0, -6.0) 
+	raycast.target_position = Vector3(0, 0, -15.0) 
 	raycast.collision_mask = 0xFFFFFFFF 
 	raycast.add_exception(self) 
 	
@@ -379,7 +379,7 @@ func _input(event):
 	if event is InputEventKey and event.pressed and event.keycode == KEY_Z:
 		hasar_al(1)
 
-	# SPACE TUŞU İPTAL EDİLDİ - ARTIK TABURE SİSTEMİ VAR
+	# MASA ETKİLEŞİMLERİ İÇİN TABUREYE GEÇİŞ İPTAL
 	if event.is_action_pressed("etkilesim"):
 		if is_sitting:
 			# GHOST MOVE veya BOSS atağı sırasında inemez
@@ -392,18 +392,11 @@ func _input(event):
 		else:
 			etkilesime_gir(false)
 			
-	if event.is_action_pressed("kosma"):
-		suanki_speed = sprint_speed
-	elif event.is_action_released("kosma"):
-		suanki_speed = crouch_speed if comelen_mi else base_speed
-
+	# KOSMA VE COMELME IPTAL: (Sadece statik kamera kullanılıyor)
+	
 	# --- FENER AÇMA/KAPAMA (V TUŞU) ---
 	if event.is_action_pressed("fener_toggle"):
 		_fener_toggle()
-
-	# --- ÇÖMELME (C TUŞU) ---
-	if event.is_action_pressed("comel"):
-		_cömelme_toggle()
 			
 	if event.is_action_pressed("sag_tik"):
 		if GameManager and GameManager.is_parry_window_open:
@@ -613,7 +606,7 @@ func guncelle_etkilesim_isını():
 		# Kameranın bakış yönünden (Global), RayCast3D'nin local yönüne çevir
 		var global_dir = kamera.project_ray_normal(corrected_ms)
 		var local_dir = kamera.global_transform.basis.inverse() * global_dir
-		raycast.target_position = local_dir * 8.0 # Biraz daha uzun tutalım
+		raycast.target_position = local_dir * 18.0 # Biraz daha uzun tutalım
 		
 		# Tutulan nesnenin farenin altında kalması için tutma noktasını da güncelle
 		if tutma_noktasi:
@@ -622,7 +615,7 @@ func guncelle_etkilesim_isını():
 		# Fizik motorunu bekletmeden ışını hemen güncelle
 		raycast.force_raycast_update()
 	else:
-		raycast.target_position = Vector3(0, 0, -6.0)
+		raycast.target_position = Vector3(0, 0, -15.0)
 		if tutma_noktasi:
 			tutma_noktasi.position = Vector3(0, 0, -2.5)
 
@@ -1527,10 +1520,17 @@ func check_ui_text():
 		if perk_aciklama_label:
 			perk_aciklama_label.text = DilYoneticisi.metin_al(veri.aciklama)
 			
+		var yildizlar = ""
+		if "yildiz" in veri:
+			for i in range(veri.yildiz):
+				yildizlar += "★"
+				
+		var prefix = "[%s] " % yildizlar if yildizlar != "" else ""
+			
 		if market_modu == true:
-			etkilesim_label.text = DilYoneticisi.metin_al("satin_al") % [DilYoneticisi.metin_al(veri.esya_adi), veri.fiyat]
+			etkilesim_label.text = prefix + (DilYoneticisi.metin_al("satin_al") % [DilYoneticisi.metin_al(veri.esya_adi), veri.fiyat])
 		else:
-			etkilesim_label.text = DilYoneticisi.metin_al("al") % [DilYoneticisi.metin_al(veri.esya_adi)]
+			etkilesim_label.text = prefix + (DilYoneticisi.metin_al("al") % [DilYoneticisi.metin_al(veri.esya_adi)])
 		return
 
 	# 2. KEDİ KONTROLÜ

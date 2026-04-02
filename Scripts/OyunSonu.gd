@@ -43,7 +43,6 @@ func _on_tekrar_pressed():
 			# Pyro modunda canlansın (kaldığı yerden devam etmesi için tüm verileri_sifirla YAPMIYORUZ)
 			GameManager.oyuncu_suanki_hp = 10
 			GameManager.oyuncu_kalan_bar = 4
-			GameManager.mermi_sayisi = 3
 		else:
 			# Normal modda ise öldüğünde en sonki save noktasına geri dönsün
 			GameManager.oyunu_yukle()

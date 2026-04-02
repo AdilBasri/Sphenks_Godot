@@ -231,7 +231,26 @@ func mermi_hasari_al(hit_pos: Vector3, hit_dir: Vector3):
 		_boss_oldu_mermi()
 
 func hasar_al(miktar: int, hit_pos: Vector3 = Vector3.ZERO):
-	mermi_hasari_al(hit_pos, Vector3.ZERO)
+	if oldu_mu: return
+	var dmg = int(miktar)
+	if dmg <= 0:
+		return
+
+	boss_hp -= dmg
+	print("🔫 STONE BOSS'e %d hasar verildi! Kalan HP: %d" % [dmg, boss_hp])
+
+	var boss_ui = get_tree().get_first_node_in_group("boss_ui")
+	if boss_ui:
+		boss_ui.boss_hasar_guncelle(self, boss_hp)
+
+	if GameManager:
+		GameManager.boss_hp_guncelle(boss_tipi, boss_hp, name)
+
+	_kan_efekti_olustur(hit_pos, Vector3.ZERO)
+	_darbe_efekti_oynat()
+
+	if boss_hp <= 0:
+		_boss_oldu_mermi()
 
 func _kan_efekti_olustur(pos: Vector3, dir: Vector3):
 	var kan_sahne = load("res://Scenes/KanSpreyi.tscn")

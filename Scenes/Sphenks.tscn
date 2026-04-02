@@ -1,58 +1,58 @@
 [gd_scene load_steps=138 format=3 uid="uid://3dl60tfqpdc6"]
 
-[ext_resource type="PackedScene" uid="uid://c5m56dva4g0md" path="res://Assets/Models/Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
+[ext_resource type="PackedScene" uid="uid://b1abmwu2tkjli" path="res://Assets/Models/Meshy_AI__0118084653_texture.fbx" id="1_1eqvi"]
 [ext_resource type="Script" uid="uid://cvwey41pl3nu0" path="res://Scripts/sphenks.gd" id="2_fi7dh"]
 [ext_resource type="PackedScene" uid="uid://dvucb86havcwa" path="res://UI/oyun_arayuzu.tscn" id="3_4kj0i"]
-[ext_resource type="Texture2D" uid="uid://btas4blpjv33o" path="res://Assets/Images/duvar_tiles.png" id="5_jl7q8"]
-[ext_resource type="Texture2D" uid="uid://dhayshxhd2aie" path="res://Assets/Images/Kedi_Normal.png" id="6_1b6ct"]
+[ext_resource type="Texture2D" uid="uid://bb1jydfo2s3uh" path="res://Assets/Images/duvar_tiles.png" id="5_jl7q8"]
+[ext_resource type="Texture2D" uid="uid://847a0qns6cqr" path="res://Assets/Images/Kedi_Normal.png" id="6_1b6ct"]
 [ext_resource type="Script" uid="uid://bf27q5gmgymlx" path="res://Scripts/oyun_odasi.gd" id="6_16a52"]
 [ext_resource type="PackedScene" uid="uid://df8kicnf6xi1m" path="res://Scenes/yan_sehpa.tscn" id="7_kn6rn"]
-[ext_resource type="Texture2D" uid="uid://exewje3jhncc" path="res://Assets/Images/tile1.png" id="7_lxn88"]
+[ext_resource type="Texture2D" uid="uid://dk1ohc1ie0i0m" path="res://Assets/Images/tile1.png" id="7_lxn88"]
 [ext_resource type="Script" uid="uid://cqqrxhofxtxw6" path="res://Scripts/KediEtkilesim.gd" id="7_ouiq0"]
 [ext_resource type="PackedScene" uid="uid://5wga44lwetiq" path="res://Scenes/oyun_sonu.tscn" id="8_5uvl0"]
-[ext_resource type="Texture2D" uid="uid://b2nhri0gq2vpk" path="res://Assets/Images/KediTutulan.png" id="8_p4fw5"]
+[ext_resource type="Texture2D" uid="uid://bdg68m5qvav5s" path="res://Assets/Images/KediTutulan.png" id="8_p4fw5"]
 [ext_resource type="PackedScene" uid="uid://b4bhb1v1do7yg" path="res://Scenes/Enemies/PyroDusman.tscn" id="9_bjfsn"]
 [ext_resource type="Shader" uid="uid://bdkhlgnx8r7fq" path="res://Materials_Shaders/Sphenks.gdshader" id="10_h2n1q"]
 [ext_resource type="AudioStream" uid="uid://chvv3ffapjo5m" path="res://Assets/kirikcam.mp3" id="13_6ry63"]
 [ext_resource type="PackedScene" uid="uid://cyy5cvfn3untg" path="res://Scenes/Enemies/CanavarOturma.tscn" id="13_bjfsn"]
-[ext_resource type="FontFile" uid="uid://dal71mjw4i81j" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="13_bpxfr"]
+[ext_resource type="FontFile" uid="uid://srtsvnrq23ou" path="res://Assets/Fonts/PressStart2P-Regular.ttf" id="13_bpxfr"]
 [ext_resource type="Script" uid="uid://bnl3r0qmhc78q" path="res://Scripts/BossCanavar.gd" id="14_2531s"]
-[ext_resource type="Texture2D" uid="uid://ckixlfjiyxftu" path="res://Assets/Images/CultFace.png" id="15_qrobu"]
+[ext_resource type="Texture2D" uid="uid://bnidhre7u4yaw" path="res://Assets/Images/CultFace.png" id="15_qrobu"]
 [ext_resource type="Script" uid="uid://dl10jifvsgv88" path="res://Scripts/oyuncu.gd" id="23_4kj0i"]
-[ext_resource type="Texture2D" uid="uid://u5y1jjivkyg4" path="res://Assets/Images/hand.png" id="24_4kj0i"]
-[ext_resource type="Texture2D" uid="uid://v3hgvensx0ub" path="res://Assets/Images/mesaledeneme.png" id="25_lxn88"]
-[ext_resource type="Texture2D" uid="uid://cw3yccl0y15yc" path="res://Assets/Images/skull.png" id="25_yiyi8"]
-[ext_resource type="Texture2D" uid="uid://diw64yisqg55h" path="res://Assets/Images/web.png" id="27_offaw"]
+[ext_resource type="Texture2D" uid="uid://browknmvkv6d4" path="res://Assets/Images/hand.png" id="24_4kj0i"]
+[ext_resource type="Texture2D" uid="uid://cqqq50p7oakk6" path="res://Assets/Images/mesaledeneme.png" id="25_lxn88"]
+[ext_resource type="Texture2D" uid="uid://bqj60moctkrll" path="res://Assets/Images/skull.png" id="25_yiyi8"]
+[ext_resource type="Texture2D" uid="uid://c1548x8l70qe8" path="res://Assets/Images/web.png" id="27_offaw"]
 [ext_resource type="PackedScene" uid="uid://cbshe1rs8py4o" path="res://el_tam.fbx" id="28_dw4ai"]
 [ext_resource type="PackedScene" uid="uid://0k8qakldv4tr" path="res://el_serce_eksik.fbx" id="29_hyugx"]
 [ext_resource type="PackedScene" uid="uid://1v57lfbukrbu" path="res://Scenes/Items/Kapi.tscn" id="29_kqumn"]
 [ext_resource type="PackedScene" uid="uid://c7q4fkextiqem" path="res://animated_shotgun/scene.gltf" id="29_oicke"]
-[ext_resource type="Texture2D" uid="uid://b6qhtc7ov5oqy" path="res://Assets/Images/crosshair.png" id="30_3fpuv"]
+[ext_resource type="Texture2D" uid="uid://ctkgrnlyobok1" path="res://Assets/Images/crosshair.png" id="30_3fpuv"]
 [ext_resource type="Script" uid="uid://c3crxoiqjl3tw" path="res://animated_shotgun/scene.gd" id="30_85bnd"]
 [ext_resource type="PackedScene" uid="uid://cobgol1r61s8u" path="res://Scenes/karanlik_koridor.tscn" id="30_1283l"]
 [ext_resource type="PackedScene" uid="uid://bcv33yqskd1sg" path="res://el_yuzuk_eksik.fbx" id="30_mnxae"]
-[ext_resource type="Texture2D" uid="uid://dts5ye3ydelp0" path="res://Assets/Images/tabela_market.png" id="31_ewkc5"]
+[ext_resource type="Texture2D" uid="uid://rsgyymv4d4y5" path="res://Assets/Images/tabela_market.png" id="31_ewkc5"]
 [ext_resource type="PackedScene" uid="uid://cods05k8oldyq" path="res://el_orta_eksik.fbx" id="31_fx2yl"]
 [ext_resource type="Script" uid="uid://bgxx0sj7xnnh4" path="res://Scripts/catal_odasi.gd" id="31_ojhqj"]
 [ext_resource type="Shader" uid="uid://dmbq3ejhvkyop" path="res://Materials_Shaders/global.gdshader" id="31_y4nvu"]
 [ext_resource type="PackedScene" uid="uid://dfhvjbftwfqyv" path="res://el_isaret_eksik.fbx" id="32_dqfbe"]
-[ext_resource type="Texture2D" uid="uid://b5lev6qm0rdoe" path="res://Assets/Images/tabela_fire.png" id="32_ojhqj"]
+[ext_resource type="Texture2D" uid="uid://cb3a2efx3uclk" path="res://Assets/Images/tabela_fire.png" id="32_ojhqj"]
 [ext_resource type="PackedScene" uid="uid://crts7a2wj50ro" path="res://Scenes/campfire_odasi.tscn" id="33_1g7sh"]
 [ext_resource type="PackedScene" uid="uid://bu8mar1motc12" path="res://el_bas_eksik.fbx" id="33_seo28"]
-[ext_resource type="Texture2D" uid="uid://dywjvxrqxoifi" path="res://Assets/Images/marketa.png" id="34_1g7sh"]
+[ext_resource type="Texture2D" uid="uid://b8nbn7eiw6n26" path="res://Assets/Images/marketa.png" id="34_1g7sh"]
 [ext_resource type="PackedScene" uid="uid://cwep2mo56dn1d" path="res://UI/MideUI.tscn" id="34_2531s"]
-[ext_resource type="Texture2D" uid="uid://b87b3y544bwm5" path="res://Assets/Images/Meshy_AI__0118084653_texture_0.png" id="34_ipvml"]
+[ext_resource type="Texture2D" uid="uid://dpsrl0uep5vqi" path="res://Assets/Images/Meshy_AI__0118084653_texture_0.png" id="34_ipvml"]
 [ext_resource type="Script" uid="uid://cji63hdi460b1" path="res://Scripts/market.gd" id="34_kt702"]
 [ext_resource type="Script" uid="uid://drbl7e8h0wosy" path="res://Scripts/ItemData.gd" id="35_pl0tg"]
 [ext_resource type="Resource" uid="uid://cfyho847gimqh" path="res://Assets/Models/Items/Dig.tres" id="36_kn6rn"]
 [ext_resource type="Resource" uid="uid://b0i0au8mta6vq" path="res://Assets/Models/Items/Guc.tres" id="37_16a52"]
 [ext_resource type="PackedScene" uid="uid://dcv0s2v1bivcp" path="res://Scenes/tum_masa_sistemi.tscn" id="37_63q5f"]
-[ext_resource type="Texture2D" uid="uid://cb165au7hbhm2" path="res://Assets/Images/shanks.png" id="38_kt702"]
+[ext_resource type="Texture2D" uid="uid://csncggtoxjxmj" path="res://Assets/Images/shanks.png" id="38_kt702"]
 [ext_resource type="Resource" uid="uid://c63kqruteqes4" path="res://Assets/Models/Items/Asit.tres" id="38_sroql"]
-[ext_resource type="Texture2D" uid="uid://doh1kv2f0quxr" path="res://Assets/Images/own.png" id="39_fknsn"]
+[ext_resource type="Texture2D" uid="uid://brmefguklkh5c" path="res://Assets/Images/own.png" id="39_fknsn"]
 [ext_resource type="Resource" uid="uid://6efud2c2cn08" path="res://Assets/Models/Items/Dice.tres" id="39_k4rhs"]
 [ext_resource type="Resource" uid="uid://bao7tm1eas554" path="res://Assets/Models/Items/Time.tres" id="40_uxn7w"]
-[ext_resource type="Texture2D" uid="uid://bpltnjm6hg5a3" path="res://Assets/Images/kese.png" id="41_q0r6j"]
+[ext_resource type="Texture2D" uid="uid://beg6kyaglfr57" path="res://Assets/Images/kese.png" id="41_q0r6j"]
 [ext_resource type="Resource" uid="uid://cv7k5gixcsrnu" path="res://Assets/Models/Items/Cloak.tres" id="41_q606s"]
 [ext_resource type="Resource" uid="uid://bg76liqgpv5x4" path="res://Assets/Models/Items/Fener.tres" id="42_5uvl0"]
 [ext_resource type="Resource" uid="uid://ck3oqbbnnb0ka" path="res://Assets/Models/Items/Kılıc.tres" id="43_krygw"]
@@ -63,29 +63,29 @@
 [ext_resource type="Resource" uid="uid://bifkv4jermqcn" path="res://Assets/Models/Items/Revive.tres" id="48_2531s"]
 [ext_resource type="Resource" uid="uid://damxrk4bt7wq2" path="res://Assets/Models/Items/Mermi_Kutusu.tres" id="49_mrmkb"]
 [ext_resource type="Script" uid="uid://cr3bhd7ohfluw" path="res://Scripts/market_ui.gd" id="56_16a52"]
-[ext_resource type="AudioStream" uid="uid://bj07gxm81b2mx" path="res://Assets/Audio/ErrorSound.mp3" id="57_sroql"]
+[ext_resource type="AudioStream" uid="uid://bd4cupg0y0kqc" path="res://Assets/Audio/ErrorSound.mp3" id="57_sroql"]
 [ext_resource type="Script" uid="uid://ccn3umee5kexm" path="res://Scripts/MasaSpawner.gd" id="59_q606s"]
 [ext_resource type="PackedScene" uid="uid://bafdowoddcpqw" path="res://Scenes/zar.tscn" id="62_q606s"]
-[ext_resource type="PackedScene" uid="uid://dsa6g13w6rclk" path="res://scissor/scene.gltf" id="72_q0w8o"]
+[ext_resource type="PackedScene" uid="uid://dsa6g13w6rclk" path="res://Assets/scissor/scene.gltf" id="72_q0w8o"]
 [ext_resource type="PackedScene" uid="uid://bw4jb6s30gr7a" path="res://heart+in+jar+3d+model.glb" id="75_fptth"]
-[ext_resource type="PackedScene" uid="uid://w1osq4bnl7mj" path="res://round_chain/scene.gltf" id="75_uqw48"]
-[ext_resource type="PackedScene" uid="uid://cudll5gkvl7rf" path="res://antique_table/scene.gltf" id="77_hxxxw"]
+[ext_resource type="PackedScene" uid="uid://w1osq4bnl7mj" path="res://Assets/round_chain/scene.gltf" id="75_uqw48"]
+[ext_resource type="PackedScene" uid="uid://cudll5gkvl7rf" path="res://Assets/antique_table/scene.gltf" id="77_hxxxw"]
 [ext_resource type="PackedScene" uid="uid://bcl1yvjbc55dt" path="res://wooden+golem+3d+model.glb" id="78_q0w8o"]
 [ext_resource type="PackedScene" uid="uid://doepp0gdtdw4t" path="res://fantasy+statue+3d+model.glb" id="79_b7o3i"]
 [ext_resource type="PackedScene" uid="uid://cyxdsivu1s34p" path="res://fantasy+creature+3d+model.glb" id="80_w1heq"]
-[ext_resource type="PackedScene" uid="uid://df5i5fqrqc3av" path="res://kese/scene.gltf" id="81_b7o3i"]
-[ext_resource type="PackedScene" uid="uid://dug3wqkbh4f1l" path="res://bullet_box/scene.gltf" id="82_w1heq"]
-[ext_resource type="PackedScene" uid="uid://ddv50bgy21hgj" path="res://torch/scene.gltf" id="84_elmnc"]
-[ext_resource type="Script" uid="uid://ci7b52idx0w08" path="res://Scripts/BulletBox.gd" id="85"]
+[ext_resource type="PackedScene" uid="uid://df5i5fqrqc3av" path="res://Assets/kese/scene.gltf" id="81_b7o3i"]
+[ext_resource type="PackedScene" uid="uid://dug3wqkbh4f1l" path="res://Assets/bullet_box/scene.gltf" id="82_w1heq"]
+[ext_resource type="PackedScene" uid="uid://ddv50bgy21hgj" path="res://Assets/torch/scene.gltf" id="84_elmnc"]
+[ext_resource type="Script" uid="uid://ccecsal1vryf4" path="res://Scripts/BulletBox.gd" id="85"]
 [ext_resource type="PackedScene" uid="uid://3yhptj5hevxh" path="res://keychain/scene.gltf" id="87_hyugx"]
 [ext_resource type="PackedScene" uid="uid://dnj3w1ekuh78m" path="res://tv/scene.gltf" id="88_dqfbe"]
 [ext_resource type="VideoStream" uid="uid://cwtiydyjp55yl" path="res://tv/anubis.ogv" id="90_t6fha"]
 [ext_resource type="PackedScene" uid="uid://bdjcmjijoleqp" path="res://cable1/scene.gltf" id="91_t6fha"]
 [ext_resource type="PackedScene" uid="uid://dwcvgb3hhjjd2" path="res://cable2/scene.gltf" id="92_fjuk8"]
-[ext_resource type="PackedScene" uid="uid://d3f58iwdkve87" path="res://unlem/scene.gltf" id="93_fjuk8"]
+[ext_resource type="PackedScene" uid="uid://d3f58iwdkve87" path="res://Assets/unlem/scene.gltf" id="93_fjuk8"]
 [ext_resource type="Script" uid="uid://chv25syyjub21" path="res://unlem/unlem.gd" id="94_17n3w"]
 [ext_resource type="Script" uid="uid://chuv2uyii3n14" path="res://Scripts/AcidBoss.gd" id="94_acid"]
-[ext_resource type="PackedScene" uid="uid://cx6msh67nsv5" path="res://acid_boss/AcidBoss_Model.tscn" id="95_acid_model"]
+[ext_resource type="PackedScene" uid="uid://cx6msh67nsv5" path="res://Assets/acid_boss/AcidBoss_Model.tscn" id="95_acid_model"]
 [ext_resource type="Script" uid="uid://ccipx45kolsv8" path="res://Scripts/StoneBoss.gd" id="96_stone"]
 [ext_resource type="PackedScene" uid="uid://d033u0hvel1ax" path="res://stone_boss/StoneBoss_Model.tscn" id="97_stone_model"]
 [ext_resource type="Script" uid="uid://gdt0if15j8al" path="res://animated_gun/scene.gd" id="ag_gd"]
@@ -94,7 +94,6 @@
 [ext_resource type="Script" uid="uid://djwhsfpmo7ghc" path="res://Scripts/bariyer.gd" id="bariyer_gd"]
 [ext_resource type="Script" uid="uid://dkdj47cdxbjql" path="res://Scripts/boss_ui.gd" id="boss_ui_gd"]
 [ext_resource type="Shader" uid="uid://cuhlen0v736t0" path="res://Materials_Shaders/gore_vignette.gdshader" id="gore_shader_sphenks"]
-[ext_resource type="Script" uid="uid://lcig2p1w37xb" path="res://Scripts/Revolver.gd" id="rev_gd"]
 
 [sub_resource type="Environment" id="Environment_jcgda"]
 background_mode = 1
@@ -206,6 +205,9 @@ albedo_texture = ExtResource("7_lxn88")
 uv1_triplanar = true
 uv2_triplanar = true
 texture_filter = 0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_17n3w"]
+size = Vector3(1, 1, 1.8564453)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w1heq"]
 albedo_color = Color(1.1638972, 1.1638972, 1.1638972, 0.39215687)
@@ -771,6 +773,12 @@ e_etkilesimi_devre_disi = true
 [node name="OnYuz" parent="KapiSistemi/Govde" index="0"]
 transform = Transform3D(0.49999988, 0, 0, 0, -1.3113414e-07, -0.49999994, 0, 2.9999993, -2.185569e-08, 0, 0, 0.5767441)
 
+[node name="Area3D" type="Area3D" parent="KapiSistemi/Govde/StaticBody3D" index="1"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="KapiSistemi/Govde/StaticBody3D/Area3D" index="0"]
+transform = Transform3D(0.99999964, 0, 0, 0, 0.99999964, 0, 0, 0, 0.99999744, 0, 0, -0.55711937)
+shape = SubResource("BoxShape3D_17n3w")
+
 [node name="SpotLight3D" type="SpotLight3D" parent="." index="10"]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.31994456, 1.1450957, -5.2922864)
 visible = false
@@ -1125,9 +1133,6 @@ transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -0.0
 fov = 85.4
 
 [node name="OyunArayuzu" parent="." index="19" groups=["Arayuz"] instance=ExtResource("3_4kj0i")]
-script = ExtResource("rev_gd")
-mermi_sahnesi = null
-animasyon_kareleri = Array[Texture2D]([])
 
 [node name="KatmanLabel" type="Label" parent="OyunArayuzu" index="1"]
 visible = false
@@ -1444,6 +1449,9 @@ transform = Transform3D(-0.41106892, -0.20218965, 0.6558521, 0.23123083, -0.7606
 transform = Transform3D(-2.2351742e-08, 0, 0.5, 0, 0.5, 0, -0.5, 0, -2.2351742e-08, 0.48685384, 0.22167766, 0.12805521)
 script = ExtResource("94_17n3w")
 outline_color = Color(1, 0, 0, 1)
+
+[node name="Camera3D" type="Camera3D" parent="." index="32"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.24622649, 1.1421235, -22.333443)
 
 [connection signal="input_event" from="Kedi/Y_Kedi" to="Kedi" method="_on_area_3d_input_event"]
 

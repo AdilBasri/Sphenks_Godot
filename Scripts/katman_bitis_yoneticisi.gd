@@ -8,8 +8,6 @@ var grid_minimum_puan: int = 0
 var grid_mevcut_puan: int = 0
 var blok_sayisi: int = 0
 var boss_hayatta: bool = true
-var revolver_mermi: int = 0
-var shotgun_mermi: int = 0
 var boss_current_hp: int = 0
 
 # --- DURUM TAKİBİ ---
@@ -24,8 +22,6 @@ func _setup_initial_values():
 	if GameManager:
 		grid_minimum_puan = GameManager.hedef_puan
 		grid_mevcut_puan = GameManager.suanki_puan
-		revolver_mermi = GameManager.mermi_sayisi
-		shotgun_mermi = GameManager.shotgun_mermi_count
 		boss_current_hp = _get_active_boss_hp()
 		boss_hayatta = boss_current_hp > 0
 		
@@ -35,8 +31,6 @@ func _setup_initial_values():
 
 func _connect_signals():
 	if GameManager:
-		GameManager.mermi_degisti.connect(_on_revolver_mermi_degisti)
-		GameManager.shotgun_mermi_degisti.connect(_on_shotgun_mermi_degisti)
 		GameManager.puan_degisti.connect(_on_puan_degisti)
 		GameManager.boss_hp_degisti.connect(_on_boss_hp_degisti)
 		GameManager.boss_oldu.connect(_on_boss_oldu_sinyali)
@@ -64,14 +58,6 @@ func verileri_guncelle(puan: int, bloklar: int, b_hayatta: bool, b_hp: int):
 	
 	_kontrol_et()
 
-func _on_revolver_mermi_degisti(count: int):
-	revolver_mermi = count
-	_kontrol_et()
-
-func _on_shotgun_mermi_degisti(count: int):
-	shotgun_mermi = count
-	_kontrol_et()
-
 func _on_puan_degisti(puan: int):
 	grid_mevcut_puan = puan
 	_kontrol_et()
@@ -80,7 +66,7 @@ func _on_blok_sayisi_degisti(toplam: int):
 	blok_sayisi = toplam
 	_kontrol_et()
 
-func _on_boss_hp_degisti(_tip, hp: int):
+func _on_boss_hp_degisti(_tip, _hp: int):
 	boss_current_hp = _get_active_boss_hp() # Tekrar hesapla çünkü birden fazla boss olabilir
 	boss_hayatta = boss_current_hp > 0
 	_kontrol_et()
@@ -132,13 +118,8 @@ func _kontrol_et():
 		_senaryo_uygula(3)
 		return
 
-	# SENARYO 4: Grid tamam, bloklar bitti, boss hayatta, mermi var
-	if grid_mevcut_puan >= grid_minimum_puan and blok_sayisi == 0 and boss_hayatta and (revolver_mermi + shotgun_mermi) > 0:
-		_senaryo_uygula(4)
-		return
-
-	# SENARYO 5: Grid tamam, bloklar bitti, boss hayatta, mermi yetersiz
-	if grid_mevcut_puan >= grid_minimum_puan and blok_sayisi == 0 and boss_hayatta and (revolver_mermi + shotgun_mermi) < boss_current_hp:
+	# SENARYO 5: Grid tamam, bloklar bitti, boss hayatta
+	if grid_mevcut_puan >= grid_minimum_puan and blok_sayisi == 0 and boss_hayatta:
 		_senaryo_uygula(5)
 		return
 
@@ -172,12 +153,8 @@ func _senaryo_uygula(id: int):
 				call("kapi_ac")
 			# Masa devam eder (Bloklar bitince kapanır logic'i BlokDagiticisi'nda)
 		4:
-			# Puan tamam, blok bitti, boss hayatta, mermi VAR
-			_aktif_senaryo = 4 # Tekrar etmesin ama bitis_tetiklendi değil (hala boss ölebilir)
-			
-			var arayuz = get_tree().get_first_node_in_group("Arayuz")
-			if arayuz and arayuz.has_method("bilgi_goster"):
-				arayuz.bilgi_goster(DilYoneticisi.metin_al("kill_boss_with_weapon") if DilYoneticisi else "Silahını çek ve boss'u öldür!")
+			# Kaldırıldı (Silah fazımız yok)
+			pass
 		5:
 			# Puan tamam, blok bitti, boss hayatta, mermi YOK
 			_bitis_tetiklendi = true
